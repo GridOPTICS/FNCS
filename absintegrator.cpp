@@ -30,11 +30,50 @@
 
 namespace sim_comm{
 
-  static time_metric AbsIntegrator::simTimeMetric = UNKNOWN;
+  static AbsIntegrator* AbsIntegrator::instance=NULL;
+  
+AbsIntegrator::AbsIntegrator(int rank, time_metric simTimeStep, int numberOfCommNodes, TIME gracePeriod)
+{
+  this->rank=rank;
+  this->simTimeMetric=simTimeStep;
+  this->numberOfCommNodes=numberOfCommNodes;
+  this->gracePreiod=gracePeriod;
+}
+
+static void AbsIntegrator::initIntegrator(int rank, time_metric simTimeStep, int numberOfCommNodes, TIME gracePeriod)
+{
+  instance=new AbsIntegrator(rank,simTimeStep,numberOfCommNodes,gracePeriod);
+}
+
+
+static TIME AbsIntegrator::getGracePreiod()
+{
+  return instance->gracePreiod;
+}
+
+void AbsIntegrator::setTimeCallBack(CallBack* t)
+{
+  this->getTimeCallBack=t;
+}
+
+
+TIME AbsIntegrator::getAdjustedGracePeriod()
+{
+  return convertToMyTime(this->simTimeMetric,instance->gracePeriod);
+}
+
+TIME AbsIntegrator::getCurSimeTime()
+{
+  TIME t=(*(instance->getTimeCallBack))();
+  
+  return convertToFrameworkTime(instance->simTimeMetric,t);
+}
+
   
 static time_metric AbsIntegrator::getCurSimMetric()
 {
   return AbsIntegrator::simTimeMetric;
 }
+
 
 }

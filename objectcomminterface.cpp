@@ -27,12 +27,14 @@
 
 
 #include "objectcomminterface.h"
+#include "../../../llvm-3.2.src/lib/Target/Mips/Mips16InstrFormats.td"
 
 namespace sim_comm{
 
 ObjectCommInterface::ObjectCommInterface(string objectName)
 {
   this->attachedObjectName=objectName;
+  this->nextMessage=NULL;
 
 }
 
@@ -54,12 +56,93 @@ int ObjectCommInterface::getInboxMessagesCount()
   //we can write a better one!
   
   TIME currentTime=AbsIntegrator::getCurSimeTime();
+  TIME graceTime=currentTime- AbsIntegrator::getGracePreiod();
+  
+  int toReturn=0;
+  for(int i=0;i<inbox.size();i++){
+  
+    AbsMessage *msg=inbox[i];
+    if(msg->getTime()<=currentTime && msg->getTime()>graceTime)
+      toReturn++;
+  }
+  
+  return toReturn;
+}
+
+std::vector< AbsMessage* > ObjectCommInterface::getAllInboxMessages()
+{
+  TIME currentTime=AbsIntegrator::getCurSimeTime();
+  TIME graceTime=currentTime- AbsIntegrator::getGracePreiod();
+  
+  vector<AbsMessage *> toReturn;
+  
+  vector<int> locs;
   
   for(int i=0;i<inbox.size();i++){
   
     AbsMessage *msg=inbox[i];
-   // if(msg->getTime()==cu
+    if(msg->getTime()<=currentTime && msg->getTime()>=graceTime){
+      locs.push_back(i);
+      toReturn.push_back(msg);
+    }
   }
+  
+  for(int i=0;i<locs.size();i++){
+  
+    inbox.erase(inbox.begin()+locs[i]);
+  }
+  
+  return toReturn;
+}
+
+
+bool ObjectCommInterface::hasMoreMessages()
+{
+  if(this->msgs.size()==0){ //find the locations of the messages to return
+    TIME currentTime=AbsIntegrator::getCurSimeTime();
+    TIME graceTime=currentTime- AbsIntegrator::getGracePreiod();
+      //this->msgs.clear();
+     for(int i=0;i<inbox.size();i++){
+  
+	AbsMessage *msg=inbox[i];
+	if(msg->getTime()<=currentTime && msg->getTime()>=graceTime){
+	      this->msgs.push_back(i);
+     
+	}
+     }
+     this->it=msgs.begin();//safety!
+     return true;
+  }
+  else{
+    if(this->it==this->msgs.end()){ //no more messages to return
+	 for(int i=0;i<msgs.size();i++){
+
+	    inbox.erase(inbox.begin()+msgs[i]);
+	}
+	msgs.clear();
+	this->it=msgs.begin();
+	return false;
+    }
+    else{
+      ++this->it;
+      return true;
+    }
+  }
+}
+
+AbsMessage* ObjectCommInterface::getNextInboxMessage()
+{
+  return this->inbox[*it];
+}
+
+void ObjectCommInterface::newMessage(AbsMessage* given)
+{
+  this->outbox.push_back(given);
+}
+
+std::vector< AbsMessage* > ObjectCommInterface::getOutBox()
+{
+   //outbox implementation
 }
 
 

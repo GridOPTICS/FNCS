@@ -28,7 +28,8 @@
 
 #ifndef ABSINTEGRATOR_H
 #define ABSINTEGRATOR_H
-#include "utils/time.h"
+#include "util/time.h"
+#include "util/callback.h"
 //#include "objectcomminterface.h"
 #include <string>
 
@@ -45,18 +46,31 @@ private:
   int numberOfCommNodes;
   int rank;
   TIME gracePreiod;
-public:
+  CallBack* getTimeCallBack;
   AbsIntegrator(int rank,time_metric simTimeStep,int numberOfCommNodes, TIME gracePeriod);
+  static AbsIntegrator* instance;
+public:
+
   virtual TIME GetNextTime(TIME currentTime,TIME nextTime) =0;
   virtual bool doDispatchNextEvent(TIME currentTime,TIME nextTime) =0;
   static ObjectCommInterface *getCommInterface(string objectName);
   static ObjectCommInterface *getCommInterface(char *objectName);
   static int getRank();
   static int getNumberOfCommNodes();
+  /* Returns the simulator adjusted grace period
+   */
   static TIME getAdjustedGracePeriod();
+  /* Returns the grace period in framework time
+   */
   static TIME getGracePreiod();
   static time_metric getCurSimMetric();
+  /* Returns current simulator time in framework adjusted format
+   */
   static TIME getCurSimeTime();
+  static void initIntegrator(int rank,time_metric simTimeStep,int numberOfCommNodes, TIME gracePeriod);
+  /*sets simulator callback that returns time
+   */
+  static void setTimeCallBack(CallBack *t);
 };
 
 }

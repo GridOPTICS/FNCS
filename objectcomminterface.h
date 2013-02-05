@@ -32,7 +32,7 @@
 #include <string>
 #include "absintegrator.h"
 
-#include "utils/time.h"
+#include "util/time.h"
 #include "absmessage.h"
 #include <vector>
 
@@ -50,7 +50,11 @@ class ObjectCommInterface
     ObjectCommInterface(string objectName);
     void newMessage(AbsMessage* given);
     vector<AbsMessage*> getOutBox();
+    //AbsMessage *nextMessage;
+    vector<int> msgs;
+    vector<int>::iterator it;
     void clear();
+    
 public:
   /*Returns the number of messages the ibject has for the current time*/
   int getInboxMessagesCount();
@@ -59,7 +63,7 @@ public:
   /*Returns the number a message for the current time 
    * The returned pointer is owned by the client, the framework does not delte it.
    */
-  AbsMessage* getInboxMessage();
+  AbsMessage* getNextInboxMessage();
   /*Returns all messages the object received for the current time frame.
    * The returned pointer is owned by the client, the framework does noit delete them
    */
