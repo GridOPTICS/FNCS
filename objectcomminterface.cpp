@@ -24,7 +24,7 @@
     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
+#include "config.h"
 
 #include "objectcomminterface.h"
 #include "../../../llvm-3.2.src/lib/Target/Mips/Mips16InstrFormats.td"

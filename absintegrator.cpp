@@ -24,13 +24,13 @@
     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
+#include "config.h"
 
 #include "absintegrator.h"
 
 namespace sim_comm{
 
-  static AbsIntegrator* AbsIntegrator::instance=NULL;
+AbsIntegrator* AbsIntegrator::instance=NULL;
   
 AbsIntegrator::AbsIntegrator(int rank, time_metric simTimeStep, int numberOfCommNodes, TIME gracePeriod)
 {
@@ -40,13 +40,13 @@ AbsIntegrator::AbsIntegrator(int rank, time_metric simTimeStep, int numberOfComm
   this->gracePreiod=gracePeriod;
 }
 
-static void AbsIntegrator::initIntegrator(int rank, time_metric simTimeStep, int numberOfCommNodes, TIME gracePeriod)
+void AbsIntegrator::initIntegrator(int rank, time_metric simTimeStep, int numberOfCommNodes, TIME gracePeriod)
 {
   instance=new AbsIntegrator(rank,simTimeStep,numberOfCommNodes,gracePeriod);
 }
 
 
-static TIME AbsIntegrator::getGracePreiod()
+TIME AbsIntegrator::getGracePreiod()
 {
   return instance->gracePreiod;
 }
@@ -70,7 +70,7 @@ TIME AbsIntegrator::getCurSimeTime()
 }
 
   
-static time_metric AbsIntegrator::getCurSimMetric()
+time_metric AbsIntegrator::getCurSimMetric()
 {
   return AbsIntegrator::simTimeMetric;
 }

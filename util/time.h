@@ -1,7 +1,12 @@
 #ifndef TIME_H
 #define TIME_H
 
-#include <cstdint>
+/** @TODO: public headers shouldn't using preprocessor conditionals */
+#if HAVE_CSTDINT
+#   include <cstdint>
+#else
+#   include <stdint.h>
+#endif
 #include <iostream>
 #include <exception>
 

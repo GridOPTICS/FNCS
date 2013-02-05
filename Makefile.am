@@ -1,0 +1,37 @@
+ACLOCAL_AMFLAGS = -I m4
+
+include_HEADERS =
+lib_LTLIBRARIES =
+bin_PROGRAMS =
+check_PROGRAMS =
+EXTRA_DIST = README
+AM_CXXFLAGS =
+AM_CPPFLAGS =
+AM_LDFLAGS =
+LDADD =
+
+AM_CPPFLAGS += $(MPI_CPPFLAGS)
+AM_CPPFLAGS += -I$(top_srcdir)/util
+
+AM_LDFLAGS += $(MPI_LDFLAGS)
+
+AM_LDFLAGS += $(MPI_LDFLAGS)
+
+LDADD += libfncs_api.la
+LDADD += $(MPI_LIBS)
+
+include_HEADERS += absintegrator.h
+include_HEADERS += absmessage.h
+include_HEADERS += objectcomminterface.h
+include_HEADERS += util/callback.h
+include_HEADERS += util/time.h
+
+lib_LTLIBRARIES += libfncs_api.la
+libfncs_api_la_SOURCES =
+libfncs_api_la_SOURCES += absintegrator.cpp
+libfncs_api_la_SOURCES += absmessage.cpp
+libfncs_api_la_SOURCES += objectcomminterface.cpp
+libfncs_api_la_SOURCES += util/time.cpp
+
+check_PROGRAMS += tests/sanity
+tests_sanity_SOURCES = tests/sanity.cpp

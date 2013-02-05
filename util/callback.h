@@ -42,7 +42,7 @@ public:
 template<typename R, typename T1,  typename T2, typename T3>
 class CallBack : public CallBackPtr{
 public:
-  virtual ~SerPPAbsSerializationFunction(){};
+  virtual ~CallBack(){};
   virtual R operator()() =0;
   virtual R operator()(T1 a) =0;
   virtual R operator()(T1 a,T2 b) =0;
@@ -55,7 +55,7 @@ class CallBackNoParam : public CallBack<R,T1,T2,T3>{
     private:
       T ptrToRealFunction;
 public:
-    CallBackOneParam(T const &ptrToFunction){
+    CallBackNoParam(T const &ptrToFunction){
       this->ptrToRealFunction = ptrToFunction;
     };
     
@@ -272,7 +272,7 @@ public:
     };
 };
 
-template<typename R, typename T1, typename T2=empty, typename T3>
+template<typename R, typename T1, typename T2, typename T3>
 class CallBackThreeParamImpl : public CallBack<R,T1,T2,T3>{
 
     private:
@@ -306,22 +306,22 @@ public:
 };
 
 template <typename R>
-Callback<R, empty, empty, empty>* CreateCallback (R (*fnPtr)()) {
+CallBack<R, empty, empty, empty>* CreateCallback (R (*fnPtr)()) {
   return new CallBackNoParamImpl<R, empty,empty,empty>(fnPtr);
 }
 
 template <typename R, typename T1>
-Callback<R, T1, empty, empty>* CreateCallback (R (*fnPtr)(T1)) {
+CallBack<R, T1, empty, empty>* CreateCallback (R (*fnPtr)(T1)) {
   return new CallBackOneParamImpl<R, T1,empty,empty>(fnPtr);
 }
 
 template <typename R, typename T1,typename T2>
-Callback<R, T1, T2,empty>* CreateCallback (R (*fnPtr)(T1, T2)) {
+CallBack<R, T1, T2,empty>* CreateCallback (R (*fnPtr)(T1, T2)) {
   return new CallBackTwoParamImpl<R, T1, T2,empty>(fnPtr);
 }
 
 template <typename R, typename T1,typename T2,typename T3>
-Callback<R, T1, T2,T3>* CreateCallback (R (*fnPtr)(T1, T2, T3)) {
+CallBack<R, T1, T2,T3>* CreateCallback (R (*fnPtr)(T1, T2, T3)) {
   return new CallBackThreeParamImpl<R, T1, T2,T3>(fnPtr);
 }
 
