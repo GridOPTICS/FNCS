@@ -30,7 +30,7 @@
 #define ABSMESSAGE_H
 #include <string>
 #include <cstdint>
-#include "utils/time.h"
+#include "util/time.h"
 #include "absintegrator.h"
 
 using namespace std;
