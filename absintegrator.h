@@ -32,7 +32,7 @@
 #include "util/callback.h"
 //#include "objectcomminterface.h"
 #include <string>
-
+#include "abscomminterface.h"
 
 using namespace std;
 namespace sim_comm{
@@ -44,10 +44,10 @@ class AbsIntegrator
 private:
   time_metric simTimeMetric;
   int numberOfCommNodes;
-  int rank;
+  AbsCommInterface *currentInterface;
   TIME gracePreiod;
-  CallBack* getTimeCallBack;
-  AbsIntegrator(int rank,time_metric simTimeStep,int numberOfCommNodes, TIME gracePeriod);
+  CallBack<TIME,empty,empty,empty>* getTimeCallBack;
+  AbsIntegrator(AbsCommInterface *currentInterface,time_metric simTimeStep,int numberOfCommNodes, TIME gracePeriod);
   static AbsIntegrator* instance;
 public:
 
@@ -67,7 +67,7 @@ public:
   /* Returns current simulator time in framework adjusted format
    */
   static TIME getCurSimeTime();
-  static void initIntegrator(int rank,time_metric simTimeStep,int numberOfCommNodes, TIME gracePeriod);
+  static void initIntegrator(AbsCommInterface *currentInterface,time_metric simTimeStep,int numberOfCommNodes, TIME gracePeriod);
   /*sets simulator callback that returns time
    */
   static void setTimeCallBack(CallBack *t);

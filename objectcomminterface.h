@@ -39,11 +39,15 @@
 using namespace std;
 
 namespace sim_comm{
+
+class AbsCommInterface;
   /*This class provides the send/receive message interface for objects that want to communicate with other object through comm simm
    */
 class ObjectCommInterface
 {
   friend class AbsIntegrator;
+  friend class AbsCommInterface;
+  
   private:
     string attachedObjectName;
     vector<AbsMessage*> inbox,outbox;
@@ -54,7 +58,7 @@ class ObjectCommInterface
     vector<int> msgs;
     vector<int>::iterator it;
     void clear();
-    
+    uint32_t objectRank;
 public:
   /*Returns the number of messages the ibject has for the current time*/
   int getInboxMessagesCount();
@@ -72,6 +76,13 @@ public:
    * 
    */
   void send(AbsMessage *given);
+  /* Returns the rank of the object
+   * Objects rank determines the remote simulator it can talk to!
+   */
+  uint32_t getMyRank(){
+  
+    return objectRank;
+  }
   ~ObjectCommInterface();
 };
 

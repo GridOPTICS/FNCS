@@ -27,6 +27,7 @@
 #include "config.h"
 
 #include "absintegrator.h"
+#include "../../../llvm-3.2.src/test/TableGen/SuperSubclassSameName.td"
 
 namespace sim_comm{
 
@@ -40,9 +41,9 @@ AbsIntegrator::AbsIntegrator(int rank, time_metric simTimeStep, int numberOfComm
   this->gracePreiod=gracePeriod;
 }
 
-void AbsIntegrator::initIntegrator(int rank, time_metric simTimeStep, int numberOfCommNodes, TIME gracePeriod)
+void AbsIntegrator::initIntegrator(AbsCommInterface *currentInterface, time_metric simTimeStep, int numberOfCommNodes, TIME gracePeriod)
 {
-  instance=new AbsIntegrator(rank,simTimeStep,numberOfCommNodes,gracePeriod);
+  instance=new AbsIntegrator(currentInterface,simTimeStep,numberOfCommNodes,gracePeriod);
 }
 
 
@@ -51,7 +52,7 @@ TIME AbsIntegrator::getGracePreiod()
   return instance->gracePreiod;
 }
 
-void AbsIntegrator::setTimeCallBack(CallBack* t)
+void AbsIntegrator::setTimeCallBack(CallBack<TIME,empty,empty,empty>* t)
 {
   this->getTimeCallBack=t;
 }
@@ -59,7 +60,7 @@ void AbsIntegrator::setTimeCallBack(CallBack* t)
 
 TIME AbsIntegrator::getAdjustedGracePeriod()
 {
-  return convertToMyTime(this->simTimeMetric,instance->gracePeriod);
+  return convertToMyTime(instance->simTimeMetric,instance->gracePreiod);
 }
 
 TIME AbsIntegrator::getCurSimeTime()
@@ -72,8 +73,27 @@ TIME AbsIntegrator::getCurSimeTime()
   
 time_metric AbsIntegrator::getCurSimMetric()
 {
-  return AbsIntegrator::simTimeMetric;
+  return instance->simTimeMetric;
 }
 
+ObjectCommInterface* AbsIntegrator::getCommInterface(string objectName)
+{
+  thi 
+}
+
+int AbsIntegrator::getRank()
+{
+  return instance->currentInterface->getMyRank();
+}
+
+ObjectCommInterface* AbsIntegrator::getCommInterface(char* objectName)
+{
+
+}
+
+int AbsIntegrator::getNumberOfCommNodes()
+{
+  return instance->numberOfCommNodes;
+}
 
 }
