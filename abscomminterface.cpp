@@ -53,7 +53,7 @@ void AbsCommInterface::addObjectInterface(string objectName, ObjectCommInterface
 
 void AbsCommInterface::startReceiver()
 {
- //implement
+  this->receiverRunning=true;
 }
 
 void AbsCommInterface::stopReceiver()

@@ -22,6 +22,7 @@ LDADD += $(MPI_LIBS)
 include_HEADERS += abscomminterface.h
 include_HEADERS += absmessage.h
 include_HEADERS += integrator.h
+include_HEADERS += mpicomminterface.h
 include_HEADERS += objectcomminterface.h
 include_HEADERS += util/callback.h
 include_HEADERS += util/time.h
@@ -31,6 +32,7 @@ libfncs_api_la_SOURCES =
 libfncs_api_la_SOURCES += abscomminterface.cpp
 libfncs_api_la_SOURCES += absmessage.cpp
 libfncs_api_la_SOURCES += integrator.cpp
+libfncs_api_la_SOURCES += mpicomminterface.cpp
 libfncs_api_la_SOURCES += objectcomminterface.cpp
 libfncs_api_la_SOURCES += util/time.cpp
 

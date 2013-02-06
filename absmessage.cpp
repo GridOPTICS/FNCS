@@ -27,24 +27,25 @@
 #include "config.h"
 
 #include "absmessage.h"
+#include "util/time.h"
 
 
 namespace sim_comm{
   
-/*static*/ string AbsMessage::DESTIONATION_BCAST("*");
+string AbsMessage::DESTIONATION_BCAST("*");
 
 AbsMessage::AbsMessage(string from, string to,TIME timeStamp)
 {
   this->from=from;
   this->to=to;
-  this->timeStamp=convertToFrameworkTime(AbsIntegrator::getCurSimMetric(),timeStamp);
+  this->timeStamp=convertToFrameworkTime(Integrator::getCurSimMetric(),timeStamp);
 }
  
 AbsMessage::AbsMessage(char* from, char* to,TIME timeStamp)
 {
-  this->from=new string(from);
-  this->to=new string(to);
-  this->timeStamp=convertToFrameworkTime(AbsIntegrator::getCurSimMetric(),timeStamp);
+  this->from=string(from);
+  this->to=string(to);
+  this->timeStamp=convertToFrameworkTime(Integrator::getCurSimMetric(),timeStamp);
 }
  
 AbsMessage::AbsMessage(const AbsMessage& other)
@@ -59,7 +60,7 @@ AbsMessage::AbsMessage(uint8_t* given)
   this->deserialize(given);
 }
 
-virtual AbsMessage::~AbsMessage(){
+AbsMessage::~AbsMessage(){
 }
   
 bool AbsMessage::isBroadCast(){
@@ -70,8 +71,8 @@ bool AbsMessage::isBroadCast(){
 
 TIME AbsMessage::getAdjustedTime()
 {
-  time_metric mySimMetric=AbsIntegrator::getCurSimMetric();
-  return convertToMyTime(mySimMetric,this->timeStamp)
+  time_metric mySimMetric=Integrator::getCurSimMetric();
+  return convertToMyTime(mySimMetric,this->timeStamp);
 }
 
 }
