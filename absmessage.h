@@ -31,7 +31,7 @@
 #include <string>
 #include <cstdint>
 #include "util/time.h"
-#include "absintegrator.h"
+#include "integrator.h"
 
 using namespace std;
 namespace sim_comm{

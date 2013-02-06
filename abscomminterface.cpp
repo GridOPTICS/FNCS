@@ -27,7 +27,7 @@
 
 
 #include "abscomminterface.h"
-#include "absintegrator.h"
+#include "integrator.h"
 
 namespace sim_comm{
 AbsCommInterface::AbsCommInterface(uint32_t myRank)
@@ -76,7 +76,7 @@ void AbsCommInterface::sendAll()
 	    this->realSendMessage(outmessges[i]);
 	    if(outmessges[i]->isBroadCast()){
 	    
-	      sendCount+=AbsIntegrator::getNumberOfCommNodes();
+	      sendCount+=Integrator::getNumberOfCommNodes();
 	    }
 	    else{
 	    
