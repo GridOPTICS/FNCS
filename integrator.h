@@ -40,7 +40,7 @@ namespace sim_comm{
   class ObjectCommInterface;
   class AbsCommInterface;
   
-class AbsIntegrator
+class Integrator
 {
 private:
   time_metric simTimeMetric;
@@ -52,8 +52,8 @@ private:
   static AbsIntegrator* instance;
 public:
 
-  virtual TIME GetNextTime(TIME currentTime,TIME nextTime) =0;
-  virtual bool doDispatchNextEvent(TIME currentTime,TIME nextTime) =0;
+  virtual TIME GetNextTime(TIME currentTime,TIME nextTime);
+  virtual bool doDispatchNextEvent(TIME currentTime,TIME nextTime);
   static ObjectCommInterface *getCommInterface(string objectName);
   static ObjectCommInterface *getCommInterface(char *objectName);
   static int getRank();

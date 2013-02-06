@@ -26,14 +26,14 @@
 */
 #include "config.h"
 
-#include "absintegrator.h"
+#include "integrator.h"
 
 
 namespace sim_comm{
 
-AbsIntegrator* AbsIntegrator::instance=NULL;
+Integrator* Integrator::instance=NULL;
   
-AbsIntegrator::AbsIntegrator(AbsCommInterface *currentInterface, time_metric simTimeStep, int numberOfCommNodes, TIME gracePeriod)
+Integrator::Integrator(AbsCommInterface *currentInterface, time_metric simTimeStep, int numberOfCommNodes, TIME gracePeriod)
 {
   this->currentInterface=currentInterface;
   this->simTimeMetric=simTimeStep;
@@ -41,29 +41,29 @@ AbsIntegrator::AbsIntegrator(AbsCommInterface *currentInterface, time_metric sim
   this->gracePreiod=gracePeriod;
 }
 
-void AbsIntegrator::initIntegrator(AbsCommInterface *currentInterface, time_metric simTimeStep, int numberOfCommNodes, TIME gracePeriod)
+void Integrator::initIntegrator(AbsCommInterface *currentInterface, time_metric simTimeStep, int numberOfCommNodes, TIME gracePeriod)
 {
-  instance=new AbsIntegrator(currentInterface,simTimeStep,numberOfCommNodes,gracePeriod);
+  instance=new Integrator(currentInterface,simTimeStep,numberOfCommNodes,gracePeriod);
 }
 
 
-TIME AbsIntegrator::getGracePreiod()
+TIME Integrator::getGracePreiod()
 {
   return instance->gracePreiod;
 }
 
-void AbsIntegrator::setTimeCallBack(CallBack<TIME,empty,empty,empty>* t)
+void Integrator::setTimeCallBack(CallBack<TIME,empty,empty,empty>* t)
 {
   this->getTimeCallBack=t;
 }
 
 
-TIME AbsIntegrator::getAdjustedGracePeriod()
+TIME Integrator::getAdjustedGracePeriod()
 {
   return convertToMyTime(instance->simTimeMetric,instance->gracePreiod);
 }
 
-TIME AbsIntegrator::getCurSimeTime()
+TIME Integrator::getCurSimeTime()
 {
   TIME t=(*(instance->getTimeCallBack))();
   
@@ -71,27 +71,27 @@ TIME AbsIntegrator::getCurSimeTime()
 }
 
   
-time_metric AbsIntegrator::getCurSimMetric()
+time_metric Integrator::getCurSimMetric()
 {
   return instance->simTimeMetric;
 }
 
-ObjectCommInterface* AbsIntegrator::getCommInterface(string objectName)
+ObjectCommInterface* Integrator::getCommInterface(string objectName)
 {
   instance->currentInterface->addObjectInterface(obj); 
 }
 
-int AbsIntegrator::getRank()
+int Integrator::getRank()
 {
   return instance->currentInterface->getMyRank();
 }
 
-ObjectCommInterface* AbsIntegrator::getCommInterface(char* objectName)
+ObjectCommInterface* Integrator::getCommInterface(char* objectName)
 {
 
 }
 
-int AbsIntegrator::getNumberOfCommNodes()
+int Integrator::getNumberOfCommNodes()
 {
   return instance->numberOfCommNodes;
 }

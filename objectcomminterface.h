@@ -30,7 +30,7 @@
 #define OBJECTCOMMINTERFACE_H
 
 #include <string>
-#include "absintegrator.h"
+#include "integrator.h"
 
 #include "util/time.h"
 #include "absmessage.h"
