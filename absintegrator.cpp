@@ -27,15 +27,15 @@
 #include "config.h"
 
 #include "absintegrator.h"
-#include "../../../llvm-3.2.src/test/TableGen/SuperSubclassSameName.td"
+
 
 namespace sim_comm{
 
 AbsIntegrator* AbsIntegrator::instance=NULL;
   
-AbsIntegrator::AbsIntegrator(int rank, time_metric simTimeStep, int numberOfCommNodes, TIME gracePeriod)
+AbsIntegrator::AbsIntegrator(AbsCommInterface *currentInterface, time_metric simTimeStep, int numberOfCommNodes, TIME gracePeriod)
 {
-  this->rank=rank;
+  this->currentInterface=currentInterface;
   this->simTimeMetric=simTimeStep;
   this->numberOfCommNodes=numberOfCommNodes;
   this->gracePreiod=gracePeriod;
@@ -78,7 +78,7 @@ time_metric AbsIntegrator::getCurSimMetric()
 
 ObjectCommInterface* AbsIntegrator::getCommInterface(string objectName)
 {
-  thi 
+  instance->currentInterface->addObjectInterface(obj); 
 }
 
 int AbsIntegrator::getRank()

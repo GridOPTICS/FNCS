@@ -27,14 +27,12 @@
 #include "config.h"
 
 #include "objectcomminterface.h"
-#include "../../../llvm-3.2.src/lib/Target/Mips/Mips16InstrFormats.td"
 
 namespace sim_comm{
 
 ObjectCommInterface::ObjectCommInterface(string objectName)
 {
   this->attachedObjectName=objectName;
-  this->nextMessage=NULL;
 
 }
 

@@ -32,12 +32,13 @@
 #include "util/callback.h"
 //#include "objectcomminterface.h"
 #include <string>
-#include "abscomminterface.h"
+//#include "abscomminterface.h"
 
 using namespace std;
 namespace sim_comm{
 
   class ObjectCommInterface;
+  class AbsCommInterface;
   
 class AbsIntegrator
 {
@@ -70,7 +71,7 @@ public:
   static void initIntegrator(AbsCommInterface *currentInterface,time_metric simTimeStep,int numberOfCommNodes, TIME gracePeriod);
   /*sets simulator callback that returns time
    */
-  static void setTimeCallBack(CallBack *t);
+  static void setTimeCallBack(CallBack<TIME,empty,empty,empty> *t);
 };
 
 }
