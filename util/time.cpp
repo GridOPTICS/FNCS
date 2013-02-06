@@ -30,7 +30,7 @@
 
 namespace sim_comm{
 
-   inline TIME convertToMyTime(time_metric myTimeStep,TIME frameworkTime){
+   TIME convertToMyTime(time_metric myTimeStep,TIME frameworkTime){
     
     switch (myTimeStep){
       case SECONDS:
@@ -45,7 +45,7 @@ namespace sim_comm{
     
   }
   
-  inline TIME convertToFrameworkTime(time_metric myTimeStep,TIME current_time){
+  TIME convertToFrameworkTime(time_metric myTimeStep,TIME current_time){
   
     switch (myTimeStep){
       case SECONDS:

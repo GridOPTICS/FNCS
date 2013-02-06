@@ -42,8 +42,8 @@ namespace sim_comm{
   
   typedef uint64_t TIME;
   
-  inline TIME convertToMyTime(time_metric myTimeStep,TIME frameworkTime);
-  inline TIME convertToFrameworkTime(time_metric myTimeStep,TIME current_time);
+  TIME convertToMyTime(time_metric myTimeStep,TIME frameworkTime);
+  TIME convertToFrameworkTime(time_metric myTimeStep,TIME current_time);
 }
 
 #endif

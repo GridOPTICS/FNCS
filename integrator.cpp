@@ -27,7 +27,7 @@
 #include "config.h"
 
 #include "integrator.h"
-
+#include "abscomminterface.h"
 
 namespace sim_comm{
 
@@ -54,7 +54,7 @@ TIME Integrator::getGracePreiod()
 
 void Integrator::setTimeCallBack(CallBack<TIME,empty,empty,empty>* t)
 {
-  this->getTimeCallBack=t;
+  instance->getTimeCallBack=t;
 }
 
 
@@ -78,7 +78,10 @@ time_metric Integrator::getCurSimMetric()
 
 ObjectCommInterface* Integrator::getCommInterface(string objectName)
 {
-  instance->currentInterface->addObjectInterface(obj); 
+  ObjectCommInterface *toReturn=new ObjectCommInterface(objectName);
+  instance->currentInterface->addObjectInterface(objectName,toReturn);
+  
+  return toReturn;
 }
 
 int Integrator::getRank()

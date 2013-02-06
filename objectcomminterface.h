@@ -45,7 +45,7 @@ class AbsCommInterface;
    */
 class ObjectCommInterface
 {
-  friend class AbsIntegrator;
+  friend class Integrator;
   friend class AbsCommInterface;
   
   private:
