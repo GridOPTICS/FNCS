@@ -122,8 +122,8 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" \
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libfncs_api_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
-am_libfncs_api_la_OBJECTS = absintegrator.lo absmessage.lo \
-	objectcomminterface.lo util/time.lo
+am_libfncs_api_la_OBJECTS = abscomminterface.lo absmessage.lo \
+	integrator.lo objectcomminterface.lo util/time.lo
 libfncs_api_la_OBJECTS = $(am_libfncs_api_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -342,16 +342,16 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
-include_HEADERS = absintegrator.h absmessage.h objectcomminterface.h \
-	util/callback.h util/time.h
+include_HEADERS = abscomminterface.h absmessage.h integrator.h \
+	objectcomminterface.h util/callback.h util/time.h
 lib_LTLIBRARIES = libfncs_api.la
 EXTRA_DIST = README
 AM_CXXFLAGS = 
-AM_CPPFLAGS = $(MPI_CPPFLAGS) -I$(top_srcdir)/util
+AM_CPPFLAGS = $(MPI_CPPFLAGS)
 AM_LDFLAGS = $(MPI_LDFLAGS) $(MPI_LDFLAGS)
 LDADD = libfncs_api.la $(MPI_LIBS)
-libfncs_api_la_SOURCES = absintegrator.cpp absmessage.cpp \
-	objectcomminterface.cpp util/time.cpp
+libfncs_api_la_SOURCES = abscomminterface.cpp absmessage.cpp \
+	integrator.cpp objectcomminterface.cpp util/time.cpp
 tests_sanity_SOURCES = tests/sanity.cpp
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
@@ -530,8 +530,9 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/absintegrator.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/abscomminterface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/absmessage.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/integrator.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/objectcomminterface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/sanity.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@util/$(DEPDIR)/time.Plo@am__quote@

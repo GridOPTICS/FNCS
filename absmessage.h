@@ -29,7 +29,7 @@
 #ifndef ABSMESSAGE_H
 #define ABSMESSAGE_H
 #include <string>
-#include <cstdint>
+#include <stdint.h>
 #include "util/time.h"
 #include "integrator.h"
 

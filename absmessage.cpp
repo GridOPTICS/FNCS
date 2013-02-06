@@ -31,7 +31,7 @@
 
 namespace sim_comm{
   
-static string AbsMessage::DESTIONATION_BCAST("*");
+/*static*/ string AbsMessage::DESTIONATION_BCAST("*");
 
 AbsMessage::AbsMessage(string from, string to,TIME timeStamp)
 {
