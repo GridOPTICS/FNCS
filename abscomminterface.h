@@ -59,7 +59,7 @@ namespace sim_comm{
   };
 class AbsCommInterface
 {
-private:
+protected:
   map<string,ObjectCommInterface*> interfaces;
   bool receiverRunning;
   uint64_t sendCount,receiveCount;

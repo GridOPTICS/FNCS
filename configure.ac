@@ -56,9 +56,33 @@ FNCS_CHECK_HEADERS([stdint.h])
 FNCS_CHECK_HEADERS([sys/time.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
+AC_TYPE_INT8_T
+AC_TYPE_INT16_T
+AC_TYPE_INT32_T
+AC_TYPE_INT64_T
 AC_TYPE_UINT8_T
+AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
 AC_TYPE_UINT64_T
+AC_CHECK_SIZEOF([int8_t])
+AC_CHECK_SIZEOF([int16_t])
+AC_CHECK_SIZEOF([int32_t])
+AC_CHECK_SIZEOF([int64_t])
+AC_CHECK_SIZEOF([uint8_t])
+AC_CHECK_SIZEOF([uint16_t])
+AC_CHECK_SIZEOF([uint32_t])
+AC_CHECK_SIZEOF([uint64_t])
+AC_CHECK_SIZEOF([short])
+AC_CHECK_SIZEOF([char])
+AC_CHECK_SIZEOF([int])
+AC_CHECK_SIZEOF([long])
+AC_CHECK_SIZEOF([long long])
+AC_CHECK_SIZEOF([unsigned char])
+AC_CHECK_SIZEOF([unsigned short])
+AC_CHECK_SIZEOF([unsigned int])
+AC_CHECK_SIZEOF([unsigned long])
+AC_CHECK_SIZEOF([unsigned long long])
+AC_CHECK_SIZEOF([void*])
 FNCS_CXX_NULLPTR
 
 # Checks for library functions.

@@ -46,13 +46,19 @@ private:
  public:
   AbsMessage(string from,string to,TIME timeStamp);
   AbsMessage(char *from,char *to, TIME timeStamp);
-  /* Returns the time stamp of message adjusted to sime time*/
-  TIME getAdjustedTime();
-  /* Returns the framework time of the message*/
-  TIME getTime();
   AbsMessage(const AbsMessage& other);
   AbsMessage(uint8_t *given);
   virtual ~AbsMessage();
+
+  /* Returns the time stamp of message adjusted to sime time*/
+  TIME getAdjustedTime();
+
+  /* Returns the framework time of the message*/
+  TIME getTime();
+
+  string getTo() const { return to; }
+  string getFrom() const { return from; }
+
   bool isBroadCast();
   virtual uint8_t * serialize() =0;
   virtual void deserialize(uint8_t *) =0;
