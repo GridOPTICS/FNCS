@@ -36,23 +36,26 @@ using namespace std;
 
 namespace sim_comm {
 
-AbsCommInterface::AbsCommInterface(uint32_t myRank) {
+AbsCommInterface::AbsCommInterface() {
     this->receiveCount=0;
     this->sendCount=0;
     this->receiverRunning=false;
-    this->myRank=myRank;
 }
 
 bool AbsCommInterface::isReceiverRunning() {
     return this->receiverRunning;
 }
 
-void AbsCommInterface::addObjectInterface(string objectName, ObjectCommInterface* given) {
+void AbsCommInterface::addObjectInterface(
+        string objectName,
+        ObjectCommInterface* given) {
+    /* TODO
     if(given->getMyRank()==myRank) {
         throw ObjectInterfaceRegistrationException();
     }
 
     this->interfaces.insert(pair<string,ObjectCommInterface*>(objectName,given));
+    */
 }
 
 void AbsCommInterface::startReceiver() {
@@ -77,7 +80,10 @@ void AbsCommInterface::sendAll() {
                     this->realSendMessage(outmessges[i]);
                     if(outmessges[i]->isBroadCast()) {
 
+                        /* TODO */
+#if 0
                         sendCount+=Integrator::getNumberOfCommNodes();
+#endif
                     }
                     else {
 

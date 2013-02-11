@@ -48,17 +48,15 @@ using namespace sim_comm;
 
 
 MpiCommInterface::MpiCommInterface(MPI_Comm comm_)
-    :   AbsCommInterface(0)
+    :   AbsCommInterface()
     ,   comm(MPI_COMM_NULL) {
     int ierr;
     int rank;
 
     ierr = MPI_Comm_dup(comm_, &comm);
     assert(MPI_SUCCESS == ierr);
-    ierr = MPI_Comm_rank(comm, &rank);
+    ierr = MPI_Comm_rank(comm, &this->rank);
     assert(MPI_SUCCESS == ierr);
-    assert(rank >= 0);
-    this->myRank = static_cast<uint32_t>(rank);
 }
 
 
@@ -78,7 +76,7 @@ void MpiCommInterface::realSendMessage(Message *given) {
 
     iter = interfaces.find(given->getTo());
     if (iter == interfaces.end()) {
-        cerr << "[" << myRank << "] "
+        cerr << "[" << rank << "] "
              << "message destination not registered: " << given->getTo() << endl;
         MPI_Abort(comm, 1);
     }
@@ -100,7 +98,8 @@ Message* MpiCommInterface::realGetMessage() {
 }
 
 
-uint64_t MpiCommInterface::realReduceMinTime(uint64_t myTime) {
+uint64_t MpiCommInterface::realReduceMinTime() {
+    uint64_t myTime = Integrator::getCurSimTime();
     uint64_t retval;
     MPI_Datatype datatype;
 
@@ -124,8 +123,7 @@ uint64_t MpiCommInterface::realReduceMinTime(uint64_t myTime) {
 }
 
 
-uint64_t MpiCommInterface::realReduceTotalSendReceive(
-    uint64_t send, uint64_t receive) {
+uint64_t MpiCommInterface::realReduceTotalSendReceive() {
     uint64_t recvbuf[2];
     uint64_t sendbuf[2];
     MPI_Datatype datatype;
@@ -144,11 +142,12 @@ uint64_t MpiCommInterface::realReduceTotalSendReceive(
 #   error cannot determine MPI_Datatype for uint64_t
 #endif
 
-    sendbuf[0] = send;
-    sendbuf[1] = receive;
+    sendbuf[0] = sendCount;
+    sendbuf[1] = receiveCount;
     MPI_Allreduce(sendbuf, recvbuf, 2, datatype, MPI_SUM, comm);
+    assert(recvbuf[0] >= recvbuf[1]);
 
-    return recvbuf[0]; /* @TODO: shouldn't we return both values?? */
+    return recvbuf[0] - recvbuf[1];
 }
 
 
@@ -160,7 +159,7 @@ void MpiCommInterface::addObjectInterface(
 
     iter = interfaces.find(objectName);
     if (iter != interfaces.end()) {
-        cerr << "[" << myRank << "] "
+        cerr << "[" << rank << "] "
              << "object registered already exists: " << objectName << endl;
         MPI_Abort(comm, 1);
     }

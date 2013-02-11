@@ -58,15 +58,14 @@ class AbsCommInterface {
 protected:
     map<string,ObjectCommInterface*> interfaces; /**< @TODO doc */
     bool receiverRunning; /**< @TODO doc */
-    uint64_t sendCount,receiveCount; /**< @TODO doc */
-    uint32_t myRank; /**< @TODO doc */
+    uint64_t sendCount; /**< @TODO doc */
+    uint64_t receiveCount; /**< @TODO doc */
+
 public:
     /**
-     * Constructor taking a rank.
-     *
-     * @param[in] myRank rank
+     * Constructor.
      */
-    AbsCommInterface(uint32_t myRank);
+    AbsCommInterface();
 
     /**
      * Destructor.
@@ -97,14 +96,14 @@ public:
      * @throw InterfaceErrorException when the reduce operation fails
      * @return the min time
      */
-    virtual uint64_t realReduceMinTime(uint64_t myTime) =0;
+    virtual uint64_t realReduceMinTime() =0;
 
     /**
      * Reduce total send receive operation.
      *
      * @throw InterfaceErrorException when the reduce operation fails
      */
-    virtual void realReduceTotalSendReceive(uint64_t &send, uint64_t &receive) =0;
+    virtual uint64_t realReduceTotalSendReceive() =0;
 
     /**
      * Used by the integrator to register an object.
@@ -133,13 +132,6 @@ public:
      * Called by the integrator to send all the messages.
      */
     void sendAll();
-
-    /**
-     * Returns the rank of the simulator.
-     */
-    inline uint32_t getMyRank() {
-        return this->myRank;
-    }
 };
 
 }

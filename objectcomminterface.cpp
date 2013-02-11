@@ -49,7 +49,7 @@ void ObjectCommInterface::send(Message* given) {
 int ObjectCommInterface::getInboxMessagesCount() {
     //we can write a better one!
 
-    TIME currentTime=Integrator::getCurSimeTime();
+    TIME currentTime=Integrator::getCurSimTime();
     TIME graceTime=currentTime- Integrator::getGracePreiod();
 
     int toReturn=0;
@@ -65,7 +65,7 @@ int ObjectCommInterface::getInboxMessagesCount() {
 }
 
 std::vector< Message* > ObjectCommInterface::getAllInboxMessages() {
-    TIME currentTime=Integrator::getCurSimeTime();
+    TIME currentTime=Integrator::getCurSimTime();
     TIME graceTime=currentTime- Integrator::getGracePreiod();
 
     vector<Message *> toReturn;
@@ -92,7 +92,7 @@ std::vector< Message* > ObjectCommInterface::getAllInboxMessages() {
 
 bool ObjectCommInterface::hasMoreMessages() {
     if(this->msgs.size()==0) { //find the locations of the messages to return
-        TIME currentTime=Integrator::getCurSimeTime();
+        TIME currentTime=Integrator::getCurSimTime();
         TIME graceTime=currentTime- Integrator::getGracePreiod();
         //this->msgs.clear();
         for(int i=0; i<inbox.size(); i++) {

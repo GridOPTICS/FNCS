@@ -34,7 +34,11 @@ namespace sim_comm {
 
 Integrator* Integrator::instance=NULL;
 
-Integrator::Integrator(AbsCommInterface *currentInterface,time_metric simTimeStep,int numberOfCommNodes, TIME gracePeriod) {
+Integrator::Integrator(
+        AbsCommInterface *currentInterface,
+        time_metric simTimeStep,
+        int numberOfCommNodes,
+        TIME gracePeriod) {
     this->currentInterface=currentInterface;
     this->simTimeMetric=simTimeStep;
     this->numberOfCommNodes=numberOfCommNodes;
@@ -59,7 +63,7 @@ TIME Integrator::getAdjustedGracePeriod() {
     return convertToMyTime(instance->simTimeMetric,instance->gracePreiod);
 }
 
-TIME Integrator::getCurSimeTime() {
+TIME Integrator::getCurSimTime() {
     TIME t=(*(instance->getTimeCallBack))();
 
     return convertToFrameworkTime(instance->simTimeMetric,t);
@@ -81,11 +85,12 @@ bool Integrator::doDispatchNextEvent(TIME currentTime, TIME nextTime) {
     return true;
 }
 
-TIME Integrator::GetNextTime(TIME currentTime, TIME nextTime) {
+TIME Integrator::getNextTime(TIME currentTime, TIME nextTime) {
     return 0;
 }
 
 
+#if 0
 int Integrator::getRank() {
     return instance->currentInterface->getMyRank();
 }
@@ -97,5 +102,6 @@ ObjectCommInterface* Integrator::getCommInterface(char* objectName) {
 int Integrator::getNumberOfCommNodes() {
     return instance->numberOfCommNodes;
 }
+#endif
 
 }

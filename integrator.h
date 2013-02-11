@@ -33,10 +33,11 @@
 #include "util/time.h"
 
 using namespace std;
+
 namespace sim_comm {
 
-class ObjectCommInterface;
 class AbsCommInterface;
+class ObjectCommInterface;
 
 class Integrator {
 private:
@@ -47,26 +48,80 @@ private:
     CallBack<TIME,empty,empty,empty>* getTimeCallBack;
 
     static Integrator* instance;
+
 public:
-    Integrator(AbsCommInterface *currentInterface,time_metric simTimeStep,int numberOfCommNodes, TIME gracePeriod);
-    virtual TIME GetNextTime(TIME currentTime,TIME nextTime);
-    virtual bool doDispatchNextEvent(TIME currentTime,TIME nextTime);
+    /**
+     * TODO
+     */
+    Integrator(
+            AbsCommInterface *currentInterface,
+            time_metric simTimeStep,
+            int numberOfCommNodes,
+            TIME gracePeriod);
+
+    /**
+     * TODO
+     */
+    virtual TIME getNextTime(TIME currentTime, TIME nextTime);
+
+    /**
+     * TODO
+     */
+    virtual bool doDispatchNextEvent(TIME currentTime, TIME nextTime);
+
+    /**
+     * TODO
+     */
     static ObjectCommInterface *getCommInterface(string objectName);
+
+    /**
+     * TODO
+     */
     static ObjectCommInterface *getCommInterface(char *objectName);
+
+#if 0
+    /**
+     * TODO
+     */
     static int getRank();
+
+    /**
+     * TODO
+     */
     static int getNumberOfCommNodes();
-    /* Returns the simulator adjusted grace period
+#endif
+
+    /**
+     * Returns the simulator adjusted grace period
      */
     static TIME getAdjustedGracePeriod();
-    /* Returns the grace period in framework time
+
+    /**
+     * Returns the grace period in framework time
      */
     static TIME getGracePreiod();
-    static time_metric getCurSimMetric();
-    /* Returns current simulator time in framework adjusted format
+
+    /**
+     * TODO
      */
-    static TIME getCurSimeTime();
-    static void initIntegrator(AbsCommInterface *currentInterface,time_metric simTimeStep,int numberOfCommNodes, TIME gracePeriod);
-    /*sets simulator callback that returns time
+    static time_metric getCurSimMetric();
+
+    /**
+     * Returns current simulator time in framework adjusted format
+     */
+    static TIME getCurSimTime();
+
+    /**
+     * TODO
+     */
+    static void initIntegrator(
+            AbsCommInterface *currentInterface,
+            time_metric simTimeStep,
+            int numberOfCommNodes,
+            TIME gracePeriod);
+
+    /**
+     * sets simulator callback that returns time
      */
     static void setTimeCallBack(CallBack<TIME,empty,empty,empty> *t);
 };

@@ -65,6 +65,7 @@ public:
 class MpiCommInterface : public AbsCommInterface {
 private:
     MPI_Comm comm;
+    int rank;
     list<MpiIsendPacket> sentMessages;
 
 protected:
@@ -82,10 +83,10 @@ public:
     virtual Message* realGetMessage();
 
     /** @copydoc AbsCommInterface::realReduceMinTime(uint64_t) */
-    virtual uint64_t realReduceMinTime(uint64_t myTime);
+    virtual uint64_t realReduceMinTime();
 
     /** @copydoc AbsCommInterface::realReduceTotalSendReceive(uint64_t,uint64_t) */
-    virtual uint64_t realReduceTotalSendReceive(uint64_t send,uint64_t receive);
+    virtual uint64_t realReduceTotalSendReceive();
 
     /** @copydoc AbsCommInterface::addObjectInterface(string,ObjectCommInterface*) */
     void addObjectInterface(string objectName,ObjectCommInterface *given);
