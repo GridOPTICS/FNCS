@@ -7,38 +7,36 @@
 
 using namespace std;
 
-namespace sim_comm{
+namespace sim_comm {
 
-  class TimeRegisterException : exception{
-  virtual const char* what() const throw()
-    {
-      return "Unable to get current time from simulator!";
+class TimeRegisterException : exception {
+    virtual const char* what() const throw() {
+        return "Unable to get current time from simulator!";
     }
-    
-    
-  };
-  
-  class TimeException : exception{
-    virtual const char* what() const throw()
-    {
-      return "Exception while converting time";
+
+
+};
+
+class TimeException : exception {
+    virtual const char* what() const throw() {
+        return "Exception while converting time";
     }
-    
-  };
-  
-  enum time_metric{
+
+};
+
+enum time_metric {
     SECONDS =0,
     MILLISECONDS,
     NANOSECONDS,
     UNKNOWN
-  };
-  
-  
-  
-  typedef uint64_t TIME;
-  
-  TIME convertToMyTime(time_metric myTimeStep,TIME frameworkTime);
-  TIME convertToFrameworkTime(time_metric myTimeStep,TIME current_time);
+};
+
+
+
+typedef uint64_t TIME;
+
+TIME convertToMyTime(time_metric myTimeStep,TIME frameworkTime);
+TIME convertToFrameworkTime(time_metric myTimeStep,TIME current_time);
 }
 
 #endif

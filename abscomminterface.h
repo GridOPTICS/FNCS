@@ -137,7 +137,7 @@ public:
     /**
      * Returns the rank of the simulator.
      */
-    inline uint32_t getMyRank() { 
+    inline uint32_t getMyRank() {
         return this->myRank;
     }
 };

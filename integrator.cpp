@@ -30,85 +30,72 @@
 #include "integrator.h"
 #include "objectcomminterface.h"
 
-namespace sim_comm{
+namespace sim_comm {
 
 Integrator* Integrator::instance=NULL;
-  
-Integrator::Integrator(AbsCommInterface *currentInterface,time_metric simTimeStep,int numberOfCommNodes, TIME gracePeriod)
-{
-  this->currentInterface=currentInterface;
-  this->simTimeMetric=simTimeStep;
-  this->numberOfCommNodes=numberOfCommNodes;
-  this->gracePreiod=gracePeriod;
+
+Integrator::Integrator(AbsCommInterface *currentInterface,time_metric simTimeStep,int numberOfCommNodes, TIME gracePeriod) {
+    this->currentInterface=currentInterface;
+    this->simTimeMetric=simTimeStep;
+    this->numberOfCommNodes=numberOfCommNodes;
+    this->gracePreiod=gracePeriod;
 }
 
-void Integrator::initIntegrator(AbsCommInterface *currentInterface, time_metric simTimeStep, int numberOfCommNodes, TIME gracePeriod)
-{
-  instance=new Integrator(currentInterface,simTimeStep,numberOfCommNodes,gracePeriod);
-}
-
-
-TIME Integrator::getGracePreiod()
-{
-  return instance->gracePreiod;
-}
-
-void Integrator::setTimeCallBack(CallBack<TIME,empty,empty,empty>* t)
-{
-  instance->getTimeCallBack=t;
+void Integrator::initIntegrator(AbsCommInterface *currentInterface, time_metric simTimeStep, int numberOfCommNodes, TIME gracePeriod) {
+    instance=new Integrator(currentInterface,simTimeStep,numberOfCommNodes,gracePeriod);
 }
 
 
-TIME Integrator::getAdjustedGracePeriod()
-{
-  return convertToMyTime(instance->simTimeMetric,instance->gracePreiod);
+TIME Integrator::getGracePreiod() {
+    return instance->gracePreiod;
 }
 
-TIME Integrator::getCurSimeTime()
-{
-  TIME t=(*(instance->getTimeCallBack))();
-  
-  return convertToFrameworkTime(instance->simTimeMetric,t);
-}
-
-  
-time_metric Integrator::getCurSimMetric()
-{
-  return instance->simTimeMetric;
-}
-
-ObjectCommInterface* Integrator::getCommInterface(string objectName)
-{
-  ObjectCommInterface *toReturn=new ObjectCommInterface(objectName);
-  instance->currentInterface->addObjectInterface(objectName,toReturn);
-  
-  return toReturn;
-}
-
-bool Integrator::doDispatchNextEvent(TIME currentTime, TIME nextTime)
-{
-  return true;
-}
-
-TIME Integrator::GetNextTime(TIME currentTime, TIME nextTime)
-{
-  return 0;
+void Integrator::setTimeCallBack(CallBack<TIME,empty,empty,empty>* t) {
+    instance->getTimeCallBack=t;
 }
 
 
-int Integrator::getRank()
-{
-  return instance->currentInterface->getMyRank();
+TIME Integrator::getAdjustedGracePeriod() {
+    return convertToMyTime(instance->simTimeMetric,instance->gracePreiod);
 }
 
-ObjectCommInterface* Integrator::getCommInterface(char* objectName)
-{
+TIME Integrator::getCurSimeTime() {
+    TIME t=(*(instance->getTimeCallBack))();
+
+    return convertToFrameworkTime(instance->simTimeMetric,t);
+}
+
+
+time_metric Integrator::getCurSimMetric() {
+    return instance->simTimeMetric;
+}
+
+ObjectCommInterface* Integrator::getCommInterface(string objectName) {
+    ObjectCommInterface *toReturn=new ObjectCommInterface(objectName);
+    instance->currentInterface->addObjectInterface(objectName,toReturn);
+
+    return toReturn;
+}
+
+bool Integrator::doDispatchNextEvent(TIME currentTime, TIME nextTime) {
+    return true;
+}
+
+TIME Integrator::GetNextTime(TIME currentTime, TIME nextTime) {
+    return 0;
+}
+
+
+int Integrator::getRank() {
+    return instance->currentInterface->getMyRank();
+}
+
+ObjectCommInterface* Integrator::getCommInterface(char* objectName) {
 
 }
 
-int Integrator::getNumberOfCommNodes()
-{
-  return instance->numberOfCommNodes;
+int Integrator::getNumberOfCommNodes() {
+    return instance->numberOfCommNodes;
 }
 
 }

@@ -34,73 +34,67 @@
 
 using namespace std;
 
-namespace sim_comm{
+namespace sim_comm {
 
-AbsCommInterface::AbsCommInterface(uint32_t myRank)
-{
-  this->receiveCount=0;
-  this->sendCount=0;
-  this->receiverRunning=false;
-  this->myRank=myRank;
+AbsCommInterface::AbsCommInterface(uint32_t myRank) {
+    this->receiveCount=0;
+    this->sendCount=0;
+    this->receiverRunning=false;
+    this->myRank=myRank;
 }
 
-bool AbsCommInterface::isReceiverRunning()
-{
-  return this->receiverRunning;
+bool AbsCommInterface::isReceiverRunning() {
+    return this->receiverRunning;
 }
 
-void AbsCommInterface::addObjectInterface(string objectName, ObjectCommInterface* given)
-{
-  if(given->getMyRank()==myRank)
-    throw ObjectInterfaceRegistrationException();
-  
-  this->interfaces.insert(pair<string,ObjectCommInterface*>(objectName,given));
+void AbsCommInterface::addObjectInterface(string objectName, ObjectCommInterface* given) {
+    if(given->getMyRank()==myRank) {
+        throw ObjectInterfaceRegistrationException();
+    }
+
+    this->interfaces.insert(pair<string,ObjectCommInterface*>(objectName,given));
 }
 
-void AbsCommInterface::startReceiver()
-{
-  this->receiverRunning=true;
+void AbsCommInterface::startReceiver() {
+    this->receiverRunning=true;
 }
 
-void AbsCommInterface::stopReceiver()
-{
-  this->receiverRunning=false;
+void AbsCommInterface::stopReceiver() {
+    this->receiverRunning=false;
 }
 
-void AbsCommInterface::sendAll()
-{
-  map<string,ObjectCommInterface*>::iterator it=this->interfaces.begin();
-  
-  for(;it!=this->interfaces.end();it++){
-  
-      ObjectCommInterface *in=it->second;
-      if(in->getInboxMessagesCount()>0){
-      
-	vector<Message*>  outmessges=in->getOutBox();
-	for(int i=0;i<outmessges.size();i++){
-	  try{
-	    this->realSendMessage(outmessges[i]);
-	    if(outmessges[i]->isBroadCast()){
-	    
-	      sendCount+=Integrator::getNumberOfCommNodes();
-	    }
-	    else{
-	    
-	      sendCount+=1;
-	    }
-	  }
-	  catch(InterfaceErrorException e){
-	  
-	    std::cerr << "Send operation failed on interface ";
-	  }
-	}
-      }
-  }
+void AbsCommInterface::sendAll() {
+    map<string,ObjectCommInterface*>::iterator it=this->interfaces.begin();
+
+    for(; it!=this->interfaces.end(); it++) {
+
+        ObjectCommInterface *in=it->second;
+        if(in->getInboxMessagesCount()>0) {
+
+            vector<Message*>  outmessges=in->getOutBox();
+            for(int i=0; i<outmessges.size(); i++) {
+                try {
+                    this->realSendMessage(outmessges[i]);
+                    if(outmessges[i]->isBroadCast()) {
+
+                        sendCount+=Integrator::getNumberOfCommNodes();
+                    }
+                    else {
+
+                        sendCount+=1;
+                    }
+                }
+                catch(InterfaceErrorException e) {
+
+                    std::cerr << "Send operation failed on interface ";
+                }
+            }
+        }
+    }
 }
 
-AbsCommInterface::~AbsCommInterface()
-{
-  this->interfaces.clear();
+AbsCommInterface::~AbsCommInterface() {
+    this->interfaces.clear();
 }
 
 

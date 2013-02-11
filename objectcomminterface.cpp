@@ -28,124 +28,115 @@
 
 #include "objectcomminterface.h"
 
-namespace sim_comm{
+namespace sim_comm {
 
-ObjectCommInterface::ObjectCommInterface(string objectName)
-{
-  this->attachedObjectName=objectName;
+ObjectCommInterface::ObjectCommInterface(string objectName) {
+    this->attachedObjectName=objectName;
 
 }
 
-ObjectCommInterface::~ObjectCommInterface()
-{
- this->inbox.clear();
- this->outbox.clear();
+ObjectCommInterface::~ObjectCommInterface() {
+    this->inbox.clear();
+    this->outbox.clear();
 }
 
-void ObjectCommInterface::send(Message* given)
-{
+void ObjectCommInterface::send(Message* given) {
     this->outbox.push_back(given);
 }
 
 
 
-int ObjectCommInterface::getInboxMessagesCount()
-{
-  //we can write a better one!
-  
-  TIME currentTime=Integrator::getCurSimeTime();
-  TIME graceTime=currentTime- Integrator::getGracePreiod();
-  
-  int toReturn=0;
-  for(int i=0;i<inbox.size();i++){
-  
-    Message *msg=inbox[i];
-    if(msg->getTime()<=currentTime && msg->getTime()>graceTime)
-      toReturn++;
-  }
-  
-  return toReturn;
-}
+int ObjectCommInterface::getInboxMessagesCount() {
+    //we can write a better one!
 
-std::vector< Message* > ObjectCommInterface::getAllInboxMessages()
-{
-  TIME currentTime=Integrator::getCurSimeTime();
-  TIME graceTime=currentTime- Integrator::getGracePreiod();
-  
-  vector<Message *> toReturn;
-  
-  vector<int> locs;
-  
-  for(int i=0;i<inbox.size();i++){
-  
-    Message *msg=inbox[i];
-    if(msg->getTime()<=currentTime && msg->getTime()>=graceTime){
-      locs.push_back(i);
-      toReturn.push_back(msg);
-    }
-  }
-  
-  for(int i=0;i<locs.size();i++){
-  
-    inbox.erase(inbox.begin()+locs[i]);
-  }
-  
-  return toReturn;
-}
-
-
-bool ObjectCommInterface::hasMoreMessages()
-{
-  if(this->msgs.size()==0){ //find the locations of the messages to return
     TIME currentTime=Integrator::getCurSimeTime();
     TIME graceTime=currentTime- Integrator::getGracePreiod();
-      //this->msgs.clear();
-     for(int i=0;i<inbox.size();i++){
-  
-	Message *msg=inbox[i];
-	if(msg->getTime()<=currentTime && msg->getTime()>=graceTime){
-	      this->msgs.push_back(i);
-     
-	}
-     }
-     this->it=msgs.begin();//safety!
-     return true;
-  }
-  else{
-    if(this->it==this->msgs.end()){ //no more messages to return
-	 for(int i=0;i<msgs.size();i++){
 
-	    inbox.erase(inbox.begin()+msgs[i]);
-	}
-	msgs.clear();
-	this->it=msgs.begin();
-	return false;
+    int toReturn=0;
+    for(int i=0; i<inbox.size(); i++) {
+
+        Message *msg=inbox[i];
+        if(msg->getTime()<=currentTime && msg->getTime()>graceTime) {
+            toReturn++;
+        }
     }
-    else{
-      ++this->it;
-      return true;
+
+    return toReturn;
+}
+
+std::vector< Message* > ObjectCommInterface::getAllInboxMessages() {
+    TIME currentTime=Integrator::getCurSimeTime();
+    TIME graceTime=currentTime- Integrator::getGracePreiod();
+
+    vector<Message *> toReturn;
+
+    vector<int> locs;
+
+    for(int i=0; i<inbox.size(); i++) {
+
+        Message *msg=inbox[i];
+        if(msg->getTime()<=currentTime && msg->getTime()>=graceTime) {
+            locs.push_back(i);
+            toReturn.push_back(msg);
+        }
     }
-  }
+
+    for(int i=0; i<locs.size(); i++) {
+
+        inbox.erase(inbox.begin()+locs[i]);
+    }
+
+    return toReturn;
 }
 
-Message* ObjectCommInterface::getNextInboxMessage()
-{
-  return this->inbox[*it];
+
+bool ObjectCommInterface::hasMoreMessages() {
+    if(this->msgs.size()==0) { //find the locations of the messages to return
+        TIME currentTime=Integrator::getCurSimeTime();
+        TIME graceTime=currentTime- Integrator::getGracePreiod();
+        //this->msgs.clear();
+        for(int i=0; i<inbox.size(); i++) {
+
+            Message *msg=inbox[i];
+            if(msg->getTime()<=currentTime && msg->getTime()>=graceTime) {
+                this->msgs.push_back(i);
+
+            }
+        }
+        this->it=msgs.begin();//safety!
+        return true;
+    }
+    else {
+        if(this->it==this->msgs.end()) { //no more messages to return
+            for(int i=0; i<msgs.size(); i++) {
+
+                inbox.erase(inbox.begin()+msgs[i]);
+            }
+            msgs.clear();
+            this->it=msgs.begin();
+            return false;
+        }
+        else {
+            ++this->it;
+            return true;
+        }
+    }
 }
 
-void ObjectCommInterface::newMessage(Message* given)
-{
-  this->outbox.push_back(given);
+Message* ObjectCommInterface::getNextInboxMessage() {
+    return this->inbox[*it];
 }
 
-std::vector< Message* > ObjectCommInterface::getOutBox()
-{
-   //outbox implementation
+void ObjectCommInterface::newMessage(Message* given) {
+    this->outbox.push_back(given);
 }
 
-void ObjectCommInterface::clear()
-{
-  //implement
+std::vector< Message* > ObjectCommInterface::getOutBox() {
+    //outbox implementation
+}
+
+void ObjectCommInterface::clear() {
+    //implement
 }
 
 

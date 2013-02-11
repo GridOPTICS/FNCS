@@ -49,8 +49,7 @@ using namespace sim_comm;
 
 MpiCommInterface::MpiCommInterface(MPI_Comm comm_)
     :   AbsCommInterface(0)
-    ,   comm(MPI_COMM_NULL)
-{
+    ,   comm(MPI_COMM_NULL) {
     int ierr;
     int rank;
 
@@ -63,8 +62,7 @@ MpiCommInterface::MpiCommInterface(MPI_Comm comm_)
 }
 
 
-MpiCommInterface::~MpiCommInterface()
-{
+MpiCommInterface::~MpiCommInterface() {
     int ierr;
 
     ierr = MPI_Comm_free(&comm);
@@ -72,8 +70,7 @@ MpiCommInterface::~MpiCommInterface()
 }
 
 
-void MpiCommInterface::realSendMessage(Message *given)
-{
+void MpiCommInterface::realSendMessage(Message *given) {
     MpiIsendPacket bundle;
     map<string,ObjectCommInterface*>::iterator iter;
 
@@ -89,23 +86,21 @@ void MpiCommInterface::realSendMessage(Message *given)
     bundle.destination_rank = iter->second->getMyRank();
     bundle.message = new char[sizeof(TIME)];
     MPI_Isend(bundle.message, sizeof(TIME), MPI_CHAR,
-            bundle.destination_rank, FNCS_TAG, comm, &(bundle.request));
+              bundle.destination_rank, FNCS_TAG, comm, &(bundle.request));
     sentMessages.push_back(bundle);
 
     make_progress();
 }
 
 
-Message* MpiCommInterface::realGetMessage()
-{
+Message* MpiCommInterface::realGetMessage() {
     make_progress();
 
     make_progress();
 }
 
 
-uint64_t MpiCommInterface::realReduceMinTime(uint64_t myTime)
-{
+uint64_t MpiCommInterface::realReduceMinTime(uint64_t myTime) {
     uint64_t retval;
     MPI_Datatype datatype;
 
@@ -130,8 +125,7 @@ uint64_t MpiCommInterface::realReduceMinTime(uint64_t myTime)
 
 
 uint64_t MpiCommInterface::realReduceTotalSendReceive(
-        uint64_t send, uint64_t receive)
-{
+    uint64_t send, uint64_t receive) {
     uint64_t recvbuf[2];
     uint64_t sendbuf[2];
     MPI_Datatype datatype;
@@ -159,10 +153,9 @@ uint64_t MpiCommInterface::realReduceTotalSendReceive(
 
 
 void MpiCommInterface::addObjectInterface(
-        string objectName, ObjectCommInterface *given)
-{
+    string objectName, ObjectCommInterface *given) {
     map<string,ObjectCommInterface*>::iterator iter;
-    
+
     make_progress();
 
     iter = interfaces.find(objectName);
@@ -174,38 +167,33 @@ void MpiCommInterface::addObjectInterface(
 }
 
 
-void MpiCommInterface::startReceiver()
-{
+void MpiCommInterface::startReceiver() {
     receiverRunning = true;
 
     make_progress();
 }
 
 
-bool MpiCommInterface::isReceiverRunning()
-{
+bool MpiCommInterface::isReceiverRunning() {
     make_progress();
 
     return receiverRunning;
 }
 
 
-void MpiCommInterface::stopReceiver()
-{
+void MpiCommInterface::stopReceiver() {
     make_progress();
 
     receiverRunning = false;
 }
 
 
-void MpiCommInterface::sendAll()
-{
+void MpiCommInterface::sendAll() {
     make_progress();
 }
 
 
-void MpiCommInterface::make_progress()
-{
+void MpiCommInterface::make_progress() {
     int ierr = MPI_SUCCESS;
     int incoming = 1;
     list<MpiIsendPacket>::iterator iter;
@@ -220,7 +208,7 @@ void MpiCommInterface::make_progress()
 
         ierr = MPI_Test(&(iter->request), &flag, MPI_STATUS_IGNORE);
         assert(MPI_SUCCESS == ierr);
-        
+
         if (flag) {
             iter = sentMessages.erase(iter);
         }
@@ -245,8 +233,8 @@ void MpiCommInterface::make_progress()
             message = new char[size];
 
             ierr = MPI_Recv(message, size, MPI_CHAR,
-                    status.MPI_SOURCE, status.MPI_TAG,
-                    comm, MPI_STATUS_IGNORE);
+                            status.MPI_SOURCE, status.MPI_TAG,
+                            comm, MPI_STATUS_IGNORE);
             assert(MPI_SUCCESS == ierr);
 
             /* @TODO do something with the message! */

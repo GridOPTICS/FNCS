@@ -24,54 +24,51 @@
     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
-
 #ifndef ABSINTEGRATOR_H
 #define ABSINTEGRATOR_H
-#include "util/time.h"
-#include "util/callback.h"
-//#include "objectcomminterface.h"
+
 #include <string>
-//#include "abscomminterface.h"
+
+#include "util/callback.h"
+#include "util/time.h"
 
 using namespace std;
-namespace sim_comm{
+namespace sim_comm {
 
-  class ObjectCommInterface;
-  class AbsCommInterface;
-  
-class Integrator
-{
+class ObjectCommInterface;
+class AbsCommInterface;
+
+class Integrator {
 private:
-  time_metric simTimeMetric;
-  int numberOfCommNodes;
-  AbsCommInterface *currentInterface;
-  TIME gracePreiod;
-  CallBack<TIME,empty,empty,empty>* getTimeCallBack;
-  
-  static Integrator* instance;
+    time_metric simTimeMetric;
+    int numberOfCommNodes;
+    AbsCommInterface *currentInterface;
+    TIME gracePreiod;
+    CallBack<TIME,empty,empty,empty>* getTimeCallBack;
+
+    static Integrator* instance;
 public:
-  Integrator(AbsCommInterface *currentInterface,time_metric simTimeStep,int numberOfCommNodes, TIME gracePeriod);
-  virtual TIME GetNextTime(TIME currentTime,TIME nextTime);
-  virtual bool doDispatchNextEvent(TIME currentTime,TIME nextTime);
-  static ObjectCommInterface *getCommInterface(string objectName);
-  static ObjectCommInterface *getCommInterface(char *objectName);
-  static int getRank();
-  static int getNumberOfCommNodes();
-  /* Returns the simulator adjusted grace period
-   */
-  static TIME getAdjustedGracePeriod();
-  /* Returns the grace period in framework time
-   */
-  static TIME getGracePreiod();
-  static time_metric getCurSimMetric();
-  /* Returns current simulator time in framework adjusted format
-   */
-  static TIME getCurSimeTime();
-  static void initIntegrator(AbsCommInterface *currentInterface,time_metric simTimeStep,int numberOfCommNodes, TIME gracePeriod);
-  /*sets simulator callback that returns time
-   */
-  static void setTimeCallBack(CallBack<TIME,empty,empty,empty> *t);
+    Integrator(AbsCommInterface *currentInterface,time_metric simTimeStep,int numberOfCommNodes, TIME gracePeriod);
+    virtual TIME GetNextTime(TIME currentTime,TIME nextTime);
+    virtual bool doDispatchNextEvent(TIME currentTime,TIME nextTime);
+    static ObjectCommInterface *getCommInterface(string objectName);
+    static ObjectCommInterface *getCommInterface(char *objectName);
+    static int getRank();
+    static int getNumberOfCommNodes();
+    /* Returns the simulator adjusted grace period
+     */
+    static TIME getAdjustedGracePeriod();
+    /* Returns the grace period in framework time
+     */
+    static TIME getGracePreiod();
+    static time_metric getCurSimMetric();
+    /* Returns current simulator time in framework adjusted format
+     */
+    static TIME getCurSimeTime();
+    static void initIntegrator(AbsCommInterface *currentInterface,time_metric simTimeStep,int numberOfCommNodes, TIME gracePeriod);
+    /*sets simulator callback that returns time
+     */
+    static void setTimeCallBack(CallBack<TIME,empty,empty,empty> *t);
 };
 
 }

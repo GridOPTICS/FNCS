@@ -29,300 +29,300 @@
 #ifndef CALLBACK_H
 #define CALLBACK_H
 
-namespace sim_comm{
+namespace sim_comm {
 
-class empty{
+class empty {
 };
 
-class CallBackPtr{
+class CallBackPtr {
 public:
-  virtual ~CallBackPtr() {};
+    virtual ~CallBackPtr() {};
 };
 
 template<typename R, typename T1,  typename T2, typename T3>
-class CallBack : public CallBackPtr{
+class CallBack : public CallBackPtr {
 public:
-  virtual ~CallBack(){};
-  virtual R operator()() =0;
-  virtual R operator()(T1 a) =0;
-  virtual R operator()(T1 a,T2 b) =0;
-  virtual R operator()(T1 a,T2 b, T3 c)=0;
+    virtual ~CallBack() {};
+    virtual R operator()() =0;
+    virtual R operator()(T1 a) =0;
+    virtual R operator()(T1 a,T2 b) =0;
+    virtual R operator()(T1 a,T2 b, T3 c)=0;
 };
 
 template<typename T, typename R, typename T1=empty, typename T2=empty, typename T3=empty>
-class CallBackNoParam : public CallBack<R,T1,T2,T3>{
+class CallBackNoParam : public CallBack<R,T1,T2,T3> {
 
-    private:
-      T ptrToRealFunction;
+private:
+    T ptrToRealFunction;
 public:
-    CallBackNoParam(T const &ptrToFunction){
-      this->ptrToRealFunction = ptrToFunction;
+    CallBackNoParam(T const &ptrToFunction) {
+        this->ptrToRealFunction = ptrToFunction;
     };
-    
-        virtual R operator()(){
-       return ptrToRealFunction();
+
+    virtual R operator()() {
+        return ptrToRealFunction();
     }
-    
-    virtual R operator()(T1 a){
-      throw "Incorrect number of arguments";
-     
+
+    virtual R operator()(T1 a) {
+        throw "Incorrect number of arguments";
+
     };
-    
-    virtual R operator()(T1 a,T2 b){
-      throw "Incorrect number of arguments";
+
+    virtual R operator()(T1 a,T2 b) {
+        throw "Incorrect number of arguments";
     };
-    
-    virtual R operator()(T1 a,T2 b, T3 c){
-      throw "Incorrect number of arguments";
+
+    virtual R operator()(T1 a,T2 b, T3 c) {
+        throw "Incorrect number of arguments";
     };
-    
-    
+
+
     virtual ~CallBackNoParam() {};
 };
 
 template<typename T, typename R, typename T1, typename T2=empty, typename T3=empty>
-class CallBackOneParam : public CallBack<R,T1,T2,T3>{
+class CallBackOneParam : public CallBack<R,T1,T2,T3> {
 
-    private:
-      T ptrToRealFunction;
+private:
+    T ptrToRealFunction;
 public:
-    CallBackOneParam(T const &ptrToFunction){
-      this->ptrToRealFunction = ptrToFunction;
+    CallBackOneParam(T const &ptrToFunction) {
+        this->ptrToRealFunction = ptrToFunction;
     };
-    
-        virtual R operator()(){
-      throw "Incorrect number of arguments";
+
+    virtual R operator()() {
+        throw "Incorrect number of arguments";
     }
-    
-    virtual R operator()(T1 a){
-      return ptrToRealFunction(a);
+
+    virtual R operator()(T1 a) {
+        return ptrToRealFunction(a);
     };
-    
-    virtual R operator()(T1 a,T2 b){
-      throw "Incorrect number of arguments";
+
+    virtual R operator()(T1 a,T2 b) {
+        throw "Incorrect number of arguments";
     };
-    
-    virtual R operator()(T1 a,T2 b, T3 c){
-      throw "Incorrect number of arguments";
+
+    virtual R operator()(T1 a,T2 b, T3 c) {
+        throw "Incorrect number of arguments";
     };
-    
-    
+
+
     virtual ~CallBackOneParam() {};
 };
 
 template<typename T, typename R, typename T1, typename T2, typename T3=empty>
-class CallBackTwoParam : public CallBack<R,T1,T2,T3>{
+class CallBackTwoParam : public CallBack<R,T1,T2,T3> {
 
-    private:
-      T ptrToRealFunction;
+private:
+    T ptrToRealFunction;
 public:
-    CallBackTwoParam(T const &ptrToFunction){
-      this->ptrToRealFunction = ptrToFunction;
+    CallBackTwoParam(T const &ptrToFunction) {
+        this->ptrToRealFunction = ptrToFunction;
     };
-    
-        virtual R operator()(){
-      throw "Incorrect number of arguments";
+
+    virtual R operator()() {
+        throw "Incorrect number of arguments";
     }
-    
-    virtual R operator()(T1 a){
-      throw "Incorrect number of arguments";
+
+    virtual R operator()(T1 a) {
+        throw "Incorrect number of arguments";
     };
-    
-    virtual R operator()(T1 a,T2 b){
+
+    virtual R operator()(T1 a,T2 b) {
         return ptrToRealFunction(a,b);
-      
+
     };
-    
-    virtual R operator()(T1 a,T2 b, T3 c){
-      throw "Incorrect number of arguments";
+
+    virtual R operator()(T1 a,T2 b, T3 c) {
+        throw "Incorrect number of arguments";
     };
-    
-    
+
+
     virtual ~CallBackTwoParam() {};
 };
 
 template<typename T, typename R, typename T1, typename T2, typename T3>
-class CallBackThreeParam : public CallBack<R,T1,T2,T3>{
+class CallBackThreeParam : public CallBack<R,T1,T2,T3> {
 
-    private:
-      T ptrToRealFunction;
+private:
+    T ptrToRealFunction;
 public:
-    CallBackThreeParam(T const &ptrToFunction){
-      this->ptrToRealFunction = ptrToFunction;
+    CallBackThreeParam(T const &ptrToFunction) {
+        this->ptrToRealFunction = ptrToFunction;
     };
-    
-    virtual R operator()(){
-      throw "Incorrect number of arguments";
+
+    virtual R operator()() {
+        throw "Incorrect number of arguments";
     }
-    
-    virtual R operator()(T1 a){
-      throw "Incorrect number of arguments";
+
+    virtual R operator()(T1 a) {
+        throw "Incorrect number of arguments";
     };
-    
-    virtual R operator()(T1 a,T2 b){
-      throw "Incorrect number of arguments";
-        
-      
+
+    virtual R operator()(T1 a,T2 b) {
+        throw "Incorrect number of arguments";
+
+
     };
-    
-    virtual R operator()(T1 a,T2 b, T3 c){
-      return ptrToRealFunction(a,b,c);
+
+    virtual R operator()(T1 a,T2 b, T3 c) {
+        return ptrToRealFunction(a,b,c);
     };
-    
-    
+
+
     virtual ~CallBackThreeParam() {};
 };
 
 template<typename R, typename T1=empty, typename T2=empty, typename T3=empty>
-class CallBackNoParamImpl : public CallBack<R,T1,T2,T3>{
+class CallBackNoParamImpl : public CallBack<R,T1,T2,T3> {
 
-    private:
-      CallBack<R,T1,T2,T3>* impl;
+private:
+    CallBack<R,T1,T2,T3>* impl;
 public:
     template<typename T>
-    CallBackNoParamImpl(T const &ptrToFunction){
-      impl=new CallBackNoParam<T,R,T1,T2,T3>(ptrToFunction);
+    CallBackNoParamImpl(T const &ptrToFunction) {
+        impl=new CallBackNoParam<T,R,T1,T2,T3>(ptrToFunction);
     };
-    
-    virtual R operator()(){
-      return impl->operator()();
+
+    virtual R operator()() {
+        return impl->operator()();
     };
-    
-    virtual R operator()(T1 a){
-      return impl->operator()(a);
+
+    virtual R operator()(T1 a) {
+        return impl->operator()(a);
     };
-    
-    virtual R operator()(T1 a,T2 b){
-      return impl->operator()(a,b);
+
+    virtual R operator()(T1 a,T2 b) {
+        return impl->operator()(a,b);
     };
-    
-    virtual R operator()(T1 a,T2 b, T3 c){
-     return impl->operator()(a,b,c);
+
+    virtual R operator()(T1 a,T2 b, T3 c) {
+        return impl->operator()(a,b,c);
     };
-    
-    
+
+
     virtual ~CallBackNoParamImpl() {
-      delete impl;
+        delete impl;
     };
 };
 
 template<typename R, typename T1, typename T2=empty, typename T3=empty>
-class CallBackOneParamImpl : public CallBack<R,T1,T2,T3>{
+class CallBackOneParamImpl : public CallBack<R,T1,T2,T3> {
 
-    private:
-      CallBack<R,T1,T2,T3>* impl;
+private:
+    CallBack<R,T1,T2,T3>* impl;
 public:
     template<typename T>
-    CallBackOneParamImpl(T const &ptrToFunction){
-      impl=new CallBackOneParam<T,R,T1,T2,T3>(ptrToFunction);
+    CallBackOneParamImpl(T const &ptrToFunction) {
+        impl=new CallBackOneParam<T,R,T1,T2,T3>(ptrToFunction);
     };
-    
-    virtual R operator()(){
-      return impl->operator()();
+
+    virtual R operator()() {
+        return impl->operator()();
     };
-    
-    virtual R operator()(T1 a){
-      return impl->operator()(a);
+
+    virtual R operator()(T1 a) {
+        return impl->operator()(a);
     };
-    
-    virtual R operator()(T1 a,T2 b){
-      return impl->operator()(a,b);
+
+    virtual R operator()(T1 a,T2 b) {
+        return impl->operator()(a,b);
     };
-    
-    virtual R operator()(T1 a,T2 b, T3 c){
-     return impl->operator()(a,b,c);
+
+    virtual R operator()(T1 a,T2 b, T3 c) {
+        return impl->operator()(a,b,c);
     };
-    
-    
+
+
     virtual ~CallBackOneParamImpl() {
-      delete impl;
+        delete impl;
     };
 };
 
 template<typename R, typename T1, typename T2, typename T3=empty>
-class CallBackTwoParamImpl : public CallBack<R,T1,T2,T3>{
+class CallBackTwoParamImpl : public CallBack<R,T1,T2,T3> {
 
-    private:
-      CallBack<R,T1,T2,T3>* impl;
+private:
+    CallBack<R,T1,T2,T3>* impl;
 public:
     template<typename T>
-    CallBackTwoParamImpl(T const &ptrToFunction){
-      impl=new CallBackTwoParam<T,R,T1,T2,T3>(ptrToFunction);
+    CallBackTwoParamImpl(T const &ptrToFunction) {
+        impl=new CallBackTwoParam<T,R,T1,T2,T3>(ptrToFunction);
     };
-    
-     virtual R operator()(){
-      return impl->operator()();
+
+    virtual R operator()() {
+        return impl->operator()();
     };
-    
-    virtual R operator()(T1 a){
-      return impl->operator()(a);
+
+    virtual R operator()(T1 a) {
+        return impl->operator()(a);
     };
-    
-    virtual R operator()(T1 a,T2 b){
-      return impl->operator()(a,b);
+
+    virtual R operator()(T1 a,T2 b) {
+        return impl->operator()(a,b);
     };
-    
-    virtual R operator()(T1 a,T2 b, T3 c){
-     return impl->operator()(a,b,c);
+
+    virtual R operator()(T1 a,T2 b, T3 c) {
+        return impl->operator()(a,b,c);
     };
-    
-    
+
+
     virtual ~CallBackTwoParamImpl() {
-      delete impl;
+        delete impl;
     };
 };
 
 template<typename R, typename T1, typename T2, typename T3>
-class CallBackThreeParamImpl : public CallBack<R,T1,T2,T3>{
+class CallBackThreeParamImpl : public CallBack<R,T1,T2,T3> {
 
-    private:
-      CallBack<R,T1,T2,T3>* impl;
+private:
+    CallBack<R,T1,T2,T3>* impl;
 public:
     template<typename T>
-    CallBackThreeParamImpl(T const &ptrToFunction){
-      impl=new CallBackThreeParam<T,R,T1,T2,T3>(ptrToFunction);
+    CallBackThreeParamImpl(T const &ptrToFunction) {
+        impl=new CallBackThreeParam<T,R,T1,T2,T3>(ptrToFunction);
     };
-    
-        virtual R operator()(){
-      return impl->operator()();
+
+    virtual R operator()() {
+        return impl->operator()();
     };
-    
-    virtual R operator()(T1 a){
-      return impl->operator()(a);
+
+    virtual R operator()(T1 a) {
+        return impl->operator()(a);
     };
-    
-    virtual R operator()(T1 a,T2 b){
-      return impl->operator()(a,b);
+
+    virtual R operator()(T1 a,T2 b) {
+        return impl->operator()(a,b);
     };
-    
-    virtual R operator()(T1 a,T2 b, T3 c){
-     return impl->operator()(a,b,c);
+
+    virtual R operator()(T1 a,T2 b, T3 c) {
+        return impl->operator()(a,b,c);
     };
-    
-    
+
+
     virtual ~CallBackThreeParamImpl() {
-      delete impl;
+        delete impl;
     };
 };
 
 template <typename R>
 CallBack<R, empty, empty, empty>* CreateCallback (R (*fnPtr)()) {
-  return new CallBackNoParamImpl<R, empty,empty,empty>(fnPtr);
+    return new CallBackNoParamImpl<R, empty,empty,empty>(fnPtr);
 }
 
 template <typename R, typename T1>
 CallBack<R, T1, empty, empty>* CreateCallback (R (*fnPtr)(T1)) {
-  return new CallBackOneParamImpl<R, T1,empty,empty>(fnPtr);
+    return new CallBackOneParamImpl<R, T1,empty,empty>(fnPtr);
 }
 
 template <typename R, typename T1,typename T2>
 CallBack<R, T1, T2,empty>* CreateCallback (R (*fnPtr)(T1, T2)) {
-  return new CallBackTwoParamImpl<R, T1, T2,empty>(fnPtr);
+    return new CallBackTwoParamImpl<R, T1, T2,empty>(fnPtr);
 }
 
 template <typename R, typename T1,typename T2,typename T3>
 CallBack<R, T1, T2,T3>* CreateCallback (R (*fnPtr)(T1, T2, T3)) {
-  return new CallBackThreeParamImpl<R, T1, T2,T3>(fnPtr);
+    return new CallBackThreeParamImpl<R, T1, T2,T3>(fnPtr);
 }
 
 }

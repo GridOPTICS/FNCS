@@ -34,42 +34,49 @@
 #include "integrator.h"
 
 using namespace std;
-namespace sim_comm{
-class Message
-{
+namespace sim_comm {
+class Message {
 public:
-  static string DESTIONATION_BCAST;
+    static string DESTIONATION_BCAST;
 private:
-  string from, to;
-  TIME timeStamp;
-  uint8_t tag;
-  uint8_t *data;
-  uint32_t size;
- public:
-  Message(string from,string to,TIME timeStamp);
-  Message(char *from,char *to, TIME timeStamp);
-  Message(string from,string to,TIME timeStamp,uint8_t* data,uint32_t dataSize,uint8_t tag=0);
-  Message(char *from,char *to, TIME timeStamp,uint8_t* data,uint32_t dataSize,uint8_t tag=0);
-  Message(const Message& other);
-  Message(uint8_t *given,uint32_t size);
-  virtual ~Message();
+    string from, to;
+    TIME timeStamp;
+    uint8_t tag;
+    uint8_t *data;
+    uint32_t size;
+public:
+    Message(string from,string to,TIME timeStamp);
+    Message(char *from,char *to, TIME timeStamp);
+    Message(string from,string to,TIME timeStamp,uint8_t* data,uint32_t dataSize,uint8_t tag=0);
+    Message(char *from,char *to, TIME timeStamp,uint8_t* data,uint32_t dataSize,uint8_t tag=0);
+    Message(const Message& other);
+    Message(uint8_t *given,uint32_t size);
+    virtual ~Message();
 
-  /* Returns the time stamp of message adjusted to sime time*/
-  TIME getAdjustedTime();
+    /* Returns the time stamp of message adjusted to sime time*/
+    TIME getAdjustedTime();
 
-  /* Returns the framework time of the message*/
-  TIME getTime();
+    /* Returns the framework time of the message*/
+    TIME getTime();
 
-  string getTo() const { return to; }
-  string getFrom() const { return from; }
-  uint8_t getTag() const {return tag;}
-  uint32_t getSize() const {return size;}
-  void peek(uint8_t *peekBuffer,uint32_t size);
-  /*Returns a copy of the data*/
-  uint8_t* getData();
-  bool isBroadCast();
-  virtual void serialize(uint8_t*& buffToReturn,uint32_t& buffSize);
-  virtual void deserialize(uint8_t *buff,uint32_t buffSize);
+    string getTo() const {
+        return to;
+    }
+    string getFrom() const {
+        return from;
+    }
+    uint8_t getTag() const {
+        return tag;
+    }
+    uint32_t getSize() const {
+        return size;
+    }
+    void peek(uint8_t *peekBuffer,uint32_t size);
+    /*Returns a copy of the data*/
+    uint8_t* getData();
+    bool isBroadCast();
+    virtual void serialize(uint8_t*& buffToReturn,uint32_t& buffSize);
+    virtual void deserialize(uint8_t *buff,uint32_t buffSize);
 };
 
 }

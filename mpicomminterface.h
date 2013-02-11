@@ -43,67 +43,64 @@ class ObjectCommInterface;
 
 #define FNCS_TAG 3627
 
-class MpiIsendPacket
-{
-    public:
-        MpiIsendPacket() {}
+class MpiIsendPacket {
+public:
+    MpiIsendPacket() {}
 
-        MpiIsendPacket(int destination_rank, char *message, MPI_Request request)
-            :   destination_rank(destination_rank)
-            ,   message(message)
-            ,   request(request)
-        {}
+    MpiIsendPacket(int destination_rank, char *message, MPI_Request request)
+        :   destination_rank(destination_rank)
+        ,   message(message)
+        ,   request(request)
+    {}
 
-        ~MpiIsendPacket()
-        {
-            delete [] message;
-        }
+    ~MpiIsendPacket() {
+        delete [] message;
+    }
 
-        int destination_rank;
-        char *message;
-        MPI_Request request;
+    int destination_rank;
+    char *message;
+    MPI_Request request;
 };
 
-class MpiCommInterface : public AbsCommInterface
-{
-    private:
-        MPI_Comm comm;
-        list<MpiIsendPacket> sentMessages;
+class MpiCommInterface : public AbsCommInterface {
+private:
+    MPI_Comm comm;
+    list<MpiIsendPacket> sentMessages;
 
-    protected:
-        void make_progress();
+protected:
+    void make_progress();
 
-    public:
-        MpiCommInterface(MPI_Comm comm);
+public:
+    MpiCommInterface(MPI_Comm comm);
 
-        virtual ~MpiCommInterface();
+    virtual ~MpiCommInterface();
 
-        /** @copydoc AbsCommInterface::realSendMessage(Message*) */
-        virtual void realSendMessage(Message *given);
+    /** @copydoc AbsCommInterface::realSendMessage(Message*) */
+    virtual void realSendMessage(Message *given);
 
-        /** @copydoc AbsCommInterface::realGetMessage() */
-        virtual Message* realGetMessage();
+    /** @copydoc AbsCommInterface::realGetMessage() */
+    virtual Message* realGetMessage();
 
-        /** @copydoc AbsCommInterface::realReduceMinTime(uint64_t) */
-        virtual uint64_t realReduceMinTime(uint64_t myTime);
+    /** @copydoc AbsCommInterface::realReduceMinTime(uint64_t) */
+    virtual uint64_t realReduceMinTime(uint64_t myTime);
 
-        /** @copydoc AbsCommInterface::realReduceTotalSendReceive(uint64_t,uint64_t) */
-        virtual uint64_t realReduceTotalSendReceive(uint64_t send,uint64_t receive);
+    /** @copydoc AbsCommInterface::realReduceTotalSendReceive(uint64_t,uint64_t) */
+    virtual uint64_t realReduceTotalSendReceive(uint64_t send,uint64_t receive);
 
-        /** @copydoc AbsCommInterface::addObjectInterface(string,ObjectCommInterface*) */
-        void addObjectInterface(string objectName,ObjectCommInterface *given);
+    /** @copydoc AbsCommInterface::addObjectInterface(string,ObjectCommInterface*) */
+    void addObjectInterface(string objectName,ObjectCommInterface *given);
 
-        /** @copydoc AbsCommInterface::startReceiver() */
-        void startReceiver();
+    /** @copydoc AbsCommInterface::startReceiver() */
+    void startReceiver();
 
-        /** @copydoc AbsCommInterface::isReceiverRunning() */
-        bool isReceiverRunning();
-        
-        /** @copydoc AbsCommInterface::stopReceiver() */
-        void stopReceiver();
+    /** @copydoc AbsCommInterface::isReceiverRunning() */
+    bool isReceiverRunning();
 
-        /** @copydoc AbsCommInterface::sendAll() */
-        void sendAll();
+    /** @copydoc AbsCommInterface::stopReceiver() */
+    void stopReceiver();
+
+    /** @copydoc AbsCommInterface::sendAll() */
+    void sendAll();
 };
 
 }

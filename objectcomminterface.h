@@ -38,17 +38,16 @@
 
 using namespace std;
 
-namespace sim_comm{
+namespace sim_comm {
 
 class AbsCommInterface;
-  /*This class provides the send/receive message interface for objects that want to communicate with other object through comm simm
-   */
-class ObjectCommInterface
-{
-  friend class Integrator;
-  friend class AbsCommInterface;
-  
-  private:
+/*This class provides the send/receive message interface for objects that want to communicate with other object through comm simm
+ */
+class ObjectCommInterface {
+    friend class Integrator;
+    friend class AbsCommInterface;
+
+private:
     string attachedObjectName;
     vector<Message*> inbox,outbox;
     ObjectCommInterface(string objectName);
@@ -60,30 +59,30 @@ class ObjectCommInterface
     void clear();
     uint32_t objectRank;
 public:
-  /*Returns the number of messages the ibject has for the current time*/
-  int getInboxMessagesCount();
-  /*Returns true if object has more messages for the currentim time*/
-  bool hasMoreMessages();
-  /*Returns the number a message for the current time 
-   * The returned pointer is owned by the client, the framework does not delte it.
-   */
-  Message* getNextInboxMessage();
-  /*Returns all messages the object received for the current time frame.
-   * The returned pointer is owned by the client, the framework does noit delete them
-   */
-  vector<Message*> getAllInboxMessages();
-  /* Sends a message the given pointer is owned by the framework and framework deltes it!
-   * 
-   */
-  void send(Message *given);
-  /* Returns the rank of the object
-   * Objects rank determines the remote simulator it can talk to!
-   */
-  uint32_t getMyRank(){
-  
-    return objectRank;
-  }
-  ~ObjectCommInterface();
+    /*Returns the number of messages the ibject has for the current time*/
+    int getInboxMessagesCount();
+    /*Returns true if object has more messages for the currentim time*/
+    bool hasMoreMessages();
+    /*Returns the number a message for the current time
+     * The returned pointer is owned by the client, the framework does not delte it.
+     */
+    Message* getNextInboxMessage();
+    /*Returns all messages the object received for the current time frame.
+     * The returned pointer is owned by the client, the framework does noit delete them
+     */
+    vector<Message*> getAllInboxMessages();
+    /* Sends a message the given pointer is owned by the framework and framework deltes it!
+     *
+     */
+    void send(Message *given);
+    /* Returns the rank of the object
+     * Objects rank determines the remote simulator it can talk to!
+     */
+    uint32_t getMyRank() {
+
+        return objectRank;
+    }
+    ~ObjectCommInterface();
 };
 
 
