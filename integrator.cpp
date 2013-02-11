@@ -33,7 +33,7 @@ namespace sim_comm{
 
 Integrator* Integrator::instance=NULL;
   
-Integrator::Integrator(AbsCommInterface *currentInterface, time_metric simTimeStep, int numberOfCommNodes, TIME gracePeriod)
+Integrator::Integrator(AbsCommInterface *currentInterface,time_metric simTimeStep,int numberOfCommNodes, TIME gracePeriod)
 {
   this->currentInterface=currentInterface;
   this->simTimeMetric=simTimeStep;

@@ -33,7 +33,7 @@
 #include "integrator.h"
 
 #include "util/time.h"
-#include "absmessage.h"
+#include "message.h"
 #include <vector>
 
 using namespace std;
@@ -50,10 +50,10 @@ class ObjectCommInterface
   
   private:
     string attachedObjectName;
-    vector<AbsMessage*> inbox,outbox;
+    vector<Message*> inbox,outbox;
     ObjectCommInterface(string objectName);
-    void newMessage(AbsMessage* given);
-    vector<AbsMessage*> getOutBox();
+    void newMessage(Message* given);
+    vector<Message*> getOutBox();
     //AbsMessage *nextMessage;
     vector<int> msgs;
     vector<int>::iterator it;
@@ -67,15 +67,15 @@ public:
   /*Returns the number a message for the current time 
    * The returned pointer is owned by the client, the framework does not delte it.
    */
-  AbsMessage* getNextInboxMessage();
+  Message* getNextInboxMessage();
   /*Returns all messages the object received for the current time frame.
    * The returned pointer is owned by the client, the framework does noit delete them
    */
-  vector<AbsMessage*> getAllInboxMessages();
+  vector<Message*> getAllInboxMessages();
   /* Sends a message the given pointer is owned by the framework and framework deltes it!
    * 
    */
-  void send(AbsMessage *given);
+  void send(Message *given);
   /* Returns the rank of the object
    * Objects rank determines the remote simulator it can talk to!
    */

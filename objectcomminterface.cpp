@@ -42,7 +42,7 @@ ObjectCommInterface::~ObjectCommInterface()
  this->outbox.clear();
 }
 
-void ObjectCommInterface::send(AbsMessage* given)
+void ObjectCommInterface::send(Message* given)
 {
     this->outbox.push_back(given);
 }
@@ -59,7 +59,7 @@ int ObjectCommInterface::getInboxMessagesCount()
   int toReturn=0;
   for(int i=0;i<inbox.size();i++){
   
-    AbsMessage *msg=inbox[i];
+    Message *msg=inbox[i];
     if(msg->getTime()<=currentTime && msg->getTime()>graceTime)
       toReturn++;
   }
@@ -67,18 +67,18 @@ int ObjectCommInterface::getInboxMessagesCount()
   return toReturn;
 }
 
-std::vector< AbsMessage* > ObjectCommInterface::getAllInboxMessages()
+std::vector< Message* > ObjectCommInterface::getAllInboxMessages()
 {
   TIME currentTime=Integrator::getCurSimeTime();
   TIME graceTime=currentTime- Integrator::getGracePreiod();
   
-  vector<AbsMessage *> toReturn;
+  vector<Message *> toReturn;
   
   vector<int> locs;
   
   for(int i=0;i<inbox.size();i++){
   
-    AbsMessage *msg=inbox[i];
+    Message *msg=inbox[i];
     if(msg->getTime()<=currentTime && msg->getTime()>=graceTime){
       locs.push_back(i);
       toReturn.push_back(msg);
@@ -102,7 +102,7 @@ bool ObjectCommInterface::hasMoreMessages()
       //this->msgs.clear();
      for(int i=0;i<inbox.size();i++){
   
-	AbsMessage *msg=inbox[i];
+	Message *msg=inbox[i];
 	if(msg->getTime()<=currentTime && msg->getTime()>=graceTime){
 	      this->msgs.push_back(i);
      
@@ -128,21 +128,25 @@ bool ObjectCommInterface::hasMoreMessages()
   }
 }
 
-AbsMessage* ObjectCommInterface::getNextInboxMessage()
+Message* ObjectCommInterface::getNextInboxMessage()
 {
   return this->inbox[*it];
 }
 
-void ObjectCommInterface::newMessage(AbsMessage* given)
+void ObjectCommInterface::newMessage(Message* given)
 {
   this->outbox.push_back(given);
 }
 
-std::vector< AbsMessage* > ObjectCommInterface::getOutBox()
+std::vector< Message* > ObjectCommInterface::getOutBox()
 {
    //outbox implementation
 }
 
+void ObjectCommInterface::clear()
+{
+  //implement
+}
 
 
 }

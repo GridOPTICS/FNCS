@@ -29,7 +29,7 @@
 #ifndef ABSCOMMINTERFACE_H
 #define ABSCOMMINTERFACE_H
 
-#include "absmessage.h"
+#include "message.h"
 #include <map>
 #include <pthread.h>
 #include <iostream>
@@ -68,11 +68,11 @@ public:
   /* The real send message method, calling this will send the message to another sim_comm
    * Throws InterfaceErrorException if the send operation fails;
    */
-  virtual void realSendMessage(AbsMessage *given) =0;
+  virtual void realSendMessage(Message *given) =0;
   /* Reall receive message method, calling this will block until a message is received from a sim_comm
    * Throw InterfaceErrorException if the receive operation fails
    */
-  virtual AbsMessage* realGetMessage() =0;
+  virtual Message* realGetMessage() =0;
   /* Reduce min time operation.
    * Throws InterfaceErrorException when the reduce operation fails
    */

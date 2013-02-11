@@ -26,7 +26,7 @@
 */
 #include "config.h"
 
-#include "util/time.h"
+#include "time.h"
 
 namespace sim_comm{
 

@@ -70,7 +70,7 @@ void AbsCommInterface::sendAll()
       ObjectCommInterface *in=it->second;
       if(in->getInboxMessagesCount()>0){
       
-	vector<AbsMessage*>  outmessges=in->getOutBox();
+	vector<Message*>  outmessges=in->getOutBox();
 	for(int i=0;i<outmessges.size();i++){
 	  try{
 	    this->realSendMessage(outmessges[i]);
