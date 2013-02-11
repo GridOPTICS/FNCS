@@ -38,7 +38,7 @@ using namespace std;
 
 namespace sim_comm {
 
-class AbsMessage;
+class Message;
 class ObjectCommInterface;
 
 #define FNCS_TAG 3627
@@ -78,11 +78,11 @@ class MpiCommInterface : public AbsCommInterface
 
         virtual ~MpiCommInterface();
 
-        /** @copydoc AbsCommInterface::realSendMessage(AbsMessage*) */
-        virtual void realSendMessage(AbsMessage *given);
+        /** @copydoc AbsCommInterface::realSendMessage(Message*) */
+        virtual void realSendMessage(Message *given);
 
         /** @copydoc AbsCommInterface::realGetMessage() */
-        virtual AbsMessage* realGetMessage();
+        virtual Message* realGetMessage();
 
         /** @copydoc AbsCommInterface::realReduceMinTime(uint64_t) */
         virtual uint64_t realReduceMinTime(uint64_t myTime);

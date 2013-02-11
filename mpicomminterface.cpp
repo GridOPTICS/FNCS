@@ -38,7 +38,7 @@
 
 /* our headers */
 #include "abscomminterface.h"
-#include "absmessage.h"
+#include "message.h"
 #include "mpicomminterface.h"
 #include "objectcomminterface.h"
 
@@ -71,7 +71,7 @@ MpiCommInterface::~MpiCommInterface()
 }
 
 
-void MpiCommInterface::realSendMessage(AbsMessage *given)
+void MpiCommInterface::realSendMessage(Message *given)
 {
     MpiIsendPacket bundle;
     map<string,ObjectCommInterface*>::iterator iter;
@@ -95,7 +95,7 @@ void MpiCommInterface::realSendMessage(AbsMessage *given)
 }
 
 
-AbsMessage* MpiCommInterface::realGetMessage()
+Message* MpiCommInterface::realGetMessage()
 {
     make_progress();
 

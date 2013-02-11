@@ -122,7 +122,7 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" \
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libfncs_api_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
-am_libfncs_api_la_OBJECTS = abscomminterface.lo absmessage.lo \
+am_libfncs_api_la_OBJECTS = abscomminterface.lo message.lo \
 	integrator.lo mpicomminterface.lo objectcomminterface.lo \
 	util/time.lo
 libfncs_api_la_OBJECTS = $(am_libfncs_api_la_OBJECTS)
@@ -343,7 +343,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
-include_HEADERS = abscomminterface.h absmessage.h integrator.h \
+include_HEADERS = abscomminterface.h message.h integrator.h \
 	mpicomminterface.h objectcomminterface.h util/callback.h \
 	util/time.h
 lib_LTLIBRARIES = libfncs_api.la
@@ -352,7 +352,7 @@ AM_CXXFLAGS =
 AM_CPPFLAGS = $(MPI_CPPFLAGS)
 AM_LDFLAGS = $(MPI_LDFLAGS) $(MPI_LDFLAGS)
 LDADD = libfncs_api.la $(MPI_LIBS)
-libfncs_api_la_SOURCES = abscomminterface.cpp absmessage.cpp \
+libfncs_api_la_SOURCES = abscomminterface.cpp message.cpp \
 	integrator.cpp mpicomminterface.cpp objectcomminterface.cpp \
 	util/time.cpp
 tests_sanity_SOURCES = tests/sanity.cpp
@@ -534,8 +534,8 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/abscomminterface.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/absmessage.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/integrator.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/message.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpicomminterface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/objectcomminterface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/sanity.Po@am__quote@
