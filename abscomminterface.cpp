@@ -24,12 +24,18 @@
     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+#include "config.h"
 
+#include <utility>
 
 #include "abscomminterface.h"
+#include "objectcomminterface.h"
 #include "integrator.h"
 
+using namespace std;
+
 namespace sim_comm{
+
 AbsCommInterface::AbsCommInterface(uint32_t myRank)
 {
   this->receiveCount=0;

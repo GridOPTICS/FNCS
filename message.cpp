@@ -26,11 +26,14 @@
 */
 #include "config.h"
 
+#include <cstring>
+#include <sstream>
+#include <vector>
+
 #include "message.h"
 #include "util/time.h"
-#include <cstring>
-#include <vector>
-#include <sstream>
+
+using namespace std;
 
 namespace sim_comm{
   

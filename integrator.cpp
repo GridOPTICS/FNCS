@@ -26,8 +26,9 @@
 */
 #include "config.h"
 
-#include "integrator.h"
 #include "abscomminterface.h"
+#include "integrator.h"
+#include "objectcomminterface.h"
 
 namespace sim_comm{
 

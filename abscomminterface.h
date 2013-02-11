@@ -24,86 +24,122 @@
     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
-
 #ifndef ABSCOMMINTERFACE_H
 #define ABSCOMMINTERFACE_H
 
-#include "message.h"
-#include <map>
 #include <pthread.h>
+
 #include <iostream>
+#include <map>
 #include <string>
 #include <vector>
-#include "objectcomminterface.h"
+
+#include "message.h"
 
 using namespace std;
-namespace sim_comm{
- // class ObjectCommInterface;
-  class ObjectInterfaceRegistrationException : exception{
-  virtual const char* what() const throw()
-    {
-      return "Cannot attach interface to a non-remote object!";
+
+namespace sim_comm {
+
+class ObjectCommInterface;
+
+class ObjectInterfaceRegistrationException : exception {
+    virtual const char* what() const throw() {
+        return "Cannot attach interface to a non-remote object!";
     }
-    
-    
-  };
-  
-    class InterfaceErrorException : exception{
-  virtual const char* what() const throw()
-    {
-      return "Interface operation failed!!";
+};
+
+class InterfaceErrorException : exception {
+    virtual const char* what() const throw() {
+        return "Interface operation failed!!";
     }
-    
-    
-  };
-class AbsCommInterface
-{
+};
+
+class AbsCommInterface {
 protected:
-  map<string,ObjectCommInterface*> interfaces;
-  bool receiverRunning;
-  uint64_t sendCount,receiveCount;
-  uint32_t myRank;
+    map<string,ObjectCommInterface*> interfaces; /**< @TODO doc */
+    bool receiverRunning; /**< @TODO doc */
+    uint64_t sendCount,receiveCount; /**< @TODO doc */
+    uint32_t myRank; /**< @TODO doc */
 public:
-  /* The real send message method, calling this will send the message to another sim_comm
-   * Throws InterfaceErrorException if the send operation fails;
-   */
-  virtual void realSendMessage(Message *given) =0;
-  /* Reall receive message method, calling this will block until a message is received from a sim_comm
-   * Throw InterfaceErrorException if the receive operation fails
-   */
-  virtual Message* realGetMessage() =0;
-  /* Reduce min time operation.
-   * Throws InterfaceErrorException when the reduce operation fails
-   */
-  virtual uint64_t realReduceMinTime(uint64_t myTime) =0;
-  /* Reduce total send receive operation.
-   * Throws InterfaceErrorException when the reduce operation fails
-   */
-  virtual uint64_t realReduceTotalSendReceive(uint64_t send,uint64_t receive) =0;
-  AbsCommInterface(uint32_t myRank);
-  /*USed by the integrator to register an object.
-   */
-  void addObjectInterface(string objectName,ObjectCommInterface *given);
-  /* Starts the receiver thread.
-   */
-  void startReceiver();
-  /* Returns true if the reciever thread is running.
-   */
-  bool isReceiverRunning();
-  /* Kills the receiver thread
-   */
-  void stopReceiver();
-  /* Called by the integrator to send all the messages.
-   */
-  void sendAll();
-  /* Returns the rank of the simulator.
-   */
-  uint32_t getMyRank(){
-  
-     return this->myRank;
-  }
-  virtual ~AbsCommInterface();
+    /**
+     * Constructor taking a rank.
+     *
+     * @param[in] myRank rank
+     */
+    AbsCommInterface(uint32_t myRank);
+
+    /**
+     * Destructor.
+     */
+    virtual ~AbsCommInterface();
+
+    /**
+     * The real send message method, calling this will send the message to
+     * another sim_comm.
+     *
+     * @param[in] given the Message instance
+     * @throw InterfaceErrorException if the send operation fails
+     */
+    virtual void realSendMessage(Message *given) =0;
+
+    /**
+     * Reall receive message method, calling this will block until a message is
+     * received from a sim_comm.
+     *
+     * @throw InterfaceErrorException if the receive operation fails
+     * @return the Message instance
+     */
+    virtual Message* realGetMessage() =0;
+
+    /**
+     * Reduce min time operation.
+     *
+     * @throw InterfaceErrorException when the reduce operation fails
+     * @return the min time
+     */
+    virtual uint64_t realReduceMinTime(uint64_t myTime) =0;
+
+    /**
+     * Reduce total send receive operation.
+     *
+     * @throw InterfaceErrorException when the reduce operation fails
+     */
+    virtual void realReduceTotalSendReceive(uint64_t &send, uint64_t &receive) =0;
+
+    /**
+     * Used by the integrator to register an object.
+     *
+     * @param[in] objectName TODO
+     * @param[in] given TODO
+     */
+    void addObjectInterface(string objectName,ObjectCommInterface *given);
+
+    /**
+     * Starts the receiver thread.
+     */
+    void startReceiver();
+
+    /**
+     * Returns true if the reciever thread is running.
+     */
+    bool isReceiverRunning();
+
+    /**
+     * Kills the receiver thread.
+     */
+    void stopReceiver();
+
+    /**
+     * Called by the integrator to send all the messages.
+     */
+    void sendAll();
+
+    /**
+     * Returns the rank of the simulator.
+     */
+    inline uint32_t getMyRank() { 
+        return this->myRank;
+    }
 };
 
 }
