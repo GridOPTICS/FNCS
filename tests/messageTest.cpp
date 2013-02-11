@@ -1,7 +1,8 @@
-#include "../message.h"
-#include "../integrator.h"
-#include "../util/time.h"
 #include <string.h>
+
+#include "integrator.h"
+#include "message.h"
+#include "util/time.h"
 
 using namespace sim_comm;
 

@@ -45,7 +45,7 @@ Message::Message(string from, string to,TIME timeStamp) {
     this->timeStamp=convertToFrameworkTime(Integrator::getCurSimMetric(),timeStamp);
 }
 
-Message::Message(char* from, char* to,TIME timeStamp) {
+Message::Message(const char* from, const char* to,TIME timeStamp) {
     this->from=string(from);
     this->to=string(to);
     this->timeStamp=convertToFrameworkTime(Integrator::getCurSimMetric(),timeStamp);
@@ -61,7 +61,7 @@ Message::Message(string from, string to, TIME timeStamp, uint8_t* data, uint32_t
     this->tag=tag;
 }
 
-Message::Message(char* from, char* to, TIME timeStamp, uint8_t* data, uint32_t dataSize, uint8_t tag) {
+Message::Message(const char* from, const char* to, TIME timeStamp, uint8_t* data, uint32_t dataSize, uint8_t tag) {
     this->from=string(from);
     this->to=string(to);
     this->timeStamp=convertToFrameworkTime(Integrator::getCurSimMetric(),timeStamp);

@@ -38,3 +38,6 @@ libfncs_api_la_SOURCES += util/time.cpp
 
 check_PROGRAMS += tests/sanity
 tests_sanity_SOURCES = tests/sanity.cpp
+
+check_PROGRAMS += tests/messageTest
+tests_messageTest_SOURCES = tests/messageTest.cpp
