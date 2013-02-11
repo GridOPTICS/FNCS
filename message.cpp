@@ -142,7 +142,7 @@ void Message::serialize(uint8_t*& buffToReturn,uint32_t& buffSize)
     buff.push_back(data[i]);
   }
   
-  buffToReturn=new uint8_t[size];
+  buffToReturn=new uint8_t[buff.size()];
   copy(buff.begin(),buff.end(),buffToReturn);
   buffSize=buff.size();
 }

@@ -48,10 +48,10 @@ private:
   AbsCommInterface *currentInterface;
   TIME gracePreiod;
   CallBack<TIME,empty,empty,empty>* getTimeCallBack;
-  Integrator(AbsCommInterface *currentInterface,time_metric simTimeStep,int numberOfCommNodes, TIME gracePeriod);
+  
   static Integrator* instance;
 public:
-
+  Integrator(AbsCommInterface *currentInterface,time_metric simTimeStep,int numberOfCommNodes, TIME gracePeriod);
   virtual TIME GetNextTime(TIME currentTime,TIME nextTime);
   virtual bool doDispatchNextEvent(TIME currentTime,TIME nextTime);
   static ObjectCommInterface *getCommInterface(string objectName);

@@ -84,6 +84,17 @@ ObjectCommInterface* Integrator::getCommInterface(string objectName)
   return toReturn;
 }
 
+bool Integrator::doDispatchNextEvent(TIME currentTime, TIME nextTime)
+{
+  return true;
+}
+
+TIME Integrator::GetNextTime(TIME currentTime, TIME nextTime)
+{
+  return 0;
+}
+
+
 int Integrator::getRank()
 {
   return instance->currentInterface->getMyRank();
