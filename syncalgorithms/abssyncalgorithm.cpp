@@ -28,6 +28,7 @@
 
 #include "abssyncalgorithm.h"
 
+
 namespace sim_comm
 {
   

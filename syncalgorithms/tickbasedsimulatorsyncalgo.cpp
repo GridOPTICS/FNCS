@@ -28,6 +28,8 @@
 
 #include "tickbasedsimulatorsyncalgo.h"
 
+#include "integrator.h"
+#include "abscomminterface.h"
 
 namespace sim_comm
 {
