@@ -53,7 +53,7 @@ namespace sim_comm
 	TIME nextEstTime;
 
 	uint8_t diff=interface->realReduceTotalSendReceive();
-
+	cout << "Got deff" << endl;
 	//network unstable, we need to wait!
 	nextEstTime=currentTime+1;
 	if(diff==0)

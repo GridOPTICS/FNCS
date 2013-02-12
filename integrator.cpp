@@ -43,6 +43,7 @@ Integrator::Integrator(
     this->simTimeMetric=simTimeStep;
     this->gracePreiod=gracePeriod;
     this->allowRegistrations = true;
+    this->syncAlgo=algo;
 }
 
 Integrator::~Integrator(){
