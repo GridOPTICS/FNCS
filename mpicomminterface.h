@@ -79,6 +79,9 @@ public:
     /** @copydoc AbsCommInterface::realSendMessage(Message*) */
     virtual void realSendMessage(Message *given);
 
+    /** @copydoc AbsCommInterface::realBroadcastMessage(Message*) */
+    virtual uint64_t realBroadcastMessage(Message *given);
+
     /** @copydoc AbsCommInterface::realGetMessage() */
     virtual Message* realGetMessage();
 

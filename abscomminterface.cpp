@@ -49,13 +49,11 @@ bool AbsCommInterface::isReceiverRunning() {
 void AbsCommInterface::addObjectInterface(
         string objectName,
         ObjectCommInterface* given) {
-    /* TODO
-    if(given->getMyRank()==myRank) {
+    if (this->interfaces.count(objectName) != 0) {
+        /* enforce unique names and one-time registrations */
         throw ObjectInterfaceRegistrationException();
     }
-
     this->interfaces.insert(pair<string,ObjectCommInterface*>(objectName,given));
-    */
 }
 
 void AbsCommInterface::startReceiver() {
@@ -77,17 +75,12 @@ void AbsCommInterface::sendAll() {
             vector<Message*>  outmessges=in->getOutBox();
             for(int i=0; i<outmessges.size(); i++) {
                 try {
-                    this->realSendMessage(outmessges[i]);
-                    if(outmessges[i]->isBroadCast()) {
-
-                        /* TODO */
-#if 0
-                        sendCount+=Integrator::getNumberOfCommNodes();
-#endif
-                    }
+                    if (outmessges[i]->isBroadCast()) {
+                        sendCount += this->realBroadcastMessage(outmessges[i]);
+                    } 
                     else {
-
-                        sendCount+=1;
+                        sendCount += 1;
+                        this->realSendMessage(outmessges[i]);
                     }
                 }
                 catch(InterfaceErrorException e) {

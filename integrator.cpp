@@ -41,13 +41,16 @@ Integrator::Integrator(
     this->currentInterface=currentInterface;
     this->simTimeMetric=simTimeStep;
     this->gracePreiod=gracePeriod;
+    this->allowRegistrations = true;
 }
 
 void Integrator::initIntegrator(
         AbsCommInterface *currentInterface,
         time_metric simTimeStep,
         TIME gracePeriod) {
-    instance=new Integrator(currentInterface,simTimeStep,gracePeriod);
+    if (nullptr == instance) {
+        instance=new Integrator(currentInterface,simTimeStep,gracePeriod);
+    }   
 }
 
 
@@ -76,8 +79,15 @@ time_metric Integrator::getCurSimMetric() {
 }
 
 ObjectCommInterface* Integrator::getCommInterface(string objectName) {
-    ObjectCommInterface *toReturn=new ObjectCommInterface(objectName);
-    instance->currentInterface->addObjectInterface(objectName,toReturn);
+    ObjectCommInterface *toReturn = nullptr;
+
+    if (instance->allowRegistrations) {
+        toReturn = new ObjectCommInterface(objectName);
+        instance->currentInterface->addObjectInterface(objectName,toReturn);
+    }
+    else {
+        throw ObjectInterfaceRegistrationException();
+    }
 
     return toReturn;
 }

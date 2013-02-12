@@ -44,7 +44,7 @@ class ObjectCommInterface;
 
 class ObjectInterfaceRegistrationException : exception {
     virtual const char* what() const throw() {
-        return "Cannot attach interface to a non-remote object!";
+        return "No more registrations are allowed at this time";
     }
 };
 
@@ -80,6 +80,15 @@ public:
      * @throw InterfaceErrorException if the send operation fails
      */
     virtual void realSendMessage(Message *given) =0;
+
+    /**
+     * The real broadcast message method, calling this will send the message to
+     * every other sim_comm.
+     *
+     * @param[in] given the Message instance
+     * @throw InterfaceErrorException if the send operation fails
+     */
+    virtual uint64_t realBroadcastMessage(Message *given) =0;
 
     /**
      * Reall receive message method, calling this will block until a message is

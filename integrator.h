@@ -45,17 +45,18 @@ private:
     AbsCommInterface *currentInterface;
     TIME gracePreiod;
     CallBack<TIME,empty,empty,empty>* getTimeCallBack;
+    bool allowRegistrations;
 
     static Integrator* instance;
 
-public:
     /**
-     * TODO
+     * Constructor.
      */
     Integrator(
             AbsCommInterface *currentInterface,
             time_metric simTimeStep,
             TIME gracePeriod);
+public:
 
     /**
      * TODO
@@ -68,9 +69,22 @@ public:
     virtual bool doDispatchNextEvent(TIME currentTime, TIME nextTime);
 
     /**
-     * TODO
+     * Registers an object for communication.
+     *
+     * Objects are referred to by name. Names are globally unique.
+     * Registrations occur once at the beginning of an application. Once all
+     * registrations have been made, the finalizeRegistrations() method should
+     * be called.
      */
     static ObjectCommInterface *getCommInterface(string objectName);
+
+    /**
+     * Indicate that communication object registrations have completed.
+     *
+     * This method is collective across all Integrator instances in order to
+     * efficiently exchange metadata.
+     */
+    static void finalizeRegistrations();
 
     /**
      * TODO

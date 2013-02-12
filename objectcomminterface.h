@@ -24,8 +24,6 @@
     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
-
 #ifndef OBJECTCOMMINTERFACE_H
 #define OBJECTCOMMINTERFACE_H
 
@@ -49,39 +47,53 @@ class ObjectCommInterface {
 
 private:
     string attachedObjectName;
-    vector<Message*> inbox,outbox;
-    ObjectCommInterface(string objectName);
-    void newMessage(Message* given);
-    vector<Message*> getOutBox();
+    vector<Message*> inbox;
+    vector<Message*> outbox;
     //AbsMessage *nextMessage;
     vector<int> msgs;
     vector<int>::iterator it;
+
+    /** Constructor. */
+    ObjectCommInterface(string objectName);
+
+    /** TODO */
     void clear();
-    uint32_t objectRank;
+
+    /** TODO */
+    void newMessage(Message* given);
+
+    /** TODO */
+    vector<Message*> getOutBox();
+
 public:
-    /*Returns the number of messages the ibject has for the current time*/
+    /** Returns the number of messages the ibject has for the current time */
     int getInboxMessagesCount();
-    /*Returns true if object has more messages for the currentim time*/
+
+    /** Returns true if object has more messages for the currentim time */
     bool hasMoreMessages();
-    /*Returns the number a message for the current time
-     * The returned pointer is owned by the client, the framework does not delte it.
+
+    /**
+     * Returns the number a message for the current time
+     *
+     * The returned pointer is owned by the client, the framework does not
+     * delte it.
      */
     Message* getNextInboxMessage();
-    /*Returns all messages the object received for the current time frame.
-     * The returned pointer is owned by the client, the framework does noit delete them
+
+    /**
+     * Returns all messages the object received for the current time frame.
+     * The returned pointer is owned by the client, the framework does not
+     * delete them.
      */
     vector<Message*> getAllInboxMessages();
-    /* Sends a message the given pointer is owned by the framework and framework deltes it!
-     *
+
+    /** 
+     * Sends a message the given pointer is owned by the framework and
+     * framework deltes it!
      */
     void send(Message *given);
-    /* Returns the rank of the object
-     * Objects rank determines the remote simulator it can talk to!
-     */
-    uint32_t getMyRank() {
 
-        return objectRank;
-    }
+    /** Destructor. */
     ~ObjectCommInterface();
 };
 

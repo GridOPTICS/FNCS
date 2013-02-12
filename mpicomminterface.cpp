@@ -81,15 +81,22 @@ void MpiCommInterface::realSendMessage(Message *given) {
         MPI_Abort(comm, 1);
     }
 
+    assert(0); // TODO
+#if 0
     bundle.destination_rank = iter->second->getMyRank();
     bundle.message = new char[sizeof(TIME)];
     MPI_Isend(bundle.message, sizeof(TIME), MPI_CHAR,
               bundle.destination_rank, FNCS_TAG, comm, &(bundle.request));
     sentMessages.push_back(bundle);
+#endif
 
     make_progress();
 }
 
+
+uint64_t MpiCommInterface::realBroadcastMessage(Message *given) {
+    assert(0); // TODO
+}
 
 Message* MpiCommInterface::realGetMessage() {
     make_progress();

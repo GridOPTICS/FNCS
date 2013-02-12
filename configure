@@ -595,7 +595,7 @@ PACKAGE_STRING='Framework for Network Co-Simulation 0.1'
 PACKAGE_BUGREPORT='jeff.daily@pnnl.gov'
 PACKAGE_URL=''
 
-ac_unique_file="absmessage.h"
+ac_unique_file="integrator.h"
 # Factoring default headers for most tests.
 ac_includes_default="\
 #include <stdio.h>
