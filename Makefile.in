@@ -53,7 +53,8 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS =
-check_PROGRAMS = tests/sanity$(EXEEXT) tests/messageTest$(EXEEXT)
+check_PROGRAMS = tests/sanity$(EXEEXT) tests/messageTest$(EXEEXT) \
+	tests/simmer$(EXEEXT)
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
@@ -140,6 +141,10 @@ am_tests_sanity_OBJECTS = tests/sanity.$(OBJEXT)
 tests_sanity_OBJECTS = $(am_tests_sanity_OBJECTS)
 tests_sanity_LDADD = $(LDADD)
 tests_sanity_DEPENDENCIES = libfncs_api.la $(am__DEPENDENCIES_1)
+am_tests_simmer_OBJECTS = tests/simmer.$(OBJEXT)
+tests_simmer_OBJECTS = $(am_tests_simmer_OBJECTS)
+tests_simmer_LDADD = $(LDADD)
+tests_simmer_DEPENDENCIES = libfncs_api.la $(am__DEPENDENCIES_1)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -175,9 +180,9 @@ am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
 SOURCES = $(libfncs_api_la_SOURCES) $(tests_messageTest_SOURCES) \
-	$(tests_sanity_SOURCES)
+	$(tests_sanity_SOURCES) $(tests_simmer_SOURCES)
 DIST_SOURCES = $(libfncs_api_la_SOURCES) $(tests_messageTest_SOURCES) \
-	$(tests_sanity_SOURCES)
+	$(tests_sanity_SOURCES) $(tests_simmer_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -363,6 +368,7 @@ libfncs_api_la_SOURCES = abscomminterface.cpp message.cpp \
 	util/time.cpp
 tests_sanity_SOURCES = tests/sanity.cpp
 tests_messageTest_SOURCES = tests/messageTest.cpp
+tests_simmer_SOURCES = tests/simmer.cpp
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -535,6 +541,11 @@ tests/sanity.$(OBJEXT): tests/$(am__dirstamp) \
 tests/sanity$(EXEEXT): $(tests_sanity_OBJECTS) $(tests_sanity_DEPENDENCIES) $(EXTRA_tests_sanity_DEPENDENCIES) tests/$(am__dirstamp)
 	@rm -f tests/sanity$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(tests_sanity_OBJECTS) $(tests_sanity_LDADD) $(LIBS)
+tests/simmer.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
+tests/simmer$(EXEEXT): $(tests_simmer_OBJECTS) $(tests_simmer_DEPENDENCIES) $(EXTRA_tests_simmer_DEPENDENCIES) tests/$(am__dirstamp)
+	@rm -f tests/simmer$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(tests_simmer_OBJECTS) $(tests_simmer_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -552,6 +563,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/objectcomminterface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/messageTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/sanity.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/simmer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@util/$(DEPDIR)/time.Plo@am__quote@
 
 .cpp.o:

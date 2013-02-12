@@ -41,3 +41,6 @@ tests_sanity_SOURCES = tests/sanity.cpp
 
 check_PROGRAMS += tests/messageTest
 tests_messageTest_SOURCES = tests/messageTest.cpp
+
+check_PROGRAMS += tests/simmer
+tests_simmer_SOURCES = tests/simmer.cpp
