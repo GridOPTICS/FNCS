@@ -7,7 +7,7 @@
 #include <sys/unistd.h>
 #include <cstdlib>
 #include "integrator.h"
-#include "mpicominterface.h"
+#include "mpicomminterface.h"
 #include "util/time.h"
 #include <iostream>
 
@@ -21,13 +21,16 @@ static void network_simulator()
     MpiCommInterface *comm = new MpiCommInterface(MPI_COMM_WORLD);
     Integrator::initIntegratorTickBased(comm,MILLISECONDS,5);
 
-    //eventTime=0;
+    TIME eventTimeGranted=eventTime[0];
+    int counter=0;
     for(int i=0;i<10;i++){
     	//execute calculations that will solve all our problems
     	usleep(rand()%2000);
     	//start the time sync
     	cout << "OtherSim: My current time is " << eventTime[i] << " next time I'll skip to " << eventTime[i+1] << endl;
-    	TIME eventTime=Integrator::getNextTime((TIME)eventTime[i],(TIME)eventTime[i+1]);
+    	eventTimeGranted=Integrator::getNextTime(eventTimeGranted,eventTime[counter+1]);
+    	if(eventTimeGranted==eventTime[counter+1])
+    		counter++;
     	cout << "OtherSim: I'm granted " << eventTime;
     }
 }
