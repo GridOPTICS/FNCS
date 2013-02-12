@@ -10,6 +10,7 @@
 #include "mpicomminterface.h"
 #include "util/time.h"
 #include <iostream>
+#include <fstream>
 
 using namespace std;
 using namespace sim_comm;
@@ -20,8 +21,12 @@ static void network_simulator()
 	TIME eventTime[]={102,203,800,1000,1010,3000,4500,7000,8010,9900};
     MpiCommInterface *comm = new MpiCommInterface(MPI_COMM_WORLD, true);
     Integrator::initIntegratorTickBased(comm,MILLISECONDS,5);
+
+	ofstream myFile;
+
     comm->finalizeRegistrations();
 
+	myFile.open("OtherSim.txt");
     TIME eventTimeGranted=eventTime[0];
     int counter=0;
     for(int i=0;i<10;i++){
@@ -29,10 +34,14 @@ static void network_simulator()
     	usleep(rand()%2000);
     	//start the time sync
     	cout << "OtherSim: My current time is " << eventTime[i] << " next time I'll skip to " << eventTime[i+1] << endl;
+    	myFile << "OtherSim: My current time is " << eventTime[i] << " next time I'll skip to " << eventTime[i+1] << "\n";
     	eventTimeGranted=Integrator::getNextTime(eventTimeGranted,eventTime[counter+1]);
     	if(eventTimeGranted==eventTime[counter+1])
     		counter++;
     	cout << "OtherSim: I'm granted " << eventTimeGranted << endl;
+    	myFile << "OtherSim: I'm granted " << eventTimeGranted << "\n";
+
+>
     }
 }
 
@@ -42,16 +51,25 @@ static void generic_simulator()
 	TIME eventTime;
 	MpiCommInterface *comm = new MpiCommInterface(MPI_COMM_WORLD, false);
 	Integrator::initIntegratorTickBased(comm,SECONDS,5);
+
+	ofstream myFile;
+
     comm->finalizeRegistrations();
 
+
+	myFile.open("GenSim.txt");
 	eventTime=0;
 	for(int i=0;i<10;i++){
 		//execute calculations that will solve all our problems
 		usleep(rand()%2000);
 		//start the time sync
 		cout << "GenSim: My current time is " << eventTime << " next time I'll skip to " << i+1 << endl;
-		TIME eventTime=Integrator::getNextTime(eventTime,(TIME)i+1);
+
+		myFile << "GenSim: My current time is " << eventTime << " next time I'll skip to " << i+1 << "\n";
+		eventTime=Integrator::getNextTime(eventTime,(TIME)i+1);
 		cout << "GenSim: I'm granted " << eventTime << endl;
+		myFile << "GenSim: I'm granted " << eventTime << "\n";
+
 	}
 }
 

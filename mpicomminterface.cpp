@@ -310,7 +310,7 @@ void MpiCommInterface::make_progress() {
     int incoming = 1;
     list<MpiIsendPacket>::iterator iter;
 
-    if (!this->isReceiverRunning()) {
+    if (!this->receiverRunning) {
         return;
     }
 

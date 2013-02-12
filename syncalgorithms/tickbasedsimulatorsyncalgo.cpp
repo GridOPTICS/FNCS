@@ -52,19 +52,20 @@ namespace sim_comm
   {
 	TIME nextEstTime;
 
-	uint8_t diff=interface->realReduceTotalSendReceive();
-	cout << "Got deff" << endl;
-	//network unstable, we need to wait!
-	nextEstTime=currentTime+1;
-	if(diff==0)
-	{ //network stable grant next time
-		nextEstTime=nextTime;
-	}
+
 
     bool busywait=false;
 
     do
     {
+    	uint8_t diff=interface->realReduceTotalSendReceive();
+    		//network unstable, we need to wait!
+    	nextEstTime=currentTime+1;
+    	if(diff==0)
+    	{ //network stable grant next time
+    			nextEstTime=nextTime;
+    	}
+
     	//Calculate next min time step
     	TIME myminNextTime=convertToFrameworkTime(Integrator::getCurSimMetric(),nextEstTime);
     	TIME minNextTime=(TIME)interface->realReduceMinTime(myminNextTime);
