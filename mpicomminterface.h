@@ -65,14 +65,20 @@ public:
 class MpiCommInterface : public AbsCommInterface {
 private:
     MPI_Comm comm;
-    int rank;
+    int commRank;
+    int commSize;
     list<MpiIsendPacket> sentMessages;
+    uint64_t localObjectCount;
+    uint64_t globalObjectCount;
+    bool iAmNetSim;
+    int netSimRank;
+    map<string,int> objectRank;
 
 protected:
     void make_progress();
 
 public:
-    MpiCommInterface(MPI_Comm comm);
+    MpiCommInterface(MPI_Comm comm, bool iAmNetSim);
 
     virtual ~MpiCommInterface();
 
@@ -93,6 +99,9 @@ public:
 
     /** @copydoc AbsCommInterface::addObjectInterface(string,ObjectCommInterface*) */
     void addObjectInterface(string objectName,ObjectCommInterface *given);
+
+    /** @copydoc AbsCommInterface::finalizeRegistrations() */
+    void finalizeRegistrations();
 
     /** @copydoc AbsCommInterface::startReceiver() */
     void startReceiver();

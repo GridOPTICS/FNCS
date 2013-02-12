@@ -28,6 +28,7 @@
 
 /* C++ STL */
 #include <cassert>
+#include <climits>
 #include <iostream>
 #include <list>
 #include <map>
@@ -46,17 +47,53 @@
 using namespace std;
 using namespace sim_comm;
 
+#define DEBUG 1
 
-MpiCommInterface::MpiCommInterface(MPI_Comm comm_)
+#if   SIZEOF_UINT64_T == SIZEOF_UNSIGNED_CHAR
+static MPI_Datatype FNCS_MPI_UINT64 = MPI_UNSIGNED_CHAR;
+#elif SIZEOF_UINT64_T == SIZEOF_UNSIGNED_SHORT
+static MPI_Datatype FNCS_MPI_UINT64 = MPI_UNSIGNED_SHORT;
+#elif SIZEOF_UINT64_T == SIZEOF_UNSIGNED_INT
+static MPI_Datatype FNCS_MPI_UINT64 = MPI_UNSIGNED;
+#elif SIZEOF_UINT64_T == SIZEOF_UNSIGNED_LONG
+static MPI_Datatype FNCS_MPI_UINT64 = MPI_UNSIGNED_LONG;
+#else
+#   error cannot determine MPI_Datatype for uint64_t
+#endif
+
+
+MpiCommInterface::MpiCommInterface(MPI_Comm comm_, bool iAmNetSim)
     :   AbsCommInterface()
-    ,   comm(MPI_COMM_NULL) {
+    ,   comm(MPI_COMM_NULL)
+    ,   commRank(-1)
+    ,   commSize(-1)
+    ,   sentMessages()
+    ,   localObjectCount(0)
+    ,   globalObjectCount(0)
+    ,   iAmNetSim(iAmNetSim)
+    ,   objectRank() {
     int ierr;
-    int rank;
 
-    ierr = MPI_Comm_dup(comm_, &comm);
+    ierr = MPI_Comm_dup(comm_, &this->comm);
     assert(MPI_SUCCESS == ierr);
-    ierr = MPI_Comm_rank(comm, &this->rank);
+    ierr = MPI_Comm_rank(comm, &this->commRank);
     assert(MPI_SUCCESS == ierr);
+    ierr = MPI_Comm_size(comm, &this->commSize);
+    assert(MPI_SUCCESS == ierr);
+
+    /* determine which rank is the network simulator */
+    if (iAmNetSim) {
+        MPI_Allreduce(&this->commRank, &this->netSimRank,
+                1, MPI_INT, MPI_SUM, this->comm);
+    }
+    else {
+        int ZERO = 0;
+        MPI_Allreduce(&ZERO, &this->netSimRank,
+                1, MPI_INT, MPI_SUM, this->comm);
+    }
+#if DEBUG
+    cerr << "netSimRank=" << netSimRank << endl;
+#endif
 }
 
 
@@ -72,23 +109,29 @@ void MpiCommInterface::realSendMessage(Message *given) {
     MpiIsendPacket bundle;
     map<string,ObjectCommInterface*>::iterator iter;
 
+    assert(!this->allowRegistrations);
+
     make_progress();
 
     iter = interfaces.find(given->getTo());
     if (iter == interfaces.end()) {
-        cerr << "[" << rank << "] "
+        cerr << "[" << commRank << "] "
              << "message destination not registered: " << given->getTo() << endl;
         MPI_Abort(comm, 1);
     }
 
-    assert(0); // TODO
+    if (iAmNetSim) {
 #if 0
-    bundle.destination_rank = iter->second->getMyRank();
-    bundle.message = new char[sizeof(TIME)];
-    MPI_Isend(bundle.message, sizeof(TIME), MPI_CHAR,
-              bundle.destination_rank, FNCS_TAG, comm, &(bundle.request));
-    sentMessages.push_back(bundle);
+        bundle.destination_rank = iter->second->getMyRank();
+        bundle.message = new char[sizeof(TIME)];
+        MPI_Isend(bundle.message, sizeof(TIME), MPI_CHAR,
+                bundle.destination_rank, FNCS_TAG, comm, &(bundle.request));
+        sentMessages.push_back(bundle);
 #endif
+    }
+    else {
+
+    }
 
     make_progress();
 }
@@ -99,6 +142,8 @@ uint64_t MpiCommInterface::realBroadcastMessage(Message *given) {
 }
 
 Message* MpiCommInterface::realGetMessage() {
+    assert(!this->allowRegistrations);
+
     make_progress();
 
     make_progress();
@@ -106,51 +151,40 @@ Message* MpiCommInterface::realGetMessage() {
 
 
 uint64_t MpiCommInterface::realReduceMinTime(uint64_t myTime) {
-    uint64_t retval;
-    MPI_Datatype datatype;
+    unsigned long _myTime = static_cast<unsigned long>(myTime);
+    unsigned long retval;
+
+    assert(!this->allowRegistrations);
 
     make_progress();
 
-#if   SIZEOF_UINT64_T == SIZEOF_UNSIGNED_CHAR
-    datatype = MPI_UNSIGNED_CHAR;
-#elif SIZEOF_UINT64_T == SIZEOF_UNSIGNED_SHORT
-    datatype = MPI_UNSIGNED_SHORT;
-#elif SIZEOF_UINT64_T == SIZEOF_UNSIGNED_INT
-    datatype = MPI_UNSIGNED;
-#elif SIZEOF_UINT64_T == SIZEOF_UNSIGNED_LONG
-    datatype = MPI_UNSIGNED_LONG;
-#else
-#   error cannot determine MPI_Datatype for uint64_t
+#if DEBUG
+    cerr << "[" << commRank << "] MPI_Allreduce("
+         << &_myTime << ","
+         << &retval << ","
+         << 1 << ","
+         << MPI_UNSIGNED_LONG << ","
+         << MPI_MIN << ","
+         << comm << ")" << endl;
 #endif
-
-    MPI_Allreduce(&myTime, &retval, 1, datatype, MPI_MIN, comm);
+    MPI_Allreduce(&_myTime, &retval, 1, MPI_UNSIGNED_LONG, MPI_MIN, comm);
+    MPI_Barrier(comm);
 
     return retval;
 }
 
 
 uint64_t MpiCommInterface::realReduceTotalSendReceive() {
-    uint64_t recvbuf[2];
-    uint64_t sendbuf[2];
-    MPI_Datatype datatype;
+    unsigned long recvbuf[2];
+    unsigned long sendbuf[2];
+
+    assert(!this->allowRegistrations);
 
     make_progress();
 
-#if   SIZEOF_UINT64_T == SIZEOF_UNSIGNED_CHAR
-    datatype = MPI_UNSIGNED_CHAR;
-#elif SIZEOF_UINT64_T == SIZEOF_UNSIGNED_SHORT
-    datatype = MPI_UNSIGNED_SHORT;
-#elif SIZEOF_UINT64_T == SIZEOF_UNSIGNED_INT
-    datatype = MPI_UNSIGNED;
-#elif SIZEOF_UINT64_T == SIZEOF_UNSIGNED_LONG
-    datatype = MPI_UNSIGNED_LONG;
-#else
-#   error cannot determine MPI_Datatype for uint64_t
-#endif
-
     sendbuf[0] = sendCount;
     sendbuf[1] = receiveCount;
-    MPI_Allreduce(sendbuf, recvbuf, 2, datatype, MPI_SUM, comm);
+    MPI_Allreduce(sendbuf, recvbuf, 2, MPI_UNSIGNED_LONG, MPI_SUM, comm);
     assert(recvbuf[0] >= recvbuf[1]);
 
     return recvbuf[0] - recvbuf[1];
@@ -158,16 +192,85 @@ uint64_t MpiCommInterface::realReduceTotalSendReceive() {
 
 
 void MpiCommInterface::addObjectInterface(
-    string objectName, ObjectCommInterface *given) {
+        string objectName,
+        ObjectCommInterface *given) {
     map<string,ObjectCommInterface*>::iterator iter;
 
-    make_progress();
+    AbsCommInterface::addObjectInterface(objectName,given);
+    ++this->localObjectCount;
+}
 
-    iter = interfaces.find(objectName);
-    if (iter != interfaces.end()) {
-        cerr << "[" << rank << "] "
-             << "object registered already exists: " << objectName << endl;
-        MPI_Abort(comm, 1);
+
+void MpiCommInterface::finalizeRegistrations() {
+    int ierr = MPI_SUCCESS;
+    uintmax_t ZERO = 0;
+    uintmax_t *object_counts = new uintmax_t[commSize];
+    uintptr_t object_counts_sum = 0;
+
+    AbsCommInterface::finalizeRegistrations();
+
+    /* gather the number of registered objects to the net sim */
+    if (iAmNetSim) {
+        ierr = MPI_Gather(&ZERO, 1, FNCS_MPI_UINT64,
+                object_counts, 1, FNCS_MPI_UINT64, netSimRank, comm);
+        assert(MPI_SUCCESS == ierr);
+    }
+    else {
+        ierr = MPI_Gather(&localObjectCount, 1, FNCS_MPI_UINT64,
+                object_counts, 1, FNCS_MPI_UINT64, netSimRank, comm);
+        assert(MPI_SUCCESS == ierr);
+    }
+
+    /* sum up object counts so we can broadcast back to other sims */
+    if (iAmNetSim) {
+        for (int i=0; i<commSize; ++i) {
+            object_counts_sum += object_counts[i];
+#if DEBUG
+            cerr << "rank " << i << " has "
+                 << object_counts[i] << " objects" << endl;
+#endif
+        }
+    }
+
+    /* broadcast */
+    ierr = MPI_Bcast(&object_counts_sum, 1, FNCS_MPI_UINT64, netSimRank, comm);
+    assert(MPI_SUCCESS == ierr);
+#if DEBUG
+    cerr << "[" << commRank << "] global object count = "
+         << object_counts_sum << endl;
+#endif
+
+    /* net sim needs to know which objects are associated with which ranks so
+     * it can route messages */
+    /** @todo TODO this is the worst possible way to implement obejct->rank
+     * mapping */
+    if (iAmNetSim) {
+        char name[LINE_MAX];
+        for (int i=0; i<commSize; ++i) {
+            if (i != commRank) {
+                for (int j=0; j<object_counts[i]; ++j) {
+                    int size;
+                    ierr = MPI_Recv(&size, 1, MPI_INT, i,
+                            FNCS_TAG+i+1, comm, MPI_STATUS_IGNORE);
+                    assert(MPI_SUCCESS == ierr);
+                    assert(size < LINE_MAX);
+                    ierr = MPI_Recv(name, LINE_MAX, MPI_CHAR, i,
+                            FNCS_TAG+i+1, comm, MPI_STATUS_IGNORE);
+                    string str_name(name);
+                    assert(objectRank.count(str_name) == 0);
+                    objectRank[str_name] = i;
+                }
+            }
+        }
+    }
+    else {
+        map<string,ObjectCommInterface*>::const_iterator it;
+        for (it=interfaces.begin(); it!=interfaces.end(); ++it) {
+            int size = it->first.size() + 1; /* include null terminator */
+            MPI_Send(&size, 1, MPI_INT, netSimRank, FNCS_TAG+commRank+1, comm);
+            MPI_Send(const_cast<char*>(it->first.c_str()), size+1, MPI_CHAR,
+                    netSimRank, FNCS_TAG+commRank+1, comm);
+        }
     }
 }
 
@@ -180,13 +283,15 @@ void MpiCommInterface::startReceiver() {
 
 
 bool MpiCommInterface::isReceiverRunning() {
-    make_progress();
+    assert(!this->allowRegistrations);
 
     return receiverRunning;
 }
 
 
 void MpiCommInterface::stopReceiver() {
+    assert(!this->allowRegistrations);
+
     make_progress();
 
     receiverRunning = false;
@@ -194,6 +299,8 @@ void MpiCommInterface::stopReceiver() {
 
 
 void MpiCommInterface::sendAll() {
+    assert(!this->allowRegistrations);
+
     make_progress();
 }
 
@@ -203,9 +310,11 @@ void MpiCommInterface::make_progress() {
     int incoming = 1;
     list<MpiIsendPacket>::iterator iter;
 
-    if (!isReceiverRunning()) {
+    if (!this->isReceiverRunning()) {
         return;
     }
+
+    assert(!this->allowRegistrations);
 
     /* make progress on sent messages */
     for (iter=sentMessages.begin(); iter!=sentMessages.end(); /*++iter*/) {

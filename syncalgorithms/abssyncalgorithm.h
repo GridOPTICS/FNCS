@@ -30,6 +30,7 @@
 #define ABSSYNCALGORITHM_H
 
 #include "util/time.h"
+#include "util/time.h"
 
 namespace sim_comm
 {

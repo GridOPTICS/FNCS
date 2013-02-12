@@ -18,8 +18,9 @@ using namespace sim_comm;
 static void network_simulator()
 {
 	TIME eventTime[]={102,203,800,1000,1010,3000,4500,7000,8010,9900};
-    MpiCommInterface *comm = new MpiCommInterface(MPI_COMM_WORLD);
+    MpiCommInterface *comm = new MpiCommInterface(MPI_COMM_WORLD, true);
     Integrator::initIntegratorTickBased(comm,MILLISECONDS,5);
+    comm->finalizeRegistrations();
 
     TIME eventTimeGranted=eventTime[0];
     int counter=0;
@@ -31,7 +32,7 @@ static void network_simulator()
     	eventTimeGranted=Integrator::getNextTime(eventTimeGranted,eventTime[counter+1]);
     	if(eventTimeGranted==eventTime[counter+1])
     		counter++;
-    	cout << "OtherSim: I'm granted " << eventTime;
+    	cout << "OtherSim: I'm granted " << eventTimeGranted << endl;
     }
 }
 
@@ -39,8 +40,9 @@ static void network_simulator()
 static void generic_simulator()
 {
 	TIME eventTime;
-	MpiCommInterface *comm = new MpiCommInterface(MPI_COMM_WORLD);
+	MpiCommInterface *comm = new MpiCommInterface(MPI_COMM_WORLD, false);
 	Integrator::initIntegratorTickBased(comm,SECONDS,5);
+    comm->finalizeRegistrations();
 
 	eventTime=0;
 	for(int i=0;i<10;i++){
@@ -49,7 +51,7 @@ static void generic_simulator()
 		//start the time sync
 		cout << "GenSim: My current time is " << eventTime << " next time I'll skip to " << i+1 << endl;
 		TIME eventTime=Integrator::getNextTime(eventTime,(TIME)i+1);
-		cout << "GenSim: I'm granted " << eventTime;
+		cout << "GenSim: I'm granted " << eventTime << endl;
 	}
 }
 
