@@ -37,16 +37,17 @@ Integrator* Integrator::instance=NULL;
 Integrator::Integrator(
         AbsCommInterface *currentInterface,
         time_metric simTimeStep,
-        int numberOfCommNodes,
         TIME gracePeriod) {
     this->currentInterface=currentInterface;
     this->simTimeMetric=simTimeStep;
-    this->numberOfCommNodes=numberOfCommNodes;
     this->gracePreiod=gracePeriod;
 }
 
-void Integrator::initIntegrator(AbsCommInterface *currentInterface, time_metric simTimeStep, int numberOfCommNodes, TIME gracePeriod) {
-    instance=new Integrator(currentInterface,simTimeStep,numberOfCommNodes,gracePeriod);
+void Integrator::initIntegrator(
+        AbsCommInterface *currentInterface,
+        time_metric simTimeStep,
+        TIME gracePeriod) {
+    instance=new Integrator(currentInterface,simTimeStep,gracePeriod);
 }
 
 
@@ -88,20 +89,5 @@ bool Integrator::doDispatchNextEvent(TIME currentTime, TIME nextTime) {
 TIME Integrator::getNextTime(TIME currentTime, TIME nextTime) {
     return 0;
 }
-
-
-#if 0
-int Integrator::getRank() {
-    return instance->currentInterface->getMyRank();
-}
-
-ObjectCommInterface* Integrator::getCommInterface(char* objectName) {
-
-}
-
-int Integrator::getNumberOfCommNodes() {
-    return instance->numberOfCommNodes;
-}
-#endif
 
 }

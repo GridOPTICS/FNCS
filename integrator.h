@@ -42,7 +42,6 @@ class ObjectCommInterface;
 class Integrator {
 private:
     time_metric simTimeMetric;
-    int numberOfCommNodes;
     AbsCommInterface *currentInterface;
     TIME gracePreiod;
     CallBack<TIME,empty,empty,empty>* getTimeCallBack;
@@ -56,7 +55,6 @@ public:
     Integrator(
             AbsCommInterface *currentInterface,
             time_metric simTimeStep,
-            int numberOfCommNodes,
             TIME gracePeriod);
 
     /**
@@ -78,18 +76,6 @@ public:
      * TODO
      */
     static ObjectCommInterface *getCommInterface(char *objectName);
-
-#if 0
-    /**
-     * TODO
-     */
-    static int getRank();
-
-    /**
-     * TODO
-     */
-    static int getNumberOfCommNodes();
-#endif
 
     /**
      * Returns the simulator adjusted grace period
@@ -117,7 +103,6 @@ public:
     static void initIntegrator(
             AbsCommInterface *currentInterface,
             time_metric simTimeStep,
-            int numberOfCommNodes,
             TIME gracePeriod);
 
     /**

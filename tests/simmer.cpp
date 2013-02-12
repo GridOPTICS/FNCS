@@ -6,6 +6,7 @@
 
 #include "integrator.h"
 #include "mpicomminterface.h"
+#include "util/time.h"
 
 using namespace std;
 using namespace sim_comm;
@@ -13,13 +14,15 @@ using namespace sim_comm;
 
 static void network_simulator()
 {
-    /*initIntegrator*/
+    MpiCommInterface *comm = new MpiCommInterface(MPI_COMM_WORLD);
+    Integrator::initIntegrator(comm,MILLISECONDS,5);
 }
 
 
 static void generic_simulator()
 {
-    /*initIntegrator*/
+    MpiCommInterface *comm = new MpiCommInterface(MPI_COMM_WORLD);
+    Integrator::initIntegrator(comm,SECONDS,5);
 }
 
 
@@ -28,7 +31,6 @@ int main(int argc, char **argv)
     int ierr = 0;
     int comm_rank = 0;
     int comm_size = 0;
-    MpiCommInterface *comm = nullptr;
 
     ierr = MPI_Init(&argc, &argv);
     assert(MPI_SUCCESS == ierr);
