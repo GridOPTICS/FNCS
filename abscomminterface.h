@@ -105,7 +105,7 @@ public:
      * @throw InterfaceErrorException when the reduce operation fails
      * @return the min time
      */
-    virtual uint64_t realReduceMinTime(uint64_t myTime) =0;
+    virtual uint64_t realReduceMinTime() =0;
 
     /**
      * Reduce total send receive operation.
