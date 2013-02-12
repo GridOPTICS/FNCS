@@ -83,7 +83,7 @@ public:
     virtual Message* realGetMessage();
 
     /** @copydoc AbsCommInterface::realReduceMinTime(uint64_t) */
-    virtual uint64_t realReduceMinTime();
+    virtual uint64_t realReduceMinTime(uint64_t myTime);
 
     /** @copydoc AbsCommInterface::realReduceTotalSendReceive(uint64_t,uint64_t) */
     virtual uint64_t realReduceTotalSendReceive();
