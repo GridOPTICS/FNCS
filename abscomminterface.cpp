@@ -103,7 +103,10 @@ void AbsCommInterface::sendAll() {
 }
 
 AbsCommInterface::~AbsCommInterface() {
-    this->interfaces.clear();
+	map<string,ObjectCommInterface*>::iterator it=this->interfaces.begin();
+	for(;it!=interfaces.end();++it)
+		delete it->second;
+	this->interfaces.clear();
 }
 
 

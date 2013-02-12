@@ -4,9 +4,12 @@
 
 #include <cassert>
 
+#include <sys/unistd.h>
+#include <cstdlib>
 #include "integrator.h"
-#include "mpicomminterface.h"
+#include "mpicominterface.h"
 #include "util/time.h"
+#include <iostream>
 
 using namespace std;
 using namespace sim_comm;
@@ -14,15 +17,37 @@ using namespace sim_comm;
 
 static void network_simulator()
 {
+	TIME eventTime[]={102,203,800,1000,1010,3000,4500,7000,8010,9900};
     MpiCommInterface *comm = new MpiCommInterface(MPI_COMM_WORLD);
-    Integrator::initIntegrator(comm,MILLISECONDS,5);
+    Integrator::initIntegratorTickBased(comm,MILLISECONDS,5);
+
+    //eventTime=0;
+    for(int i=0;i<10;i++){
+    	//execute calculations that will solve all our problems
+    	usleep(rand()%2000);
+    	//start the time sync
+    	cout << "OtherSim: My current time is " << eventTime[i] << " next time I'll skip to " << eventTime[i+1] << endl;
+    	TIME eventTime=Integrator::getNextTime((TIME)eventTime[i],(TIME)eventTime[i+1]);
+    	cout << "OtherSim: I'm granted " << eventTime;
+    }
 }
 
 
 static void generic_simulator()
 {
-    MpiCommInterface *comm = new MpiCommInterface(MPI_COMM_WORLD);
-    Integrator::initIntegrator(comm,SECONDS,5);
+	TIME eventTime;
+	MpiCommInterface *comm = new MpiCommInterface(MPI_COMM_WORLD);
+	Integrator::initIntegratorTickBased(comm,SECONDS,5);
+
+	eventTime=0;
+	for(int i=0;i<10;i++){
+		//execute calculations that will solve all our problems
+		usleep(rand()%2000);
+		//start the time sync
+		cout << "GenSim: My current time is " << eventTime << " next time I'll skip to " << i+1 << endl;
+		TIME eventTime=Integrator::getNextTime(eventTime,(TIME)i+1);
+		cout << "GenSim: I'm granted " << eventTime;
+	}
 }
 
 

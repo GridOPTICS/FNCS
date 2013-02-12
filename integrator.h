@@ -31,6 +31,8 @@
 
 #include "util/callback.h"
 #include "util/time.h"
+#include "syncalgorithms/abssyncalgorithm.h"
+#include "syncalgorithms/tickbasedsimulatorsyncalgo.h"
 
 using namespace std;
 
@@ -39,13 +41,23 @@ namespace sim_comm {
 class AbsCommInterface;
 class ObjectCommInterface;
 
+/**
+ * Integrator is the main init point for the framework.
+ * It bridges the framework with the simulator.
+ * Provides methods for easly accessing simulator and framework parameters.
+ * It is a singleton and all methods are made static for convenience, users do not need to
+ * pass instances of integrator around.
+ */
 class Integrator {
 private:
     time_metric simTimeMetric;
     AbsCommInterface *currentInterface;
     TIME gracePreiod;
     CallBack<TIME,empty,empty,empty>* getTimeCallBack;
+    AbsSyncAlgorithm *syncAlgo;
+
     bool allowRegistrations;
+
 
     static Integrator* instance;
 
@@ -53,20 +65,27 @@ private:
      * Constructor.
      */
     Integrator(
-            AbsCommInterface *currentInterface,
-            time_metric simTimeStep,
-            TIME gracePeriod);
+    		AbsCommInterface *currentInterface,
+    		AbsSyncAlgorithm *algo,
+    		time_metric simTimeStep,
+    		TIME gracePeriod);
+public:
+
 public:
 
     /**
-     * TODO
+     * Main synchronization method for tick-based simulator. This method should be called
+     * after an iteration right before the simulator starts the next iteration.
+     * @param[in] currentTime, the current time of the simulator.
+     * @param[in] nextTime, the time of the next iteration.
+     * @return, the next time granted by the simulator.
      */
-    virtual TIME getNextTime(TIME currentTime, TIME nextTime);
+    static TIME getNextTime(TIME currentTime, TIME nextTime);
 
     /**
      * TODO
      */
-    virtual bool doDispatchNextEvent(TIME currentTime, TIME nextTime);
+    static bool doDispatchNextEvent(TIME currentTime, TIME nextTime);
 
     /**
      * Registers an object for communication.
@@ -112,9 +131,9 @@ public:
     static TIME getCurSimTime();
 
     /**
-     * TODO
+     * Initializes the integrator for a tick-based simulator
      */
-    static void initIntegrator(
+    static void initIntegratorTickBased(
             AbsCommInterface *currentInterface,
             time_metric simTimeStep,
             TIME gracePeriod);
@@ -123,6 +142,13 @@ public:
      * sets simulator callback that returns time
      */
     static void setTimeCallBack(CallBack<TIME,empty,empty,empty> *t);
+
+    /**
+     * stops the integrator by calling its destructor.
+     */
+    static void stopIntegrator();
+
+    ~Integrator();
 };
 
 }

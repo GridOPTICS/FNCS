@@ -36,6 +36,7 @@ Integrator* Integrator::instance=NULL;
 
 Integrator::Integrator(
         AbsCommInterface *currentInterface,
+        AbsSyncAlgorithm *algo,
         time_metric simTimeStep,
         TIME gracePeriod) {
     this->currentInterface=currentInterface;
@@ -44,13 +45,19 @@ Integrator::Integrator(
     this->allowRegistrations = true;
 }
 
-void Integrator::initIntegrator(
-        AbsCommInterface *currentInterface,
-        time_metric simTimeStep,
-        TIME gracePeriod) {
-    if (nullptr == instance) {
-        instance=new Integrator(currentInterface,simTimeStep,gracePeriod);
-    }   
+Integrator::~Integrator(){
+	this->currentInterface->stopReceiver();
+	delete currentInterface;
+	delete syncAlgo;
+	Integrator::instance=NULL;
+
+}
+
+
+
+void Integrator::initIntegratorTickBased(AbsCommInterface *currentInterface, time_metric simTimeStep, TIME gracePeriod) {
+    AbsSyncAlgorithm *algo=new TickBasedSimulatorSyncAlgo(currentInterface);
+	instance=new Integrator(currentInterface,algo,simTimeStep,gracePeriod);
 }
 
 
@@ -93,11 +100,11 @@ ObjectCommInterface* Integrator::getCommInterface(string objectName) {
 }
 
 bool Integrator::doDispatchNextEvent(TIME currentTime, TIME nextTime) {
-    return true;
+    return instance->syncAlgo->doDispatchNextEvent(currentTime,nextTime);
 }
 
 TIME Integrator::getNextTime(TIME currentTime, TIME nextTime) {
-    return 0;
+    return instance->syncAlgo->GetNextTime(currentTime,nextTime);
 }
 
 }
