@@ -19,6 +19,9 @@ AC_CONFIG_SRCDIR([integrator.h])
 ###############################################################################
 AM_INIT_AUTOMAKE([foreign subdir-objects -Wall -Werror])
 
+# Don't emit "rebuild rules" for configure, Makefile.ins, etc.
+AM_MAINTAINER_MODE
+
 ###############################################################################
 # Misc. information and package setup.
 ###############################################################################
