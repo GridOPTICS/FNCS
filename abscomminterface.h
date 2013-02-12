@@ -60,6 +60,7 @@ protected:
     bool receiverRunning; /**< @TODO doc */
     uint64_t sendCount; /**< @TODO doc */
     uint64_t receiveCount; /**< @TODO doc */
+    bool allowRegistrations;
 
 public:
     /**
@@ -105,7 +106,7 @@ public:
      * @throw InterfaceErrorException when the reduce operation fails
      * @return the min time
      */
-    virtual uint64_t realReduceMinTime() =0;
+    virtual uint64_t realReduceMinTime(uint64_t myTime) =0;
 
     /**
      * Reduce total send receive operation.
@@ -121,6 +122,14 @@ public:
      * @param[in] given TODO
      */
     void addObjectInterface(string objectName,ObjectCommInterface *given);
+
+    /**
+     * Indicate that communication object registrations have completed.
+     *
+     * This method is collective across all AbsCommInterface instances in order
+     * to efficiently exchange metadata.
+     */
+    void finalizeRegistrations();
 
     /**
      * Starts the receiver thread.

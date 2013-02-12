@@ -40,6 +40,7 @@ AbsCommInterface::AbsCommInterface() {
     this->receiveCount=0;
     this->sendCount=0;
     this->receiverRunning=false;
+    this->allowRegistrations=true;
 }
 
 bool AbsCommInterface::isReceiverRunning() {
@@ -49,11 +50,20 @@ bool AbsCommInterface::isReceiverRunning() {
 void AbsCommInterface::addObjectInterface(
         string objectName,
         ObjectCommInterface* given) {
-    if (this->interfaces.count(objectName) != 0) {
-        /* enforce unique names and one-time registrations */
+    if (this->allowRegistrations) {
+        if (this->interfaces.count(objectName) != 0) {
+            /* enforce unique names and one-time registrations */
+            throw ObjectInterfaceRegistrationException();
+        }
+        this->interfaces.insert(pair<string,ObjectCommInterface*>(objectName,given));
+    }
+    else {
         throw ObjectInterfaceRegistrationException();
     }
-    this->interfaces.insert(pair<string,ObjectCommInterface*>(objectName,given));
+}
+
+void AbsCommInterface::finalizeRegistrations() {
+    this->allowRegistrations = false;
 }
 
 void AbsCommInterface::startReceiver() {

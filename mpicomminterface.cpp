@@ -105,8 +105,7 @@ Message* MpiCommInterface::realGetMessage() {
 }
 
 
-uint64_t MpiCommInterface::realReduceMinTime() {
-    uint64_t myTime = Integrator::getCurSimTime();
+uint64_t MpiCommInterface::realReduceMinTime(uint64_t myTime) {
     uint64_t retval;
     MPI_Datatype datatype;
 
