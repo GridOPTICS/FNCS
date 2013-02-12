@@ -123,9 +123,10 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" \
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libfncs_api_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
-am_libfncs_api_la_OBJECTS = abscomminterface.lo message.lo \
-	integrator.lo mpicomminterface.lo objectcomminterface.lo \
-	util/time.lo
+am_libfncs_api_la_OBJECTS = abscomminterface.lo integrator.lo \
+	message.lo mpicomminterface.lo objectcomminterface.lo \
+	syncalgorithms/abssyncalgorithm.lo \
+	syncalgorithms/tickbasedsimulatorsyncalgo.lo util/time.lo
 libfncs_api_la_OBJECTS = $(am_libfncs_api_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -355,8 +356,10 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
-include_HEADERS = abscomminterface.h message.h integrator.h \
-	mpicomminterface.h objectcomminterface.h util/callback.h \
+include_HEADERS = abscomminterface.h integrator.h message.h \
+	mpicomminterface.h objectcomminterface.h \
+	syncalgorithms/abssyncalgorithm.h \
+	syncalgorithms/tickbasedsimulatorsyncalgo.h util/callback.h \
 	util/time.h
 lib_LTLIBRARIES = libfncs_api.la
 EXTRA_DIST = README
@@ -364,9 +367,10 @@ AM_CXXFLAGS =
 AM_CPPFLAGS = $(MPI_CPPFLAGS)
 AM_LDFLAGS = $(MPI_LDFLAGS) $(MPI_LDFLAGS)
 LDADD = libfncs_api.la $(MPI_LIBS)
-libfncs_api_la_SOURCES = abscomminterface.cpp message.cpp \
-	integrator.cpp mpicomminterface.cpp objectcomminterface.cpp \
-	util/time.cpp
+libfncs_api_la_SOURCES = abscomminterface.cpp integrator.cpp \
+	message.cpp mpicomminterface.cpp objectcomminterface.cpp \
+	syncalgorithms/abssyncalgorithm.cpp \
+	syncalgorithms/tickbasedsimulatorsyncalgo.cpp util/time.cpp
 tests_sanity_SOURCES = tests/sanity.cpp
 tests_messageTest_SOURCES = tests/messageTest.cpp
 tests_simmer_SOURCES = tests/simmer.cpp
@@ -459,6 +463,17 @@ clean-libLTLIBRARIES:
 	  echo rm -f $${locs}; \
 	  rm -f $${locs}; \
 	}
+syncalgorithms/$(am__dirstamp):
+	@$(MKDIR_P) syncalgorithms
+	@: > syncalgorithms/$(am__dirstamp)
+syncalgorithms/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) syncalgorithms/$(DEPDIR)
+	@: > syncalgorithms/$(DEPDIR)/$(am__dirstamp)
+syncalgorithms/abssyncalgorithm.lo: syncalgorithms/$(am__dirstamp) \
+	syncalgorithms/$(DEPDIR)/$(am__dirstamp)
+syncalgorithms/tickbasedsimulatorsyncalgo.lo:  \
+	syncalgorithms/$(am__dirstamp) \
+	syncalgorithms/$(DEPDIR)/$(am__dirstamp)
 util/$(am__dirstamp):
 	@$(MKDIR_P) util
 	@: > util/$(am__dirstamp)
@@ -550,6 +565,8 @@ tests/simmer$(EXEEXT): $(tests_simmer_OBJECTS) $(tests_simmer_DEPENDENCIES) $(EX
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f syncalgorithms/*.$(OBJEXT)
+	-rm -f syncalgorithms/*.lo
 	-rm -f tests/*.$(OBJEXT)
 	-rm -f util/*.$(OBJEXT)
 	-rm -f util/*.lo
@@ -562,6 +579,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/message.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpicomminterface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/objectcomminterface.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/abssyncalgorithm.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/tickbasedsimulatorsyncalgo.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/messageTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/sanity.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/simmer.Po@am__quote@
@@ -596,6 +615,7 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
+	-rm -rf syncalgorithms/.libs syncalgorithms/_libs
 	-rm -rf tests/.libs tests/_libs
 	-rm -rf util/.libs util/_libs
 
@@ -874,6 +894,8 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-rm -f syncalgorithms/$(DEPDIR)/$(am__dirstamp)
+	-rm -f syncalgorithms/$(am__dirstamp)
 	-rm -f tests/$(DEPDIR)/$(am__dirstamp)
 	-rm -f tests/$(am__dirstamp)
 	-rm -f util/$(DEPDIR)/$(am__dirstamp)
@@ -889,7 +911,7 @@ clean-am: clean-binPROGRAMS clean-checkPROGRAMS clean-generic \
 
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf ./$(DEPDIR) tests/$(DEPDIR) util/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) syncalgorithms/$(DEPDIR) tests/$(DEPDIR) util/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-hdr distclean-libtool distclean-tags
@@ -937,7 +959,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf ./$(DEPDIR) tests/$(DEPDIR) util/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) syncalgorithms/$(DEPDIR) tests/$(DEPDIR) util/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

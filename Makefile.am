@@ -20,25 +20,25 @@ LDADD += libfncs_api.la
 LDADD += $(MPI_LIBS)
 
 include_HEADERS += abscomminterface.h
-include_HEADERS += message.h
 include_HEADERS += integrator.h
+include_HEADERS += message.h
 include_HEADERS += mpicomminterface.h
 include_HEADERS += objectcomminterface.h
+include_HEADERS += syncalgorithms/abssyncalgorithm.h
+include_HEADERS += syncalgorithms/tickbasedsimulatorsyncalgo.h
 include_HEADERS += util/callback.h
 include_HEADERS += util/time.h
-include_HEADERS += syncalgorithms/abssyncalgorithm.h
-include_HEADERS += syncalgorithms/tickbasedsimulatorssncalgo.h
 
 lib_LTLIBRARIES += libfncs_api.la
 libfncs_api_la_SOURCES =
 libfncs_api_la_SOURCES += abscomminterface.cpp
-libfncs_api_la_SOURCES += message.cpp
 libfncs_api_la_SOURCES += integrator.cpp
+libfncs_api_la_SOURCES += message.cpp
 libfncs_api_la_SOURCES += mpicomminterface.cpp
 libfncs_api_la_SOURCES += objectcomminterface.cpp
-libfncs_api_la_SOURCES += util/time.cpp
 libfncs_api_la_SOURCES += syncalgorithms/abssyncalgorithm.cpp
-libfncs_api_la_SOURCES += syncalgorithms/tickbasedsimulatorssncalgo.cpp
+libfncs_api_la_SOURCES += syncalgorithms/tickbasedsimulatorsyncalgo.cpp
+libfncs_api_la_SOURCES += util/time.cpp
 
 check_PROGRAMS += tests/sanity
 tests_sanity_SOURCES = tests/sanity.cpp
