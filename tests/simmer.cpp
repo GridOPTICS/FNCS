@@ -40,8 +40,6 @@ static void network_simulator()
     		counter++;
     	cout << "OtherSim: I'm granted " << eventTimeGranted << endl;
     	myFile << "OtherSim: I'm granted " << eventTimeGranted << "\n";
-
->
     }
 }
 

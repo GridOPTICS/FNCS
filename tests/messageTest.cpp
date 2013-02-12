@@ -15,7 +15,7 @@ int main(){
   data[50]=1;
   data[0]=99;
   
-  Integrator::initIntegrator(NULL,SECONDS,5);
+  Integrator::initIntegratorTickBased(NULL,SECONDS,5);
   
   Message *t=new Message("selim","selim",0,data,100,0);
   uint8_t *serbuff;
