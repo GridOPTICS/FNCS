@@ -145,6 +145,8 @@ public:
 
     /**
      * stops the integrator by calling its destructor.
+     * This method should be called by the simulator to signal other simulators
+     * it has finished simulating.
      */
     static void stopIntegrator();
 

@@ -158,7 +158,7 @@ uint64_t MpiCommInterface::realReduceMinTime(uint64_t myTime) {
 
     make_progress();
 
-#if DEBUG
+/*#if DEBUG
     cerr << "[" << commRank << "] MPI_Allreduce("
          << &_myTime << ","
          << &retval << ","
@@ -166,7 +166,7 @@ uint64_t MpiCommInterface::realReduceMinTime(uint64_t myTime) {
          << MPI_UNSIGNED_LONG << ","
          << MPI_MIN << ","
          << comm << ")" << endl;
-#endif
+#endif*/
     MPI_Allreduce(&_myTime, &retval, 1, MPI_UNSIGNED_LONG, MPI_MIN, comm);
     MPI_Barrier(comm);
 

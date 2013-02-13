@@ -18,7 +18,7 @@ using namespace sim_comm;
 
 static void network_simulator()
 {
-	TIME eventTime[]={102,203,800,1000,1010,3000,4500,7000,8010,9900};
+	TIME eventTime[]={102,203,800,1000,1010,3000,4500,7000,8010,9900,11000};
     MpiCommInterface *comm = new MpiCommInterface(MPI_COMM_WORLD, true);
     Integrator::initIntegratorTickBased(comm,MILLISECONDS,5);
 
@@ -33,13 +33,14 @@ static void network_simulator()
     	//execute calculations that will solve all our problems
     	usleep(rand()%2000);
     	//start the time sync
-    	cout << "OtherSim: My current time is " << eventTime[i] << " next time I'll skip to " << eventTime[i+1] << endl;
-    	myFile << "OtherSim: My current time is " << eventTime[i] << " next time I'll skip to " << eventTime[i+1] << "\n";
+    	cout << "OtherSim: My current time is " << eventTime[counter] << " next time I'll skip to " << eventTime[counter+1] << endl;
+    	myFile << "OtherSim: My current time is " << eventTime[i] << " next time I'll skip to " << eventTime[counter+1] << "\n";
     	eventTimeGranted=Integrator::getNextTime(eventTimeGranted,eventTime[counter+1]);
     	if(eventTimeGranted==eventTime[counter+1])
     		counter++;
     	cout << "OtherSim: I'm granted " << eventTimeGranted << endl;
     	myFile << "OtherSim: I'm granted " << eventTimeGranted << "\n";
+
     }
 }
 
@@ -69,6 +70,8 @@ static void generic_simulator()
 		myFile << "GenSim: I'm granted " << eventTime << "\n";
 
 	}
+
+	cout << "DONE!" << endl;
 }
 
 
@@ -95,9 +98,9 @@ int main(int argc, char **argv)
         /* all other ranks are some other simulator */
         generic_simulator();
     }
-
+    cout << "DONE!" << endl;
     ierr = MPI_Finalize();
     assert(MPI_SUCCESS == ierr);
-
+    cout << "DONE!" << endl;
     return 0;
 }

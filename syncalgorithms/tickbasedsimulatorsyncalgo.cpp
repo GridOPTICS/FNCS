@@ -75,9 +75,7 @@ namespace sim_comm
     		busywait=false;
 
     	if(minNextTime < myminNextTime){
-    		//at this stage simulator can only go currentTime+1
-    		nextEstTime=currentTime+1;
-    		myminNextTime=convertToFrameworkTime(Integrator::getCurSimMetric(),nextEstTime);
+
     		if(minNextTime+Integrator::getGracePreiod()<myminNextTime) //we have to busy wait until other sims come to this time
     			busywait=true;
     		else //TODO the code above will cause re-iterations in GLD

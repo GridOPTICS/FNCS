@@ -54,7 +54,10 @@ Integrator::~Integrator(){
 
 }
 
-
+void Integrator::stopIntegrator(){
+	//we need a way signal simulators that this sim has finished.
+	delete Integrator::instance;
+}
 
 void Integrator::initIntegratorTickBased(AbsCommInterface *currentInterface, time_metric simTimeStep, TIME gracePeriod) {
     AbsSyncAlgorithm *algo=new TickBasedSimulatorSyncAlgo(currentInterface);
