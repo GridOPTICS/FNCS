@@ -32,10 +32,30 @@
 #include "util/time.h"
 #include "util/time.h"
 
+#include <sstream>
+
+using namespace std;
+
 namespace sim_comm
 {
   class AbsCommInterface;
 
+  class SyncAlgoException: exception{
+    private:
+	TIME syncedTime;
+    public:
+      virtual const char* what() const throw() {
+	  stringstream ss;
+	  ss << "Incorrect sync time:" << syncedTime;
+	  return ss.str().c_str();
+      }
+      SyncAlgoException(TIME syncedMinTime){
+      
+	this->syncedTime=syncedMinTime;
+      }
+  };
+  
+  
   class AbsSyncAlgorithm
   {
     protected:
