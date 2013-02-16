@@ -31,6 +31,7 @@
 #include "abscomminterface.h"
 #include "objectcomminterface.h"
 #include "integrator.h"
+#include "syncalgorithms/communicatorsimulatorsyncalgo.h"
 
 using namespace std;
 
@@ -109,6 +110,15 @@ AbsCommInterface::~AbsCommInterface() {
 	this->interfaces.clear();
 }
 
+void AbsCommInterface::packetLost(AbsSyncAlgorithm* given)
+{
+  CommunicatorSimulatorSyncalgo *syncAlgo=dynamic_cast<CommunicatorSimulatorSyncalgo *>(given);
+  
+  if(syncAlgo==NULL)
+    throw SyncAlgoErrorException();
+  
+  this->receiveCount++;
+}
 
 
 }

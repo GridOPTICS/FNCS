@@ -35,6 +35,8 @@ enum time_metric {
 
 typedef uint64_t TIME;
 
+extern TIME Infinity;
+
 TIME convertToMyTime(time_metric myTimeStep,TIME frameworkTime);
 TIME convertToFrameworkTime(time_metric myTimeStep,TIME current_time);
 }

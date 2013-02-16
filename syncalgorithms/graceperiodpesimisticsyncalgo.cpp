@@ -24,41 +24,72 @@
     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include "config.h"
 
-#include "time.h"
-#include <limits.h>
 
-namespace sim_comm {
+#include "graceperiodpesimisticsyncalgo.h"
 
-TIME convertToMyTime(time_metric myTimeStep,TIME frameworkTime) {
+#include "integrator.h"
+#include "abscomminterface.h"
 
-    switch (myTimeStep) {
-    case SECONDS:
-        return frameworkTime/1000000000;
-    case MILLISECONDS:
-        return frameworkTime/1000000;
-    case NANOSECONDS:
-        return frameworkTime;
-    default:
-        throw TimeException();
-    }
+namespace sim_comm
+{
+  TickBasedSimulatorSyncAlgo::TickBasedSimulatorSyncAlgo(AbsCommInterface* interface ) : AbsSyncAlgorithm(interface)
+  {
 
-}
+  }
 
-TIME infinity = ULLONG_MAX;
+  TickBasedSimulatorSyncAlgo::~TickBasedSimulatorSyncAlgo()
+  {
 
-TIME convertToFrameworkTime(time_metric myTimeStep,TIME current_time) {
+  }
 
-    switch (myTimeStep) {
-    case SECONDS:
-        return current_time*1000000000;
-    case MILLISECONDS:
-        return current_time*1000000;
-    case NANOSECONDS:
-        return current_time;
-    default:
-        throw TimeException();
-    }
-}
+  bool TickBasedSimulatorSyncAlgo::doDispatchNextEvent(TIME currentTime, TIME nextTime)
+  {
+    TIME syncedTime=this->GetNextTime(currentTime,nextTime);
+
+    return syncedTime==nextTime;
+  }
+
+  TIME TickBasedSimulatorSyncAlgo::GetNextTime(TIME currentTime, TIME nextTime)
+  {
+	TIME nextEstTime;
+
+
+
+    bool busywait=false;
+
+	  	TIME nextEstTime;
+		bool busywait=false;
+
+		do
+		{
+		    uint8_t diff=interface->realReduceTotalSendReceive();
+		    //network unstable, we need to wait!
+		    nextEstTime=currentTime+1;
+		    if(diff==0)
+		    { //network stable grant next time
+    			nextEstTime=nextTime;
+		    }
+
+		    //Calculate next min time step
+		    TIME myminNextTime=convertToFrameworkTime(Integrator::getCurSimMetric(),nextEstTime);
+		    TIME minNextTime=(TIME)interface->realReduceMinTime(myminNextTime);
+
+		    //min time is the estimated next time, so grant nextEstimated time
+		    if(minNextTime==myminNextTime)
+			      busywait=false;
+
+		    if(minNextTime < myminNextTime){
+
+			    if(minNextTime+Integrator::getGracePreiod()<myminNextTime) //we have to busy wait until other sims come to this time
+					busywait=true;
+			    else //TODO this will cause gld to re-iterate
+				  busywait=false;
+		    }
+
+
+	      }while(busywait);
+    return nextEstTime;
+  }
+
 }

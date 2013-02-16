@@ -32,7 +32,6 @@
 #include "util/callback.h"
 #include "util/time.h"
 #include "syncalgorithms/abssyncalgorithm.h"
-#include "syncalgorithms/tickbasedsimulatorsyncalgo.h"
 
 using namespace std;
 

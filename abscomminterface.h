@@ -54,6 +54,12 @@ class InterfaceErrorException : exception {
     }
 };
 
+class SyncAlgoErrorException : exception {
+    virtual const char* what() const throw() {
+        return "Operation not supported with this syncalgorithm";
+    }
+};
+
 class AbsCommInterface {
 protected:
     map<string,ObjectCommInterface*> interfaces; /**< @TODO doc */
@@ -62,6 +68,12 @@ protected:
     uint64_t receiveCount; /**< @TODO doc */
     bool allowRegistrations;
 
+     /**
+      * Called by subclasses to notify about a new message.
+      * Sub classes should not notify objectcomminterface themselves
+      * instead they should call this method.
+      */
+    void messageReceived(char *msg);
 public:
     /**
      * Constructor.
@@ -150,6 +162,12 @@ public:
      * Called by the integrator to send all the messages.
      */
     void sendAll();
+    
+    /*
+     * Called by the sync algorithm to notify that a packetLostis lost.
+     * Currently this method only works if given is an instance of commsimsync algo
+     */
+    void packetLost(AbsSyncAlgorithm *given);
 };
 
 }
