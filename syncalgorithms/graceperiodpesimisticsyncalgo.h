@@ -35,12 +35,12 @@
 
 namespace sim_comm{
 
-    class TickBasedSimulatorSyncAlgo : public AbsSyncAlgorithm
+    class GracePeriodSyncAlgo : public AbsSyncAlgorithm
     {
 
       public:
-	    TickBasedSimulatorSyncAlgo(AbsCommInterface *interface);
-	    virtual ~TickBasedSimulatorSyncAlgo();
+	    GracePeriodSyncAlgo(AbsCommInterface *interface);
+	    virtual ~ GracePeriodSyncAlgo();
 	    virtual bool doDispatchNextEvent(TIME currentTime, TIME nextTime);
 	    virtual TIME GetNextTime(TIME currentTime, TIME nextTime);
     };

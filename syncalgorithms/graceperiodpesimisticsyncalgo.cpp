@@ -33,24 +33,24 @@
 
 namespace sim_comm
 {
-  TickBasedSimulatorSyncAlgo::TickBasedSimulatorSyncAlgo(AbsCommInterface* interface ) : AbsSyncAlgorithm(interface)
+   GracePeriodSyncAlgo::GracePeriodSyncAlgo(AbsCommInterface* interface ) : AbsSyncAlgorithm(interface)
   {
 
   }
 
-  TickBasedSimulatorSyncAlgo::~TickBasedSimulatorSyncAlgo()
+   GracePeriodSyncAlgo::~GracePeriodSyncAlgo()
   {
 
   }
 
-  bool TickBasedSimulatorSyncAlgo::doDispatchNextEvent(TIME currentTime, TIME nextTime)
+  bool  GracePeriodSyncAlgo::doDispatchNextEvent(TIME currentTime, TIME nextTime)
   {
     TIME syncedTime=this->GetNextTime(currentTime,nextTime);
 
     return syncedTime==nextTime;
   }
 
-  TIME TickBasedSimulatorSyncAlgo::GetNextTime(TIME currentTime, TIME nextTime)
+  TIME  GracePeriodSyncAlgo::GetNextTime(TIME currentTime, TIME nextTime)
   {
 	TIME nextEstTime;
 
@@ -60,7 +60,8 @@ namespace sim_comm
 
 	  	TIME nextEstTime;
 		bool busywait=false;
-
+		//send all messages
+		this->interface->sendAll();
 		do
 		{
 		    uint8_t diff=interface->realReduceTotalSendReceive();

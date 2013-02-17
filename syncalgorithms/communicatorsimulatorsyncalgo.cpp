@@ -25,7 +25,7 @@ namespace sim_comm {
 	
 	TIME CommunicatorSimulatorSyncalgo::GetNextTime(TIME currentTime,TIME nextTime){
 	  	
-		bool busywait=false;
+		    this->interface->sendAll();
 
 
 		    uint8_t diff=interface->realReduceTotalSendReceive();
@@ -47,9 +47,10 @@ namespace sim_comm {
 		    TIME myminNextTime=Infinity;
 		    TIME minNextTime=(TIME)interface->realReduceMinTime(myminNextTime);
 
-		    //min time is the estimated next time, so grant nextEstimated time
+		    //If min time is infinity then there is something with the comm!
 		    if(minNextTime==myminNextTime)
 			      throw SyncAlgoException(minNextTime);
+		  
 
 		   
 		    return minNextTime;

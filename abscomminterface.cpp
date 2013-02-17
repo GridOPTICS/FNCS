@@ -32,7 +32,6 @@
 #include "objectcomminterface.h"
 #include "integrator.h"
 #include "syncalgorithms/communicatorsimulatorsyncalgo.h"
-#include "../../../llvm-3.2.src/lib/Target/CellSPU/SPUOperands.td"
 
 using namespace std;
 
@@ -133,7 +132,7 @@ void AbsCommInterface::messageReceived(uint8_t* msg,uint32_t size)
       }
       
       //let it throw an exception if the key is not found.
-      ObjectCommInterface *comm=this->interfaces[msg->getTo()];
+      ObjectCommInterface *comm=this->interfaces[demsg->getTo()];
       
       comm->newMessage(demsg);
 }

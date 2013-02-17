@@ -29,6 +29,7 @@
 #include "abscomminterface.h"
 #include "integrator.h"
 #include "objectcomminterface.h"
+#include "graceperiodpesimisticsyncalgo.h"
 
 namespace sim_comm {
 
@@ -59,8 +60,8 @@ void Integrator::stopIntegrator(){
 	delete Integrator::instance;
 }
 
-void Integrator::initIntegratorTickBased(AbsCommInterface *currentInterface, time_metric simTimeStep, TIME gracePeriod) {
-    AbsSyncAlgorithm *algo=new TickBasedSimulatorSyncAlgo(currentInterface);
+void Integrator::initIntegratorGracePeriod(AbsCommInterface *currentInterface, time_metric simTimeStep, TIME gracePeriod) {
+    AbsSyncAlgorithm *algo=new GracePeriodSyncAlgo(currentInterface);
 	instance=new Integrator(currentInterface,algo,simTimeStep,gracePeriod);
 }
 
@@ -110,5 +111,12 @@ bool Integrator::doDispatchNextEvent(TIME currentTime, TIME nextTime) {
 TIME Integrator::getNextTime(TIME currentTime, TIME nextTime) {
     return instance->syncAlgo->GetNextTime(currentTime,nextTime);
 }
+
+void Integrator::finalizeRegistrations()
+{
+  instance->currentInterface->finalizeRegistrations();
+  instance->allowRegistrations=false;
+}
+
 
 }

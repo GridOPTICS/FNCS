@@ -132,10 +132,9 @@ public:
     /**
      * Initializes the integrator for a tick-based simulator
      */
-    static void initIntegratorTickBased(
-            AbsCommInterface *currentInterface,
-            time_metric simTimeStep,
-            TIME gracePeriod);
+    static void initIntegratorGracePeriod(AbsCommInterface *currentInterface, 
+					  time_metric simTimeStep, 
+					  TIME gracePeriod);
 
     /**
      * sets simulator callback that returns time
@@ -148,6 +147,7 @@ public:
      * it has finished simulating.
      */
     static void stopIntegrator();
+    
 
     ~Integrator();
 };
