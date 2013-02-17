@@ -105,10 +105,12 @@ ObjectCommInterface* Integrator::getCommInterface(string objectName) {
 }
 
 bool Integrator::doDispatchNextEvent(TIME currentTime, TIME nextTime) {
+    instance->currentInterface->sendAll();
     return instance->syncAlgo->doDispatchNextEvent(currentTime,nextTime);
 }
 
 TIME Integrator::getNextTime(TIME currentTime, TIME nextTime) {
+    instance->currentInterface->sendAll();
     return instance->syncAlgo->GetNextTime(currentTime,nextTime);
 }
 
