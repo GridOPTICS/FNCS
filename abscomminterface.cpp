@@ -87,10 +87,13 @@ void AbsCommInterface::sendAll() {
             for(int i=0; i<outmessges.size(); i++) {
                 try {
                     if (outmessges[i]->isBroadCast()) {
-                        sendCount += this->realBroadcastMessage(outmessges[i]);
+			 int scount = this->realBroadcastMessage(outmessges[i]);
+			 if(doincrementCountersInSendReceive)
+			    sendCount +=scount;
                     } 
                     else {
-                        sendCount += 1;
+			 if(doincrementCountersInSendReceive)
+				sendCount += 1;
                         this->realSendMessage(outmessges[i]);
                     }
                 }
@@ -134,7 +137,20 @@ void AbsCommInterface::messageReceived(uint8_t* msg,uint32_t size)
       //let it throw an exception if the key is not found.
       ObjectCommInterface *comm=this->interfaces[demsg->getTo()];
       
+      if(this->doincrementCountersInSendReceive)
+	this->receiveCount++;
+      
       comm->newMessage(demsg);
+}
+
+void AbsCommInterface::setNoCounterIncrement(AbsSyncAlgorithm* given, bool state)
+{
+ CommunicatorSimulatorSyncalgo *syncAlgo=dynamic_cast<CommunicatorSimulatorSyncalgo *>(given);
+  
+  if(syncAlgo==NULL)
+    throw SyncAlgoErrorException();
+  
+  this->doincrementCountersInSendReceive=state;
 }
 
 

@@ -15,6 +15,7 @@ namespace sim_comm {
 
 	CommunicatorSimulatorSyncalgo::CommunicatorSimulatorSyncalgo(AbsCommInterface* currentInterface): AbsSyncAlgorithm(currentInterface) {
 		this->currentState=0;
+		this->interface->setNoCounterIncrement(this);
 
 	}
 
@@ -25,7 +26,7 @@ namespace sim_comm {
 	
 	TIME CommunicatorSimulatorSyncalgo::GetNextTime(TIME currentTime,TIME nextTime){
 	  	
-		    this->interface->sendAll();
+		   
 
 
 		    uint8_t diff=interface->realReduceTotalSendReceive();

@@ -67,13 +67,15 @@ class SerializationException : exception{
 };
 
 class AbsCommInterface {
+private:
+    uint64_t sendCount; /**< @TODO doc */
+    uint64_t receiveCount; /**< @TODO doc */
+    bool doincrementCountersInSendReceive;
 protected:
     map<string,ObjectCommInterface*> interfaces; /**< @TODO doc */
     bool receiverRunning; /**< @TODO doc */
-    uint64_t sendCount; /**< @TODO doc */
-    uint64_t receiveCount; /**< @TODO doc */
     bool allowRegistrations;
-
+   
      /**
       * Called by subclasses to notify about a new message.
       * Sub classes should not notify objectcomminterface themselves
@@ -169,11 +171,19 @@ public:
      */
     void sendAll();
     
-    /*
+    /**
      * Called by the sync algorithm to notify that a packetLostis lost.
      * Currently this method only works if given is an instance of commsimsync algo
      */
     void packetLost(AbsSyncAlgorithm *given);
+    
+    /**
+     * Set send and receive methods behiavior. IF state is true 
+     * they are allowed to increment algorithms, if not they won't.
+     * Currently, only commsimsync algo is allowed to set this. Calling this with other
+     * sim algos will throw an exception.
+     */
+    void setNoCounterIncrement(AbsSyncAlgorithm *given,bool state);
 };
 
 }

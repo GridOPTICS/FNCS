@@ -61,7 +61,7 @@ namespace sim_comm
 	  	TIME nextEstTime;
 		bool busywait=false;
 		//send all messages
-		this->interface->sendAll();
+		
 		do
 		{
 		    uint8_t diff=interface->realReduceTotalSendReceive();
