@@ -50,6 +50,10 @@ public:
     Message(string from,string to,TIME timeStamp,uint8_t* data,uint32_t dataSize,uint8_t tag=0);
     Message(const char *from,const char *to, TIME timeStamp,uint8_t* data,uint32_t dataSize,uint8_t tag=0);
     Message(const Message& other);
+    /**
+     * De serializes a message from the given array. The array is copied, so callers are responsible for deleteing it!
+     * 
+     */
     Message(uint8_t *given,uint32_t size);
     virtual ~Message();
 

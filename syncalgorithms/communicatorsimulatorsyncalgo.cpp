@@ -19,7 +19,7 @@ namespace sim_comm {
 	}
 
 	CommunicatorSimulatorSyncalgo::~CommunicatorSimulatorSyncalgo() {
-		// TODO Auto-generated destructor stub
+		
 	}
 	
 	

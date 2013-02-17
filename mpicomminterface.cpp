@@ -351,7 +351,7 @@ void MpiCommInterface::make_progress() {
                             comm, MPI_STATUS_IGNORE);
             assert(MPI_SUCCESS == ierr);
 
-            /* @TODO do something with the message! */
+	    this->messageReceived((uint8_t*)message,(uint32_t)size);
             delete [] message;
         }
     }

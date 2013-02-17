@@ -44,7 +44,7 @@ class ObjectCommInterface;
 
 class ObjectInterfaceRegistrationException : exception {
     virtual const char* what() const throw() {
-        return "No more registrations are allowed at this time";
+        return "No more registrations are allowed at this time.";
     }
 };
 
@@ -56,8 +56,14 @@ class InterfaceErrorException : exception {
 
 class SyncAlgoErrorException : exception {
     virtual const char* what() const throw() {
-        return "Operation not supported with this syncalgorithm";
+        return "Operation not supported with this syncalgorithm.";
     }
+};
+
+class SerializationException : exception{
+     virtual const char* what() const throw() {
+        return "Received/Sent message serialization error.";
+    } 
 };
 
 class AbsCommInterface {
@@ -73,7 +79,7 @@ protected:
       * Sub classes should not notify objectcomminterface themselves
       * instead they should call this method.
       */
-    void messageReceived(char *msg);
+    void messageReceived(uint8_t *msg);
 public:
     /**
      * Constructor.

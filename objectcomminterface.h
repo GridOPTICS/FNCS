@@ -59,7 +59,9 @@ private:
     /** TODO */
     void clear();
 
-    /** TODO */
+    /** Inserts a received message to the interfaces inbox.
+     * The message should be a shared pointer and callers shoud not delete it.
+     */
     void newMessage(Message* given);
 
     /** TODO */

@@ -32,6 +32,7 @@
 #include "objectcomminterface.h"
 #include "integrator.h"
 #include "syncalgorithms/communicatorsimulatorsyncalgo.h"
+#include "../../../llvm-3.2.src/lib/Target/CellSPU/SPUOperands.td"
 
 using namespace std;
 
@@ -118,6 +119,23 @@ void AbsCommInterface::packetLost(AbsSyncAlgorithm* given)
     throw SyncAlgoErrorException();
   
   this->receiveCount++;
+}
+
+void AbsCommInterface::messageReceived(uint8_t* msg,uint32_t size)
+{
+      Message *demsg=new Message(msg,size);
+      
+      //Get Time frame to accept the messageReceived
+      TIME timeframe=Integrator::getCurSimTime()-Integrator::getGracePreiod()*2;
+      
+      if(demsg->getTime()<timeframe){ //old message drop
+	    delete demsg;
+      }
+      
+      //let it throw an exception if the key is not found.
+      ObjectCommInterface *comm=this->interfaces[msg->getTo()];
+      
+      comm->newMessage(demsg);
 }
 
 
