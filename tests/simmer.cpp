@@ -12,21 +12,26 @@
 #include <iostream>
 #include <fstream>
 
+#include "util/callback.h"
+
 using namespace std;
 using namespace sim_comm;
 
+TIME getCurTime(){
+  return 10;
+}
 
 static void network_simulator()
 {
 	TIME eventTime[]={102,203,800,1000,1010,3000,4500,7000,8010,9900,11000};
     MpiCommInterface *comm = new MpiCommInterface(MPI_COMM_WORLD, true);
-    Integrator::initIntegratorGracePeriod(comm,MILLISECONDS,5,10);
-
+    Integrator::initIntegratorGracePeriod(comm,MILLISECONDS,5,0);
+    CallBack<TIME,empty,empty,empty>* cb=CreateCallback(getCurTime);
 	ofstream myFile;
-
+    Integrator::setTimeCallBack(cb);
     comm->finalizeRegistrations();
 
-	myFile.open("OtherSim.txt");
+    myFile.open("OtherSim.txt");
     TIME eventTimeGranted=eventTime[0];
     int counter=0;
     for(int i=0;i<10;i++){
@@ -40,8 +45,12 @@ static void network_simulator()
     		counter++;
     	cout << "OtherSim: I'm granted " << eventTimeGranted << endl;
     	myFile << "OtherSim: I'm granted " << eventTimeGranted << "\n";
-
+	if(Integrator::isFinished())
+	  break;
     }
+    cout << "I'm done!" << endl;
+    
+    Integrator::stopIntegrator();
 }
 
 
@@ -50,10 +59,11 @@ static void generic_simulator()
 	TIME eventTime;
 	MpiCommInterface *comm = new MpiCommInterface(MPI_COMM_WORLD, false);
 	Integrator::initIntegratorGracePeriod(comm,SECONDS,5,0);
-
+	//Integrator::setTimeCallBack(Make);
 	ofstream myFile;
-
-    comm->finalizeRegistrations();
+	CallBack<TIME,empty,empty,empty>* cb=CreateCallback(getCurTime);
+	Integrator::setTimeCallBack(cb);
+	comm->finalizeRegistrations();
 
 
 	myFile.open("GenSim.txt");
@@ -72,7 +82,9 @@ static void generic_simulator()
 	}
 
 	cout << "DONE!" << endl;
+	Integrator::stopIntegrator();
 }
+
 
 
 int main(int argc, char **argv)

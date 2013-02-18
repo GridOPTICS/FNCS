@@ -57,7 +57,8 @@ Integrator::~Integrator(){
 }
 
 void Integrator::stopIntegrator(){
-	instance->syncAlgo->GetNextTime(instance->getCurSimTime(),0);
+	if(!isFinished())
+	    instance->syncAlgo->GetNextTime(instance->getCurSimTime(),0);
 	delete Integrator::instance;
 }
 
@@ -146,7 +147,8 @@ TIME Integrator::getNextTime(TIME currentTime, TIME nextTime) {
     TIME curTimeInFramework=convertToFrameworkTime(instance->simTimeMetric,currentTime) - instance->offset;
     TIME nextframeTime = convertToFrameworkTime(instance->simTimeMetric,nextTime) - instance->offset;
     instance->currentInterface->sendAll();
-    return instance->syncAlgo->GetNextTime(curTimeInFramework,nextframeTime);
+    TIME toReturn=instance->syncAlgo->GetNextTime(curTimeInFramework,nextframeTime);
+    return convertToMyTime(instance->simTimeMetric,toReturn);
 }
 
 void Integrator::finalizeRegistrations()
