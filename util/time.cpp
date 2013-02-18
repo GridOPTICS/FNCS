@@ -46,7 +46,7 @@ TIME convertToMyTime(time_metric myTimeStep,TIME frameworkTime) {
 
 }
 
-TIME infinity = ULLONG_MAX;
+TIME Infinity = ULLONG_MAX;
 
 TIME convertToFrameworkTime(time_metric myTimeStep,TIME current_time) {
 
