@@ -43,7 +43,7 @@ static void network_simulator()
     Integrator::setTimeCallBack(cb);
     Integrator::getCommInterface("netObject1");
     Integrator::getCommInterface("netObject2");
-    comm->finalizeRegistrations();
+    Integrator::finalizeRegistrations();
 
     for(int i=0;i<10;i++){
         //execute calculations that will solve all our problems
@@ -82,7 +82,7 @@ static void generic_simulator()
     Integrator::setTimeCallBack(cb);
     Integrator::getCommInterface("simObject1");
     Integrator::getCommInterface("simObject2");
-    comm->finalizeRegistrations();
+    Integrator::finalizeRegistrations();
 
     eventTime=0;
     for(int i=0;i<10;i++){

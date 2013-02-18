@@ -70,8 +70,6 @@ private:
     		TIME gracePeriod);
 public:
 
-public:
-
     /**
      * Main synchronization method for tick-based simulator. This method should be called
      * after an iteration right before the simulator starts the next iteration.
@@ -107,7 +105,7 @@ public:
     /**
      * TODO
      */
-    static ObjectCommInterface *getCommInterface(char *objectName);
+    static ObjectCommInterface *getCommInterface(const char *objectName);
 
     /**
      * Returns the simulator adjusted grace period

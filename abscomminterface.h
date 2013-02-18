@@ -29,8 +29,10 @@
 
 #include <pthread.h>
 
+#include <exception>
 #include <iostream>
 #include <map>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -42,25 +44,36 @@ namespace sim_comm {
 
 class ObjectCommInterface;
 
-class ObjectInterfaceRegistrationException : exception {
-    virtual const char* what() const throw() {
-        return "No more registrations are allowed at this time.";
+class ObjectInterfaceRegistrationException : public exception {
+public:
+    ObjectInterfaceRegistrationException(const string &where, const int &line) throw() {
+        ostringstream out;
+        out << "No more registrations are allowed at this time." << endl;
+        out << where << ": line " << line << endl;
+        msg = out.str();
     }
+    virtual ~ObjectInterfaceRegistrationException() throw() {
+    }
+    virtual const char* what() const throw() {
+        return msg.c_str();
+    }
+private:
+    string msg;
 };
 
-class InterfaceErrorException : exception {
+class InterfaceErrorException : public exception {
     virtual const char* what() const throw() {
         return "Interface operation failed!!";
     }
 };
 
-class SyncAlgoErrorException : exception {
+class SyncAlgoErrorException : public exception {
     virtual const char* what() const throw() {
         return "Operation not supported with this syncalgorithm.";
     }
 };
 
-class SerializationException : exception{
+class SerializationException : public exception{
      virtual const char* what() const throw() {
         return "Received/Sent message serialization error.";
     } 
@@ -141,6 +154,14 @@ public:
      * @param[in] given TODO
      */
     void addObjectInterface(string objectName,ObjectCommInterface *given);
+
+    /**
+     * Used by the integrator to return a registered object.
+     *
+     * @param[in] objectName TODO
+     * @return the object, or NULL if not found
+     */
+    ObjectCommInterface* getObjectInterface(string objectName);
 
     /**
      * Indicate that communication object registrations have completed.

@@ -73,6 +73,7 @@ private:
     bool iAmNetSim;
     int netSimRank;
     map<string,int> objectRank;
+    ObjectCommInterface *net_oci;
 
 protected:
     void make_progress();

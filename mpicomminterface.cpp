@@ -29,6 +29,7 @@
 /* C++ STL */
 #include <cassert>
 #include <climits>
+#include <cstring>
 #include <iostream>
 #include <list>
 #include <map>
@@ -71,8 +72,11 @@ MpiCommInterface::MpiCommInterface(MPI_Comm comm_, bool iAmNetSim)
     ,   localObjectCount(0)
     ,   globalObjectCount(0)
     ,   iAmNetSim(iAmNetSim)
-    ,   objectRank() {
-    int ierr;
+    ,   objectRank()
+    ,   net_oci(NULL)
+{
+    int ierr=0;
+    int netsim_count=0;
 
     ierr = MPI_Comm_dup(comm_, &this->comm);
     assert(MPI_SUCCESS == ierr);
@@ -81,15 +85,32 @@ MpiCommInterface::MpiCommInterface(MPI_Comm comm_, bool iAmNetSim)
     ierr = MPI_Comm_size(comm, &this->commSize);
     assert(MPI_SUCCESS == ierr);
 
-    /* determine which rank is the network simulator */
+    /* assert that there is only one network simulator */
     if (iAmNetSim) {
-        MPI_Allreduce(&this->commRank, &this->netSimRank,
+        int ONE = 1;
+        ierr = MPI_Allreduce(&ONE, &netsim_count,
                 1, MPI_INT, MPI_SUM, this->comm);
+        assert(MPI_SUCCESS == ierr);
     }
     else {
         int ZERO = 0;
-        MPI_Allreduce(&ZERO, &this->netSimRank,
+        ierr = MPI_Allreduce(&ZERO, &netsim_count,
                 1, MPI_INT, MPI_SUM, this->comm);
+        assert(MPI_SUCCESS == ierr);
+    }
+    assert(1 == netsim_count);
+
+    /* determine which rank is the network simulator */
+    if (iAmNetSim) {
+        ierr = MPI_Allreduce(&this->commRank, &this->netSimRank,
+                1, MPI_INT, MPI_SUM, this->comm);
+        assert(MPI_SUCCESS == ierr);
+    }
+    else {
+        int ZERO = 0;
+        ierr = MPI_Allreduce(&ZERO, &this->netSimRank,
+                1, MPI_INT, MPI_SUM, this->comm);
+        assert(MPI_SUCCESS == ierr);
     }
 #if DEBUG
     cerr << "netSimRank=" << netSimRank << endl;
@@ -107,30 +128,40 @@ MpiCommInterface::~MpiCommInterface() {
 
 void MpiCommInterface::realSendMessage(Message *given) {
     MpiIsendPacket bundle;
-    map<string,ObjectCommInterface*>::iterator iter;
+    map<string,int>::const_iterator rank_it;
+    uint32_t size = given->getSize();
+    uint8_t *data = given->getData();
+    TIME time = Integrator::getCurSimTime();
 
     assert(!this->allowRegistrations);
 
     make_progress();
 
-    iter = interfaces.find(given->getTo());
-    if (iter == interfaces.end()) {
-        cerr << "[" << commRank << "] "
-             << "message destination not registered: " << given->getTo() << endl;
-        MPI_Abort(comm, 1);
-    }
-
     if (iAmNetSim) {
-#if 0
-        bundle.destination_rank = iter->second->getMyRank();
-        bundle.message = new char[sizeof(TIME)];
-        MPI_Isend(bundle.message, sizeof(TIME), MPI_CHAR,
+        /* net sim sends to simulator containing object */
+        rank_it = objectRank.find(given->getTo());
+        assert(objectRank.end() != rank_it);
+        bundle.destination_rank = rank_it->second;
+        bundle.message = new char[sizeof(TIME) + size];
+        memcpy(bundle.message, &time, sizeof(TIME));
+        memcpy(bundle.message+sizeof(TIME), data, given->getSize());
+        delete [] data;
+        MPI_Isend(bundle.message, sizeof(TIME) + size, MPI_CHAR,
                 bundle.destination_rank, FNCS_TAG, comm, &(bundle.request));
         sentMessages.push_back(bundle);
-#endif
     }
     else {
-
+        /* all other sims always send to the net sim */
+        rank_it = objectRank.find(given->getTo());
+        assert(objectRank.end() != rank_it);
+        bundle.destination_rank = rank_it->second;
+        bundle.message = new char[sizeof(TIME) + size];
+        memcpy(bundle.message, &time, sizeof(TIME));
+        memcpy(bundle.message+sizeof(TIME), data, given->getSize());
+        delete [] data;
+        MPI_Isend(bundle.message, sizeof(TIME) + size, MPI_CHAR,
+                this->netSimRank, FNCS_TAG, comm, &(bundle.request));
+        sentMessages.push_back(bundle);
     }
 
     make_progress();

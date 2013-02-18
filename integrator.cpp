@@ -114,25 +114,15 @@ ObjectCommInterface* Integrator::getCommInterface(string objectName) {
         instance->currentInterface->addObjectInterface(objectName,toReturn);
     }
     else {
-        throw ObjectInterfaceRegistrationException();
+        toReturn = instance->currentInterface->getObjectInterface(objectName);
     }
 
     return toReturn;
 }
 
-ObjectCommInterface* Integrator::getCommInterface(char* objectName)
+ObjectCommInterface* Integrator::getCommInterface(const char* objectName)
 {
-    ObjectCommInterface *toReturn = nullptr;
-
-    if (instance->allowRegistrations) {
-        toReturn = new ObjectCommInterface(string(objectName));
-        instance->currentInterface->addObjectInterface(string(objectName),toReturn);
-    }
-    else {
-        throw ObjectInterfaceRegistrationException();
-    }
-
-    return toReturn;
+    return Integrator::getCommInterface(string(objectName));
 }
 
 

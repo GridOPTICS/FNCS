@@ -54,13 +54,21 @@ void AbsCommInterface::addObjectInterface(
     if (this->allowRegistrations) {
         if (this->interfaces.count(objectName) != 0) {
             /* enforce unique names and one-time registrations */
-            throw ObjectInterfaceRegistrationException();
+            throw ObjectInterfaceRegistrationException(__FILE__,__LINE__);
         }
         this->interfaces.insert(pair<string,ObjectCommInterface*>(objectName,given));
     }
     else {
-        throw ObjectInterfaceRegistrationException();
+        throw ObjectInterfaceRegistrationException(__FILE__,__LINE__);
     }
+}
+
+ObjectCommInterface* AbsCommInterface::getObjectInterface(string objectName) {
+    if (this->interfaces.count(objectName) == 0) {
+        /* enforce unique names and one-time registrations */
+        throw ObjectInterfaceRegistrationException(__FILE__,__LINE__);
+    }
+    return this->interfaces[objectName];
 }
 
 void AbsCommInterface::finalizeRegistrations() {

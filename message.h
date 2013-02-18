@@ -39,7 +39,8 @@ class Message {
 public:
     static string DESTIONATION_BCAST;
 private:
-    string from, to;
+    string from;
+    string to;
     TIME timeStamp;
     uint8_t tag;
     uint8_t *data;
