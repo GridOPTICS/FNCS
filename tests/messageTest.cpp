@@ -2,7 +2,7 @@
 
 #include "integrator.h"
 #include "message.h"
-#include "util/time.h"
+#include "util/simtime.h"
 
 using namespace sim_comm;
 

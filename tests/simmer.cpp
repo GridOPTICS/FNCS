@@ -1,90 +1,109 @@
+/* autoconf header */
 #include "config.h"
 
+/* C headers */
+#include <sys/unistd.h>
+
+/* C++ STL */
+#include <cassert>
+#include <cstdlib>
+#include <exception>
+#include <fstream>
+#include <iostream>
+
+/* C 3rd party headers */
 #include <mpi.h>
 
-#include <cassert>
-
-#include <sys/unistd.h>
-#include <cstdlib>
+/* our headers */
+#include "abscomminterface.h"
 #include "integrator.h"
 #include "mpicomminterface.h"
-#include "util/time.h"
-#include <iostream>
-#include <fstream>
-
+#include "objectcomminterface.h"
 #include "util/callback.h"
+#include "util/simtime.h"
 
 using namespace std;
 using namespace sim_comm;
 
+
 TIME getCurTime(){
-  return 10;
+    return 10;
 }
 
 static void network_simulator()
 {
-	TIME eventTime[]={102,203,800,1000,1010,3000,4500,7000,8010,9900,11000};
+    TIME eventTime[]={102,203,800,1000,1010,3000,4500,7000,8010,9900,11000};
+    TIME eventTimeGranted=eventTime[0];
     MpiCommInterface *comm = new MpiCommInterface(MPI_COMM_WORLD, true);
-    Integrator::initIntegratorGracePeriod(comm,MILLISECONDS,5,0);
     CallBack<TIME,empty,empty,empty>* cb=CreateCallback(getCurTime);
-	ofstream myFile;
+    ofstream myFile("OtherSim.txt");
+    int counter=0;
+
+    Integrator::initIntegratorGracePeriod(comm,MILLISECONDS,5,0);
     Integrator::setTimeCallBack(cb);
+    Integrator::getCommInterface("netObject1");
+    Integrator::getCommInterface("netObject2");
     comm->finalizeRegistrations();
 
-    myFile.open("OtherSim.txt");
-    TIME eventTimeGranted=eventTime[0];
-    int counter=0;
     for(int i=0;i<10;i++){
-    	//execute calculations that will solve all our problems
-    	usleep(rand()%2000);
-    	//start the time sync
-    	cout << "OtherSim: My current time is " << eventTime[counter] << " next time I'll skip to " << eventTime[counter+1] << endl;
-    	myFile << "OtherSim: My current time is " << eventTime[i] << " next time I'll skip to " << eventTime[counter+1] << "\n";
-    	eventTimeGranted=Integrator::getNextTime(eventTimeGranted,eventTime[counter+1]);
-    	if(eventTimeGranted==eventTime[counter+1])
-    		counter++;
-    	cout << "OtherSim: I'm granted " << eventTimeGranted << endl;
-    	myFile << "OtherSim: I'm granted " << eventTimeGranted << "\n";
-	if(Integrator::isFinished())
-	  break;
+        //execute calculations that will solve all our problems
+        usleep(rand()%2000);
+        //start the time sync
+        cout << "OtherSim: My current time is " << eventTime[counter]
+            << " next time I'll skip to " << eventTime[counter+1] << endl;
+        myFile << "OtherSim: My current time is " << eventTime[i]
+            << " next time I'll skip to " << eventTime[counter+1] << endl;
+        eventTimeGranted=Integrator::getNextTime(
+                eventTimeGranted,eventTime[counter+1]);
+        if(eventTimeGranted==eventTime[counter+1]) {
+            counter++;
+        }
+        cout << "OtherSim: I'm granted " << eventTimeGranted << endl;
+        myFile << "OtherSim: I'm granted " << eventTimeGranted << endl;
+        if(Integrator::isFinished()) {
+            break;
+        }
     }
     cout << "I'm done!" << endl;
-    
+    myFile << "I'm done!" << endl;
+
     Integrator::stopIntegrator();
 }
 
 
 static void generic_simulator()
 {
-	TIME eventTime;
-	MpiCommInterface *comm = new MpiCommInterface(MPI_COMM_WORLD, false);
-	Integrator::initIntegratorGracePeriod(comm,SECONDS,5,0);
-	//Integrator::setTimeCallBack(Make);
-	ofstream myFile;
-	CallBack<TIME,empty,empty,empty>* cb=CreateCallback(getCurTime);
-	Integrator::setTimeCallBack(cb);
-	comm->finalizeRegistrations();
+    TIME eventTime;
+    MpiCommInterface *comm = new MpiCommInterface(MPI_COMM_WORLD, false);
+    CallBack<TIME,empty,empty,empty>* cb=CreateCallback(getCurTime);
+    ofstream myFile("GenSim.txt");
 
+    Integrator::initIntegratorGracePeriod(comm,SECONDS,5,0);
+    Integrator::setTimeCallBack(cb);
+    Integrator::getCommInterface("simObject1");
+    Integrator::getCommInterface("simObject2");
+    comm->finalizeRegistrations();
 
-	myFile.open("GenSim.txt");
-	eventTime=0;
-	for(int i=0;i<10;i++){
-		//execute calculations that will solve all our problems
-		usleep(rand()%2000);
-		//start the time sync
-		cout << "GenSim: My current time is " << eventTime << " next time I'll skip to " << i+1 << endl;
+    eventTime=0;
+    for(int i=0;i<10;i++){
+        Message *message = new Message("simObject1", "simObject2", eventTime);
+        //execute calculations that will solve all our problems
+        usleep(rand()%2000);
+        //start the time sync
+        cout << "GenSim: My current time is " << eventTime
+            << " next time I'll skip to " << i+1 << endl;
+        myFile << "GenSim: My current time is " << eventTime
+            << " next time I'll skip to " << i+1 << endl;
+        eventTime=Integrator::getNextTime(eventTime,(TIME)i+1);
+        cout << "GenSim: I'm granted " << eventTime << endl;
+        myFile << "GenSim: I'm granted " << eventTime << endl;
+        Integrator::getCommInterface("simObject1")->send(message);
+    }
+    cout << "DONE!" << endl;
+    myFile << "DONE!" << endl;
 
-		myFile << "GenSim: My current time is " << eventTime << " next time I'll skip to " << i+1 << "\n";
-		eventTime=Integrator::getNextTime(eventTime,(TIME)i+1);
-		cout << "GenSim: I'm granted " << eventTime << endl;
-		myFile << "GenSim: I'm granted " << eventTime << "\n";
-
-	}
-
-	cout << "DONE!" << endl;
-	Integrator::stopIntegrator();
+    Integrator::stopIntegrator();
 }
-
 
 
 int main(int argc, char **argv)
@@ -102,13 +121,26 @@ int main(int argc, char **argv)
     ierr = MPI_Comm_size(MPI_COMM_WORLD, &comm_size);
     assert(MPI_SUCCESS == ierr);
 
-    if (0 == comm_rank) {
-        /* comm_rank 0 is the simulated network simulator */
-        network_simulator();
+    try {
+        if (0 == comm_rank) {
+            /* comm_rank 0 is the simulated network simulator */
+            network_simulator();
+        }
+        else {
+            /* all other ranks are some other simulator */
+            generic_simulator();
+        }
+    } catch (const std::exception &e) {
+        cout << e.what() << endl;
+        MPI_Abort(MPI_COMM_WORLD, -1);
     }
-    else {
-        /* all other ranks are some other simulator */
-        generic_simulator();
+    catch (const string &e) {
+        cout << e << endl;
+        MPI_Abort(MPI_COMM_WORLD, -1);
+    }
+    catch (...) {
+        cout << "why won't it catch the right one??" << endl;
+        MPI_Abort(MPI_COMM_WORLD, -1);
     }
     cout << "DONE!" << endl;
     ierr = MPI_Finalize();

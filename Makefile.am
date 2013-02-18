@@ -30,6 +30,9 @@ include_HEADERS += syncalgorithms/graceperiodpesimisticsyncalgo.h
 include_HEADERS += util/callback.h
 include_HEADERS += util/simtime.h
 
+AM_CPPFLAGS += -I$(top_srcdir)/syncalgorithms
+AM_CPPFLAGS += -I$(top_srcdir)/util
+
 lib_LTLIBRARIES += libfncs_api.la
 libfncs_api_la_SOURCES =
 libfncs_api_la_SOURCES += abscomminterface.cpp

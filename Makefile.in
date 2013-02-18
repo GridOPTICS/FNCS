@@ -367,7 +367,8 @@ include_HEADERS = abscomminterface.h integrator.h message.h \
 lib_LTLIBRARIES = libfncs_api.la
 EXTRA_DIST = README
 AM_CXXFLAGS = 
-AM_CPPFLAGS = $(MPI_CPPFLAGS)
+AM_CPPFLAGS = $(MPI_CPPFLAGS) -I$(top_srcdir)/syncalgorithms \
+	-I$(top_srcdir)/util
 AM_LDFLAGS = $(MPI_LDFLAGS) $(MPI_LDFLAGS)
 LDADD = libfncs_api.la $(MPI_LIBS)
 libfncs_api_la_SOURCES = abscomminterface.cpp integrator.cpp \
