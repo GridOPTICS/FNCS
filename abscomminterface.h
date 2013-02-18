@@ -67,11 +67,10 @@ class SerializationException : exception{
 };
 
 class AbsCommInterface {
-private:
+protected:
     uint64_t sendCount; /**< @TODO doc */
     uint64_t receiveCount; /**< @TODO doc */
     bool doincrementCountersInSendReceive;
-protected:
     map<string,ObjectCommInterface*> interfaces; /**< @TODO doc */
     bool receiverRunning; /**< @TODO doc */
     bool allowRegistrations;

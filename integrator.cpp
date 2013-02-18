@@ -29,7 +29,7 @@
 #include "abscomminterface.h"
 #include "integrator.h"
 #include "objectcomminterface.h"
-#include "graceperiodpesimisticsyncalgo.h"
+#include "syncalgorithms/graceperiodpesimisticsyncalgo.h"
 
 namespace sim_comm {
 

@@ -47,7 +47,7 @@
 using namespace std;
 using namespace sim_comm;
 
-#define DEBUG 1
+#define DEBUG 0
 
 #if   SIZEOF_UINT64_T == SIZEOF_UNSIGNED_CHAR
 static MPI_Datatype FNCS_MPI_UINT64 = MPI_UNSIGNED_CHAR;
