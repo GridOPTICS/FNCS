@@ -20,7 +20,7 @@ static void network_simulator()
 {
 	TIME eventTime[]={102,203,800,1000,1010,3000,4500,7000,8010,9900,11000};
     MpiCommInterface *comm = new MpiCommInterface(MPI_COMM_WORLD, true);
-    Integrator::initIntegratorTickBased(comm,MILLISECONDS,5);
+    Integrator::initIntegratorGracePeriod(comm,MILLISECONDS,5);
 
 	ofstream myFile;
 
@@ -49,7 +49,7 @@ static void generic_simulator()
 {
 	TIME eventTime;
 	MpiCommInterface *comm = new MpiCommInterface(MPI_COMM_WORLD, false);
-	Integrator::initIntegratorTickBased(comm,SECONDS,5);
+	Integrator::initIntegratorGracePeriod(comm,SECONDS,5);
 
 	ofstream myFile;
 
