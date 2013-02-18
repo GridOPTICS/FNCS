@@ -99,7 +99,7 @@ MpiCommInterface::MpiCommInterface(MPI_Comm comm_, bool iAmNetSim)
 
 MpiCommInterface::~MpiCommInterface() {
     int ierr;
-
+    make_progress(); //clean the mpi buffer
     ierr = MPI_Comm_free(&comm);
     assert(MPI_SUCCESS == ierr);
 }

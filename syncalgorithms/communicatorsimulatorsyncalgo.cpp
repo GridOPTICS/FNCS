@@ -52,7 +52,10 @@ namespace sim_comm {
 		    if(minNextTime==myminNextTime)
 			      throw SyncAlgoException(minNextTime);
 		  
-
+		     if(minNextTime==0){ //a sim signal endded
+			  this->finished=true;
+			  return 0;
+		     }
 		   
 		    return minNextTime;
 
@@ -62,7 +65,7 @@ namespace sim_comm {
 	bool CommunicatorSimulatorSyncalgo::doDispatchNextEvent(TIME currentTime,TIME nextTime){
 		TIME networkTime=this->GetNextTime(currentTime,nextTime);
 		
-		return networkTime==nextTime;
+		return networkTime>nextTime;
 	}
 
 } /* namespace sim_comm */

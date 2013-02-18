@@ -60,20 +60,22 @@ namespace sim_comm
   {
     protected:
 	AbsCommInterface* interface;
-
+	bool finished;
     public:
 	AbsSyncAlgorithm(AbsCommInterface* currentInterface);
 	virtual ~AbsSyncAlgorithm();
-	/*
+	/**
 	 * Call this method to determine whether the simulator can skip to the next time.
 	 * If not, the method will block until a certain amount of time is granted for simulator.
 	 */
 	virtual TIME GetNextTime(TIME currentTime,TIME nextTime) = 0;
-	/*
+	/**
 	 * Call this method to determine whether the next event can be dispatced.
 	 * If not the method will return immediatly without busy waiting.
 	 */
 	virtual bool doDispatchNextEvent(TIME currentTime,TIME nextTime) = 0;
+	
+	bool finished();
   };
   
 }

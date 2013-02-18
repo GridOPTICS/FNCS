@@ -40,6 +40,12 @@ namespace sim_comm
   AbsSyncAlgorithm::AbsSyncAlgorithm(AbsCommInterface* currentInterface)
   {
     this->interface=currentInterface;
+    this->finished=false;
+  }
+
+  bool AbsSyncAlgorithm::finished()
+  {
+    return this->finished;
   }
 
 }

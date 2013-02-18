@@ -56,7 +56,7 @@ private:
     AbsSyncAlgorithm *syncAlgo;
     TIME offset;
     bool allowRegistrations;
-
+    bool stopped;
 
     static Integrator* instance;
 
@@ -135,6 +135,13 @@ public:
     static void initIntegratorGracePeriod(AbsCommInterface *currentInterface, 
 					  time_metric simTimeStep, 
 					  TIME gracePeriod, TIME initialTime);
+    /**
+     * Initializes the integrator for the communication simulator
+     */
+    void initIntegratorCommunicationSim(AbsCommInterface *currentInterface, 
+					time_metric simTimeStep, 
+					TIME gracePeriod, TIME initialTime);
+
 
     /**
      * sets simulator callback that returns time
@@ -148,7 +155,10 @@ public:
      */
     static void stopIntegrator();
     
-
+    /**
+     * Returns true when a simulator has signaled that it has finished.
+     */
+    static bool isFinished();
     ~Integrator();
 };
 

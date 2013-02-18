@@ -77,7 +77,12 @@ namespace sim_comm
           //min time is the estimated next time, so grant nextEstimated time
           if(minNextTime==myminNextTime)
               busywait=false;
-
+	  
+	  if(minNextTime==0){ //a sim signal endded
+	      this->finished=true;
+	      return 0;
+	  }
+	  
           if(minNextTime < myminNextTime){
 
               if(minNextTime+Integrator::getGracePreiod()<myminNextTime) //we have to busy wait until other sims come to this time

@@ -57,7 +57,7 @@ Integrator::~Integrator(){
 }
 
 void Integrator::stopIntegrator(){
-	//we need a way signal simulators that this sim has finished.
+	instance->syncAlgo->GetNextTime(instance->getCurSimTime(),0);
 	delete Integrator::instance;
 }
 
@@ -67,13 +67,12 @@ void Integrator::initIntegratorGracePeriod(AbsCommInterface *currentInterface, t
     instance->offset=convertToMyTime(instance->simTimeMetric,initialTime);
 }
 
-#if 0
+
 void Integrator::initIntegratorCommunicationSim(AbsCommInterface *currentInterface, time_metric simTimeStep, TIME gracePeriod, TIME initialTime) {
     AbsSyncAlgorithm *algo=new CommunicatorSimulatorSyncalgo(currentInterface);
 	instance=new Integrator(currentInterface,algo,simTimeStep,gracePeriod);
     instance->offset=convertToMyTime(instance->simTimeMetric,initialTime);
 }
-#endif
 
 TIME Integrator::getGracePreiod() {
     return instance->gracePreiod;
@@ -96,6 +95,11 @@ TIME Integrator::getCurSimTime() {
     return curTime-instance->offset;
 }
 
+bool Integrator::isFinished()
+{
+  return instance->syncAlgo->finished();
+}
+
 
 time_metric Integrator::getCurSimMetric() {
     return instance->simTimeMetric;
@@ -114,6 +118,22 @@ ObjectCommInterface* Integrator::getCommInterface(string objectName) {
 
     return toReturn;
 }
+
+ObjectCommInterface* Integrator::getCommInterface(char* objectName)
+{
+    ObjectCommInterface *toReturn = nullptr;
+
+    if (instance->allowRegistrations) {
+        toReturn = new ObjectCommInterface(string(objectName));
+        instance->currentInterface->addObjectInterface(string(objectName),toReturn);
+    }
+    else {
+        throw ObjectInterfaceRegistrationException();
+    }
+
+    return toReturn;
+}
+
 
 bool Integrator::doDispatchNextEvent(TIME currentTime, TIME nextTime) {
     TIME curTimeInFramework=convertToFrameworkTime(instance->simTimeMetric,currentTime) - instance->offset;
