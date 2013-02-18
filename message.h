@@ -30,7 +30,7 @@
 #define ABSMESSAGE_H
 #include <string>
 #include <stdint.h>
-#include "util/time.h"
+#include "simtime.h"
 #include "integrator.h"
 
 using namespace std;

@@ -30,7 +30,7 @@
 #include <string>
 #include "integrator.h"
 
-#include "util/time.h"
+#include "simtime.h"
 #include "message.h"
 #include <vector>
 

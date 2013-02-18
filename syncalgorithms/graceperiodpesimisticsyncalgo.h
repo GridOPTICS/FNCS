@@ -30,7 +30,7 @@
 #define TICKBASEDSIMULATORSYNCALGO_H
 
 #include "abssyncalgorithm.h"
-#include "util/time.h"
+#include "time.h"
 
 
 namespace sim_comm{

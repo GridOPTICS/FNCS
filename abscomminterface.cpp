@@ -31,7 +31,7 @@
 #include "abscomminterface.h"
 #include "objectcomminterface.h"
 #include "integrator.h"
-#include "syncalgorithms/communicatorsimulatorsyncalgo.h"
+#include "communicatorsimulatorsyncalgo.h"
 
 using namespace std;
 

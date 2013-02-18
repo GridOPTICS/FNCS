@@ -28,7 +28,7 @@ include_HEADERS += syncalgorithms/abssyncalgorithm.h
 include_HEADERS += syncalgorithms/communicatorsimulatorsyncalgo.h
 include_HEADERS += syncalgorithms/graceperiodpesimisticsyncalgo.h
 include_HEADERS += util/callback.h
-include_HEADERS += util/time.h
+include_HEADERS += util/simtime.h
 
 lib_LTLIBRARIES += libfncs_api.la
 libfncs_api_la_SOURCES =
@@ -40,7 +40,7 @@ libfncs_api_la_SOURCES += objectcomminterface.cpp
 libfncs_api_la_SOURCES += syncalgorithms/abssyncalgorithm.cpp
 libfncs_api_la_SOURCES += syncalgorithms/communicatorsimulatorsyncalgo.cpp
 libfncs_api_la_SOURCES += syncalgorithms/graceperiodpesimisticsyncalgo.cpp
-libfncs_api_la_SOURCES += util/time.cpp
+libfncs_api_la_SOURCES += util/simtime.cpp
 
 check_PROGRAMS += tests/sanity
 tests_sanity_SOURCES = tests/sanity.cpp

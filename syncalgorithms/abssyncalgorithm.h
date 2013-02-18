@@ -29,8 +29,7 @@
 #ifndef ABSSYNCALGORITHM_H
 #define ABSSYNCALGORITHM_H
 
-#include "util/time.h"
-#include "util/time.h"
+#include "simtime.h"
 
 #include <sstream>
 

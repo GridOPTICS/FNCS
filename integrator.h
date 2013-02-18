@@ -29,9 +29,9 @@
 
 #include <string>
 
-#include "util/callback.h"
-#include "util/time.h"
-#include "syncalgorithms/abssyncalgorithm.h"
+#include "callback.h"
+#include "simtime.h"
+#include "abssyncalgorithm.h"
 
 using namespace std;
 
