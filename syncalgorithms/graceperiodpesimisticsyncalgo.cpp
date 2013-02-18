@@ -52,45 +52,43 @@ namespace sim_comm
 
   TIME  GracePeriodSyncAlgo::GetNextTime(TIME currentTime, TIME nextTime)
   {
-	TIME nextEstTime;
+      TIME nextEstTime;
 
 
 
-    bool busywait=false;
+      bool busywait=false;
 
-	  	TIME nextEstTime;
-		bool busywait=false;
-		//send all messages
-		
-		do
-		{
-		    uint8_t diff=interface->realReduceTotalSendReceive();
-		    //network unstable, we need to wait!
-		    nextEstTime=currentTime+1;
-		    if(diff==0)
-		    { //network stable grant next time
-    			nextEstTime=nextTime;
-		    }
+      //send all messages
 
-		    //Calculate next min time step
-		    TIME myminNextTime=nextEstTime;
-		    TIME minNextTime=(TIME)interface->realReduceMinTime(myminNextTime);
+      do
+      {
+          uint8_t diff=interface->realReduceTotalSendReceive();
+          //network unstable, we need to wait!
+          nextEstTime=currentTime+1;
+          if(diff==0)
+          { //network stable grant next time
+              nextEstTime=nextTime;
+          }
 
-		    //min time is the estimated next time, so grant nextEstimated time
-		    if(minNextTime==myminNextTime)
-			      busywait=false;
+          //Calculate next min time step
+          TIME myminNextTime=nextEstTime;
+          TIME minNextTime=(TIME)interface->realReduceMinTime(myminNextTime);
 
-		    if(minNextTime < myminNextTime){
+          //min time is the estimated next time, so grant nextEstimated time
+          if(minNextTime==myminNextTime)
+              busywait=false;
 
-			    if(minNextTime+Integrator::getGracePreiod()<myminNextTime) //we have to busy wait until other sims come to this time
-					busywait=true;
-			    else //TODO this will cause gld to re-iterate
-				  busywait=false;
-		    }
+          if(minNextTime < myminNextTime){
+
+              if(minNextTime+Integrator::getGracePreiod()<myminNextTime) //we have to busy wait until other sims come to this time
+                  busywait=true;
+              else //TODO this will cause gld to re-iterate
+                  busywait=false;
+          }
 
 
-	      }while(busywait);
-    return nextEstTime;
+      }while(busywait);
+      return nextEstTime;
   }
 
 }

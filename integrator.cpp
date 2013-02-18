@@ -31,7 +31,6 @@
 #include "objectcomminterface.h"
 #include "syncalgorithms/graceperiodpesimisticsyncalgo.h"
 #include "syncalgorithms/communicatorsimulatorsyncalgo.h"
-#include "../../../llvm-3.2.src/test/TableGen/SuperSubclassSameName.td"
 
 namespace sim_comm {
 
@@ -68,11 +67,13 @@ void Integrator::initIntegratorGracePeriod(AbsCommInterface *currentInterface, t
     instance->offset=convertToMyTime(instance->simTimeMetric,initialTime);
 }
 
+#if 0
 void Integrator::initIntegratorCommunicationSim(AbsCommInterface *currentInterface, time_metric simTimeStep, TIME gracePeriod, TIME initialTime) {
     AbsSyncAlgorithm *algo=new CommunicatorSimulatorSyncalgo(currentInterface);
 	instance=new Integrator(currentInterface,algo,simTimeStep,gracePeriod);
     instance->offset=convertToMyTime(instance->simTimeMetric,initialTime);
 }
+#endif
 
 TIME Integrator::getGracePreiod() {
     return instance->gracePreiod;
@@ -92,7 +93,7 @@ TIME Integrator::getCurSimTime() {
 
     TIME curTime=convertToFrameworkTime(instance->simTimeMetric,t);
     
-    return curTime-offset;
+    return curTime-instance->offset;
 }
 
 
@@ -115,15 +116,15 @@ ObjectCommInterface* Integrator::getCommInterface(string objectName) {
 }
 
 bool Integrator::doDispatchNextEvent(TIME currentTime, TIME nextTime) {
-    TIME curTimeInFramework=convertToFrameworkTime(instance->simTimeMetric,currentTime) - offset;
-    TIME nextframeTime = convertToFrameworkTime(instance->simTimeMetric,nextTime) - offset;
+    TIME curTimeInFramework=convertToFrameworkTime(instance->simTimeMetric,currentTime) - instance->offset;
+    TIME nextframeTime = convertToFrameworkTime(instance->simTimeMetric,nextTime) - instance->offset;
     instance->currentInterface->sendAll();
     return instance->syncAlgo->doDispatchNextEvent(curTimeInFramework,nextframeTime);
 }
 
 TIME Integrator::getNextTime(TIME currentTime, TIME nextTime) {
-    TIME curTimeInFramework=convertToFrameworkTime(instance->simTimeMetric,currentTime) - offset;
-    TIME nextframeTime = convertToFrameworkTime(instance->simTimeMetric,nextTime) - offset;
+    TIME curTimeInFramework=convertToFrameworkTime(instance->simTimeMetric,currentTime) - instance->offset;
+    TIME nextframeTime = convertToFrameworkTime(instance->simTimeMetric,nextTime) - instance->offset;
     instance->currentInterface->sendAll();
     return instance->syncAlgo->GetNextTime(curTimeInFramework,nextframeTime);
 }
