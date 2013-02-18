@@ -25,8 +25,8 @@ include_HEADERS += message.h
 include_HEADERS += mpicomminterface.h
 include_HEADERS += objectcomminterface.h
 include_HEADERS += syncalgorithms/abssyncalgorithm.h
+include_HEADERS += syncalgorithms/communicatorsimulatorsyncalgo.h
 include_HEADERS += syncalgorithms/graceperiodpesimisticsyncalgo.h
-include_HEADERS += syncalgorithms/communicatorsimulatorsyncalo.h
 include_HEADERS += util/callback.h
 include_HEADERS += util/time.h
 
@@ -38,9 +38,8 @@ libfncs_api_la_SOURCES += message.cpp
 libfncs_api_la_SOURCES += mpicomminterface.cpp
 libfncs_api_la_SOURCES += objectcomminterface.cpp
 libfncs_api_la_SOURCES += syncalgorithms/abssyncalgorithm.cpp
-libfncs_api_la_SOURCES += syncalgorithms/tickbasedsimulatorsyncalgo.cpp
-include_HEADERS += syncalgorithms/graceperiodpesimisticsyncalgo.cpp
-include_HEADERS += syncalgorithms/communicatorsimulatorsyncalo.cpp
+libfncs_api_la_SOURCES += syncalgorithms/communicatorsimulatorsyncalgo.cpp
+libfncs_api_la_SOURCES += syncalgorithms/graceperiodpesimisticsyncalgo.cpp
 libfncs_api_la_SOURCES += util/time.cpp
 
 check_PROGRAMS += tests/sanity
