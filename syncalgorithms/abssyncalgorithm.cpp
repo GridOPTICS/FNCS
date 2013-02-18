@@ -43,7 +43,7 @@ namespace sim_comm
     this->finished=false;
   }
 
-  bool AbsSyncAlgorithm::finished()
+  bool AbsSyncAlgorithm::isFinished()
   {
     return this->finished;
   }

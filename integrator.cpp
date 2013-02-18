@@ -97,7 +97,7 @@ TIME Integrator::getCurSimTime() {
 
 bool Integrator::isFinished()
 {
-  return instance->syncAlgo->finished();
+  return instance->syncAlgo->isFinished();
 }
 
 

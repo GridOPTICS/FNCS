@@ -75,7 +75,7 @@ namespace sim_comm
 	 */
 	virtual bool doDispatchNextEvent(TIME currentTime,TIME nextTime) = 0;
 	
-	bool finished();
+	bool isFinished();
   };
   
 }
