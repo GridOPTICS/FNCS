@@ -73,7 +73,7 @@ namespace sim_comm
 		    }
 
 		    //Calculate next min time step
-		    TIME myminNextTime=convertToFrameworkTime(Integrator::getCurSimMetric(),nextEstTime);
+		    TIME myminNextTime=nextEstTime;
 		    TIME minNextTime=(TIME)interface->realReduceMinTime(myminNextTime);
 
 		    //min time is the estimated next time, so grant nextEstimated time

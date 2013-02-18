@@ -54,7 +54,7 @@ private:
     TIME gracePreiod;
     CallBack<TIME,empty,empty,empty>* getTimeCallBack;
     AbsSyncAlgorithm *syncAlgo;
-
+    TIME offset;
     bool allowRegistrations;
 
 
@@ -134,7 +134,7 @@ public:
      */
     static void initIntegratorGracePeriod(AbsCommInterface *currentInterface, 
 					  time_metric simTimeStep, 
-					  TIME gracePeriod);
+					  TIME gracePeriod, TIME initialTime);
 
     /**
      * sets simulator callback that returns time
