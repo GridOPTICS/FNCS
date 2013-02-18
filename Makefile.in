@@ -359,8 +359,10 @@ ACLOCAL_AMFLAGS = -I m4
 include_HEADERS = abscomminterface.h integrator.h message.h \
 	mpicomminterface.h objectcomminterface.h \
 	syncalgorithms/abssyncalgorithm.h \
-	syncalgorithms/tickbasedsimulatorsyncalgo.h util/callback.h \
-	util/time.h
+	syncalgorithms/graceperiodpesimisticsyncalgo.h \
+	syncalgorithms/communicatorsimulatorsyncalo.h util/callback.h \
+	util/time.h syncalgorithms/graceperiodpesimisticsyncalgo.cpp \
+	syncalgorithms/communicatorsimulatorsyncalo.cpp
 lib_LTLIBRARIES = libfncs_api.la
 EXTRA_DIST = README
 AM_CXXFLAGS = 
