@@ -127,7 +127,8 @@ am_libfncs_api_la_OBJECTS = abscomminterface.lo integrator.lo \
 	message.lo mpicomminterface.lo objectcomminterface.lo \
 	syncalgorithms/abssyncalgorithm.lo \
 	syncalgorithms/communicatorsimulatorsyncalgo.lo \
-	syncalgorithms/graceperiodpesimisticsyncalgo.lo util/time.lo
+	syncalgorithms/graceperiodpesimisticsyncalgo.lo \
+	util/simtime.lo
 libfncs_api_la_OBJECTS = $(am_libfncs_api_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -362,7 +363,7 @@ include_HEADERS = abscomminterface.h integrator.h message.h \
 	syncalgorithms/abssyncalgorithm.h \
 	syncalgorithms/communicatorsimulatorsyncalgo.h \
 	syncalgorithms/graceperiodpesimisticsyncalgo.h util/callback.h \
-	util/time.h
+	util/simtime.h
 lib_LTLIBRARIES = libfncs_api.la
 EXTRA_DIST = README
 AM_CXXFLAGS = 
@@ -373,7 +374,8 @@ libfncs_api_la_SOURCES = abscomminterface.cpp integrator.cpp \
 	message.cpp mpicomminterface.cpp objectcomminterface.cpp \
 	syncalgorithms/abssyncalgorithm.cpp \
 	syncalgorithms/communicatorsimulatorsyncalgo.cpp \
-	syncalgorithms/graceperiodpesimisticsyncalgo.cpp util/time.cpp
+	syncalgorithms/graceperiodpesimisticsyncalgo.cpp \
+	util/simtime.cpp
 tests_sanity_SOURCES = tests/sanity.cpp
 tests_messageTest_SOURCES = tests/messageTest.cpp
 tests_simmer_SOURCES = tests/simmer.cpp
@@ -486,7 +488,7 @@ util/$(am__dirstamp):
 util/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) util/$(DEPDIR)
 	@: > util/$(DEPDIR)/$(am__dirstamp)
-util/time.lo: util/$(am__dirstamp) util/$(DEPDIR)/$(am__dirstamp)
+util/simtime.lo: util/$(am__dirstamp) util/$(DEPDIR)/$(am__dirstamp)
 libfncs_api.la: $(libfncs_api_la_OBJECTS) $(libfncs_api_la_DEPENDENCIES) $(EXTRA_libfncs_api_la_DEPENDENCIES) 
 	$(AM_V_CXXLD)$(CXXLINK) -rpath $(libdir) $(libfncs_api_la_OBJECTS) $(libfncs_api_la_LIBADD) $(LIBS)
 install-binPROGRAMS: $(bin_PROGRAMS)
@@ -591,7 +593,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/messageTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/sanity.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/simmer.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@util/$(DEPDIR)/time.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@util/$(DEPDIR)/simtime.Plo@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
