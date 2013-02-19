@@ -1,5 +1,5 @@
-#ifndef TIME_H
-#define TIME_H
+#ifndef SIMTIME_H
+#define SIMTIME_H
 
 #include <stdint.h>
 #include <iostream>
