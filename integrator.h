@@ -27,31 +27,47 @@
 #ifndef ABSINTEGRATOR_H
 #define ABSINTEGRATOR_H
 
+#include <fstream>
+#include <sstream>
 #include <string>
 
+#include "abssyncalgorithm.h"
 #include "callback.h"
 #include "simtime.h"
-#include "abssyncalgorithm.h"
 
 using namespace std;
+
+#define DEBUG 1
+#define DEBUG_TO_FILE 1
+#if DEBUG
+#   define PID (getpid())
+#   if DEBUG_TO_FILE
+extern ofstream ferr;
+#       define CERR (ferr << '[' << PID << "] ")
+#   else
+#       define CERR (cerr << '[' << PID << "] ")
+#   endif
+#endif
 
 namespace sim_comm {
 
 class AbsCommInterface;
 class ObjectCommInterface;
 
+
 /**
  * Integrator is the main init point for the framework.
- * It bridges the framework with the simulator.
- * Provides methods for easly accessing simulator and framework parameters.
- * It is a singleton and all methods are made static for convenience, users do not need to
- * pass instances of integrator around.
+ *
+ * It bridges the framework with the simulator.  Provides methods for easly
+ * accessing simulator and framework parameters.  It is a singleton and all
+ * methods are made static for convenience, users do not need to pass instances
+ * of integrator around.
  */
 class Integrator {
 private:
     time_metric simTimeMetric;
     AbsCommInterface *currentInterface;
-    TIME gracePreiod;
+    TIME gracePeriod;
     CallBack<TIME,empty,empty,empty>* getTimeCallBack;
     AbsSyncAlgorithm *syncAlgo;
     TIME offset;
@@ -71,8 +87,11 @@ private:
 public:
 
     /**
-     * Main synchronization method for tick-based simulator. This method should be called
-     * after an iteration right before the simulator starts the next iteration.
+     * Main synchronization method for tick-based simulator.
+     *
+     * This method should be called after an iteration right before the
+     * simulator starts the next iteration.
+     *
      * @param[in] currentTime, the current time of the simulator.
      * @param[in] nextTime, the time of the next iteration.
      * @return, the next time granted by the simulator.
@@ -115,7 +134,7 @@ public:
     /**
      * Returns the grace period in framework time
      */
-    static TIME getGracePreiod();
+    static TIME getGracePeriod();
 
     /**
      * TODO
@@ -136,7 +155,7 @@ public:
     /**
      * Initializes the integrator for the communication simulator
      */
-    void initIntegratorCommunicationSim(AbsCommInterface *currentInterface, 
+    static void initIntegratorCommunicationSim(AbsCommInterface *currentInterface, 
 					time_metric simTimeStep, 
 					TIME gracePeriod, TIME initialTime);
 
@@ -157,6 +176,10 @@ public:
      * Returns true when a simulator has signaled that it has finished.
      */
     static bool isFinished();
+
+    /**
+     * TODO
+     */
     ~Integrator();
 };
 

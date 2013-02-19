@@ -41,6 +41,7 @@
 
 /* our headers */
 #include "abscomminterface.h"
+#include "integrator.h"
 #include "message.h"
 #include "mpicomminterface.h"
 #include "objectcomminterface.h"
@@ -48,7 +49,6 @@
 using namespace std;
 using namespace sim_comm;
 
-#define DEBUG 0
 
 #if   SIZEOF_UINT64_T == SIZEOF_UNSIGNED_CHAR
 static MPI_Datatype FNCS_MPI_UINT64 = MPI_UNSIGNED_CHAR;
@@ -73,8 +73,11 @@ MpiCommInterface::MpiCommInterface(MPI_Comm comm_, bool iAmNetSim)
     ,   globalObjectCount(0)
     ,   iAmNetSim(iAmNetSim)
     ,   objectRank()
-    ,   net_oci(NULL)
-{
+    ,   net_oci(NULL) {
+#if DEBUG
+    CERR << "MpiCommInterface::MpiCommInterface(MPI_Com,"
+        << "iAmNetSim=" << iAmNetSim << ")" << endl;
+#endif
     int ierr=0;
     int netsim_count=0;
 
@@ -113,12 +116,15 @@ MpiCommInterface::MpiCommInterface(MPI_Comm comm_, bool iAmNetSim)
         assert(MPI_SUCCESS == ierr);
     }
 #if DEBUG
-    cerr << "netSimRank=" << netSimRank << endl;
+    CERR << "netSimRank=" << netSimRank << endl;
 #endif
 }
 
 
 MpiCommInterface::~MpiCommInterface() {
+#if DEBUG
+    CERR << "MpiCommInterface::~MpiCommInterface()" << endl;
+#endif
     int ierr;
     make_progress(); //clean the mpi buffer
     ierr = MPI_Comm_free(&comm);
@@ -127,6 +133,9 @@ MpiCommInterface::~MpiCommInterface() {
 
 
 void MpiCommInterface::realSendMessage(Message *given) {
+#if DEBUG
+    CERR << "MpiCommInterface::realSendMessage(Message*)" << endl;
+#endif
     MpiIsendPacket envelopeBundle;
     MpiIsendPacket dataBundle;
     int rank = 0;
@@ -149,10 +158,20 @@ void MpiCommInterface::realSendMessage(Message *given) {
         rank_it = objectRank.find(given->getTo());
         assert(objectRank.end() != rank_it);
         rank = rank_it->second;
+#if DEBUG
+        CERR << "netsim sending message to " << given->getTo() << endl;
+#endif
     }
     else {
         /* all other sims always send to the net sim */
         rank = this->netSimRank;
+#if DEBUG
+        CERR << "gensim "
+            << given->getFrom()
+            << " sending message to "
+            << given->getTo()
+            << " via netsim" << endl;
+#endif
     }
 
     envelopeBundle.destination_rank = rank;
@@ -173,10 +192,16 @@ void MpiCommInterface::realSendMessage(Message *given) {
 
 
 uint64_t MpiCommInterface::realBroadcastMessage(Message *given) {
+#if DEBUG
+    CERR << "MpiCommInterface::realBroadcastMessage(Message*)" << endl;
+#endif
     assert(0); // TODO
 }
 
 Message* MpiCommInterface::realGetMessage() {
+#if DEBUG
+    CERR << "MpiCommInterface::realGetMessage()" << endl;
+#endif
     assert(!this->allowRegistrations);
 
     make_progress();
@@ -186,6 +211,10 @@ Message* MpiCommInterface::realGetMessage() {
 
 
 uint64_t MpiCommInterface::realReduceMinTime(uint64_t myTime) {
+#if DEBUG
+    CERR << "MpiCommInterface::realReduceMinTime("
+        << "myTime=" << myTime << ")" << endl;
+#endif
     unsigned long _myTime = static_cast<unsigned long>(myTime);
     unsigned long retval;
 
@@ -193,15 +222,16 @@ uint64_t MpiCommInterface::realReduceMinTime(uint64_t myTime) {
 
     make_progress();
 
-/*#if DEBUG
-    cerr << "[" << commRank << "] MPI_Allreduce("
+#if DEBUG && 0
+    CERR << "MPI_Allreduce("
          << &_myTime << ","
          << &retval << ","
          << 1 << ","
          << MPI_UNSIGNED_LONG << ","
          << MPI_MIN << ","
          << comm << ")" << endl;
-#endif*/
+#endif
+
     MPI_Allreduce(&_myTime, &retval, 1, MPI_UNSIGNED_LONG, MPI_MIN, comm);
     MPI_Barrier(comm);
 
@@ -210,6 +240,9 @@ uint64_t MpiCommInterface::realReduceMinTime(uint64_t myTime) {
 
 
 uint64_t MpiCommInterface::realReduceTotalSendReceive() {
+#if DEBUG
+    CERR << "MpiCommInterface::realReduceTotalSendReceive()" << endl;
+#endif
     unsigned long recvbuf[2];
     unsigned long sendbuf[2];
 
@@ -229,14 +262,20 @@ uint64_t MpiCommInterface::realReduceTotalSendReceive() {
 void MpiCommInterface::addObjectInterface(
         string objectName,
         ObjectCommInterface *given) {
-    map<string,ObjectCommInterface*>::iterator iter;
-
+#if DEBUG
+    CERR << "MpiCommInterface::addObjectInterface("
+        << "objectName=" << objectName << ","
+        << "ObjectCommInterface*)" << endl;
+#endif
     AbsCommInterface::addObjectInterface(objectName,given);
     ++this->localObjectCount;
 }
 
 
 void MpiCommInterface::finalizeRegistrations() {
+#if DEBUG
+    CERR << "MpiCommInterface::finalizeRegistrations()" << endl;
+#endif
     int ierr = MPI_SUCCESS;
     uintmax_t ZERO = 0;
     uintmax_t *object_counts = new uintmax_t[commSize];
@@ -261,7 +300,7 @@ void MpiCommInterface::finalizeRegistrations() {
         for (int i=0; i<commSize; ++i) {
             object_counts_sum += object_counts[i];
 #if DEBUG
-            cerr << "rank " << i << " has "
+            CERR << "rank " << i << " has "
                  << object_counts[i] << " objects" << endl;
 #endif
         }
@@ -271,7 +310,7 @@ void MpiCommInterface::finalizeRegistrations() {
     ierr = MPI_Bcast(&object_counts_sum, 1, FNCS_MPI_UINT64, netSimRank, comm);
     assert(MPI_SUCCESS == ierr);
 #if DEBUG
-    cerr << "[" << commRank << "] global object count = "
+    CERR << "[" << commRank << "] global object count = "
          << object_counts_sum << endl;
 #endif
 
@@ -294,6 +333,9 @@ void MpiCommInterface::finalizeRegistrations() {
                     string str_name(name);
                     assert(objectRank.count(str_name) == 0);
                     objectRank[str_name] = i;
+#if DEBUG
+                    CERR << "objectRank[" << str_name << "] = " << i << endl;
+#endif
                 }
             }
         }
@@ -305,12 +347,18 @@ void MpiCommInterface::finalizeRegistrations() {
             MPI_Send(&size, 1, MPI_INT, netSimRank, FNCS_TAG+commRank+1, comm);
             MPI_Send(const_cast<char*>(it->first.c_str()), size+1, MPI_CHAR,
                     netSimRank, FNCS_TAG+commRank+1, comm);
+#if DEBUG
+            CERR << "gensim sending registered name: " << it->first << endl;
+#endif
         }
     }
 }
 
 
 void MpiCommInterface::startReceiver() {
+#if DEBUG
+    CERR << "MpiCommInterface::startReceiver()" << endl;
+#endif
     receiverRunning = true;
 
     make_progress();
@@ -318,6 +366,9 @@ void MpiCommInterface::startReceiver() {
 
 
 bool MpiCommInterface::isReceiverRunning() {
+#if DEBUG
+    CERR << "MpiCommInterface::isReceiverRunning()" << endl;
+#endif
     assert(!this->allowRegistrations);
 
     return receiverRunning;
@@ -325,6 +376,9 @@ bool MpiCommInterface::isReceiverRunning() {
 
 
 void MpiCommInterface::stopReceiver() {
+#if DEBUG
+    CERR << "MpiCommInterface::stopReceiver()" << endl;
+#endif
     assert(!this->allowRegistrations);
 
     make_progress();
@@ -334,13 +388,21 @@ void MpiCommInterface::stopReceiver() {
 
 
 void MpiCommInterface::sendAll() {
+#if DEBUG
+    CERR << "MpiCommInterface::sendAll()" << endl;
+#endif
     assert(!this->allowRegistrations);
+
+    AbsCommInterface::sendAll();
 
     make_progress();
 }
 
 
 void MpiCommInterface::make_progress() {
+#if DEBUG
+    CERR << "MpiCommInterface::make_progress()" << endl;
+#endif
     int ierr = MPI_SUCCESS;
     int incoming = 1;
     list<MpiIsendPacket>::iterator iter;
@@ -368,6 +430,9 @@ void MpiCommInterface::make_progress() {
 
     /* check for incoming messages */
     while (incoming) {
+#if DEBUG
+        CERR << "testing for incoming messages" << endl;
+#endif
         MPI_Status status;
 
         ierr = MPI_Iprobe(MPI_ANY_SOURCE, FNCS_TAG_ENVELOPE,
@@ -375,6 +440,9 @@ void MpiCommInterface::make_progress() {
         assert(MPI_SUCCESS == ierr);
 
         if (incoming) {
+#if DEBUG
+            CERR << "found incoming message" << endl;
+#endif
             Message *message=NULL;
             uint8_t *envelope=NULL;
             uint8_t *data=NULL;
@@ -393,6 +461,10 @@ void MpiCommInterface::make_progress() {
             message = new Message(envelope,envelopeSize);
             dataSize = message->getSize();
 
+#if DEBUG
+            CERR << "retrieved incoming message" << endl;
+            CERR << *message << endl;
+#endif
             if (dataSize > 0) {
                 data = new uint8_t[dataSize];
                 ierr = MPI_Recv(data, dataSize, MPI_UNSIGNED_CHAR,

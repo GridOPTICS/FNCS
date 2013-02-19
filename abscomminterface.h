@@ -153,7 +153,7 @@ public:
      * @param[in] objectName TODO
      * @param[in] given TODO
      */
-    void addObjectInterface(string objectName,ObjectCommInterface *given);
+    virtual void addObjectInterface(string objectName,ObjectCommInterface *given);
 
     /**
      * Used by the integrator to return a registered object.
@@ -161,7 +161,7 @@ public:
      * @param[in] objectName TODO
      * @return the object, or NULL if not found
      */
-    ObjectCommInterface* getObjectInterface(string objectName);
+    virtual ObjectCommInterface* getObjectInterface(string objectName);
 
     /**
      * Indicate that communication object registrations have completed.
@@ -169,27 +169,27 @@ public:
      * This method is collective across all AbsCommInterface instances in order
      * to efficiently exchange metadata.
      */
-    void finalizeRegistrations();
+    virtual void finalizeRegistrations();
 
     /**
      * Starts the receiver thread.
      */
-    void startReceiver();
+    virtual void startReceiver();
 
     /**
      * Returns true if the reciever thread is running.
      */
-    bool isReceiverRunning();
+    virtual bool isReceiverRunning();
 
     /**
      * Kills the receiver thread.
      */
-    void stopReceiver();
+    virtual void stopReceiver();
 
     /**
      * Called by the integrator to send all the messages.
      */
-    void sendAll();
+    virtual void sendAll();
     
     /**
      * Called by the sync algorithm to notify that a packetLostis lost.

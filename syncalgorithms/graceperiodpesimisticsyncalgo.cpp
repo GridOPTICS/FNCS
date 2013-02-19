@@ -24,12 +24,12 @@
     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+#include "config.h"
 
-
-#include "graceperiodpesimisticsyncalgo.h"
-
-#include "integrator.h"
 #include "abscomminterface.h"
+#include "graceperiodpesimisticsyncalgo.h"
+#include "integrator.h"
+
 
 namespace sim_comm
 {
@@ -85,7 +85,7 @@ namespace sim_comm
 	  
           if(minNextTime < myminNextTime){
 
-              if(minNextTime+Integrator::getGracePreiod()<myminNextTime) //we have to busy wait until other sims come to this time
+              if(minNextTime+Integrator::getGracePeriod()<myminNextTime) //we have to busy wait until other sims come to this time
                   busywait=true;
               else //TODO this will cause gld to re-iterate
                   busywait=false;

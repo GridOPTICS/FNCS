@@ -35,22 +35,37 @@
 
 using namespace std;
 
+
 namespace sim_comm {
 
+
 AbsCommInterface::AbsCommInterface() {
+#if DEBUG
+    CERR << "AbsCommInterface::AbsCommInterface()" << endl;
+#endif
     this->receiveCount=0;
     this->sendCount=0;
     this->receiverRunning=false;
     this->allowRegistrations=true;
 }
 
+
 bool AbsCommInterface::isReceiverRunning() {
+#if DEBUG
+    CERR << "AbsCommInterface::isReceiverRunning()" << endl;
+#endif
     return this->receiverRunning;
 }
+
 
 void AbsCommInterface::addObjectInterface(
         string objectName,
         ObjectCommInterface* given) {
+#if DEBUG
+    CERR << "AbsCommInterface::addObjectInterface("
+        << objectName << ","
+        << given << ")" << endl;
+#endif
     if (this->allowRegistrations) {
         if (this->interfaces.count(objectName) != 0) {
             /* enforce unique names and one-time registrations */
@@ -63,7 +78,12 @@ void AbsCommInterface::addObjectInterface(
     }
 }
 
+
 ObjectCommInterface* AbsCommInterface::getObjectInterface(string objectName) {
+#if DEBUG
+    CERR << "AbsCommInterface::getObjectInterface("
+        << objectName << ")" << endl;
+#endif
     if (this->interfaces.count(objectName) == 0) {
         /* enforce unique names and one-time registrations */
         throw ObjectInterfaceRegistrationException(__FILE__,__LINE__);
@@ -71,37 +91,53 @@ ObjectCommInterface* AbsCommInterface::getObjectInterface(string objectName) {
     return this->interfaces[objectName];
 }
 
+
 void AbsCommInterface::finalizeRegistrations() {
+#if DEBUG
+    CERR << "AbsCommInterface::finalizeRegistrations()" << endl;
+#endif
     this->allowRegistrations = false;
 }
 
+
 void AbsCommInterface::startReceiver() {
+#if DEBUG
+    CERR << "AbsCommInterface::startReceiver()" << endl;
+#endif
     this->receiverRunning=true;
 }
 
+
 void AbsCommInterface::stopReceiver() {
+#if DEBUG
+    CERR << "AbsCommInterface::stopReceiver()" << endl;
+#endif
     this->receiverRunning=false;
 }
 
+
 void AbsCommInterface::sendAll() {
+#if DEBUG
+    CERR << "AbsCommInterface::sendAll()" << endl;
+#endif
     map<string,ObjectCommInterface*>::iterator it=this->interfaces.begin();
 
     for(; it!=this->interfaces.end(); it++) {
 
         ObjectCommInterface *in=it->second;
-        if(in->getInboxMessagesCount()>0) {
+        //if(in->getInboxMessagesCount()>0) {
 
             vector<Message*>  outmessges=in->getOutBox();
             for(int i=0; i<outmessges.size(); i++) {
                 try {
                     if (outmessges[i]->isBroadCast()) {
-			 int scount = this->realBroadcastMessage(outmessges[i]);
-			 if(doincrementCountersInSendReceive)
-			    sendCount +=scount;
+                        int scount = this->realBroadcastMessage(outmessges[i]);
+                        if(doincrementCountersInSendReceive)
+                            sendCount +=scount;
                     } 
                     else {
-			 if(doincrementCountersInSendReceive)
-				sendCount += 1;
+                        if(doincrementCountersInSendReceive)
+                            sendCount += 1;
                         this->realSendMessage(outmessges[i]);
                     }
                 }
@@ -110,38 +146,50 @@ void AbsCommInterface::sendAll() {
                     std::cerr << "Send operation failed on interface ";
                 }
             }
-        }
+        //}
     }
 }
 
+
 AbsCommInterface::~AbsCommInterface() {
-	map<string,ObjectCommInterface*>::iterator it=this->interfaces.begin();
-	for(;it!=interfaces.end();++it)
-		delete it->second;
-	this->interfaces.clear();
+#if DEBUG
+    CERR << "AbsCommInterface::~AbsCommInterface()" << endl;
+#endif
+    map<string,ObjectCommInterface*>::iterator it=this->interfaces.begin();
+    for(;it!=interfaces.end();++it) {
+        delete it->second;
+    }
+    this->interfaces.clear();
 }
 
-void AbsCommInterface::packetLost(AbsSyncAlgorithm* given)
-{
-  CommunicatorSimulatorSyncalgo *syncAlgo=dynamic_cast<CommunicatorSimulatorSyncalgo *>(given);
-  
-  if(syncAlgo==NULL)
-    throw SyncAlgoErrorException();
-  
-  this->receiveCount++;
+
+void AbsCommInterface::packetLost(AbsSyncAlgorithm* given) {
+#if DEBUG
+    CERR << "AbsCommInterface::packetLost(AbsSyncAlgorithm*)" << endl;
+#endif
+    CommunicatorSimulatorSyncalgo *syncAlgo=dynamic_cast<CommunicatorSimulatorSyncalgo *>(given);
+
+    if(syncAlgo==NULL) {
+        throw SyncAlgoErrorException();
+    }
+
+    this->receiveCount++;
 }
 
-void AbsCommInterface::messageReceived(Message *message)
-{
+
+void AbsCommInterface::messageReceived(Message *message) {
+#if DEBUG
+    CERR << "AbsCommInterface::messageReceived(Message*)" << endl;
+#endif
     //Get Time frame to accept the messageReceived
-    TIME timeframe=Integrator::getCurSimTime()-Integrator::getGracePreiod()*2;
+    TIME timeframe=Integrator::getCurSimTime()-Integrator::getGracePeriod()*2;
 
     if(message->getTime()<timeframe){ //old message drop
         delete message;
     }
 
     //let it throw an exception if the key is not found.
-    ObjectCommInterface *comm=this->interfaces[message->getTo()];
+    ObjectCommInterface *comm=getObjectInterface(message->getTo());
 
     if (this->doincrementCountersInSendReceive) {
         this->receiveCount++;
@@ -150,15 +198,22 @@ void AbsCommInterface::messageReceived(Message *message)
     comm->newMessage(message);
 }
 
-void AbsCommInterface::setNoCounterIncrement(AbsSyncAlgorithm* given, bool state)
-{
- CommunicatorSimulatorSyncalgo *syncAlgo=dynamic_cast<CommunicatorSimulatorSyncalgo *>(given);
-  
-  if(syncAlgo==NULL)
-    throw SyncAlgoErrorException();
-  
-  this->doincrementCountersInSendReceive=state;
+
+void AbsCommInterface::setNoCounterIncrement(AbsSyncAlgorithm* given, bool state) {
+#if DEBUG
+    CERR << "AbsCommInterface::setNoCounterIncrement("
+        << "AbsSyncAlgorithm*,"
+        << "state=" << state << ")" << endl;
+#endif
+    CommunicatorSimulatorSyncalgo *syncAlgo=dynamic_cast<CommunicatorSimulatorSyncalgo *>(given);
+
+    if(syncAlgo==NULL) {
+        throw SyncAlgoErrorException();
+    }
+
+    this->doincrementCountersInSendReceive=state;
 }
 
 
-}
+} /* end namespace sim_comm */
+

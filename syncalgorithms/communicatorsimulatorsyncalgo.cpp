@@ -4,11 +4,11 @@
  *  Created on: Feb 16, 2013
  *      Author: ciraci
  */
+#include "config.h"
 
-#include "communicatorsimulatorsyncalgo.h"
-
-#include "integrator.h"
 #include "abscomminterface.h"
+#include "communicatorsimulatorsyncalgo.h"
+#include "integrator.h"
 
 
 namespace sim_comm {
@@ -34,7 +34,7 @@ namespace sim_comm {
 		   
 		    if(diff>0)
 		    { //network unstable 
-			if(this->currentState>Integrator::getGracePreiod()*2){ //packet lost!
+			if(this->currentState>Integrator::getGracePeriod()*2){ //packet lost!
 			    this->interface->packetLost(this);
 			    //rest currentState;
 			    this->currentState=0;

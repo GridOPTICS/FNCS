@@ -28,18 +28,23 @@
 #define OBJECTCOMMINTERFACE_H
 
 #include <string>
-#include "integrator.h"
-
-#include "simtime.h"
-#include "message.h"
 #include <vector>
+
+#include "integrator.h"
+#include "message.h"
+#include "simtime.h"
 
 using namespace std;
 
+
 namespace sim_comm {
 
+
 class AbsCommInterface;
-/*This class provides the send/receive message interface for objects that want to communicate with other object through comm simm
+
+/**
+ * This class provides the send/receive message interface for objects that want
+ * to communicate with other objects through comm simm.
  */
 class ObjectCommInterface {
     friend class Integrator;
@@ -100,5 +105,7 @@ public:
 };
 
 
-}
-#endif // ABSOBJECTCOMMINTERFACE_H
+} /* end namespace sim_comm */
+
+#endif /* ABSOBJECTCOMMINTERFACE_H */
+

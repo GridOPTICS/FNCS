@@ -102,22 +102,22 @@ public:
     virtual uint64_t realReduceTotalSendReceive();
 
     /** @copydoc AbsCommInterface::addObjectInterface(string,ObjectCommInterface*) */
-    void addObjectInterface(string objectName,ObjectCommInterface *given);
+    virtual void addObjectInterface(string objectName,ObjectCommInterface *given);
 
     /** @copydoc AbsCommInterface::finalizeRegistrations() */
-    void finalizeRegistrations();
+    virtual void finalizeRegistrations();
 
     /** @copydoc AbsCommInterface::startReceiver() */
-    void startReceiver();
+    virtual void startReceiver();
 
     /** @copydoc AbsCommInterface::isReceiverRunning() */
-    bool isReceiverRunning();
+    virtual bool isReceiverRunning();
 
     /** @copydoc AbsCommInterface::stopReceiver() */
-    void stopReceiver();
+    virtual void stopReceiver();
 
     /** @copydoc AbsCommInterface::sendAll() */
-    void sendAll();
+    virtual void sendAll();
 };
 
 }

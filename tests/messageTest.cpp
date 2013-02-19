@@ -43,5 +43,8 @@ int main(){
       cout << "OK" << endl;
   }
 
+  Integrator::stopIntegrator();
+  cout << "Integrator stopped" << endl;
+
   return 0;
 }

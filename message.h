@@ -129,5 +129,7 @@ public:
     bool operator!=(const Message &that) const;
 };
 
+ostream& operator<<(ostream &os, const Message &message);
+
 }
 #endif // ABSMESSAGE_H

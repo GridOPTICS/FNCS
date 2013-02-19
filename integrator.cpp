@@ -32,63 +32,127 @@
 #include "syncalgorithms/graceperiodpesimisticsyncalgo.h"
 #include "syncalgorithms/communicatorsimulatorsyncalgo.h"
 
+#if DEBUG && DEBUG_TO_FILE
+ofstream ferr;
+#endif
+
 namespace sim_comm {
 
+
 Integrator* Integrator::instance=NULL;
+
 
 Integrator::Integrator(
         AbsCommInterface *currentInterface,
         AbsSyncAlgorithm *algo,
         time_metric simTimeStep,
         TIME gracePeriod) {
+#if DEBUG
+#   if DEBUG_TO_FILE
+    ostringstream ferrName;
+    ferrName << "tracer." << PID << ".log";
+    ferr.open(ferrName.str().c_str());
+#   endif
+    CERR << "Integrator::Integrator("
+        << "AbsCommInterface*,"
+        << "AbsSyncAlgorithm*,"
+        << "simTimeStep=" << simTimeStep << ","
+        << "gracePeriod=" << gracePeriod << ")" << endl;
+#endif
     this->currentInterface=currentInterface;
     this->simTimeMetric=simTimeStep;
-    this->gracePreiod=gracePeriod;
+    this->gracePeriod=gracePeriod;
     this->allowRegistrations = true;
     this->syncAlgo=algo;
 }
 
+
 Integrator::~Integrator(){
+#if DEBUG && DEBUG_TO_FILE
+    ferr.close();
+#endif
 	this->currentInterface->stopReceiver();
 	delete currentInterface;
 	delete syncAlgo;
-	Integrator::instance=NULL;
-
+	instance=NULL;
 }
+
 
 void Integrator::stopIntegrator(){
-	if(!isFinished())
+#if DEBUG
+    CERR << "Integrator::stopIntegrator()" << endl;
+#endif
+	if(!isFinished()) {
 	    instance->syncAlgo->GetNextTime(instance->getCurSimTime(),0);
-	delete Integrator::instance;
+    }
+	delete instance;
 }
 
-void Integrator::initIntegratorGracePeriod(AbsCommInterface *currentInterface, time_metric simTimeStep, TIME gracePeriod, TIME initialTime) {
+
+void Integrator::initIntegratorGracePeriod(
+        AbsCommInterface *currentInterface,
+        time_metric simTimeStep,
+        TIME gracePeriod,
+        TIME initialTime) {
+#if DEBUG
+    CERR << "Integrator::initIntegratorGracePeriod("
+        << "AbsCommInterface*,"
+        << "simTimeStep=" << simTimeStep << ","
+        << "gracePeriod=" << gracePeriod << ","
+        << "initialTime=" << initialTime << ")" << endl;
+#endif
     AbsSyncAlgorithm *algo=new GracePeriodSyncAlgo(currentInterface);
-	instance=new Integrator(currentInterface,algo,simTimeStep,gracePeriod);
+    instance=new Integrator(currentInterface,algo,simTimeStep,gracePeriod);
     instance->offset=convertToMyTime(instance->simTimeMetric,initialTime);
 }
 
 
-void Integrator::initIntegratorCommunicationSim(AbsCommInterface *currentInterface, time_metric simTimeStep, TIME gracePeriod, TIME initialTime) {
+void Integrator::initIntegratorCommunicationSim(
+        AbsCommInterface *currentInterface,
+        time_metric simTimeStep,
+        TIME gracePeriod,
+        TIME initialTime) {
+#if DEBUG
+    CERR << "Integrator::initIntegratorCommunicationSim("
+        << "AbsCommInterface*,"
+        << "simTimeStep=" << simTimeStep << ","
+        << "gracePeriod=" << gracePeriod << ","
+        << "initialTime=" << initialTime << ")" << endl;
+#endif
     AbsSyncAlgorithm *algo=new CommunicatorSimulatorSyncalgo(currentInterface);
 	instance=new Integrator(currentInterface,algo,simTimeStep,gracePeriod);
     instance->offset=convertToMyTime(instance->simTimeMetric,initialTime);
 }
 
-TIME Integrator::getGracePreiod() {
-    return instance->gracePreiod;
+
+TIME Integrator::getGracePeriod() {
+#if DEBUG
+    CERR << "Integrator::getGracePeriod()" << endl;
+#endif
+    return instance->gracePeriod;
 }
 
+
 void Integrator::setTimeCallBack(CallBack<TIME,empty,empty,empty>* t) {
+#if DEBUG
+    CERR << "Integrator::setTimeCallBack(t*)" << endl;
+#endif
     instance->getTimeCallBack=t;
 }
 
 
 TIME Integrator::getAdjustedGracePeriod() {
-    return convertToMyTime(instance->simTimeMetric,instance->gracePreiod);
+#if DEBUG
+    CERR << "Integrator::getAdjustedGracePeriod()" << endl;
+#endif
+    return convertToMyTime(instance->simTimeMetric,instance->gracePeriod);
 }
 
+
 TIME Integrator::getCurSimTime() {
+#if DEBUG
+    CERR << "Integrator::getCurSimTime()" << endl;
+#endif
     TIME t=(*(instance->getTimeCallBack))();
 
     TIME curTime=convertToFrameworkTime(instance->simTimeMetric,t);
@@ -96,17 +160,28 @@ TIME Integrator::getCurSimTime() {
     return curTime-instance->offset;
 }
 
-bool Integrator::isFinished()
-{
-  return instance->syncAlgo->isFinished();
+
+bool Integrator::isFinished() {
+#if DEBUG
+    CERR << "Integrator::isFinished()" << endl;
+#endif
+    return instance->syncAlgo->isFinished();
 }
 
 
 time_metric Integrator::getCurSimMetric() {
+#if DEBUG
+    CERR << "Integrator::getCurSimMetric()" << endl;
+#endif
     return instance->simTimeMetric;
 }
 
+
 ObjectCommInterface* Integrator::getCommInterface(string objectName) {
+#if DEBUG
+    CERR << "Integrator::getCommInterface("
+        << objectName << ")" << endl;
+#endif
     ObjectCommInterface *toReturn = nullptr;
 
     if (instance->allowRegistrations) {
@@ -120,32 +195,56 @@ ObjectCommInterface* Integrator::getCommInterface(string objectName) {
     return toReturn;
 }
 
-ObjectCommInterface* Integrator::getCommInterface(const char* objectName)
-{
+
+ObjectCommInterface* Integrator::getCommInterface(const char* objectName) {
+#if DEBUG
+    CERR << "Integrator::getCommInterface("
+        << objectName << ")" << endl;
+#endif
     return Integrator::getCommInterface(string(objectName));
 }
 
 
 bool Integrator::doDispatchNextEvent(TIME currentTime, TIME nextTime) {
-    TIME curTimeInFramework=convertToFrameworkTime(instance->simTimeMetric,currentTime) - instance->offset;
-    TIME nextframeTime = convertToFrameworkTime(instance->simTimeMetric,nextTime) - instance->offset;
+#if DEBUG
+    CERR << "Integrator::doDispatchNextEvent("
+        << "currentTime=" << currentTime << ","
+        << "nextTime=" << nextTime << ")" << endl;
+#endif
+    TIME curTimeInFramework=convertToFrameworkTime(
+            instance->simTimeMetric,currentTime) - instance->offset;
+    TIME nextframeTime = convertToFrameworkTime(
+            instance->simTimeMetric,nextTime) - instance->offset;
     instance->currentInterface->sendAll();
-    return instance->syncAlgo->doDispatchNextEvent(curTimeInFramework,nextframeTime);
+    return instance->syncAlgo->doDispatchNextEvent(
+            curTimeInFramework,nextframeTime);
 }
 
+
 TIME Integrator::getNextTime(TIME currentTime, TIME nextTime) {
-    TIME curTimeInFramework=convertToFrameworkTime(instance->simTimeMetric,currentTime) - instance->offset;
-    TIME nextframeTime = convertToFrameworkTime(instance->simTimeMetric,nextTime) - instance->offset;
+#if DEBUG
+    CERR << "Integrator::getNextTime("
+        << "currentTime=" << currentTime << ","
+        << "nextTime=" << nextTime << ")" << endl;
+#endif
+    TIME curTimeInFramework=convertToFrameworkTime(
+            instance->simTimeMetric,currentTime) - instance->offset;
+    TIME nextframeTime = convertToFrameworkTime(
+            instance->simTimeMetric,nextTime) - instance->offset;
     instance->currentInterface->sendAll();
     TIME toReturn=instance->syncAlgo->GetNextTime(curTimeInFramework,nextframeTime);
     return convertToMyTime(instance->simTimeMetric,toReturn);
 }
 
-void Integrator::finalizeRegistrations()
-{
-  instance->currentInterface->finalizeRegistrations();
-  instance->allowRegistrations=false;
+
+void Integrator::finalizeRegistrations() {
+#if DEBUG
+    CERR << "Integrator::finalizeRegistrations()" << endl;
+#endif
+    instance->currentInterface->finalizeRegistrations();
+    instance->allowRegistrations=false;
+    instance->currentInterface->startReceiver();
 }
 
 
-}
+} /* end namespace sim_comm */

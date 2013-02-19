@@ -49,6 +49,9 @@ Message::Message(
         uint8_t *data,
         uint32_t dataSize,
         uint8_t tag) {
+#if DEBUG
+    CERR << "Message::Message(...)" << endl;
+#endif
     this->from=from;
     this->to=to;
     this->timeStamp=convertToFrameworkTime(Integrator::getCurSimMetric(),timeStamp);
@@ -61,6 +64,9 @@ Message::Message(
     }
     this->size=dataSize;
     this->tag=tag;
+#if DEBUG
+    CERR << *this << endl;
+#endif
 }
 
 
@@ -71,6 +77,9 @@ Message::Message(
         uint8_t *data,
         uint32_t dataSize,
         uint8_t tag) {
+#if DEBUG
+    CERR << "Message::Message(...)" << endl;
+#endif
     this->from=string(from);
     this->to=string(to);
     this->timeStamp=convertToFrameworkTime(Integrator::getCurSimMetric(),timeStamp);
@@ -83,16 +92,28 @@ Message::Message(
     }
     this->size=dataSize;
     this->tag=tag;
+#if DEBUG
+    CERR << *this << endl;
+#endif
 }
 
 
-Message::Message(uint8_t *envelop, uint32_t size, uint8_t *data) {
+Message::Message(uint8_t *envelope, uint32_t size, uint8_t *data) {
+#if DEBUG
+    CERR << "Message::Message(...) using deserializeHeader" << endl;
+#endif
     this->data=data;
-    this->deserializeHeader(envelop,size);
+    this->deserializeHeader(envelope,size);
+#if DEBUG
+    CERR << *this << endl;
+#endif
 }
 
 
 Message::Message(const Message& other) {
+#if DEBUG
+    CERR << "Message::Message(const Message&)" << endl;
+#endif
     this->from=other.from;
     this->to=other.to;
     this->timeStamp=other.timeStamp;
@@ -109,12 +130,18 @@ Message::Message(const Message& other) {
 
 
 TIME Message::getAdjustedTime() {
+#if DEBUG
+    CERR << "Message::getAdjustedTime()" << endl;
+#endif
     time_metric mySimMetric=Integrator::getCurSimMetric();
     return convertToMyTime(mySimMetric,this->timeStamp);
 }
 
 
 void Message::serializeHeader(uint8_t*& buffToReturn,uint32_t& buffSize) const {
+#if DEBUG
+    CERR << "Message::serializeHeader(...)" << endl;
+#endif
     vector<uint8_t> buff;
     const uint8_t* timeptr=NULL;
     const uint8_t* sizeptr=NULL;
@@ -165,7 +192,10 @@ void Message::serializeHeader(uint8_t*& buffToReturn,uint32_t& buffSize) const {
 }
 
 
-void Message::deserializeHeader(uint8_t *buff,uint32_t buffSize) {
+void Message::deserializeHeader(uint8_t *buff, uint32_t buffSize) {
+#if DEBUG
+    CERR << "Message::deserializeHeader(...)" << endl;
+#endif
     stringstream temp;
     uint32_t it=0;
     uint8_t *timeptr=NULL;
@@ -233,10 +263,16 @@ void Message::deserializeHeader(uint8_t *buff,uint32_t buffSize) {
 
 
 Message::~Message() {
+#if DEBUG
+    CERR << "Message::~Message()" << endl;
+#endif
 }
 
 
 bool Message::operator==(const Message &that) const {
+#if DEBUG
+    CERR << "Message::operator==(const Message&)" << endl;
+#endif
     if (this->from != that.from) {
         return false;
     }
@@ -264,7 +300,21 @@ bool Message::operator==(const Message &that) const {
 
 
 bool Message::operator!=(const Message &that) const {
+#if DEBUG
+    CERR << "Message::operator!=(const Message&)" << endl;
+#endif
     return !(*this == that);
+}
+
+
+ostream& operator<<(ostream &os, const Message &message) {
+    os << "=== Message ===" << endl;
+    os << "from '" << message.getFrom() << "'" << endl;
+    os << "to '" << message.getTo() << "'" << endl;
+    os << "time " << message.getTime() << endl;
+    os << "tag " << static_cast<int>(message.getTag()) << endl;
+    os << "size " << message.getSize() << endl;
+    return os;
 }
 
 }

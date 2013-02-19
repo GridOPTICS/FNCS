@@ -28,29 +28,45 @@
 
 #include "objectcomminterface.h"
 
+
 namespace sim_comm {
 
+
 ObjectCommInterface::ObjectCommInterface(string objectName) {
+#if DEBUG
+    CERR << "ObjectCommInterface::ObjectCommInterface("
+        << objectName << ")" << endl;
+#endif
     this->attachedObjectName=objectName;
 
 }
 
+
 ObjectCommInterface::~ObjectCommInterface() {
+#if DEBUG
+    CERR << "ObjectCommInterface::~ObjectCommInterface()" << endl;
+#endif
     this->inbox.clear();
     this->outbox.clear();
 }
 
+
 void ObjectCommInterface::send(Message* given) {
+#if DEBUG
+    CERR << "ObjectCommInterface::send(Message*)" << endl;
+#endif
     this->outbox.push_back(given);
 }
 
 
-
 int ObjectCommInterface::getInboxMessagesCount() {
+#if DEBUG
+    CERR << "ObjectCommInterface::getInboxMessagesCount()" << endl;
+#endif
     //we can write a better one!
 
     TIME currentTime=Integrator::getCurSimTime();
-    TIME graceTime=currentTime- Integrator::getGracePreiod();
+    TIME graceTime=currentTime- Integrator::getGracePeriod();
 
     int toReturn=0;
     for(int i=0; i<inbox.size(); i++) {
@@ -64,9 +80,13 @@ int ObjectCommInterface::getInboxMessagesCount() {
     return toReturn;
 }
 
+
 std::vector< Message* > ObjectCommInterface::getAllInboxMessages() {
+#if DEBUG
+    CERR << "ObjectCommInterface::getAllInboxMessages()" << endl;
+#endif
     TIME currentTime=Integrator::getCurSimTime();
-    TIME graceTime=currentTime- Integrator::getGracePreiod();
+    TIME graceTime=currentTime- Integrator::getGracePeriod();
 
     vector<Message *> toReturn;
 
@@ -91,9 +111,12 @@ std::vector< Message* > ObjectCommInterface::getAllInboxMessages() {
 
 
 bool ObjectCommInterface::hasMoreMessages() {
+#if DEBUG
+    CERR << "ObjectCommInterface::hasMoreMessages()" << endl;
+#endif
     if(this->msgs.size()==0) { //find the locations of the messages to return
         TIME currentTime=Integrator::getCurSimTime();
-        TIME graceTime=currentTime- Integrator::getGracePreiod();
+        TIME graceTime=currentTime- Integrator::getGracePeriod();
         //this->msgs.clear();
         for(int i=0; i<inbox.size(); i++) {
 
@@ -123,21 +146,37 @@ bool ObjectCommInterface::hasMoreMessages() {
     }
 }
 
+
 Message* ObjectCommInterface::getNextInboxMessage() {
+#if DEBUG
+    CERR << "ObjectCommInterface::getNextInboxMessage()" << endl;
+#endif
     return this->inbox[*it];
 }
 
+
 void ObjectCommInterface::newMessage(Message* given) {
+#if DEBUG
+    CERR << "ObjectCommInterface::newMessage(Message*)" << endl;
+#endif
     this->outbox.push_back(given);
 }
 
+
 std::vector< Message* > ObjectCommInterface::getOutBox() {
-    //outbox implementation
+#if DEBUG
+    CERR << "ObjectCommInterface::getOutBox()" << endl;
+#endif
+    return outbox;
 }
 
+
 void ObjectCommInterface::clear() {
+#if DEBUG
+    CERR << "ObjectCommInterface::clear()" << endl;
+#endif
     //implement
 }
 
 
-}
+} /* end namespace sim_comm */
