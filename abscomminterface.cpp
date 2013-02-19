@@ -131,24 +131,23 @@ void AbsCommInterface::packetLost(AbsSyncAlgorithm* given)
   this->receiveCount++;
 }
 
-void AbsCommInterface::messageReceived(uint8_t* msg,uint32_t size)
+void AbsCommInterface::messageReceived(Message *message)
 {
-      Message *demsg=new Message(msg,size);
-      
-      //Get Time frame to accept the messageReceived
-      TIME timeframe=Integrator::getCurSimTime()-Integrator::getGracePreiod()*2;
-      
-      if(demsg->getTime()<timeframe){ //old message drop
-	    delete demsg;
-      }
-      
-      //let it throw an exception if the key is not found.
-      ObjectCommInterface *comm=this->interfaces[demsg->getTo()];
-      
-      if(this->doincrementCountersInSendReceive)
-	this->receiveCount++;
-      
-      comm->newMessage(demsg);
+    //Get Time frame to accept the messageReceived
+    TIME timeframe=Integrator::getCurSimTime()-Integrator::getGracePreiod()*2;
+
+    if(message->getTime()<timeframe){ //old message drop
+        delete message;
+    }
+
+    //let it throw an exception if the key is not found.
+    ObjectCommInterface *comm=this->interfaces[message->getTo()];
+
+    if (this->doincrementCountersInSendReceive) {
+        this->receiveCount++;
+    }
+
+    comm->newMessage(message);
 }
 
 void AbsCommInterface::setNoCounterIncrement(AbsSyncAlgorithm* given, bool state)

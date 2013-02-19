@@ -127,42 +127,46 @@ MpiCommInterface::~MpiCommInterface() {
 
 
 void MpiCommInterface::realSendMessage(Message *given) {
-    MpiIsendPacket bundle;
-    map<string,int>::const_iterator rank_it;
-    uint32_t size = given->getSize();
-    uint8_t *data = given->getData();
+    MpiIsendPacket envelopeBundle;
+    MpiIsendPacket dataBundle;
+    int rank = 0;
+    const uint8_t *data = given->getData();
+    uint32_t dataSize = given->getSize();
+    uint8_t *envelope = NULL;
+    uint32_t envelopeSize = 0;
     TIME time = Integrator::getCurSimTime();
 
     assert(!this->allowRegistrations);
 
     make_progress();
 
+    /* serialize envelope */
+    given->serializeHeader(envelope,envelopeSize);
+
     if (iAmNetSim) {
         /* net sim sends to simulator containing object */
+        map<string,int>::const_iterator rank_it;
         rank_it = objectRank.find(given->getTo());
         assert(objectRank.end() != rank_it);
-        bundle.destination_rank = rank_it->second;
-        bundle.message = new char[sizeof(TIME) + size];
-        memcpy(bundle.message, &time, sizeof(TIME));
-        memcpy(bundle.message+sizeof(TIME), data, given->getSize());
-        delete [] data;
-        MPI_Isend(bundle.message, sizeof(TIME) + size, MPI_CHAR,
-                bundle.destination_rank, FNCS_TAG, comm, &(bundle.request));
-        sentMessages.push_back(bundle);
+        rank = rank_it->second;
     }
     else {
         /* all other sims always send to the net sim */
-        rank_it = objectRank.find(given->getTo());
-        assert(objectRank.end() != rank_it);
-        bundle.destination_rank = rank_it->second;
-        bundle.message = new char[sizeof(TIME) + size];
-        memcpy(bundle.message, &time, sizeof(TIME));
-        memcpy(bundle.message+sizeof(TIME), data, given->getSize());
-        delete [] data;
-        MPI_Isend(bundle.message, sizeof(TIME) + size, MPI_CHAR,
-                this->netSimRank, FNCS_TAG, comm, &(bundle.request));
-        sentMessages.push_back(bundle);
+        rank = this->netSimRank;
     }
+
+    envelopeBundle.destination_rank = rank;
+    envelopeBundle.message = envelope;
+    MPI_Isend(envelope, envelopeSize, MPI_UNSIGNED_CHAR,
+            rank, FNCS_TAG_ENVELOPE, comm, &(envelopeBundle.request));
+    sentMessages.push_back(envelopeBundle);
+
+    dataBundle.destination_rank = rank;
+    dataBundle.message = data;
+    MPI_Isend(reinterpret_cast<void*>(const_cast<uint8_t*>(data)),
+            dataSize, MPI_UNSIGNED_CHAR,
+            rank, FNCS_TAG_DATA, comm, &(dataBundle.request));
+    sentMessages.push_back(dataBundle);
 
     make_progress();
 }
@@ -366,24 +370,39 @@ void MpiCommInterface::make_progress() {
     while (incoming) {
         MPI_Status status;
 
-        ierr = MPI_Iprobe(MPI_ANY_SOURCE, FNCS_TAG, comm, &incoming, &status);
+        ierr = MPI_Iprobe(MPI_ANY_SOURCE, FNCS_TAG_ENVELOPE,
+                comm, &incoming, &status);
         assert(MPI_SUCCESS == ierr);
 
         if (incoming) {
-            char *message;
-            int size;
+            Message *message=NULL;
+            uint8_t *envelope=NULL;
+            uint8_t *data=NULL;
+            int envelopeSize=0;
+            uint32_t dataSize=0;
 
-            ierr = MPI_Get_count(&status, MPI_CHAR, &size);
+            ierr = MPI_Get_count(&status, MPI_UNSIGNED_CHAR, &envelopeSize);
             assert(MPI_SUCCESS == ierr);
-            message = new char[size];
+            envelope = new uint8_t[envelopeSize];
 
-            ierr = MPI_Recv(message, size, MPI_CHAR,
-                            status.MPI_SOURCE, status.MPI_TAG,
+            ierr = MPI_Recv(envelope, envelopeSize, MPI_UNSIGNED_CHAR,
+                            status.MPI_SOURCE, FNCS_TAG_ENVELOPE,
                             comm, MPI_STATUS_IGNORE);
             assert(MPI_SUCCESS == ierr);
 
-	    this->messageReceived((uint8_t*)message,(uint32_t)size);
-            delete [] message;
+            message = new Message(envelope,envelopeSize);
+            dataSize = message->getSize();
+
+            if (dataSize > 0) {
+                data = new uint8_t[dataSize];
+                ierr = MPI_Recv(data, dataSize, MPI_UNSIGNED_CHAR,
+                        status.MPI_SOURCE, FNCS_TAG_DATA,
+                        comm, MPI_STATUS_IGNORE);
+                assert(MPI_SUCCESS == ierr);
+                message->setData(data,dataSize);
+            }
+
+	        this->messageReceived(message);
         }
     }
 }

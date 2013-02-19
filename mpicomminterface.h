@@ -41,13 +41,16 @@ namespace sim_comm {
 class Message;
 class ObjectCommInterface;
 
-#define FNCS_TAG 3627
+#define FNCS_TAG_BASE 3627
+#define FNCS_TAG_ENVELOPE (FNCS_TAG_BASE + 1)
+#define FNCS_TAG_DATA     (FNCS_TAG_BASE + 2)
+#define FNCS_TAG          (FNCS_TAG_BASE + 3)
 
 class MpiIsendPacket {
 public:
     MpiIsendPacket() {}
 
-    MpiIsendPacket(int destination_rank, char *message, MPI_Request request)
+    MpiIsendPacket(int destination_rank, const uint8_t *message, MPI_Request request)
         :   destination_rank(destination_rank)
         ,   message(message)
         ,   request(request)
@@ -58,7 +61,7 @@ public:
     }
 
     int destination_rank;
-    char *message;
+    const uint8_t *message;
     MPI_Request request;
 };
 

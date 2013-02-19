@@ -93,7 +93,7 @@ protected:
       * Sub classes should not notify objectcomminterface themselves
       * instead they should call this method.
       */
-    void messageReceived(uint8_t *msg,uint32_t size);
+    void messageReceived(Message *message);
 public:
     /**
      * Constructor.

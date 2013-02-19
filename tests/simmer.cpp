@@ -86,7 +86,8 @@ static void generic_simulator()
 
     eventTime=0;
     for(int i=0;i<10;i++){
-        Message *message = new Message("simObject1", "simObject2", eventTime);
+        Message *message = new Message("simObject1", "simObject2", eventTime,
+                NULL, 0, 0);
         //execute calculations that will solve all our problems
         usleep(rand()%2000);
         //start the time sync
@@ -120,6 +121,8 @@ int main(int argc, char **argv)
 
     ierr = MPI_Comm_size(MPI_COMM_WORLD, &comm_size);
     assert(MPI_SUCCESS == ierr);
+
+    assert(2 == comm_size);
 
     try {
         if (0 == comm_rank) {

@@ -1,4 +1,7 @@
-#include <string.h>
+#include "config.h"
+
+#include <cstring>
+#include <cstdlib>
 
 #include "integrator.h"
 #include "message.h"
@@ -8,6 +11,10 @@ using namespace sim_comm;
 
 int main(){
 
+  Message *original=NULL;
+  Message *deserialized=NULL;
+  uint8_t *serbuff=NULL;
+  uint32_t size=0;
   uint8_t data[100];
   
   bzero(data,100);
@@ -16,20 +23,25 @@ int main(){
   data[0]=99;
   
   Integrator::initIntegratorGracePeriod(NULL,SECONDS,5,10);
+  cout << "Integrator initialized" << endl;
   
-  Message *t=new Message("selim","selim",0,data,100,0);
-  uint8_t *serbuff;
-  uint32_t size;
-  t->serialize(serbuff,size);
-  Message *deser=new Message(serbuff,size);
+  original=new Message("selim","selim",0,data,100,0);
+  cout << "Created Message" << endl;
+
+  original->serializeHeader(serbuff,size);
+  cout << "Serialized Message" << endl;
+
+  deserialized=new Message(serbuff,size,data);
+  cout << "Deserialized Message" << endl;
   
-  uint8_t *dataCopy=deser->getData();
-  
-  if(dataCopy[0]!=data[0])
-    throw "SERIALIZATION FAILED!";
-   if(dataCopy[99]!=data[99])
-    throw "SERIALIZATION FAILED!";
-    if(dataCopy[50]!=data[50])
-    throw "SERIALIZATION FAILED!";
+  cout << "Comparing Messages... ";
+  if (*original != *deserialized) {
+      cout << "FAILED" << endl;
+      exit(EXIT_FAILURE);
+  }
+  else {
+      cout << "OK" << endl;
+  }
+
   return 0;
 }

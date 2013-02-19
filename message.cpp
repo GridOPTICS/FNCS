@@ -26,6 +26,7 @@
 */
 #include "config.h"
 
+#include <cassert>
 #include <cstring>
 #include <sstream>
 #include <vector>
@@ -34,61 +35,76 @@
 
 using namespace std;
 
+
 namespace sim_comm {
+
 
 string Message::DESTIONATION_BCAST("*");
 
-Message::Message(string from, string to,TIME timeStamp) {
+
+Message::Message(
+        const string &from,
+        const string &to,
+        TIME timeStamp,
+        uint8_t *data,
+        uint32_t dataSize,
+        uint8_t tag) {
     this->from=from;
     this->to=to;
     this->timeStamp=convertToFrameworkTime(Integrator::getCurSimMetric(),timeStamp);
-}
-
-Message::Message(const char* from, const char* to,TIME timeStamp) {
-    this->from=string(from);
-    this->to=string(to);
-    this->timeStamp=convertToFrameworkTime(Integrator::getCurSimMetric(),timeStamp);
-}
-
-Message::Message(string from, string to, TIME timeStamp, uint8_t* data, uint32_t dataSize, uint8_t tag) {
-    this->from=from;
-    this->to=to;
-    this->timeStamp=convertToFrameworkTime(Integrator::getCurSimMetric(),timeStamp);
-    this->data=new uint8_t[dataSize];
-    memcpy(this->data,data,dataSize);
+    if (dataSize > 0) {
+        this->data=new uint8_t[dataSize];
+        memcpy(this->data,data,dataSize);
+    }
+    else {
+        this->data=NULL;
+    }
     this->size=dataSize;
     this->tag=tag;
 }
 
-Message::Message(const char* from, const char* to, TIME timeStamp, uint8_t* data, uint32_t dataSize, uint8_t tag) {
+
+Message::Message(
+        const char *from,
+        const char *to,
+        TIME timeStamp,
+        uint8_t *data,
+        uint32_t dataSize,
+        uint8_t tag) {
     this->from=string(from);
     this->to=string(to);
     this->timeStamp=convertToFrameworkTime(Integrator::getCurSimMetric(),timeStamp);
-    this->data=new uint8_t[dataSize];
-    memcpy(this->data,data,dataSize);
+    if (dataSize > 0) {
+        this->data=new uint8_t[dataSize];
+        memcpy(this->data,data,dataSize);
+    }
+    else {
+        this->data=NULL;
+    }
     this->size=dataSize;
     this->tag=tag;
 }
 
+
+Message::Message(uint8_t *envelop, uint32_t size, uint8_t *data) {
+    this->data=data;
+    this->deserializeHeader(envelop,size);
+}
 
 
 Message::Message(const Message& other) {
     this->from=other.from;
-    this->to = other.to;
-    this->data=new uint8_t[other.size];
+    this->to=other.to;
+    this->timeStamp=other.timeStamp;
+    if (other.size > 0) {
+        this->data=new uint8_t[other.size];
+        memcpy(this->data,other.data,other.size);
+    }
+    else {
+        this->data=NULL;
+    }
     this->size=other.size;
-    memcpy(this->data,data,size);
     this->tag=tag;
-
-}
-
-Message::Message(uint8_t* given,uint32_t size) {
-    this->deserialize(given,size);
-}
-
-bool Message::isBroadCast() {
-    return this->to.compare(Message::DESTIONATION_BCAST)==0;
-
 }
 
 
@@ -97,44 +113,51 @@ TIME Message::getAdjustedTime() {
     return convertToMyTime(mySimMetric,this->timeStamp);
 }
 
-void Message::serialize(uint8_t*& buffToReturn,uint32_t& buffSize) {
+
+void Message::serializeHeader(uint8_t*& buffToReturn,uint32_t& buffSize) const {
     vector<uint8_t> buff;
+    const uint8_t* timeptr=NULL;
+    const uint8_t* sizeptr=NULL;
 
-    string::iterator it;
+    /* attempt to guess how much space we'll need to serialize */
+    buff.reserve(
+            this->from.size() + 1 +
+            this->to.size() + 1 +
+            sizeof(this->timeStamp) + 1 +
+            sizeof(this->size) + 1 +
+            1 + 1);
 
-    for(it=this->from.begin(); it!=this->from.end(); ++it) {
-        buff.push_back((uint8_t)*it);
-
+    /* from */
+    for(string::const_iterator it=this->from.begin(), limit=this->from.end();
+            it!=limit; ++it) {
+        buff.push_back(static_cast<uint8_t>(*it));
     }
-
     buff.push_back(0);
 
-    for(it=this->to.begin(); it!=this->to.end(); ++it) {
-        buff.push_back((uint8_t)*it);
-
+    /* to */
+    for(string::const_iterator it=this->to.begin(), limit=this->to.end();
+            it!=limit; ++it) {
+        buff.push_back(static_cast<uint8_t>(*it));
     }
-
     buff.push_back(0);
 
-    uint8_t* timeptr=(uint8_t *)&this->timeStamp;
-
-    for(int i=0; i<sizeof(this->timeStamp); i++) {
-
+    /* timeStamp */
+    timeptr=reinterpret_cast<const uint8_t*>(&this->timeStamp);
+    for(int i=0, limit=sizeof(this->timeStamp); i<limit; i++) {
         buff.push_back(timeptr[i]);
     }
+    buff.push_back(0);
 
-    buff.push_back(tag);
-
-    /*timeptr=&this->size;
-     for(int i=0;i<sizeof(this->size);i++){
-
-      buff.push_back(timeptr[i]);
-    }*/
-
-
-    for(int i=0; i<size; i++) {
-        buff.push_back(data[i]);
+    /* size */
+    sizeptr=reinterpret_cast<const uint8_t*>(&this->size);
+    for(int i=0, limit=sizeof(this->size); i<limit; i++) {
+        buff.push_back(sizeptr[i]);
     }
+    buff.push_back(0);
+
+    /* tag */
+    buff.push_back(tag);
+    buff.push_back(0);
 
     buffToReturn=new uint8_t[buff.size()];
     copy(buff.begin(),buff.end(),buffToReturn);
@@ -142,73 +165,106 @@ void Message::serialize(uint8_t*& buffToReturn,uint32_t& buffSize) {
 }
 
 
-void Message::peek(uint8_t* peekBuffer, uint32_t size) {
-    uint32_t copySize= this->size < size? this->size : size;
-
-    memcpy(peekBuffer,this->data,copySize);
-}
-
-uint8_t* Message::getData() {
-    uint8_t* toReturn=new uint8_t[this->size];
-    memcpy(toReturn,this->data,this->size);
-
-    return toReturn;
-}
-
-TIME Message::getTime() {
-    return this->timeStamp;
-}
-
-void Message::deserialize(uint8_t *buff,uint32_t buffSize) {
+void Message::deserializeHeader(uint8_t *buff,uint32_t buffSize) {
     stringstream temp;
-
     uint32_t it=0;
+    uint8_t *timeptr=NULL;
+    uint8_t *sizeptr=NULL;
 
+    /* from */
     for(; it<buffSize; it++) {
-
         if(buff[it]==0) {
             break;
         }
         temp << (char)buff[it];
+    }
+    if (it >= buffSize) {
+        throw "TODO better exception for deserialize from";
     }
     ++it;
     this->from=temp.str();
     temp.str(string());
 
+    /* to */
     for(; it<buffSize; it++) {
-
         if(buff[it]==0) {
             break;
         }
         temp << (char)buff[it];
     }
+    if (it >= buffSize) {
+        throw "TODO better exception for deserialize to";
+    }
+    ++it;
     this->to=temp.str();
     temp.str(string());
-    ++it;
-    uint8_t* timeptr=(uint8_t*)&this->timeStamp;
 
-    for(int i=0; i<sizeof(this->timeStamp); i++) {
-
+    /* timeStamp */
+    timeptr=reinterpret_cast<uint8_t*>(&this->timeStamp);
+    for(int i=0, limit=sizeof(this->timeStamp); i<limit && it<buffSize; i++) {
         timeptr[i]=buff[it++];
     }
-
-    this->tag=buff[it++];
-
-    vector<uint8_t> dataBuff;
-    for(; it<buffSize; it++) {
-
-        dataBuff.push_back(buff[it]);
+    if (it >= buffSize) {
+        throw "TODO better exception for deserialize time";
     }
+    ++it;
 
-    this->size=dataBuff.size();
+    /* size */
+    sizeptr=reinterpret_cast<uint8_t*>(&this->size);
+    for(int i=0, limit=sizeof(this->size); i<limit && it<buffSize; i++) {
+        sizeptr[i]=buff[it++];
+    }
+    if (it >= buffSize) {
+        throw "TODO better exception for deserialize size";
+    }
+    ++it;
 
-    this->data=new uint8_t[this->size];
-    copy(dataBuff.begin(),dataBuff.end(),this->data);
+    /* tag */
+    this->tag=buff[it++];
+    if (it >= buffSize) {
+        throw "TODO better exception for deserialize tag";
+    }
+    ++it;
+    
+    if (it != buffSize) {
+        throw "TODO better exception for deserialize end";
+    }
 }
+
 
 Message::~Message() {
-    delete[] this->data;
 }
 
+
+bool Message::operator==(const Message &that) const {
+    if (this->from != that.from) {
+        return false;
+    }
+    if (this->to != that.to) {
+        return false;
+    }
+    if (this->timeStamp != that.timeStamp) {
+        return false;
+    }
+    if (this->size != that.size) {
+        return false;
+    }
+    if (this->tag != that.tag) {
+        return false;
+    }
+    if (this->size > 0) {
+        assert(NULL != this->data);
+        assert(NULL != that.data);
+        return (0 == memcmp(this->data, that.data, this->size));
+    }
+    else {
+        return true;
+    }
+}
+
+
+bool Message::operator!=(const Message &that) const {
+    return !(*this == that);
+}
 
 }
