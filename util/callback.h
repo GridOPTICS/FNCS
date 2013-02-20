@@ -26,8 +26,8 @@
 */
 
 
-#ifndef CALLBACK_H
-#define CALLBACK_H
+#ifndef SIMCALLBACK_H
+#define SIMCALLBACK_H
 
 namespace sim_comm {
 
@@ -94,7 +94,7 @@ public:
     };
 
     virtual R operator()() {
-        return obj->ptrToRealFunction();
+        return ((*obj).*ptrToRealFunction)();
     }
 
     virtual R operator()(T1 a) {
@@ -196,7 +196,7 @@ public:
     };
 
     virtual R operator()(T1 a,T2 b) {
-        return obj->ptrToRealFunction(a,b);
+        return ((*obj).*ptrToRealFunction)(a,b);
 
     };
 
@@ -225,7 +225,7 @@ public:
     }
 
     virtual R operator()(T1 a) {
-        return obj->ptrToRealFunction(a);
+        return ((*obj).*ptrToRealFunction)(a);
     };
 
     virtual R operator()(T1 a,T2 b) {
@@ -267,7 +267,7 @@ public:
     };
 
     virtual R operator()(T1 a,T2 b, T3 c) {
-        return obj->ptrToRealFunction(a,b,c);
+        return ((*obj).*ptrToRealFunction)(a,b,c);
     };
 
 
@@ -590,24 +590,24 @@ CallBack<R, T1, T2,T3>* CreateCallback (R (*fnPtr)(T1, T2, T3)) {
     return new CallBackThreeParamImpl<R, T1, T2,T3>(fnPtr);
 }
 
-template <typename O,typename R>
-CallBack<R, empty, empty, empty>* CreateCallback (O objptr,R (*fnPtr)()) {
-    return new ObjCallBackNoParamImpl<R, empty,empty,empty>(objptr,fnPtr);
+template <typename O,typename F,typename R>
+CallBack<R, empty, empty, empty>* CreateObjCallback (O objptr,F fnptr) {
+    return new ObjCallBackNoParamImpl<R, empty,empty,empty>(objptr,fnptr);
 }
 
-template <typename O,typename R, typename T1>
-CallBack<R, T1, empty, empty>* CreateCallback (O objptr,R (*fnPtr)(T1)) {
-    return new ObjCallBackOneParamImpl<R, T1,empty,empty>(objptr,fnPtr);
+template <typename O,typename F,typename R, typename T1>
+CallBack<R, T1, empty, empty>* CreateObjCallback (O objptr,F fnptr) {
+    return new ObjCallBackOneParamImpl<R, T1,empty,empty>(objptr,fnptr);
 }
 
-template <typename O,typename R, typename T1,typename T2>
-CallBack<R, T1, T2,empty>* CreateCallback (O objptr, R (*fnPtr)(T1, T2)) {
-    return new ObjCallBackTwoParamImpl<R, T1, T2,empty>(objptr,fnPtr);
+template <typename O,typename F,typename R, typename T1,typename T2>
+CallBack<R, T1, T2,empty>* CreateObjCallback (O objptr, F fnptr) {
+    return new ObjCallBackTwoParamImpl<R, T1, T2,empty>(objptr,fnptr);
 }
 
-template <typename O,typename R, typename T1,typename T2,typename T3>
-CallBack<R, T1, T2,T3>* CreateCallback (O objptr,R (*fnPtr)(T1, T2, T3)) {
-    return new CallBackThreeParamImpl<R, T1, T2,T3>(objptr,fnPtr);
+template <typename O,typename F,typename R, typename T1,typename T2,typename T3>
+CallBack<R, T1, T2,T3>* CreateObjCallback (const O objptr,F fnptr) {
+    return new CallBackThreeParamImpl<R, T1, T2,T3>(objptr,fnptr);
 }
 
 }

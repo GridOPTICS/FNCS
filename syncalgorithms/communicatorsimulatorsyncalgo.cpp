@@ -24,6 +24,7 @@ namespace sim_comm {
 	}
 	
 	
+	//TODO: packet loss needs a counter!
 	TIME CommunicatorSimulatorSyncalgo::GetNextTime(TIME currentTime,TIME nextTime){
 	  	
 		   
@@ -47,7 +48,7 @@ namespace sim_comm {
 		    //We never wait for comm sim, instead we wait for oter sims
 		    TIME myminNextTime=Infinity;
 		    TIME minNextTime=(TIME)interface->realReduceMinTime(myminNextTime);
-
+		    
 		    //If min time is infinity then there is something with the comm!
 		    if(minNextTime==myminNextTime)
 			      throw SyncAlgoException(minNextTime);
@@ -56,6 +57,7 @@ namespace sim_comm {
 			  this->finished=true;
 			  return 0;
 		     }
+		     this->currentState=minNextTime;
 		   
 		    return minNextTime;
 
