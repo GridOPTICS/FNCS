@@ -51,7 +51,9 @@ extern ofstream ferr;
 
 namespace sim_comm {
 
-class AbsCommInterface;
+class AbsNetworkInterface;
+
+class AbsCommManager;
 class ObjectCommInterface;
 
 
@@ -66,7 +68,7 @@ class ObjectCommInterface;
 class Integrator {
 private:
     time_metric simTimeMetric;
-    AbsCommInterface *currentInterface;
+    AbsCommManager *currentInterface;
     TIME gracePeriod;
     CallBack<TIME,empty,empty,empty>* getTimeCallBack;
     AbsSyncAlgorithm *syncAlgo;
@@ -80,7 +82,7 @@ private:
      * Constructor.
      */
     Integrator(
-    		AbsCommInterface *currentInterface,
+    		AbsCommManager *currentInterface,
     		AbsSyncAlgorithm *algo,
     		time_metric simTimeStep,
     		TIME gracePeriod);
@@ -149,13 +151,13 @@ public:
     /**
      * Initializes the integrator for a tick-based simulator
      */
-    static void initIntegratorGracePeriod(AbsCommInterface *currentInterface, 
+    static void initIntegratorGracePeriod(AbsNetworkInterface *currentInterface, 
 					  time_metric simTimeStep, 
 					  TIME gracePeriod, TIME initialTime);
     /**
      * Initializes the integrator for the communication simulator
      */
-    static void initIntegratorCommunicationSim(AbsCommInterface *currentInterface, 
+    static void initIntegratorCommunicationSim(AbsNetworkInterface *currentInterface, 
 					time_metric simTimeStep, 
 					TIME gracePeriod, TIME initialTime);
 

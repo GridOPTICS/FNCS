@@ -39,7 +39,7 @@ namespace sim_comm{
     {
 
       public:
-	    GracePeriodSyncAlgo(AbsCommInterface *interface);
+	    GracePeriodSyncAlgo(AbsCommManager *interface);
 	    virtual ~ GracePeriodSyncAlgo();
 	    virtual bool doDispatchNextEvent(TIME currentTime, TIME nextTime);
 	    virtual TIME GetNextTime(TIME currentTime, TIME nextTime);

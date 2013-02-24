@@ -26,11 +26,14 @@
 */
 #include "config.h"
 
-#include "abscomminterface.h"
+#include "abscommmanager.h"
+#include "absnetworkinterface.h"
 #include "integrator.h"
 #include "objectcomminterface.h"
 #include "syncalgorithms/graceperiodpesimisticsyncalgo.h"
 #include "syncalgorithms/communicatorsimulatorsyncalgo.h"
+#include "graceperiodcommmanager.h"
+#include "commicationsimcommmanager.h"
 
 #if DEBUG && DEBUG_TO_FILE
 ofstream ferr;
@@ -43,7 +46,7 @@ Integrator* Integrator::instance=NULL;
 
 
 Integrator::Integrator(
-        AbsCommInterface *currentInterface,
+        AbsCommManager *currentInterface,
         AbsSyncAlgorithm *algo,
         time_metric simTimeStep,
         TIME gracePeriod) {
@@ -90,7 +93,7 @@ void Integrator::stopIntegrator(){
 
 
 void Integrator::initIntegratorGracePeriod(
-        AbsCommInterface *currentInterface,
+        AbsNetworkInterface *currentInterface,
         time_metric simTimeStep,
         TIME gracePeriod,
         TIME initialTime) {
@@ -101,14 +104,15 @@ void Integrator::initIntegratorGracePeriod(
         << "gracePeriod=" << gracePeriod << ","
         << "initialTime=" << initialTime << ")" << endl;
 #endif
-    AbsSyncAlgorithm *algo=new GracePeriodSyncAlgo(currentInterface);
-    instance=new Integrator(currentInterface,algo,simTimeStep,gracePeriod);
+    AbsCommManager *command=new GracePeriodCommManager(currentInterface);
+    AbsSyncAlgorithm *algo=new GracePeriodSyncAlgo(command);
+    instance=new Integrator(command,algo,simTimeStep,gracePeriod);
     instance->offset=convertToMyTime(instance->simTimeMetric,initialTime);
 }
 
 
 void Integrator::initIntegratorCommunicationSim(
-        AbsCommInterface *currentInterface,
+        AbsNetworkInterface *currentInterface,
         time_metric simTimeStep,
         TIME gracePeriod,
         TIME initialTime) {
@@ -119,8 +123,9 @@ void Integrator::initIntegratorCommunicationSim(
         << "gracePeriod=" << gracePeriod << ","
         << "initialTime=" << initialTime << ")" << endl;
 #endif
-    AbsSyncAlgorithm *algo=new CommunicatorSimulatorSyncalgo(currentInterface);
-	instance=new Integrator(currentInterface,algo,simTimeStep,gracePeriod);
+    AbsCommManager *command=new CommicationSimCommManager(currentInterface);
+    AbsSyncAlgorithm *algo=new CommunicatorSimulatorSyncalgo(command);
+    instance=new Integrator(command,algo,simTimeStep,gracePeriod);
     instance->offset=convertToMyTime(instance->simTimeMetric,initialTime);
 }
 

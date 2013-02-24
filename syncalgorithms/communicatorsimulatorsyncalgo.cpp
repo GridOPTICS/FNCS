@@ -6,16 +6,19 @@
  */
 #include "config.h"
 
-#include "abscomminterface.h"
+#include "abscommmanager.h"
+#include "commicationsimcommmanager.h"
 #include "communicatorsimulatorsyncalgo.h"
 #include "integrator.h"
 
 
 namespace sim_comm {
 
-	CommunicatorSimulatorSyncalgo::CommunicatorSimulatorSyncalgo(AbsCommInterface* currentInterface): AbsSyncAlgorithm(currentInterface) {
+	CommunicatorSimulatorSyncalgo::CommunicatorSimulatorSyncalgo(AbsCommManager* currentInterface): AbsSyncAlgorithm(currentInterface) {
 		this->currentState=0;
-		this->interface->setNoCounterIncrement(this,true);
+		CommicationSimCommManager *given=dynamic_cast<CommicationSimCommManager*>(currentInterface);
+		if(given==nullptr_t)
+		  throw CommSyncAlgoException();
 
 	}
 
@@ -30,7 +33,7 @@ namespace sim_comm {
 		   
 
 
-		    uint8_t diff=interface->realReduceTotalSendReceive();
+		    uint8_t diff=interface->reduceTotalSendReceive();
 		    //assume network stable
 		   
 		    if(diff>0)
@@ -47,7 +50,7 @@ namespace sim_comm {
 
 		    //We never wait for comm sim, instead we wait for oter sims
 		    TIME myminNextTime=Infinity;
-		    TIME minNextTime=(TIME)interface->realReduceMinTime(myminNextTime);
+		    TIME minNextTime=(TIME)interface->reduceMinTime(myminNextTime);
 		    
 		    //If min time is infinity then there is something with the comm!
 		    if(minNextTime==myminNextTime)

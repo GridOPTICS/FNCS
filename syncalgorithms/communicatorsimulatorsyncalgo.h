@@ -12,11 +12,20 @@
 
 namespace sim_comm {
 
+	class CommSyncAlgoException: exception{
+	
+	  public:
+	    virtual const char* what() const throw() {
+		return "Incorrect CommManager instance, it should be an instance of CommSimulatorCommManage";
+	    }
+	    
+	};
+	
 	class CommunicatorSimulatorSyncalgo: public sim_comm::AbsSyncAlgorithm {
 		private:
 			TIME currentState;
 		public:
-			CommunicatorSimulatorSyncalgo(AbsCommInterface* currentInterface);
+			CommunicatorSimulatorSyncalgo(AbsCommManager* currentInterface);
 			virtual ~CommunicatorSimulatorSyncalgo();
 			virtual TIME GetNextTime(TIME currentTime,TIME nextTime);
 			virtual bool doDispatchNextEvent(TIME currentTime,TIME nextTime);

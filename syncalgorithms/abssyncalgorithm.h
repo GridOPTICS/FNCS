@@ -37,7 +37,7 @@ using namespace std;
 
 namespace sim_comm
 {
-  class AbsCommInterface;
+  class AbsCommManager;
 
   class SyncAlgoException: exception{
     private:
@@ -58,10 +58,10 @@ namespace sim_comm
   class AbsSyncAlgorithm
   {
     protected:
-	AbsCommInterface* interface;
+	AbsCommManager* interface;
 	bool finished;
     public:
-	AbsSyncAlgorithm(AbsCommInterface* currentInterface);
+	AbsSyncAlgorithm(AbsCommManager* currentInterface);
 	virtual ~AbsSyncAlgorithm();
 	/**
 	 * Call this method to determine whether the simulator can skip to the next time.

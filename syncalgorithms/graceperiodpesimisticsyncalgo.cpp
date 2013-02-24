@@ -26,14 +26,14 @@
 */
 #include "config.h"
 
-#include "abscomminterface.h"
+#include "abscommmanager.h"
 #include "graceperiodpesimisticsyncalgo.h"
 #include "integrator.h"
 
 
 namespace sim_comm
 {
-   GracePeriodSyncAlgo::GracePeriodSyncAlgo(AbsCommInterface* interface ) : AbsSyncAlgorithm(interface)
+   GracePeriodSyncAlgo::GracePeriodSyncAlgo(AbsCommManager* interface ) : AbsSyncAlgorithm(interface)
   {
 
   }
@@ -62,7 +62,7 @@ namespace sim_comm
 
       do
       {
-          uint8_t diff=interface->realReduceTotalSendReceive();
+          uint8_t diff=interface->reduceTotalSendReceive();
           //network unstable, we need to wait!
           nextEstTime=currentTime+1;
           if(diff==0)
@@ -72,7 +72,7 @@ namespace sim_comm
 
           //Calculate next min time step
           TIME myminNextTime=nextEstTime;
-          TIME minNextTime=(TIME)interface->realReduceMinTime(myminNextTime);
+          TIME minNextTime=(TIME)interface->reduceMinTime(myminNextTime);
 
           //min time is the estimated next time, so grant nextEstimated time
           if(minNextTime==myminNextTime)

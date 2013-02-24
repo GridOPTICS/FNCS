@@ -42,58 +42,12 @@ using namespace std;
 
 namespace sim_comm {
 
-class ObjectCommInterface;
 
-class ObjectInterfaceRegistrationException : public exception {
-public:
-    ObjectInterfaceRegistrationException(const string &where, const int &line) throw() {
-        ostringstream out;
-        out << "No more registrations are allowed at this time." << endl;
-        out << where << ": line " << line << endl;
-        msg = out.str();
-    }
-    virtual ~ObjectInterfaceRegistrationException() throw() {
-    }
-    virtual const char* what() const throw() {
-        return msg.c_str();
-    }
-private:
-    string msg;
-};
 
-class InterfaceErrorException : public exception {
-    virtual const char* what() const throw() {
-        return "Interface operation failed!!";
-    }
-};
-
-class SyncAlgoErrorException : public exception {
-    virtual const char* what() const throw() {
-        return "Operation not supported with this syncalgorithm.";
-    }
-};
-
-class SerializationException : public exception{
-     virtual const char* what() const throw() {
-        return "Received/Sent message serialization error.";
-    } 
-};
 
 class AbsCommInterface {
 protected:
-    uint64_t sendCount; /**< @TODO doc */
-    uint64_t receiveCount; /**< @TODO doc */
-    bool doincrementCountersInSendReceive;
-    map<string,ObjectCommInterface*> interfaces; /**< @TODO doc */
-    bool receiverRunning; /**< @TODO doc */
-    bool allowRegistrations;
    
-     /**
-      * Called by subclasses to notify about a new message.
-      * Sub classes should not notify objectcomminterface themselves
-      * instead they should call this method.
-      */
-    void messageReceived(Message *message);
 public:
     /**
      * Constructor.
@@ -147,63 +101,7 @@ public:
      */
     virtual uint64_t realReduceTotalSendReceive() =0;
 
-    /**
-     * Used by the integrator to register an object.
-     *
-     * @param[in] objectName TODO
-     * @param[in] given TODO
-     */
-    virtual void addObjectInterface(string objectName,ObjectCommInterface *given);
-
-    /**
-     * Used by the integrator to return a registered object.
-     *
-     * @param[in] objectName TODO
-     * @return the object, or NULL if not found
-     */
-    virtual ObjectCommInterface* getObjectInterface(string objectName);
-
-    /**
-     * Indicate that communication object registrations have completed.
-     *
-     * This method is collective across all AbsCommInterface instances in order
-     * to efficiently exchange metadata.
-     */
-    virtual void finalizeRegistrations();
-
-    /**
-     * Starts the receiver thread.
-     */
-    virtual void startReceiver();
-
-    /**
-     * Returns true if the reciever thread is running.
-     */
-    virtual bool isReceiverRunning();
-
-    /**
-     * Kills the receiver thread.
-     */
-    virtual void stopReceiver();
-
-    /**
-     * Called by the integrator to send all the messages.
-     */
-    virtual void sendAll();
     
-    /**
-     * Called by the sync algorithm to notify that a packetLostis lost.
-     * Currently this method only works if given is an instance of commsimsync algo
-     */
-    void packetLost(AbsSyncAlgorithm *given);
-    
-    /**
-     * Set send and receive methods behiavior. IF state is true 
-     * they are allowed to increment algorithms, if not they won't.
-     * Currently, only commsimsync algo is allowed to set this. Calling this with other
-     * sim algos will throw an exception.
-     */
-    void setNoCounterIncrement(AbsSyncAlgorithm *given,bool state);
 };
 
 }

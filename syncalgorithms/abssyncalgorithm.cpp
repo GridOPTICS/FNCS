@@ -37,7 +37,7 @@ namespace sim_comm
 
   }
   
-  AbsSyncAlgorithm::AbsSyncAlgorithm(AbsCommInterface* currentInterface)
+  AbsSyncAlgorithm::AbsSyncAlgorithm(AbsNetworkInterface* currentInterface)
   {
     this->interface=currentInterface;
     this->finished=false;
