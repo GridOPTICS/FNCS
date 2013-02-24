@@ -33,7 +33,7 @@
 #include "syncalgorithms/graceperiodpesimisticsyncalgo.h"
 #include "syncalgorithms/communicatorsimulatorsyncalgo.h"
 #include "graceperiodcommmanager.h"
-#include "commicationsimcommmanager.h"
+#include "communicationcommanager.h"
 
 #if DEBUG && DEBUG_TO_FILE
 ofstream ferr;
@@ -123,7 +123,7 @@ void Integrator::initIntegratorCommunicationSim(
         << "gracePeriod=" << gracePeriod << ","
         << "initialTime=" << initialTime << ")" << endl;
 #endif
-    AbsCommManager *command=new CommicationSimCommManager(currentInterface);
+    AbsCommManager *command=new CommunicationComManager(currentInterface);
     AbsSyncAlgorithm *algo=new CommunicatorSimulatorSyncalgo(command);
     instance=new Integrator(command,algo,simTimeStep,gracePeriod);
     instance->offset=convertToMyTime(instance->simTimeMetric,initialTime);

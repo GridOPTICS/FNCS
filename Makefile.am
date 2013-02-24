@@ -19,13 +19,13 @@ AM_LDFLAGS += $(MPI_LDFLAGS)
 LDADD += libfncs_api.la
 LDADD += $(MPI_LIBS)
 
-include_HEADERS += abscommmanager.h
+include_HEADERS += commmanager/abscommmanager.h
 include_HEADERS += absnetworkinterface.h
 include_HEADERS += integrator.h
 include_HEADERS += message.h
 include_HEADERS += mpinetworkinterface.h
-include_HEADERS += graceperiodcommanager.h
-include_HEADERS += commicationsimcommmanager.h
+include_HEADERS += commmanager/graceperiodcommanager.h
+include_HEADERS += commmanager/communicationsimcommmanager.h
 include_HEADERS += objectcomminterface.h
 include_HEADERS += syncalgorithms/abssyncalgorithm.h
 include_HEADERS += syncalgorithms/communicatorsimulatorsyncalgo.h
