@@ -88,5 +88,6 @@ void AbsNetworkInterface::registerObject(string name) {
 
 
 void AbsNetworkInterface::finalizeRegistrations() {
+    this->registrationsAreFinalized = true;
 }
 
