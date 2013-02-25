@@ -150,7 +150,7 @@ namespace sim_comm{
   {
 
     #if DEBUG
-      CERR << "AbsCommManager::reduceTotalSendReceive()";
+      CERR << "AbsCommManager::reduceTotalSendReceive()" << endl;
     #endif
       this->currentInterface->reduceTotalSendReceive(this->sendCount,this->receiveCount);
   }

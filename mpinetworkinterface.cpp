@@ -137,8 +137,8 @@ void MpiNetworkInterface::send(Message *message) {
 #if DEBUG
     CERR << "MpiNetworkInterface::send(Message*)" << endl;
 #endif
-    MpiIsendPacket envelopeBundle;
-    MpiIsendPacket dataBundle;
+    MpiIsendPacket *envelopeBundle;
+    MpiIsendPacket *dataBundle;
     int rank = 0;
     const uint8_t *data = message->getData();
     uint32_t dataSize = message->getSize();
@@ -173,18 +173,30 @@ void MpiNetworkInterface::send(Message *message) {
 #endif
     }
 
-    envelopeBundle.destination_rank = rank;
-    envelopeBundle.message = envelope;
+#if DEBUG
+    CERR << "sending envelope to " << message->getTo() << endl;
+#endif
+    envelopeBundle = new MpiIsendPacket;
+    envelopeBundle->destination_rank = rank;
+    envelopeBundle->message = envelope;
     MPI_Isend(envelope, envelopeSize, MPI_UNSIGNED_CHAR,
-            rank, FNCS_TAG_ENVELOPE, comm, &(envelopeBundle.request));
+            rank, FNCS_TAG_ENVELOPE, comm, &(envelopeBundle->request));
     sentMessages.push_back(envelopeBundle);
 
-    dataBundle.destination_rank = rank;
-    dataBundle.message = data;
+#if DEBUG
+    CERR << "sending data to " << message->getTo() << endl;
+#endif
+    dataBundle = new MpiIsendPacket;
+    dataBundle->destination_rank = rank;
+    dataBundle->message = data;
     MPI_Isend(reinterpret_cast<void*>(const_cast<uint8_t*>(data)),
             dataSize, MPI_UNSIGNED_CHAR,
-            rank, FNCS_TAG_DATA, comm, &(dataBundle.request));
+            rank, FNCS_TAG_DATA, comm, &(dataBundle->request));
     sentMessages.push_back(dataBundle);
+
+#if DEBUG
+    CERR << "sending complete to " << message->getTo() << endl;
+#endif
 
     makeProgress();
 }
@@ -376,7 +388,7 @@ void MpiNetworkInterface::makeProgress() {
 #endif
     int ierr = MPI_SUCCESS;
     int incoming = 1;
-    list<MpiIsendPacket>::iterator iter;
+    list<MpiIsendPacket*>::iterator iter;
 
     if (isAcceptingRegistrations()) {
         NETWORK_EXCEPTION("object registration must first be finalized");
@@ -386,10 +398,11 @@ void MpiNetworkInterface::makeProgress() {
     for (iter=sentMessages.begin(); iter!=sentMessages.end(); /*++iter*/) {
         int flag = 0;
 
-        ierr = MPI_Test(&(iter->request), &flag, MPI_STATUS_IGNORE);
+        ierr = MPI_Test(&((*iter)->request), &flag, MPI_STATUS_IGNORE);
         assert(MPI_SUCCESS == ierr);
 
         if (flag) {
+            delete *iter;
             iter = sentMessages.erase(iter);
         }
         else {

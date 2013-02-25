@@ -59,7 +59,9 @@ public:
     {}
 
     ~MpiIsendPacket() {
-        delete [] message;
+        if (nullptr != message) {
+            delete [] message;
+        }
     }
 
     int destination_rank;
@@ -78,7 +80,7 @@ private:
     int netSimRank;
     map<string,int> objectRank;
     ObjectCommInterface *netObject;
-    list<MpiIsendPacket> sentMessages;
+    list<MpiIsendPacket*> sentMessages;
     list<Message*> receivedMessages;
 
 protected:

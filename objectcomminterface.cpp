@@ -159,7 +159,7 @@ void ObjectCommInterface::newMessage(Message* given) {
 #if DEBUG
     CERR << "ObjectCommInterface::newMessage(Message*)" << endl;
 #endif
-    this->outbox.push_back(given);
+    this->inbox.push_back(given);
 }
 
 
