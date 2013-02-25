@@ -16,8 +16,8 @@ namespace sim_comm {
 
 	CommunicatorSimulatorSyncalgo::CommunicatorSimulatorSyncalgo(AbsCommManager* currentInterface): AbsSyncAlgorithm(currentInterface) {
 		this->currentState=0;
-		CommicationSimCommManager *given=dynamic_cast<CommicationSimCommManager*>(currentInterface);
-		if(given==nullptr_t)
+		CommunicationComManager *given=dynamic_cast<CommunicationComManager*>(currentInterface);
+		if(given==nullptr)
 		  throw CommSyncAlgoException();
 
 	}
@@ -39,7 +39,9 @@ namespace sim_comm {
 		    if(diff>0)
 		    { //network unstable 
 			if(this->currentState>Integrator::getGracePeriod()*2){ //packet lost!
-			    this->interface->packetLost(this);
+                /* TODO packetLost doesn't take parameters?? */
+			    //this->interface->packetLost(this);
+			    this->interface->packetLost();
 			    //rest currentState;
 			    this->currentState=0;
 			}
