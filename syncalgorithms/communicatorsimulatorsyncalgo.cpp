@@ -7,7 +7,7 @@
 #include "config.h"
 
 #include "abscommmanager.h"
-#include "commicationsimcommmanager.h"
+#include "communicationcommanager.h"
 #include "communicatorsimulatorsyncalgo.h"
 #include "integrator.h"
 

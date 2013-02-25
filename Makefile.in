@@ -123,9 +123,12 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" \
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libfncs_api_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
-am_libfncs_api_la_OBJECTS = abscomminterface.lo absnetworkinterface.lo \
-	integrator.lo message.lo mpinetworkinterface.lo \
-	objectcomminterface.lo syncalgorithms/abssyncalgorithm.lo \
+am_libfncs_api_la_OBJECTS = absnetworkinterface.lo integrator.lo \
+	message.lo mpinetworkinterface.lo objectcomminterface.lo \
+	commmanager/abscommmanager.lo \
+	commmanager/communicationcommanager.lo \
+	commmanager/graceperiodcommmanager.lo \
+	syncalgorithms/abssyncalgorithm.lo \
 	syncalgorithms/communicatorsimulatorsyncalgo.lo \
 	syncalgorithms/graceperiodpesimisticsyncalgo.lo \
 	util/simtime.lo
@@ -358,22 +361,28 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
-include_HEADERS = abscomminterface.h absnetworkinterface.h \
-	integrator.h message.h mpinetworkinterface.h \
-	objectcomminterface.h syncalgorithms/abssyncalgorithm.h \
+include_HEADERS = absnetworkinterface.h integrator.h message.h \
+	mpinetworkinterface.h objectcomminterface.h \
+	commmanager/abscommmanager.h \
+	commmanager/communicationcommanager.h \
+	commmanager/graceperiodcommmanager.h \
+	syncalgorithms/abssyncalgorithm.h \
 	syncalgorithms/communicatorsimulatorsyncalgo.h \
 	syncalgorithms/graceperiodpesimisticsyncalgo.h util/callback.h \
 	util/simtime.h
 lib_LTLIBRARIES = libfncs_api.la
 EXTRA_DIST = README
 AM_CXXFLAGS = 
-AM_CPPFLAGS = $(MPI_CPPFLAGS) -I$(top_srcdir)/syncalgorithms \
-	-I$(top_srcdir)/util
+AM_CPPFLAGS = $(MPI_CPPFLAGS) -I$(top_srcdir)/commmanager \
+	-I$(top_srcdir)/syncalgorithms -I$(top_srcdir)/util
 AM_LDFLAGS = $(MPI_LDFLAGS) $(MPI_LDFLAGS)
 LDADD = libfncs_api.la $(MPI_LIBS)
-libfncs_api_la_SOURCES = abscomminterface.cpp absnetworkinterface.cpp \
-	integrator.cpp message.cpp mpinetworkinterface.cpp \
-	objectcomminterface.cpp syncalgorithms/abssyncalgorithm.cpp \
+libfncs_api_la_SOURCES = absnetworkinterface.cpp integrator.cpp \
+	message.cpp mpinetworkinterface.cpp objectcomminterface.cpp \
+	commmanager/abscommmanager.cpp \
+	commmanager/communicationcommanager.cpp \
+	commmanager/graceperiodcommmanager.cpp \
+	syncalgorithms/abssyncalgorithm.cpp \
 	syncalgorithms/communicatorsimulatorsyncalgo.cpp \
 	syncalgorithms/graceperiodpesimisticsyncalgo.cpp \
 	util/simtime.cpp
@@ -469,6 +478,18 @@ clean-libLTLIBRARIES:
 	  echo rm -f $${locs}; \
 	  rm -f $${locs}; \
 	}
+commmanager/$(am__dirstamp):
+	@$(MKDIR_P) commmanager
+	@: > commmanager/$(am__dirstamp)
+commmanager/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) commmanager/$(DEPDIR)
+	@: > commmanager/$(DEPDIR)/$(am__dirstamp)
+commmanager/abscommmanager.lo: commmanager/$(am__dirstamp) \
+	commmanager/$(DEPDIR)/$(am__dirstamp)
+commmanager/communicationcommanager.lo: commmanager/$(am__dirstamp) \
+	commmanager/$(DEPDIR)/$(am__dirstamp)
+commmanager/graceperiodcommmanager.lo: commmanager/$(am__dirstamp) \
+	commmanager/$(DEPDIR)/$(am__dirstamp)
 syncalgorithms/$(am__dirstamp):
 	@$(MKDIR_P) syncalgorithms
 	@: > syncalgorithms/$(am__dirstamp)
@@ -574,6 +595,8 @@ tests/simmer$(EXEEXT): $(tests_simmer_OBJECTS) $(tests_simmer_DEPENDENCIES) $(EX
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f commmanager/*.$(OBJEXT)
+	-rm -f commmanager/*.lo
 	-rm -f syncalgorithms/*.$(OBJEXT)
 	-rm -f syncalgorithms/*.lo
 	-rm -f tests/*.$(OBJEXT)
@@ -583,12 +606,14 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/abscomminterface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/absnetworkinterface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/integrator.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/message.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpinetworkinterface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/objectcomminterface.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@commmanager/$(DEPDIR)/abscommmanager.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@commmanager/$(DEPDIR)/communicationcommanager.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@commmanager/$(DEPDIR)/graceperiodcommmanager.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/abssyncalgorithm.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/communicatorsimulatorsyncalgo.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/graceperiodpesimisticsyncalgo.Plo@am__quote@
@@ -626,6 +651,7 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
+	-rm -rf commmanager/.libs commmanager/_libs
 	-rm -rf syncalgorithms/.libs syncalgorithms/_libs
 	-rm -rf tests/.libs tests/_libs
 	-rm -rf util/.libs util/_libs
@@ -905,6 +931,8 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-rm -f commmanager/$(DEPDIR)/$(am__dirstamp)
+	-rm -f commmanager/$(am__dirstamp)
 	-rm -f syncalgorithms/$(DEPDIR)/$(am__dirstamp)
 	-rm -f syncalgorithms/$(am__dirstamp)
 	-rm -f tests/$(DEPDIR)/$(am__dirstamp)
@@ -922,7 +950,7 @@ clean-am: clean-binPROGRAMS clean-checkPROGRAMS clean-generic \
 
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf ./$(DEPDIR) syncalgorithms/$(DEPDIR) tests/$(DEPDIR) util/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) commmanager/$(DEPDIR) syncalgorithms/$(DEPDIR) tests/$(DEPDIR) util/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-hdr distclean-libtool distclean-tags
@@ -970,7 +998,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf ./$(DEPDIR) syncalgorithms/$(DEPDIR) tests/$(DEPDIR) util/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) commmanager/$(DEPDIR) syncalgorithms/$(DEPDIR) tests/$(DEPDIR) util/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

@@ -19,36 +19,43 @@ AM_LDFLAGS += $(MPI_LDFLAGS)
 LDADD += libfncs_api.la
 LDADD += $(MPI_LIBS)
 
-include_HEADERS += commmanager/abscommmanager.h
 include_HEADERS += absnetworkinterface.h
 include_HEADERS += integrator.h
 include_HEADERS += message.h
 include_HEADERS += mpinetworkinterface.h
-include_HEADERS += commmanager/graceperiodcommanager.h
-include_HEADERS += commmanager/communicationsimcommmanager.h
 include_HEADERS += objectcomminterface.h
+
+include_HEADERS += commmanager/abscommmanager.h
+include_HEADERS += commmanager/communicationcommanager.h
+include_HEADERS += commmanager/graceperiodcommmanager.h
+
 include_HEADERS += syncalgorithms/abssyncalgorithm.h
 include_HEADERS += syncalgorithms/communicatorsimulatorsyncalgo.h
 include_HEADERS += syncalgorithms/graceperiodpesimisticsyncalgo.h
+
 include_HEADERS += util/callback.h
 include_HEADERS += util/simtime.h
 
+AM_CPPFLAGS += -I$(top_srcdir)/commmanager
 AM_CPPFLAGS += -I$(top_srcdir)/syncalgorithms
 AM_CPPFLAGS += -I$(top_srcdir)/util
 
 lib_LTLIBRARIES += libfncs_api.la
 libfncs_api_la_SOURCES =
-libfncs_api_la_SOURCES += abscommmanager.cpp
 libfncs_api_la_SOURCES += absnetworkinterface.cpp
 libfncs_api_la_SOURCES += integrator.cpp
 libfncs_api_la_SOURCES += message.cpp
 libfncs_api_la_SOURCES += mpinetworkinterface.cpp
-libfncs_api_la_SOURCES += graceperiodcommmaneger.cpp
-libfncs_api_la_SOURCES += commicationsimcommmanager.cpp
 libfncs_api_la_SOURCES += objectcomminterface.cpp
+
+libfncs_api_la_SOURCES += commmanager/abscommmanager.cpp
+libfncs_api_la_SOURCES += commmanager/communicationcommanager.cpp
+libfncs_api_la_SOURCES += commmanager/graceperiodcommmanager.cpp
+
 libfncs_api_la_SOURCES += syncalgorithms/abssyncalgorithm.cpp
 libfncs_api_la_SOURCES += syncalgorithms/communicatorsimulatorsyncalgo.cpp
 libfncs_api_la_SOURCES += syncalgorithms/graceperiodpesimisticsyncalgo.cpp
+
 libfncs_api_la_SOURCES += util/simtime.cpp
 
 check_PROGRAMS += tests/sanity

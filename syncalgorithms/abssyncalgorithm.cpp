@@ -27,6 +27,7 @@
 #include "config.h"
 
 #include "abssyncalgorithm.h"
+#include "abscommmanager.h"
 
 
 namespace sim_comm
@@ -37,7 +38,7 @@ namespace sim_comm
 
   }
   
-  AbsSyncAlgorithm::AbsSyncAlgorithm(AbsNetworkInterface* currentInterface)
+  AbsSyncAlgorithm::AbsSyncAlgorithm(AbsCommManager* currentInterface)
   {
     this->interface=currentInterface;
     this->finished=false;
