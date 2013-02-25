@@ -43,6 +43,21 @@ namespace sim_comm{
   
   class ObjectCommInterface;
 
+  class CommManagerOperationNotSupportedException : public exception{
+    public:
+      CommManagerOperationNotSupportedException(const string &operation) throw(){
+	ostringstream out;
+	out << "Operation " << operation << " is not supported." << endl;
+	op = out.str();
+      }
+      virtual ~CommManagerOperationNotSupportedException() throw(){}
+      virtual const char* what() const throw() {
+	  return op.c_str();
+      }
+    private:
+      string op;
+  };
+  
   class ObjectInterfaceRegistrationException : public exception {
     public:
       ObjectInterfaceRegistrationException(const string &where, const int &line) throw() {
@@ -94,7 +109,7 @@ namespace sim_comm{
 	  * Sub classes should not notify objectcomminterface themselves
 	  * instead they should call this method.
 	  */
-	void messageReceived(Message *message);
+	virtual void messageReceived(Message *message);
 	//uint8_t messageReceived();
 	
 	sim_comm::AbsNetworkInterface *currentInterface;

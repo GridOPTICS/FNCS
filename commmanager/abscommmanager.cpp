@@ -60,9 +60,26 @@ namespace sim_comm{
     delete this->currentInterface;
   }
 
-  void AbsCommManager::messageReceived(Message *given)
+  void AbsCommManager::messageReceived(Message *message)
   {
+#if DEBUG
+    CERR << "AbsCommManager::messageReceived(Message*)" << endl;
+#endif
+    //Get Time frame to accept the messageReceived
+    TIME timeframe=Integrator::getCurSimTime()-Integrator::getGracePeriod()*2;
 
+    if(message->getTime()<timeframe){ //old message drop
+        delete message;
+    }
+
+    //let it throw an exception if the key is not found.
+    ObjectCommInterface *comm=getObjectInterface(message->getTo());
+
+    if (this->doincrementCountersInSendReceive) {
+        this->receiveCount++;
+    }
+
+    comm->newMessage(message);
   }
   
   bool AbsCommManager::isReceiverRunning() {

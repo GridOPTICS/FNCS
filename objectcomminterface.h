@@ -48,7 +48,6 @@ class AbsCommInterface;
  */
 class ObjectCommInterface {
     friend class Integrator;
-    friend class AbsCommInterface;
 
 private:
     string attachedObjectName;
@@ -64,15 +63,16 @@ private:
     /** TODO */
     void clear();
 
-    /** Inserts a received message to the interfaces inbox.
+
+public:
+     /** Inserts a received message to the interfaces inbox.
      * The message should be a shared pointer and callers shoud not delete it.
      */
     void newMessage(Message* given);
 
     /** TODO */
     vector<Message*> getOutBox();
-
-public:
+    
     /** Returns the number of messages the ibject has for the current time */
     int getInboxMessagesCount();
 

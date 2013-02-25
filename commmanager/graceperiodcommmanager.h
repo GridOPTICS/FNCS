@@ -32,6 +32,7 @@
 #include "abscommmanager.h"
 
 namespace sim_comm{
+  
 class GracePeriodCommManager : public AbsCommManager
 {
 

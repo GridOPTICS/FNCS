@@ -27,6 +27,7 @@
 
 
 #include "graceperiodcommmanager.h"
+#include "objectcomminterface.h"
 
 namespace sim_comm{
   
@@ -40,5 +41,47 @@ namespace sim_comm{
   {
 
   }
+  
+  void GracePeriodCommManager::packetLost()
+  {
+      throw CommManagerOperationNotSupportedException("GracePeriodCommManager::packetLost");
+  }
+  
+  void GracePeriodCommManager::sendAll()
+  {
+ #if DEBUG
+    CERR << "AbsCommInterface::sendAll()" << endl;
+#endif
+    map<string,ObjectCommInterface*>::iterator it=this->interfaces.begin();
+
+    for(; it!=this->interfaces.end(); it++) {
+
+        ObjectCommInterface *in=it->second;
+        //if(in->getInboxMessagesCount()>0) {
+
+            vector<Message*>  outmessges=in->getOutBox();
+            for(int i=0; i<outmessges.size(); i++) {
+                try {
+                    if (outmessges[i]->isBroadCast()) {
+                        int scount = this->currentInterface->broadcast(outmessges[i]);
+                            sendCount +=scount;
+                    } 
+                    else {
+                        
+                            sendCount += 1;
+                        this->currentInterface->send(outmessges[i]);
+                    }
+                }
+                catch(InterfaceErrorException e) {
+
+                    std::cerr << "Send operation failed on interface ";
+                }
+            }
+        //}
+    }
+
+  }
+
+
 
 }

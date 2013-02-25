@@ -35,12 +35,14 @@ namespace sim_comm{
   
     class CommunicationComManager : public AbsCommManager
     {
-
+      protected:
+	virtual void messageReceived(Message *message);     
       public:
 	CommunicationComManager(AbsNetworkInterface *interface);
 	virtual ~CommunicationComManager();
 	virtual void packetLost();
 	virtual void sendAll();
+	
     };
 
 }
