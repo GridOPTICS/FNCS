@@ -28,13 +28,17 @@
 
 #include "communicationcommanager.h"
 #include "objectcomminterface.h"
+#include "callback.h"
 
 namespace sim_comm{
   
   
     CommunicationComManager::CommunicationComManager(AbsNetworkInterface *interface) : AbsCommManager(interface)
     {
-
+      CallBack<void,Message*,empty,empty> *msgCallback=CreateObjCallback<CommunicationComManager *, void (CommunicationComManager::*)(Message*), void,Message*>(this, &CommunicationComManager::messageReceived);
+  
+    
+      this->currentInterface->setMessageCallBack(msgCallback);
     }
 
     CommunicationComManager::~CommunicationComManager()
@@ -86,7 +90,7 @@ namespace sim_comm{
     void CommunicationComManager::messageReceived(Message* message)
     {
 #if DEBUG
-      CERR << "CommunicationComManagee::messageReceived(Message*)" << endl;
+      CERR << "CommunicationComManager::messageReceived(Message*)" << endl;
 #endif
       //Get Time frame to accept the messageReceived
       TIME timeframe=Integrator::getCurSimTime()-Integrator::getGracePeriod()*2;
@@ -94,7 +98,9 @@ namespace sim_comm{
       if(message->getTime()<timeframe){ //old message drop
 	  delete message;
       }
-
+#if DEBUG
+      CERR << message->getTo() << endl;
+#endif
       //let it throw an exception if the key is not found.
       ObjectCommInterface *comm=getObjectInterface(message->getTo());
 

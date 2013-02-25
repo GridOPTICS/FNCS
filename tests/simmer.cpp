@@ -39,10 +39,10 @@ static void network_simulator()
     ofstream myFile("OtherSim.txt");
     int counter=0;
 
-    Integrator::initIntegratorGracePeriod(comm,MILLISECONDS,5,0);
+    Integrator::initIntegratorCommunicationSim(comm,MILLISECONDS,5,0);
     Integrator::setTimeCallBack(cb);
-    //Integrator::getCommInterface("netObject1");
-    //Integrator::getCommInterface("netObject2");
+    Integrator::getCommInterface("simObject1");
+    Integrator::getCommInterface("simObject2");
     Integrator::finalizeRegistrations();
 
     for(int i=0;i<10;i++){

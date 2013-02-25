@@ -105,21 +105,23 @@ namespace sim_comm{
     protected :
 	uint64_t sendCount; /**< @TODO doc */
 	uint64_t receiveCount; /**< @TODO doc */
-	bool doincrementCountersInSendReceive;
+
 	map<string,ObjectCommInterface*> interfaces; /**< @TODO doc */
 	bool receiverRunning; /**< @TODO doc */
 	bool allowRegistrations;
       
-	/**
+	
+	//uint8_t messageReceived();
+	
+	sim_comm::AbsNetworkInterface *currentInterface;
+    public:
+      /**
 	  * Called by subclasses to notify about a new message.
 	  * Sub classes should not notify objectcomminterface themselves
 	  * instead they should call this method.
 	  */
 	virtual void messageReceived(Message *message);
-	//uint8_t messageReceived();
 	
-	sim_comm::AbsNetworkInterface *currentInterface;
-    public:
 	AbsCommManager(AbsNetworkInterface *networkInterface);
 	virtual ~AbsCommManager();
       /**

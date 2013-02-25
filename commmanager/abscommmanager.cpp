@@ -70,14 +70,14 @@ namespace sim_comm{
 
     if(message->getTime()<timeframe){ //old message drop
         delete message;
+	return;
     }
 
     //let it throw an exception if the key is not found.
     ObjectCommInterface *comm=getObjectInterface(message->getTo());
 
-    if (this->doincrementCountersInSendReceive) {
+   
         this->receiveCount++;
-    }
 
     comm->newMessage(message);
   }
