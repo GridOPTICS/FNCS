@@ -15,9 +15,9 @@
 #include <mpi.h>
 
 /* our headers */
-#include "abscomminterface.h"
+#include "abscommmanager.h"
 #include "integrator.h"
-#include "mpicomminterface.h"
+#include "mpinetworkinterface.h"
 #include "objectcomminterface.h"
 #include "util/callback.h"
 #include "util/simtime.h"
@@ -34,7 +34,7 @@ static void network_simulator()
 {
     TIME eventTime[]={102,203,800,1000,1010,3000,4500,7000,8010,9900,11000};
     TIME eventTimeGranted=eventTime[0];
-    MpiCommInterface *comm = new MpiCommInterface(MPI_COMM_WORLD, true);
+    MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, true);
     CallBack<TIME,empty,empty,empty>* cb=CreateCallback(getCurTime);
     ofstream myFile("OtherSim.txt");
     int counter=0;
@@ -74,7 +74,7 @@ static void network_simulator()
 static void generic_simulator()
 {
     TIME eventTime;
-    MpiCommInterface *comm = new MpiCommInterface(MPI_COMM_WORLD, false);
+    MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, false);
     CallBack<TIME,empty,empty,empty>* cb=CreateCallback(getCurTime);
     ofstream myFile("GenSim.txt");
 

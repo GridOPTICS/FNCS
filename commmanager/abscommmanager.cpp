@@ -34,7 +34,7 @@ namespace sim_comm{
  
   AbsCommManager::AbsCommManager(AbsNetworkInterface *current){
    #if DEBUG
-    CERR << "AbsCommInterface::AbsCommInterface()" << endl;
+    CERR << "AbsCommManager::AbsCommManager()" << endl;
     #endif
     this->receiveCount=0;
     this->sendCount=0;
@@ -50,7 +50,7 @@ namespace sim_comm{
   AbsCommManager::~AbsCommManager()
   {
     #if DEBUG
-    CERR << "AbsCommInterface::~AbsCommInterface()" << endl;
+    CERR << "AbsCommManager::~AbsCommManager()" << endl;
   #endif
     map<string,ObjectCommInterface*>::iterator it=this->interfaces.begin();
     for(;it!=interfaces.end();++it) {
@@ -94,7 +94,7 @@ namespace sim_comm{
 	  string objectName,
 	  ObjectCommInterface* given) {
   #if DEBUG
-      CERR << "AbsCommInterface::addObjectInterface("
+      CERR << "AbsCommManager::addObjectInterface("
 	  << objectName << ","
 	  << given << ")" << endl;
   #endif
@@ -125,7 +125,7 @@ namespace sim_comm{
   
   void AbsCommManager::finalizeRegistrations() {
     #if DEBUG
-    CERR << "AbsCommInterface::finalizeRegistrations()" << endl;
+    CERR << "AbsCommManager::finalizeRegistrations()" << endl;
     #endif
     this->allowRegistrations = false;
     this->currentInterface->finalizeRegistrations();
