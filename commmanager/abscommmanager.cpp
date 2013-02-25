@@ -101,7 +101,7 @@ namespace sim_comm{
       if (this->allowRegistrations) {
 	  if (this->interfaces.count(objectName) != 0) {
 	      /* enforce unique names and one-time registrations */
-	      throw ObjectInterfaceRegistrationException(__FILE__,__LINE__);
+	      throw ObjectInterfaceRegistrationException(objectName,__FILE__,__LINE__);
 	  }
 	  this->interfaces.insert(pair<string,ObjectCommInterface*>(objectName,given));
 	  this->currentInterface->registerObject(objectName);
@@ -140,7 +140,7 @@ namespace sim_comm{
   #endif
       if (this->interfaces.count(objectName) == 0) {
 	  /* enforce unique names and one-time registrations */
-	  throw ObjectInterfaceRegistrationException(__FILE__,__LINE__);
+	  throw ObjectInterfaceRegistrationException(objectName,__FILE__,__LINE__);
       }
       return this->interfaces[objectName];
   }

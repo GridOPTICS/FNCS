@@ -41,8 +41,8 @@ static void network_simulator()
 
     Integrator::initIntegratorGracePeriod(comm,MILLISECONDS,5,0);
     Integrator::setTimeCallBack(cb);
-    Integrator::getCommInterface("netObject1");
-    Integrator::getCommInterface("netObject2");
+    //Integrator::getCommInterface("netObject1");
+    //Integrator::getCommInterface("netObject2");
     Integrator::finalizeRegistrations();
 
     for(int i=0;i<10;i++){
@@ -86,8 +86,7 @@ static void generic_simulator()
 
     eventTime=0;
     for(int i=0;i<10;i++){
-        Message *message = new Message("simObject1", "simObject2", eventTime,
-                NULL, 0, 0);
+        Message *message = nullptr;
         //execute calculations that will solve all our problems
         usleep(rand()%2000);
         //start the time sync
@@ -98,6 +97,7 @@ static void generic_simulator()
         eventTime=Integrator::getNextTime(eventTime,(TIME)i+1);
         cout << "GenSim: I'm granted " << eventTime << endl;
         myFile << "GenSim: I'm granted " << eventTime << endl;
+        message = new Message("simObject1", "simObject2", eventTime, NULL, 0, 0);
         Integrator::getCommInterface("simObject1")->send(message);
     }
     cout << "DONE!" << endl;

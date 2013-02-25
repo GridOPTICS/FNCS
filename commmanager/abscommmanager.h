@@ -66,6 +66,12 @@ namespace sim_comm{
         out << where << ": line " << line << endl;
         msg = out.str();
       }
+      ObjectInterfaceRegistrationException(const string &object, const string &where, const int &line) throw() {
+        ostringstream out;
+        out << "could not locate object `" << object << "'" << endl;
+        out << where << ": line " << line << endl;
+        msg = out.str();
+      }
       virtual ~ObjectInterfaceRegistrationException() throw() {
       }
       virtual const char* what() const throw() {
