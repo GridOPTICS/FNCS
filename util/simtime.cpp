@@ -29,6 +29,8 @@
 #include "simtime.h"
 #include <limits.h>
 
+TIME Infinity = ULLONG_MAX;
+
 namespace sim_comm {
 
 TIME convertToMyTime(time_metric myTimeStep,TIME frameworkTime) {
@@ -46,7 +48,6 @@ TIME convertToMyTime(time_metric myTimeStep,TIME frameworkTime) {
 
 }
 
-TIME Infinity = ULLONG_MAX;
 
 TIME convertToFrameworkTime(time_metric myTimeStep,TIME current_time) {
 
