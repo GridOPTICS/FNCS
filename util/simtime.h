@@ -1,9 +1,10 @@
 #ifndef SIMTIME_H
 #define SIMTIME_H
 
-#include <stdint.h>
 #include <iostream>
 #include <exception>
+
+#include "csimtime.h"
 
 using namespace std;
 
@@ -24,18 +25,6 @@ class TimeException : exception {
 
 };
 
-enum time_metric {
-    SECONDS =0,
-    MILLISECONDS,
-    NANOSECONDS,
-    UNKNOWN
-};
-
-
-
-typedef uint64_t TIME;
-
-extern TIME Infinity;
 
 TIME convertToMyTime(time_metric myTimeStep,TIME frameworkTime);
 TIME convertToFrameworkTime(time_metric myTimeStep,TIME current_time);
