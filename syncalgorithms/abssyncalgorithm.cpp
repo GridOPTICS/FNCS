@@ -42,6 +42,7 @@ namespace sim_comm
   {
     this->interface=currentInterface;
     this->finished=false;
+    this->grantedTime=0;
   }
 
   bool AbsSyncAlgorithm::isFinished()

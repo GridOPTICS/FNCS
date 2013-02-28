@@ -54,7 +54,8 @@ namespace sim_comm
   {
       TIME nextEstTime;
 
-
+      if(nextTime < grantedTime)
+	return nextTime;
 
       bool busywait=false;
 
@@ -93,6 +94,7 @@ namespace sim_comm
 
 
       }while(busywait);
+      this->grantedTime=nextEstTime;
       return nextEstTime;
   }
 

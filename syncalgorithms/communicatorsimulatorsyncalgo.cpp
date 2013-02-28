@@ -30,8 +30,9 @@ namespace sim_comm {
 	//TODO: packet loss needs a counter!
 	TIME CommunicatorSimulatorSyncalgo::GetNextTime(TIME currentTime,TIME nextTime){
 	  	
-		   
-
+		   if(nextTime < grantedTime)
+		     return nextTime;
+		    
 
 		    uint8_t diff=interface->reduceTotalSendReceive();
 		    //assume network stable
@@ -63,7 +64,7 @@ namespace sim_comm {
 			  return 0;
 		     }
 		     this->currentState=minNextTime;
-		   
+		    this->grantedTime=minNextTime;
 		    return minNextTime;
 
 	     

@@ -60,6 +60,7 @@ namespace sim_comm
     protected:
 	AbsCommManager* interface;
 	bool finished;
+	TIME grantedTime;
     public:
 	AbsSyncAlgorithm(AbsCommManager* currentInterface);
 	virtual ~AbsSyncAlgorithm();
