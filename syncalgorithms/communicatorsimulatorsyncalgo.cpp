@@ -31,7 +31,7 @@ namespace sim_comm {
 	TIME CommunicatorSimulatorSyncalgo::GetNextTime(TIME currentTime,TIME nextTime){
 	  	
 		   if(nextTime < grantedTime)
-		     return nextTime;
+		     return grantedTime;
 		    
 
 		    uint8_t diff=interface->reduceTotalSendReceive();

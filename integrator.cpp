@@ -107,7 +107,7 @@ void Integrator::initIntegratorGracePeriod(
     AbsCommManager *command=new GracePeriodCommManager(currentInterface);
     AbsSyncAlgorithm *algo=new GracePeriodSyncAlgo(command);
     instance=new Integrator(command,algo,simTimeStep,gracePeriod);
-    instance->offset=convertToMyTime(instance->simTimeMetric,initialTime);
+    instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
 }
 
 
@@ -126,7 +126,7 @@ void Integrator::initIntegratorCommunicationSim(
     AbsCommManager *command=new CommunicationComManager(currentInterface);
     AbsSyncAlgorithm *algo=new CommunicatorSimulatorSyncalgo(command);
     instance=new Integrator(command,algo,simTimeStep,gracePeriod);
-    instance->offset=convertToMyTime(instance->simTimeMetric,initialTime);
+    instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
 }
 
 
@@ -237,8 +237,13 @@ TIME Integrator::getNextTime(TIME currentTime, TIME nextTime) {
     TIME nextframeTime = convertToFrameworkTime(
             instance->simTimeMetric,nextTime) - instance->offset;
     instance->currentInterface->sendAll();
+#if DEBUG
+    CERR << "Integrator::getNextTime("
+        << "currentTime=" << curTimeInFramework << ","
+        << "nextTime=" << nextframeTime << ")" << endl;
+#endif
     TIME toReturn=instance->syncAlgo->GetNextTime(curTimeInFramework,nextframeTime);
-    return convertToMyTime(instance->simTimeMetric,toReturn);
+    return convertToMyTime(instance->simTimeMetric,toReturn+instance->offset);
 }
 
 
