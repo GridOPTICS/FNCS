@@ -61,7 +61,7 @@ namespace sim_comm {
 		  
 		     if(minNextTime==0){ //a sim signal endded
 #if DEBUG
-			  hCERR << "End Signaled!" << endl;
+			  CERR << "End Signaled!" << endl;
 #endif
 			  this->finished=true;
 			  return 0;
