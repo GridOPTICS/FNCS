@@ -162,7 +162,7 @@ void ObjectCommInterface::newMessage(Message* given) {
     this->inbox.push_back(given);
     
     if(this->notifyMessage!=nullptr)
-      notifyMessage();
+      (*notifyMessage)();
 }
 
 
