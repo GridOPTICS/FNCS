@@ -33,6 +33,7 @@
 #include "integrator.h"
 #include "message.h"
 #include "simtime.h"
+#include "callback.h"
 
 using namespace std;
 
@@ -57,6 +58,7 @@ private:
     vector<int> msgs;
     vector<int>::iterator it;
 
+    CallBack<void,empty,empty,empty> *notifyMessage;
     /** Constructor. */
     ObjectCommInterface(string objectName);
 
@@ -102,6 +104,11 @@ public:
 
     /** Destructor. */
     ~ObjectCommInterface();
+    
+    /**
+     * Register a callback that is called when the object receives a message.
+     */
+    void setMessageNotifier(CallBack<void,empty,empty,empty> *tonotify);
 };
 
 

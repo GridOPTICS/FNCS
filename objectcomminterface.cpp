@@ -38,7 +38,7 @@ ObjectCommInterface::ObjectCommInterface(string objectName) {
         << objectName << ")" << endl;
 #endif
     this->attachedObjectName=objectName;
-
+    this->notifyMessage=nullptr;
 }
 
 
@@ -160,6 +160,9 @@ void ObjectCommInterface::newMessage(Message* given) {
     CERR << "ObjectCommInterface::newMessage(Message*)" << endl;
 #endif
     this->inbox.push_back(given);
+    
+    if(this->notifyMessage!=nullptr)
+      notifyMessage();
 }
 
 
@@ -176,6 +179,11 @@ void ObjectCommInterface::clear() {
     CERR << "ObjectCommInterface::clear()" << endl;
 #endif
     //implement
+}
+
+void ObjectCommInterface::setMessageNotifier(sim_comm::CallBack< void, empty, empty, empty >* tonotify)
+{
+  this->notifyMessage=tonotify;
 }
 
 
