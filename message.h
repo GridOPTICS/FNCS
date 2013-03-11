@@ -54,7 +54,7 @@ public:
     Message(const string &from,
             const string &to,
             TIME timeStamp,
-            uint8_t *data,
+            const uint8_t *data,
             uint32_t dataSize,
             uint8_t tag=0);
 
@@ -62,7 +62,7 @@ public:
     Message(const char *from,
             const char *to,
             TIME timeStamp,
-            uint8_t *data,
+            const uint8_t *data,
             uint32_t dataSize,
             uint8_t tag=0);
 

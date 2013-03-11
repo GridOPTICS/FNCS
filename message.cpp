@@ -46,7 +46,7 @@ Message::Message(
         const string &from,
         const string &to,
         TIME timeStamp,
-        uint8_t *data,
+        const uint8_t *data,
         uint32_t dataSize,
         uint8_t tag) {
 #if DEBUG
@@ -74,7 +74,7 @@ Message::Message(
         const char *from,
         const char *to,
         TIME timeStamp,
-        uint8_t *data,
+        const uint8_t *data,
         uint32_t dataSize,
         uint8_t tag) {
 #if DEBUG
@@ -102,8 +102,10 @@ Message::Message(uint8_t *envelope, uint32_t size, uint8_t *data) {
 #if DEBUG
     CERR << "Message::Message(...) using deserializeHeader" << endl;
 #endif
-    this->data=data;
+    //this->data=data;
     this->deserializeHeader(envelope,size);
+    this->data=new uint8_t[this->size];
+    memcpy(this->data,data,this->size);
 #if DEBUG
     CERR << *this << endl;
 #endif
