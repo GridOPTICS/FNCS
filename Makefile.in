@@ -369,7 +369,7 @@ include_HEADERS = absnetworkinterface.h integrator.h message.h \
 	syncalgorithms/abssyncalgorithm.h \
 	syncalgorithms/communicatorsimulatorsyncalgo.h \
 	syncalgorithms/graceperiodpesimisticsyncalgo.h util/callback.h \
-	util/simtime.h
+	util/simtime.h util/csimtime.h
 lib_LTLIBRARIES = libfncs_api.la
 EXTRA_DIST = README
 AM_CXXFLAGS = 

@@ -35,7 +35,7 @@ include_HEADERS += syncalgorithms/graceperiodpesimisticsyncalgo.h
 
 include_HEADERS += util/callback.h
 include_HEADERS += util/simtime.h
-include_HEADERS += uitl/csimtime.h
+include_HEADERS += util/csimtime.h
 
 AM_CPPFLAGS += -I$(top_srcdir)/commmanager
 AM_CPPFLAGS += -I$(top_srcdir)/syncalgorithms
