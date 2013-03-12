@@ -56,15 +56,12 @@ namespace sim_comm {
 		    TIME minNextTime=(TIME)interface->reduceMinTime(myminNextTime);
 		    
 		    //If min time is infinity then there is something with the comm!
-		    if(minNextTime==myminNextTime)
-			      throw SyncAlgoException(minNextTime);
-		  
-		     if(minNextTime==0){ //a sim signal endded
+		    if(minNextTime==Infinity){
 #if DEBUG
 			  CERR << "End Signaled!" << endl;
 #endif
 			  this->finished=true;
-			  return 0;
+			  return Infinity;
 		     }
 		     this->currentState=minNextTime;
 		    this->grantedTime=minNextTime;

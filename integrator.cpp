@@ -89,7 +89,7 @@ void Integrator::stopIntegrator(){
 #if DEBUG
 	    CERR << "Signaling finish to other sims" << endl;
 #endif
-	    instance->syncAlgo->GetNextTime(instance->getCurSimTime(),0);
+	    instance->syncAlgo->GetNextTime(instance->getCurSimTime(),Infinity);
     }
 	delete instance;
 }
