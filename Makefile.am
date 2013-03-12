@@ -20,6 +20,7 @@ LDADD += libfncs_api.la
 LDADD += $(MPI_LIBS)
 
 include_HEADERS += absnetworkinterface.h
+include_HEADERS += cintegrator.h
 include_HEADERS += integrator.h
 include_HEADERS += message.h
 include_HEADERS += mpinetworkinterface.h
@@ -44,6 +45,7 @@ AM_CPPFLAGS += -I$(top_srcdir)/util
 lib_LTLIBRARIES += libfncs_api.la
 libfncs_api_la_SOURCES =
 libfncs_api_la_SOURCES += absnetworkinterface.cpp
+libfncs_api_la_SOURCES += cintegrator.cpp
 libfncs_api_la_SOURCES += integrator.cpp
 libfncs_api_la_SOURCES += message.cpp
 libfncs_api_la_SOURCES += mpinetworkinterface.cpp

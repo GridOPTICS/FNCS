@@ -123,9 +123,9 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" \
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libfncs_api_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
-am_libfncs_api_la_OBJECTS = absnetworkinterface.lo integrator.lo \
-	message.lo mpinetworkinterface.lo objectcomminterface.lo \
-	commmanager/abscommmanager.lo \
+am_libfncs_api_la_OBJECTS = absnetworkinterface.lo cintegrator.lo \
+	integrator.lo message.lo mpinetworkinterface.lo \
+	objectcomminterface.lo commmanager/abscommmanager.lo \
 	commmanager/communicationcommanager.lo \
 	commmanager/graceperiodcommmanager.lo \
 	syncalgorithms/abssyncalgorithm.lo \
@@ -361,8 +361,8 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
-include_HEADERS = absnetworkinterface.h integrator.h message.h \
-	mpinetworkinterface.h objectcomminterface.h \
+include_HEADERS = absnetworkinterface.h cintegrator.h integrator.h \
+	message.h mpinetworkinterface.h objectcomminterface.h \
 	commmanager/abscommmanager.h \
 	commmanager/communicationcommanager.h \
 	commmanager/graceperiodcommmanager.h \
@@ -377,9 +377,9 @@ AM_CPPFLAGS = $(MPI_CPPFLAGS) -I$(top_srcdir)/commmanager \
 	-I$(top_srcdir)/syncalgorithms -I$(top_srcdir)/util
 AM_LDFLAGS = $(MPI_LDFLAGS) $(MPI_LDFLAGS)
 LDADD = libfncs_api.la $(MPI_LIBS)
-libfncs_api_la_SOURCES = absnetworkinterface.cpp integrator.cpp \
-	message.cpp mpinetworkinterface.cpp objectcomminterface.cpp \
-	commmanager/abscommmanager.cpp \
+libfncs_api_la_SOURCES = absnetworkinterface.cpp cintegrator.cpp \
+	integrator.cpp message.cpp mpinetworkinterface.cpp \
+	objectcomminterface.cpp commmanager/abscommmanager.cpp \
 	commmanager/communicationcommanager.cpp \
 	commmanager/graceperiodcommmanager.cpp \
 	syncalgorithms/abssyncalgorithm.cpp \
@@ -607,6 +607,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/absnetworkinterface.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cintegrator.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/integrator.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/message.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpinetworkinterface.Plo@am__quote@
