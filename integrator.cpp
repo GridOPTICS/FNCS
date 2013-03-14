@@ -259,5 +259,22 @@ void Integrator::finalizeRegistrations() {
     instance->currentInterface->startReceiver();
 }
 
+void Integrator::setOffset(TIME otime)
+{
+ instance->offset=convertToFrameworkTime(instance->simTimeMetric,otime);
+}
+
+TIME Integrator::getOffset()
+{
+  return instance->offset;
+}
+
+TIME Integrator::getAdjustedOffset()
+{
+  return convertToMyTime(instance->simTimeMetric,instance->offset);
+}
+
+
+
 
 } /* end namespace sim_comm */

@@ -82,7 +82,9 @@ Message::Message(
 #endif
     this->from=string(from);
     this->to=string(to);
-    this->timeStamp=convertToFrameworkTime(Integrator::getCurSimMetric(),timeStamp);
+    this->timeStamp=convertToFrameworkTime(Integrator::getCurSimMetric(),timeStamp)
+      -Integrator::getOffset();
+    
     if (dataSize > 0) {
         this->data=new uint8_t[dataSize];
         memcpy(this->data,data,dataSize);
@@ -104,8 +106,13 @@ Message::Message(uint8_t *envelope, uint32_t size, uint8_t *data) {
 #endif
     //this->data=data;
     this->deserializeHeader(envelope,size);
-    this->data=new uint8_t[this->size];
-    memcpy(this->data,data,this->size);
+    if(data!=nullptr){
+      this->data=new uint8_t[this->size];
+      memcpy(this->data,data,this->size);
+    }
+    else{
+      this->data=nullptr;
+    }
 #if DEBUG
     CERR << *this << endl;
 #endif
@@ -136,7 +143,7 @@ TIME Message::getAdjustedTime() {
     CERR << "Message::getAdjustedTime()" << endl;
 #endif
     time_metric mySimMetric=Integrator::getCurSimMetric();
-    return convertToMyTime(mySimMetric,this->timeStamp);
+    return convertToMyTime(mySimMetric,this->timeStamp)+Integrator::getAdjustedOffset();
 }
 
 

@@ -451,7 +451,7 @@ void MpiNetworkInterface::makeProgress() {
             dataSize = message->getSize();
 
 #if DEBUG
-            CERR << "retrieved incoming message" << endl;
+            CERR << "retrieved incoming message with size " << dataSize << endl;
             CERR << *message << endl;
 #endif
             if (dataSize > 0) {
@@ -469,6 +469,10 @@ void MpiNetworkInterface::makeProgress() {
             else {
 	            this->receivedMessages.push_back(message);
             }
+            
+            if(this->syncAlgoCallBack){
+	      (*(this->syncAlgoCallBack))(message);
+	    }
         }
     }
 }

@@ -66,13 +66,20 @@ namespace sim_comm{
     CERR << "AbsCommManager::messageReceived(Message*)" << endl;
 #endif
     //Get Time frame to accept the messageReceived
-    TIME timeframe=Integrator::getCurSimTime()-Integrator::getGracePeriod()*2;
+    TIME timeframe=Integrator::getCurSimTime();
+    if(timeframe>Integrator::getGracePeriod()*2){
+	timeframe-=Integrator::getGracePeriod()*2;
+    }
 
     if(message->getTime()<timeframe){ //old message drop
         delete message;
 	return;
     }
 
+    if(message->isBroadCast()){
+      throw InterfaceErrorException();
+    }
+    
     //let it throw an exception if the key is not found.
     ObjectCommInterface *comm=getObjectInterface(message->getTo());
 

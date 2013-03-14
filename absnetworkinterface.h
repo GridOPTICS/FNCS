@@ -81,6 +81,7 @@ protected:
     vector<string> myObjects;
     bool registrationsAreFinalized;
     CallBack<void,Message*,empty,empty> *messageCallBack;
+    CallBack<void,Message*,empty,empty> *syncAlgoCallBack;
 public:
     /**
      * Constructs.
@@ -175,6 +176,13 @@ public:
      */
     inline bool isAcceptingRegistrations() {
         return !this->registrationsAreFinalized;
+    }
+    
+    /**
+     * Sets the callback for the sync algorithm.
+     */
+    void setSyncAlgoCallBack(CallBack<void,Message*,empty,empty> *syncCallBack){
+      this->syncAlgoCallBack=syncCallBack;
     }
 };
 

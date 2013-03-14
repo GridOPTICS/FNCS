@@ -11,6 +11,7 @@ extern "C"{
    */
   void initIntegratorGracePeriod(enum time_metric simTimeStep, 
 				TIME gracePeriod, TIME initialTime);
+  void setOffset(TIME initialTime);
   void finalizeRegistrations();
   void setregistercallback(TIME (*callback)());
   TIME getNextTime(TIME currentTime, TIME nextTime);

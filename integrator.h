@@ -179,6 +179,20 @@ public:
      */
     static bool isFinished();
 
+    
+    static void setOffset(TIME otime);
+    
+    /**
+     * Returns the time offset in framework time
+     */
+    static TIME getOffset();
+    
+    /**
+     * 
+     * Returns the time offset in simulator time 
+     */
+    static TIME getAdjustedOffset();
+    
     /**
      * TODO
      */

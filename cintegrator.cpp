@@ -77,3 +77,7 @@ TIME getNextTime(TIME currentTime, TIME nextTime)
   return Integrator::getNextTime(currentTime,nextTime);
 }
 
+void setOffset(TIME initialTime)
+{
+  Integrator::setOffset(initialTime);
+}
