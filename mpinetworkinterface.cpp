@@ -206,7 +206,13 @@ uint64_t MpiNetworkInterface::broadcast(Message *message) {
 #if DEBUG
     CERR << "MpiNetworkInterface::broadcast(Message*)" << endl;
 #endif
-    NETWORK_EXCEPTION("TODO: NOT IMPLEMENTED");
+    message->setTo(Message::DESTIONATION_BCAST);
+    send(message);
+    if (iAmNetSim) {
+        NETWORK_EXCEPTION("network simulator should not broadcast");
+    }
+
+    return globalObjectCount;
 }
 
 Message* MpiNetworkInterface::receive() {
@@ -340,6 +346,7 @@ void MpiNetworkInterface::finalizeRegistrations() {
     CERR << "[" << commRank << "] global object count = "
          << objectCountsSum << endl;
 #endif
+    this->globalObjectCount = objectCountsSum;
 
     /* net sim needs to know which objects are associated with which ranks so
      * it can route messages */

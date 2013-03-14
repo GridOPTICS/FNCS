@@ -89,6 +89,10 @@ public:
         return this->to;
     }
 
+    inline void setTo(const string &to) {
+        this->to = to;
+    }
+
     inline uint8_t getTag() const {
         return this->tag;
     }
