@@ -63,7 +63,7 @@ namespace sim_comm{
             for(int i=0; i<outmessges.size(); i++) {
                 try {
                     if (outmessges[i]->isBroadCast()) {
-                        int scount = this->currentInterface->broadcast(outmessges[i]);
+                        int scount = this->currentInterface->broadcast(outmessges[i])-1;
                             sendCount +=scount;
                     } 
                     else {

@@ -140,26 +140,27 @@ bool ObjectCommInterface::hasMoreMessages() {
         return true;
     }
     else {
-        if(this->it==this->msgs.end()) { //no more messages to return
+   
+          ++this->it;
+	  if(this->it==this->msgs.end()) { //no more messages to return
+	    uint32_t shift=0;
             for(int i=0; i<msgs.size(); i++) {
 
-                inbox.erase(inbox.begin()+msgs[i]);
+               inbox.erase(inbox.begin()+(msgs[i]-shift));
+		shift++;
             }
             msgs.clear();
             this->it=msgs.begin();
             return false;
         }
-        else {
-            ++this->it;
-            return true;
-        }
+       return true;
     }
 }
 
 
 Message* ObjectCommInterface::getNextInboxMessage() {
 #if DEBUG
-    CERR << "ObjectCommInterface::getNextInboxMessage()" << endl;
+    CERR << "ObjectCommInterface::getNextInboxMessage() " << *it << endl;
 #endif
     return this->inbox[*it];
 }

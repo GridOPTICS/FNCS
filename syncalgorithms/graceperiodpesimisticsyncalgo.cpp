@@ -65,7 +65,7 @@ namespace sim_comm
       {
           uint8_t diff=interface->reduceTotalSendReceive();
           //network unstable, we need to wait!
-          nextEstTime=currentTime+1;
+          nextEstTime=currentTime+convertToFrameworkTime(Integrator::getCurSimMetric(),1);
           if(diff==0)
           { //network stable grant next time
               nextEstTime=nextTime;

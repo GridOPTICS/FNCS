@@ -66,7 +66,7 @@ namespace sim_comm{
     CERR << "AbsCommManager::messageReceived(Message*)" << endl;
 #endif
     //Get Time frame to accept the messageReceived
-    TIME timeframe=Integrator::getCurSimTime();
+    TIME timeframe=Integrator::getCurSimTime() - Integrator::getOffset();
     if(timeframe>Integrator::getGracePeriod()){
 	timeframe-=Integrator::getGracePeriod();
     }
