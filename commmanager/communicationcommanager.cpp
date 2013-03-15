@@ -94,8 +94,8 @@ namespace sim_comm{
 #endif
       //Get Time frame to accept the messageReceived
       TIME timeframe=Integrator::getCurSimTime();
-      if(timeframe>Integrator::getGracePeriod()*2){
-	timeframe-=Integrator::getGracePeriod()*2;
+      if(timeframe>Integrator::getGracePeriod()){
+	timeframe-=Integrator::getGracePeriod();
       }
 
       if(message->getTime()<timeframe){ //old message drop
@@ -105,20 +105,23 @@ namespace sim_comm{
 #if DEBUG
       CERR << message->getTo() << endl;
 #endif
+      ObjectCommInterface *comm=getObjectInterface(message->getFrom());
       //handle bcast
       if(message->isBroadCast()){
 	map<string,ObjectCommInterface*>::iterator it=this->interfaces.begin();
 	for(;it!=interfaces.end();++it){
+	  if(it->first.compare(message->getFrom())==0)
+	    continue;
 	  Message *nm=new Message(message->getFrom(),it->first,message->getTime(),
 		  message->getData(),message->getSize());
-	  it->second->newMessage(nm);
+	  comm->newMessage(nm);
+	  //it->second->newMessage(nm);
 	}
 	delete message;
       }
       else{
       //handle single message
-      //let it throw an exception if the key is not found.
-	  ObjectCommInterface *comm=getObjectInterface(message->getTo());
+      //let it throw an exception if the key is not found
 	  comm->newMessage(message);
       }
     

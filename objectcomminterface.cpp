@@ -65,14 +65,17 @@ int ObjectCommInterface::getInboxMessagesCount() {
 #endif
     //we can write a better one!
 
-    TIME currentTime=Integrator::getCurSimTime();
-    TIME graceTime=currentTime- Integrator::getGracePeriod();
-
+     TIME timeframe=Integrator::getCurSimTime();
+     TIME timeframe1=timeframe-Integrator::getGracePeriod();
+      if(timeframe1>timeframe){ //overflowed!
+	timeframe1=0;
+      }
+      
     int toReturn=0;
     for(int i=0; i<inbox.size(); i++) {
 
         Message *msg=inbox[i];
-        if(msg->getTime()<=currentTime && msg->getTime()>graceTime) {
+        if(msg->getTime()<=timeframe && msg->getTime()>=timeframe1) {
             toReturn++;
         }
     }
@@ -87,7 +90,9 @@ std::vector< Message* > ObjectCommInterface::getAllInboxMessages() {
 #endif
     TIME currentTime=Integrator::getCurSimTime();
     TIME graceTime=currentTime- Integrator::getGracePeriod();
-
+    if(graceTime>currentTime){ //overflowed
+      graceTime=0;
+    }
     vector<Message *> toReturn;
 
     vector<int> locs;
@@ -117,6 +122,9 @@ bool ObjectCommInterface::hasMoreMessages() {
     if(this->msgs.size()==0) { //find the locations of the messages to return
         TIME currentTime=Integrator::getCurSimTime();
         TIME graceTime=currentTime- Integrator::getGracePeriod();
+	 if(graceTime>currentTime){ //overflowed
+	      graceTime=0;
+	 }
         //this->msgs.clear();
         for(int i=0; i<inbox.size(); i++) {
 
@@ -126,6 +134,8 @@ bool ObjectCommInterface::hasMoreMessages() {
 
             }
         }
+        if(msgs.size()==0)
+	  return false;
         this->it=msgs.begin();//safety!
         return true;
     }

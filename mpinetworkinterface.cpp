@@ -409,7 +409,7 @@ void MpiNetworkInterface::makeProgress() {
         assert(MPI_SUCCESS == ierr);
 
         if (flag) {
-            delete *iter;
+            //delete *iter; I think this is not needed, erase calls the destructor otherwise we get double free error?
             iter = sentMessages.erase(iter);
         }
         else {

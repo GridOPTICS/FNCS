@@ -67,8 +67,8 @@ namespace sim_comm{
 #endif
     //Get Time frame to accept the messageReceived
     TIME timeframe=Integrator::getCurSimTime();
-    if(timeframe>Integrator::getGracePeriod()*2){
-	timeframe-=Integrator::getGracePeriod()*2;
+    if(timeframe>Integrator::getGracePeriod()){
+	timeframe-=Integrator::getGracePeriod();
     }
 
     if(message->getTime()<timeframe){ //old message drop
