@@ -71,6 +71,9 @@ namespace sim_comm{
                             sendCount += 1;
                         this->currentInterface->send(outmessges[i]);
                     }
+                    if(this->syncAlgoCallBackSend){
+			  (*(this->syncAlgoCallBackSend))(outmessges[i]);
+		    }
                 }
                 catch(InterfaceErrorException e) {
 
@@ -80,7 +83,7 @@ namespace sim_comm{
             in->clear();
         //}
     }
-
+     
   }
 
 

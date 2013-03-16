@@ -470,9 +470,7 @@ void MpiNetworkInterface::makeProgress() {
 	            this->receivedMessages.push_back(message);
             }
             
-            if(this->syncAlgoCallBack){
-	      (*(this->syncAlgoCallBack))(message);
-	    }
+           
         }
     }
 }

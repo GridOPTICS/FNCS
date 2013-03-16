@@ -43,7 +43,8 @@ namespace sim_comm{
     this->currentInterface=current;
     CallBack<void,Message*,empty,empty> *msgCallback=CreateObjCallback<AbsCommManager *, void (AbsCommManager::*)(Message*), void,Message*>(this, &AbsCommManager::messageReceived);
   
-    
+    this->syncAlgoCallBackRecv=NULL;
+    this->syncAlgoCallBackSend=NULL;
     this->currentInterface->setMessageCallBack(msgCallback);
   }
   
@@ -90,6 +91,10 @@ namespace sim_comm{
     CERR << "Message to " << message->getTo() << " in total " << this->receiveCount << endl;
 #endif
     comm->newMessage(message);
+    
+     if(this->syncAlgoCallBackRecv){
+	  (*(this->syncAlgoCallBackRecv))(message);
+     }
   }
   
   bool AbsCommManager::isReceiverRunning() {

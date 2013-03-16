@@ -112,7 +112,7 @@ namespace sim_comm{
       
 	
 	//uint8_t messageReceived();
-	
+	CallBack<void,Message*,empty,empty> *syncAlgoCallBackSend,*syncAlgoCallBackRecv;
 	sim_comm::AbsNetworkInterface *currentInterface;
     public:
       /**
@@ -179,6 +179,16 @@ namespace sim_comm{
     virtual uint64_t reduceTotalSendReceive();
     
     virtual uint64_t reduceMinTime(uint64_t currentTime);
+    
+    
+    /**
+     * Sets the callback for the sync algorithm.
+     */
+    void setSyncAlgoCallBacks(CallBack<void,Message*,empty,empty> *syncCallBackSend,
+			      CallBack<void,Message*,empty,empty> *syncCallBackRecv){
+      this->syncAlgoCallBackRecv=syncCallBackRecv;
+      this->syncAlgoCallBackSend=syncCallBackSend;
+    }
     
   };
 
