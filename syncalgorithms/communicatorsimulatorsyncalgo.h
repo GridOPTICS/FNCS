@@ -24,6 +24,7 @@ namespace sim_comm {
 	class CommunicatorSimulatorSyncalgo: public sim_comm::AbsSyncAlgorithm {
 		private:
 			TIME currentState;
+			bool updated;
 		public:
 			CommunicatorSimulatorSyncalgo(AbsCommManager* currentInterface);
 			virtual ~CommunicatorSimulatorSyncalgo();

@@ -189,7 +189,7 @@ void ObjectCommInterface::clear() {
 #if DEBUG
     CERR << "ObjectCommInterface::clear()" << endl;
 #endif
-    //implement
+    this->outbox.clear();
 }
 
 void ObjectCommInterface::setMessageNotifier(sim_comm::CallBack< void, empty, empty, empty >* tonotify)

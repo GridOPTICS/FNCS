@@ -62,11 +62,12 @@ private:
     /** Constructor. */
     ObjectCommInterface(string objectName);
 
-    /** TODO */
-    void clear();
-
+   
 
 public:
+     /** Clears the outbox of the system */
+    void clear();
+
      /** Inserts a received message to the interfaces inbox.
      * The message should be a shared pointer and callers shoud not delete it.
      */

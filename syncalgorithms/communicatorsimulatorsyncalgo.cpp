@@ -19,7 +19,7 @@ namespace sim_comm {
 		CommunicationComManager *given=dynamic_cast<CommunicationComManager*>(currentInterface);
 		if(given==nullptr)
 		  throw CommSyncAlgoException();
-
+		updated=false;
 	}
 
 	CommunicatorSimulatorSyncalgo::~CommunicatorSimulatorSyncalgo() {
@@ -39,16 +39,26 @@ namespace sim_comm {
 		   
 		    if(diff>0)
 		    { //network unstable 
-			if(this->currentState>Integrator::getGracePeriod()*2){ //packet lost!
-                /* TODO packetLost doesn't take parameters?? */
-			    //this->interface->packetLost(this);
-			    this->interface->packetLost();
-			    //rest currentState;
-			    this->currentState=0;
+			TIME graceTime=Integrator::getCurSimTime()-Integrator::getGracePeriod();
+			if(graceTime>Integrator::getCurSimTime()) //overflowed
+			    graceTime=0;
+			if(updated){
+			    if(this->currentState<graceTime){ //test if it has been graceperiod amount of time before we declare the packet as lost
+		    /* TODO packetLost doesn't take parameters?? */
+				this->interface->packetLost();
+				//rest currentState;
+				this->currentState=Integrator::getCurSimTime(); //restart counter
+				updated=false;
+			    }
+			}
+			else{
+			  this->currentState=Integrator::getCurSimTime(); //restart counter
+			  updated=true;
 			}
 		    }
 		    else{
-		      this->currentState=0;
+		      this->currentState=Integrator::getCurSimTime();
+		      updated=false;
 		    }
 
 		    //We never wait for comm sim, instead we wait for oter sims
@@ -63,7 +73,6 @@ namespace sim_comm {
 			  this->finished=true;
 			  return Infinity;
 		     }
-		     this->currentState=minNextTime;
 		    this->grantedTime=minNextTime;
 		    return minNextTime;
 

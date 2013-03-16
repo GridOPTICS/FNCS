@@ -53,7 +53,7 @@ uint8_t isFinished()
  void initIntegratorGracePeriod(enum time_metric simTimeStep, 
 				TIME gracePeriod, TIME initialTime){
    MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, false);
-   Integrator::initIntegratorGracePeriod(comm,SECONDS,5,initialTime);
+   Integrator::initIntegratorGracePeriod(comm,SECONDS,gracePeriod,initialTime);
  }
  
 void finalizeRegistrations()

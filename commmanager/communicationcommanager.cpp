@@ -82,6 +82,7 @@ namespace sim_comm{
 		      std::cerr << "Send operation failed on interface ";
 		  }
 	      }
+	      in->clear();
 	  //}
       }
 
@@ -93,12 +94,13 @@ namespace sim_comm{
       CERR << "CommunicationComManager::messageReceived(Message*)" << endl;
 #endif
       //Get Time frame to accept the messageReceived
-      TIME timeframe=Integrator::getCurSimTime() - Integrator::getOffset();
-      if(timeframe>Integrator::getGracePeriod()){
-	timeframe-=Integrator::getGracePeriod();
+      TIME currentTime=Integrator::getCurSimTime();
+      TIME graceTime=currentTime- Integrator::getGracePeriod();
+      if(graceTime>currentTime){ //overflowed
+	graceTime=0;
       }
 
-      if(message->getTime()<timeframe){ //old message drop
+      if(message->getTime()<graceTime){ //old message drop
 	  delete message;
 	  return;
       }

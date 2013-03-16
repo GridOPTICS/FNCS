@@ -77,6 +77,7 @@ namespace sim_comm{
                     std::cerr << "Send operation failed on interface ";
                 }
             }
+            in->clear();
         //}
     }
 
