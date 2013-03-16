@@ -59,12 +59,20 @@ void GracePeriodSpeculativeSyncAlgo::createSpeculativeProcess()
 bool GracePeriodSpeculativeSyncAlgo::forkedSpeculativeProcess()
 {
     //return true if a speculative process is forked and not cancled. (from child and parent);
+    
     //return false otherwise
+    //note that if speculation succeeded then it returns false until the child form a previous speculaiton forks.
 }
 
 bool GracePeriodSpeculativeSyncAlgo::isExecutingChild()
 {
   //return true if the current executing process is the speculative child
+}
+
+void GracePeriodSpeculativeSyncAlgo::speculationSucceed()
+{
+  //let child nknow that it can speculative. 
+  //after this call forkedSpeculativePRocees in the child will return false (so it can firther speculate).
 }
 
 void GracePeriodSpeculativeSyncAlgo::receivedMessage(Message* msg)
@@ -134,21 +142,15 @@ TIME   GracePeriodSpeculativeSyncAlgo::GetNextTime(TIME currentTime, TIME nextTi
           { //network stable grant next time
               nextEstTime=nextTime;
           }
-          else{ //network unstable, we can try speculation
-	  //next time is some seconds away so fork speculative unless we already forked
-	    if(!this->forkedSpeculativeProcess() && nextTime-currentTime > this->specDifference){	
-	      this->specTime=nextTime;
-	      this->createSpeculativeProcess();
-	      if(this->isExecutingChild())
-		return nextTime; //let speculation continue;
-      }
+     
       
       
-      if(!this->isExecutingChild() && this->forkedSpeculativeProcess() && currentTime==this->specTime){
-	//speculation worked!!!!
-	this->waitForChild();
-      }
+	  if(!this->isExecutingChild() && this->forkedSpeculativeProcess() && currentTime==this->specTime){
+	    //speculation worked!!!!
+	    this->speculationSucceed();
+	    this->waitForChild();
 	  }
+	  
 
           //Calculate next min time step
           TIME myminNextTime=nextEstTime;
@@ -167,10 +169,16 @@ TIME   GracePeriodSpeculativeSyncAlgo::GetNextTime(TIME currentTime, TIME nextTi
 	  }
 	  
           if(minNextTime < myminNextTime){
-
-              if(minNextTime+Integrator::getGracePeriod()<myminNextTime) //we have to busy wait until other sims come to this time
+	    //next time is some seconds away and the simulator has to wait so fork speculative unless we already forked
+	    if(!this->forkedSpeculativeProcess() && nextTime-currentTime > this->specDifference){	
+	      this->specTime=nextTime;
+	      this->createSpeculativeProcess();
+	      if(this->isExecutingChild())
+		return nextTime; //let speculation continue
+	    }
+            if(minNextTime+Integrator::getGracePeriod()<myminNextTime) //we have to busy wait until other sims come to this time
                   busywait=true;
-              else //TODO this will cause gld to re-iterate
+            else //TODO this will cause gld to re-iterate
                   busywait=false;
           }
 

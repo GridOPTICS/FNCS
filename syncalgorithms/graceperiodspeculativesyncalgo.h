@@ -47,6 +47,7 @@ class GracePeriodSpeculativeSyncAlgo : public AbsSyncAlgorithm
     void waitForChild();
     void sentMessage(Message *msg);
     void receivedMessage(Message *msg);
+    void speculationSucceed();
   public:
     GracePeriodSpeculativeSyncAlgo(AbsCommManager *interface, TIME specDifference);
     virtual ~GracePeriodSpeculativeSyncAlgo();
