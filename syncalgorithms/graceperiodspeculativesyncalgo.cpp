@@ -120,20 +120,6 @@ TIME   GracePeriodSpeculativeSyncAlgo::GetNextTime(TIME currentTime, TIME nextTi
 
       if(nextTime < grantedTime)
 	return nextTime;
-
-      //next time is some seconds away so fork speculative unless we already forked
-      if(!this->forkedSpeculativeProcess() && nextTime-currentTime > this->specDifference){	
-	this->specTime=nextTime;
-	this->createSpeculativeProcess();
-	if(this->isExecutingChild())
-	  return nextTime; //let speculation continue;
-      }
-      
-      
-      if(!this->isExecutingChild() && this->forkedSpeculativeProcess() && currentTime==this->specTime){
-	//speculation worked!!!!
-	this->waitForChild();
-      }
       
       bool busywait=false;
 
@@ -148,6 +134,21 @@ TIME   GracePeriodSpeculativeSyncAlgo::GetNextTime(TIME currentTime, TIME nextTi
           { //network stable grant next time
               nextEstTime=nextTime;
           }
+          else{ //network unstable, we can try speculation
+	  //next time is some seconds away so fork speculative unless we already forked
+	    if(!this->forkedSpeculativeProcess() && nextTime-currentTime > this->specDifference){	
+	      this->specTime=nextTime;
+	      this->createSpeculativeProcess();
+	      if(this->isExecutingChild())
+		return nextTime; //let speculation continue;
+      }
+      
+      
+      if(!this->isExecutingChild() && this->forkedSpeculativeProcess() && currentTime==this->specTime){
+	//speculation worked!!!!
+	this->waitForChild();
+      }
+	  }
 
           //Calculate next min time step
           TIME myminNextTime=nextEstTime;
