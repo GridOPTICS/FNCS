@@ -40,6 +40,12 @@ class GracePeriodSpeculativeSyncAlgo : public AbsSyncAlgorithm
   private:
     TIME specTime;
     TIME specDifference;
+    bool isParent;
+    bool hasParent;
+    bool isChild;
+    bool hasChild;
+    pid_t pidChild;
+
     void createSpeculativeProcess();
     bool isExecutingChild();
     bool forkedSpeculativeProcess();

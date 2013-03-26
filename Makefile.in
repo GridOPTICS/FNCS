@@ -131,6 +131,7 @@ am_libfncs_api_la_OBJECTS = absnetworkinterface.lo cintegrator.lo \
 	syncalgorithms/abssyncalgorithm.lo \
 	syncalgorithms/communicatorsimulatorsyncalgo.lo \
 	syncalgorithms/graceperiodpesimisticsyncalgo.lo \
+	syncalgorithms/graceperiodspeculativesyncalgo.lo \
 	util/simtime.lo
 libfncs_api_la_OBJECTS = $(am_libfncs_api_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -368,8 +369,9 @@ include_HEADERS = absnetworkinterface.h cintegrator.h integrator.h \
 	commmanager/graceperiodcommmanager.h \
 	syncalgorithms/abssyncalgorithm.h \
 	syncalgorithms/communicatorsimulatorsyncalgo.h \
-	syncalgorithms/graceperiodpesimisticsyncalgo.h util/callback.h \
-	util/simtime.h util/csimtime.h
+	syncalgorithms/graceperiodpesimisticsyncalgo.h \
+	syncalgorithms/graceperiodspeculativesyncalgo.h \
+	util/callback.h util/simtime.h util/csimtime.h
 lib_LTLIBRARIES = libfncs_api.la
 EXTRA_DIST = README
 AM_CXXFLAGS = 
@@ -385,6 +387,7 @@ libfncs_api_la_SOURCES = absnetworkinterface.cpp cintegrator.cpp \
 	syncalgorithms/abssyncalgorithm.cpp \
 	syncalgorithms/communicatorsimulatorsyncalgo.cpp \
 	syncalgorithms/graceperiodpesimisticsyncalgo.cpp \
+	syncalgorithms/graceperiodspeculativesyncalgo.cpp \
 	util/simtime.cpp
 tests_sanity_SOURCES = tests/sanity.cpp
 tests_messageTest_SOURCES = tests/messageTest.cpp
@@ -504,6 +507,9 @@ syncalgorithms/communicatorsimulatorsyncalgo.lo:  \
 syncalgorithms/graceperiodpesimisticsyncalgo.lo:  \
 	syncalgorithms/$(am__dirstamp) \
 	syncalgorithms/$(DEPDIR)/$(am__dirstamp)
+syncalgorithms/graceperiodspeculativesyncalgo.lo:  \
+	syncalgorithms/$(am__dirstamp) \
+	syncalgorithms/$(DEPDIR)/$(am__dirstamp)
 util/$(am__dirstamp):
 	@$(MKDIR_P) util
 	@: > util/$(am__dirstamp)
@@ -618,6 +624,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/abssyncalgorithm.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/communicatorsimulatorsyncalgo.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/graceperiodpesimisticsyncalgo.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/graceperiodspeculativesyncalgo.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/messageTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/sanity.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/simmer.Po@am__quote@

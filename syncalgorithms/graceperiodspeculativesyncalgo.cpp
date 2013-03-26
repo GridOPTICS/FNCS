@@ -25,12 +25,24 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <mpi.h>
+
+#include <cassert>
+#include <cstdio>
+#include <cstdlib>
+#include <cerrno>
+#include <sys/types.h>
+#include <signal.h>
 
 #include "graceperiodspeculativesyncalgo.h"
 
 namespace sim_comm{
   
 GracePeriodSpeculativeSyncAlgo::GracePeriodSpeculativeSyncAlgo(AbsCommManager *interface, TIME specDifference) : AbsSyncAlgorithm(interface){
+  this->isParent = true;
+  this->hasParent = false;
+  this->isChild = false;
+  this->hasChild = false;
   this->specDifference=specDifference;
   this->interface=interface;
   CallBack<void,Message*,empty,empty> *syncAlgoCallBackSend=
@@ -47,17 +59,42 @@ GracePeriodSpeculativeSyncAlgo::~GracePeriodSpeculativeSyncAlgo()
 
 void GracePeriodSpeculativeSyncAlgo::cancelChild()
 {
-  //in parent: cancled child
-  //in child terminate child
+    //in parent: cancled child
+    if (this->isParent) {
+        assert(this->hasChild);
+        assert(this->pidChild > 0);
+        kill(this->pidChild, SIGTERM);
+    }
+    //in child terminate child
+    else {
+        assert(this->isChild);
+        exit(EXIT_SUCCESS);
+    }
 }
 
 void GracePeriodSpeculativeSyncAlgo::createSpeculativeProcess()
 {
-  //fork speculative process.
+    this->pidChild = fork();
+    if (-1 == this->pidChild) {
+        /* I am the parent, and an error was detected */
+        perror("createSpeculativeProcess: fork");
+        MPI_Abort(MPI_COMM_WORLD, -1);
+    }
+    else if (0 == this->pidChild) {
+        /* I am a child */
+        this->isChild = true;
+        this->hasParent = true;
+    }
+    else {
+        /* I am a parent */
+        this->isParent = true;
+        this->hasChild = true;
+    }
 }
 
 bool GracePeriodSpeculativeSyncAlgo::forkedSpeculativeProcess()
 {
+    return hasChild;
     //return true if a speculative process is forked and not cancled. (from child and parent);
     
     //return false otherwise
@@ -66,6 +103,7 @@ bool GracePeriodSpeculativeSyncAlgo::forkedSpeculativeProcess()
 
 bool GracePeriodSpeculativeSyncAlgo::isExecutingChild()
 {
+    return isChild;
   //return true if the current executing process is the speculative child
 }
 
