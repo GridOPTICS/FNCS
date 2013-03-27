@@ -32,6 +32,7 @@
 #include <cstdlib>
 #include <cerrno>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <signal.h>
 
 #include "graceperiodspeculativesyncalgo.h"
@@ -111,6 +112,10 @@ void GracePeriodSpeculativeSyncAlgo::speculationSucceed()
 {
   //let child nknow that it can speculative. 
   //after this call forkedSpeculativePRocees in the child will return false (so it can firther speculate).
+  if(this->isChild)
+    throw SpecStateException("Child cannot signal!");
+  
+  kill(this->pidChild,SIGUSR1);
 }
 
 void GracePeriodSpeculativeSyncAlgo::receivedMessage(Message* msg)
@@ -148,10 +153,36 @@ void GracePeriodSpeculativeSyncAlgo::sentMessage(Message* msg)
 
 void GracePeriodSpeculativeSyncAlgo::waitForChild()
 {
-  //this method is called when the speculation succeeds. It causes the parent 
-  //parent to wait for the speculative process to complete. After child finishes
-  //the main process should terminate
+  if(this->isChild)
+    throw SpecStateException("Child cannot wait for child!");
+  
+  int status;
+  wait(&status);
 }
+
+void GracePeriodSpeculativeSyncAlgo::waitForSpeculationSignal()
+{
+  if(this->isParent)
+    throw SpecStateException("Parent cannot wait for speculation signal");
+  
+  sigset_t usrsignal;
+  sigemptyset(&usrsignal);
+  sigaddset(&usrsignal,SIGUSR1);
+  
+  int sigval=sigsuspend(&usrsignal);
+  
+  assert(sigval==0);
+  //here we know speculation succeeded so child becomes parent and it can further speculate!
+  this->isParent = true;
+  this->hasParent = false;
+  this->isChild = false;
+  this->hasChild = false;
+  
+  //now kill the parent, hehe!
+  pid_t parent=getppid();
+  kill(parent,SIGTERM);
+}
+
 
 bool GracePeriodSpeculativeSyncAlgo::doDispatchNextEvent(TIME currentTime, TIME nextTime)
 {
@@ -189,6 +220,9 @@ TIME   GracePeriodSpeculativeSyncAlgo::GetNextTime(TIME currentTime, TIME nextTi
 	    this->waitForChild();
 	  }
 	  
+	  if(this->isExecutingChild() && currentTime!=this->specTime){
+	    this->waitForSpeculationSignal();
+	  }
 
           //Calculate next min time step
           TIME myminNextTime=nextEstTime;
