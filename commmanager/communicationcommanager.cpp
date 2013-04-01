@@ -37,7 +37,7 @@ namespace sim_comm{
     {
       CallBack<void,Message*,empty,empty> *msgCallback=CreateObjCallback<CommunicationComManager *, void (CommunicationComManager::*)(Message*), void,Message*>(this, &CommunicationComManager::messageReceived);
   
-    
+ 
       this->currentInterface->setMessageCallBack(msgCallback);
     }
 

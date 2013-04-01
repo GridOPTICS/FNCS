@@ -138,7 +138,8 @@ void Integrator::initIntegratorCommunicationSim(
         AbsNetworkInterface *currentInterface,
         time_metric simTimeStep,
         TIME gracePeriod,
-        TIME initialTime) {
+        TIME initialTime,
+	TIME packetLostPeriod) {
 #if DEBUG
     CERR << "Integrator::initIntegratorCommunicationSim("
         << "AbsCommInterface*,"
@@ -147,7 +148,7 @@ void Integrator::initIntegratorCommunicationSim(
         << "initialTime=" << initialTime << ")" << endl;
 #endif
     AbsCommManager *command=new CommunicationComManager(currentInterface);
-    AbsSyncAlgorithm *algo=new CommunicatorSimulatorSyncalgo(command);
+    AbsSyncAlgorithm *algo=new CommunicatorSimulatorSyncalgo(command,packetLostPeriod);
     instance=new Integrator(command,algo,simTimeStep,gracePeriod);
     instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
 }

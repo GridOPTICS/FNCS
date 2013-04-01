@@ -14,13 +14,14 @@
 
 namespace sim_comm {
 
-	CommunicatorSimulatorSyncalgo::CommunicatorSimulatorSyncalgo(AbsCommManager* currentInterface): AbsSyncAlgorithm(currentInterface) {
+	CommunicatorSimulatorSyncalgo::CommunicatorSimulatorSyncalgo(AbsCommManager* currentInterface,TIME packetLostPeriod): AbsSyncAlgorithm(currentInterface) {
 		this->currentState=0;
 		CommunicationComManager *given=dynamic_cast<CommunicationComManager*>(currentInterface);
 		if(given==nullptr)
 		  throw CommSyncAlgoException();
 		updated=false;
 		this->algotype=ALGO_COMM_SIM;
+		this->packetLostPeriod=packetLostPeriod;
 	}
 
 	CommunicatorSimulatorSyncalgo::~CommunicatorSimulatorSyncalgo() {
@@ -40,7 +41,7 @@ namespace sim_comm {
 		   
 		    if(diff>0)
 		    { //network unstable 
-			TIME graceTime=Integrator::getCurSimTime()-Integrator::getGracePeriod();
+			TIME graceTime=Integrator::getCurSimTime()-packetLostPeriod;
 			if(graceTime>Integrator::getCurSimTime()) //overflowed
 			    graceTime=0;
 			if(updated){
