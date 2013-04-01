@@ -70,6 +70,7 @@ private:
     time_metric simTimeMetric;
     AbsCommManager *currentInterface;
     TIME gracePeriod;
+    TIME packetLostPeriod;
     CallBack<TIME,empty,empty,empty>* getTimeCallBack;
     AbsSyncAlgorithm *syncAlgo;
     TIME offset;
@@ -85,7 +86,8 @@ private:
     		AbsCommManager *currentInterface,
     		AbsSyncAlgorithm *algo,
     		time_metric simTimeStep,
-    		TIME gracePeriod);
+    		TIME gracePeriod,
+		TIME packetLostPeriod);
 public:
 
     /**
@@ -139,6 +141,11 @@ public:
     static TIME getGracePeriod();
 
     /**
+     * Returns to packet lost window. Messages older than currentTime - packetLostPeriod are considered lost!
+     */
+    static TIME getPacketLostPeriod();
+    
+    /**
      * TODO
      */
     static time_metric getCurSimMetric();
@@ -153,13 +160,13 @@ public:
      */
     static void initIntegratorGracePeriod(AbsNetworkInterface *currentInterface, 
 					  time_metric simTimeStep, 
-					  TIME gracePeriod, TIME initialTime);
+					  TIME gracePeriod, TIME packetLostPeriod, TIME initialTime);
     /**
      * Initializes the integrator for the communication simulator
      */
     static void initIntegratorCommunicationSim(AbsNetworkInterface *currentInterface, 
 					time_metric simTimeStep, 
-					TIME gracePeriod, TIME initialTime);
+					TIME gracePeriod, TIME initialTime, TIME packetLostPeriod);
 
     /**
      * Initializes the integrator with speculative threading support
@@ -168,6 +175,7 @@ public:
         AbsNetworkInterface *currentInterface,
         time_metric simTimeStep,
         TIME gracePeriod,
+	TIME packetLostPeriod,
         TIME initialTime,
 	TIME specDifference);
     

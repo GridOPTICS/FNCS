@@ -121,7 +121,7 @@ bool ObjectCommInterface::hasMoreMessages() {
 #endif
     if(this->msgs.size()==0) { //find the locations of the messages to return
         TIME currentTime=Integrator::getCurSimTime();
-        TIME graceTime=currentTime- Integrator::getGracePeriod();
+        TIME graceTime=currentTime- Integrator::getPacketLostPeriod();
 	 if(graceTime>currentTime){ //overflowed
 	      graceTime=0;
 	 }

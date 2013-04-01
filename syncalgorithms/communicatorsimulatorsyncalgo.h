@@ -25,9 +25,8 @@ namespace sim_comm {
 		private:
 			TIME currentState;
 			bool updated;
-			TIME packetLostPeriod;
 		public:
-			CommunicatorSimulatorSyncalgo(AbsCommManager* currentInterface, TIME packetLostPeriod);
+			CommunicatorSimulatorSyncalgo(AbsCommManager* currentInterface);
 			virtual ~CommunicatorSimulatorSyncalgo();
 			virtual TIME GetNextTime(TIME currentTime,TIME nextTime);
 			virtual bool doDispatchNextEvent(TIME currentTime,TIME nextTime);

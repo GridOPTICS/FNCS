@@ -10,9 +10,9 @@ extern "C"{
    * Initializes the framework with Mpi network interface
    */
   void initIntegratorGracePeriod(enum time_metric simTimeStep, 
-				TIME gracePeriod, TIME initialTime);
+				TIME gracePeriod, TIME packetLostPeriod, TIME initialTime);
   void initIntegratorSpeculative(enum time_metric simTimeStep, 
-				TIME gracePeriod, TIME initialTime, TIME specTime);
+				TIME gracePeriod, TIME packetLostPeriod, TIME initialTime, TIME specTime);
   void setOffset(TIME initialTime);
   void finalizeRegistrations();
   void setregistercallback(TIME (*callback)());

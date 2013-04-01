@@ -51,15 +51,15 @@ uint8_t isFinished()
 }
 
  void initIntegratorGracePeriod(enum time_metric simTimeStep, 
-				TIME gracePeriod, TIME initialTime){
+				TIME gracePeriod, TIME packetLostPeriod, TIME initialTime){
    MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, false);
-   Integrator::initIntegratorGracePeriod(comm,SECONDS,gracePeriod,initialTime);
+   Integrator::initIntegratorGracePeriod(comm,SECONDS,gracePeriod,packetLostPeriod,initialTime);
  }
  
 void initIntegratorSpeculative(enum time_metric simTimeStep, 
-				TIME gracePeriod, TIME initialTime, TIME specTime){
+				TIME gracePeriod, TIME packetLostPeriod, TIME initialTime, TIME specTime){
    MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, false);
-   Integrator::initIntegratorSpeculative(comm,SECONDS,gracePeriod,initialTime,specTime);			 
+   Integrator::initIntegratorSpeculative(comm,SECONDS,gracePeriod,packetLostPeriod,initialTime,specTime);			 
 }
  
 void finalizeRegistrations()
