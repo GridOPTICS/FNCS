@@ -11,6 +11,8 @@ extern "C"{
    */
   void initIntegratorGracePeriod(enum time_metric simTimeStep, 
 				TIME gracePeriod, TIME initialTime);
+  void initIntegratorSpeculative(enum time_metric simTimeStep, 
+				TIME gracePeriod, TIME initialTime, TIME specTime);
   void setOffset(TIME initialTime);
   void finalizeRegistrations();
   void setregistercallback(TIME (*callback)());

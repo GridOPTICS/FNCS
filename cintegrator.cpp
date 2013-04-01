@@ -56,6 +56,12 @@ uint8_t isFinished()
    Integrator::initIntegratorGracePeriod(comm,SECONDS,gracePeriod,initialTime);
  }
  
+void initIntegratorSpeculative(enum time_metric simTimeStep, 
+				TIME gracePeriod, TIME initialTime, TIME specTime){
+   MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, false);
+   Integrator::initIntegratorSpeculative(comm,SECONDS,gracePeriod,initialTime,specTime);			 
+}
+ 
 void finalizeRegistrations()
 {
   Integrator::finalizeRegistrations();

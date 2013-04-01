@@ -54,6 +54,11 @@ namespace sim_comm
       }
   };
   
+  enum ALGOTYPE{
+    ALGO_COMM_SIM = 0,
+    ALGO_PESIMISTIC,
+    ALGO_SPECULATIVE
+  };
   
   class AbsSyncAlgorithm
   {
@@ -61,6 +66,7 @@ namespace sim_comm
 	AbsCommManager* interface;
 	bool finished;
 	TIME grantedTime;
+	ALGOTYPE algotype;
     public:
 	AbsSyncAlgorithm(AbsCommManager* currentInterface);
 	virtual ~AbsSyncAlgorithm();
@@ -76,6 +82,14 @@ namespace sim_comm
 	virtual bool doDispatchNextEvent(TIME currentTime,TIME nextTime) = 0;
 	
 	bool isFinished();
+	
+	/**
+	 * Returns sync algorithm type. Faster than dynamic cast!s
+	 */
+	ALGOTYPE getAlgoType(){
+	
+	  return this->algotype;
+	}
   };
   
 }

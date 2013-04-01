@@ -20,6 +20,7 @@ namespace sim_comm {
 		if(given==nullptr)
 		  throw CommSyncAlgoException();
 		updated=false;
+		this->algotype=ALGO_COMM_SIM;
 	}
 
 	CommunicatorSimulatorSyncalgo::~CommunicatorSimulatorSyncalgo() {

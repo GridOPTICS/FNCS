@@ -36,10 +36,14 @@
 #include <signal.h>
 
 #include "graceperiodspeculativesyncalgo.h"
+#include "communicationcommanager.h"
 
 namespace sim_comm{
   
 GracePeriodSpeculativeSyncAlgo::GracePeriodSpeculativeSyncAlgo(AbsCommManager *interface, TIME specDifference) : AbsSyncAlgorithm(interface){
+  CommunicationComManager *given=dynamic_cast<CommunicationComManager*>(interface);
+  if(given!=nullptr)
+      throw SpecStateException(string("Speculative threading cannot be used with communication simulator!"));
   this->isParent = true;
   this->hasParent = false;
   this->isChild = false;
@@ -50,7 +54,7 @@ GracePeriodSpeculativeSyncAlgo::GracePeriodSpeculativeSyncAlgo(AbsCommManager *i
     CreateObjCallback<GracePeriodSpeculativeSyncAlgo*, void (GracePeriodSpeculativeSyncAlgo::*)(Message *),void, Message*>(this,&GracePeriodSpeculativeSyncAlgo::sentMessage);
   CallBack<void,Message*,empty,empty> *syncAlgoCallBackRev=
     CreateObjCallback<GracePeriodSpeculativeSyncAlgo*, void (GracePeriodSpeculativeSyncAlgo::*)(Message *),void, Message*>(this,&GracePeriodSpeculativeSyncAlgo::receivedMessage);
- 
+  this->algotype=ALGO_SPECULATIVE;
 }
 
 GracePeriodSpeculativeSyncAlgo::~GracePeriodSpeculativeSyncAlgo()

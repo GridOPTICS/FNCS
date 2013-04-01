@@ -161,7 +161,16 @@ public:
 					time_metric simTimeStep, 
 					TIME gracePeriod, TIME initialTime);
 
-
+    /**
+     * Initializes the integrator with speculative threading support
+     */
+    static void initIntegratorSpeculative(
+        AbsNetworkInterface *currentInterface,
+        time_metric simTimeStep,
+        TIME gracePeriod,
+        TIME initialTime,
+	TIME specDifference);
+    
     /**
      * sets simulator callback that returns time
      */

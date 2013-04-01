@@ -35,7 +35,7 @@ namespace sim_comm
 {
    GracePeriodSyncAlgo::GracePeriodSyncAlgo(AbsCommManager* interface ) : AbsSyncAlgorithm(interface)
   {
-
+      this->algotype=ALGO_PESIMISTIC;
   }
 
    GracePeriodSyncAlgo::~GracePeriodSyncAlgo()
@@ -65,7 +65,7 @@ namespace sim_comm
       {
           uint8_t diff=interface->reduceTotalSendReceive();
           //network unstable, we need to wait!
-          nextEstTime=currentTime+convertToFrameworkTime(Integrator::getCurSimMetric(),1);
+          nextEstTime=currentTime+convertToFrameworkTime(Integrator::getCurSimMetric(),1); 
           if(diff==0)
           { //network stable grant next time
               nextEstTime=nextTime;
@@ -97,6 +97,8 @@ namespace sim_comm
 
 
       }while(busywait);
+     
+      
       this->grantedTime=nextEstTime;
       return nextEstTime;
   }

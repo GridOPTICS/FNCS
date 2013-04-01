@@ -34,6 +34,7 @@
 #include "syncalgorithms/communicatorsimulatorsyncalgo.h"
 #include "graceperiodcommmanager.h"
 #include "communicationcommanager.h"
+#include "syncalgorithms/graceperiodspeculativesyncalgo.h"
 
 #if DEBUG && DEBUG_TO_FILE
 ofstream ferr;
@@ -113,6 +114,25 @@ void Integrator::initIntegratorGracePeriod(
     instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
 }
 
+void Integrator::initIntegratorSpeculative(
+        AbsNetworkInterface *currentInterface,
+        time_metric simTimeStep,
+        TIME gracePeriod,
+        TIME initialTime,
+	TIME specDifference) {
+ #if DEBUG
+    CERR << "Integrator::initIntegratorSpeculative("
+        << "AbsCommInterface*,"
+        << "simTimeStep=" << simTimeStep << ","
+        << "gracePeriod=" << gracePeriod << ","
+        << "initialTime=" << initialTime << ")" << endl;
+#endif
+    AbsCommManager *command=new GracePeriodCommManager(currentInterface);
+    TIME specDifferentFramework=convertToFrameworkTime(simTimeStep,specDifference);
+    AbsSyncAlgorithm *algo=new GracePeriodSpeculativeSyncAlgo(command,specDifferentFramework);
+    instance=new Integrator(command,algo,simTimeStep,gracePeriod);
+    instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
+}
 
 void Integrator::initIntegratorCommunicationSim(
         AbsNetworkInterface *currentInterface,
@@ -246,6 +266,8 @@ TIME Integrator::getNextTime(TIME currentTime, TIME nextTime) {
         << "nextTime=" << nextframeTime << ")" << endl;
 #endif
     TIME toReturn=instance->syncAlgo->GetNextTime(curTimeInFramework,nextframeTime);
+    if(toReturn==nextframeTime) //we are granted upto (but not equal to) our next time, so we must sync again
+      toReturn=instance->syncAlgo->GetNextTime(curTimeInFramework,nextframeTime);
     return convertToMyTime(instance->simTimeMetric,toReturn+instance->offset);
 }
 
