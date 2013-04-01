@@ -42,9 +42,9 @@ int main(int argc,char* argv[]){
   assert(MPI_SUCCESS == ierr);
     
   currentTime=0;
-  MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, true);
+  MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, false);
   CallBack<TIME,empty,empty,empty>* cb=CreateCallback(getCurTime);
-  Integrator::initIntegratorGracePeriod(comm,MILLISECONDS,2000000,0);
+  Integrator::initIntegratorGracePeriod(comm,MILLISECONDS,20000000,0);
   Integrator::setTimeCallBack(cb);
   
   Integrator::finalizeRegistrations();
