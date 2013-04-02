@@ -95,7 +95,7 @@ namespace sim_comm
              /* if(minNextTime+Integrator::getGracePeriod()<myminNextTime) //we have to busy wait until other sims come to this time
                   busywait=true;
               else //TODO this will cause gld to re-iterate*/
-                  busywait=false;
+                  busywait=true;
           }
 
 

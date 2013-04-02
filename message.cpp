@@ -257,6 +257,16 @@ void Message::deserializeHeader(uint8_t *buff, uint32_t buffSize) {
     }
     ++it;
 
+    /* networkDeliverytime */
+    timeptr=reinterpret_cast<uint8_t*>(&this->networkDeliverytime);
+    for(int i=0, limit=sizeof(this->networkDeliverytime); i<limit && it<buffSize; i++) {
+        timeptr[i]=buff[it++];
+    }
+    if (it >= buffSize) {
+        throw "TODO better exception for deserialize time";
+    }
+    ++it;
+    
     /* size */
     sizeptr=reinterpret_cast<uint8_t*>(&this->size);
     for(int i=0, limit=sizeof(this->size); i<limit && it<buffSize; i++) {
