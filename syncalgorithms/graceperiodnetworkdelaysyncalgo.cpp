@@ -45,9 +45,17 @@ namespace sim_comm{
   TIME GracePeriodNetworkDelaySyncAlgo::GetNextTime(TIME currentTime, TIME nextTime)
   {
       if(threadopen){
+	#if DEBUG
+	      CERR << "Waiting for busy wait thread!" << endl;
+	#endif
         TIME *retValue;
 	pthread_join(this->thread,(void**)&retValue);
+	if(retValue==0)
+	  return 0;
 	threadopen=false;
+	#if DEBUG
+	      CERR << "Busy wait thread is finished!" << endl;
+	#endif
       }
       
       TIME nextEstTime;
@@ -94,6 +102,9 @@ namespace sim_comm{
 		this->threadopen=true;
 		this->threadOpenTime=currentTime;
 		this->threadEndTime=myminNextTime;
+#if DEBUG
+	      CERR << "Starting busy wait thread! my:" << myminNextTime << " others:" << minNextTime <<  endl;
+#endif
 		pthread_create(&this->thread,NULL,&GracePeriodNetworkDelaySyncAlgo::startThreadBusyWait,(void*)this);
 		busywait=false;
 	      }
@@ -116,7 +127,7 @@ namespace sim_comm{
     return syncedTime==nextTime;
   }
   
-  void GracePeriodNetworkDelaySyncAlgo::threadBusyWait(TIME currentTime, TIME nextTime)
+  TIME GracePeriodNetworkDelaySyncAlgo::threadBusyWait(TIME currentTime, TIME nextTime)
   { 
       TIME nextEstTime;
 
@@ -172,7 +183,7 @@ namespace sim_comm{
   void* GracePeriodNetworkDelaySyncAlgo::startThreadBusyWait(void* args)
   {
       GracePeriodNetworkDelaySyncAlgo *dana=(GracePeriodNetworkDelaySyncAlgo*)args;
-      TIME returnVal=dana->startThreadBusyWait(this->threadOpenTime,this->threadEndTime);
+      TIME returnVal=dana->threadBusyWait(dana->threadOpenTime,dana->threadEndTime);
       return &returnVal;
   }
 
