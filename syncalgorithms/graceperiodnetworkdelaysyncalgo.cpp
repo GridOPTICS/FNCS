@@ -24,34 +24,32 @@
     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include "config.h"
-
-#include "abscommmanager.h"
-#include "graceperiodpesimisticsyncalgo.h"
-#include "integrator.h"
 
 
-namespace sim_comm
-{
-   GracePeriodSyncAlgo::GracePeriodSyncAlgo(AbsCommManager* interface ) : AbsSyncAlgorithm(interface)
+#include "graceperiodnetworkdelaysyncalgo.h"
+#include <abscommmanager.h>
+
+namespace sim_comm{
+  
+  GracePeriodNetworkDelaySyncAlgo::GracePeriodNetworkDelaySyncAlgo(AbsCommManager *interface) : AbsSyncAlgorithm(interface)
   {
-      this->algotype=ALGO_PESIMISTIC;
+      this->threadopen;
   }
 
-   GracePeriodSyncAlgo::~GracePeriodSyncAlgo()
+  GracePeriodNetworkDelaySyncAlgo::~GracePeriodNetworkDelaySyncAlgo()
   {
-
+    if(threadopen)
+      pthread_cancel(this->thread);
   }
 
-  bool  GracePeriodSyncAlgo::doDispatchNextEvent(TIME currentTime, TIME nextTime)
+  TIME GracePeriodNetworkDelaySyncAlgo::GetNextTime(TIME currentTime, TIME nextTime)
   {
-    TIME syncedTime=this->GetNextTime(currentTime,nextTime);
-
-    return syncedTime==nextTime;
-  }
-
-  TIME  GracePeriodSyncAlgo::GetNextTime(TIME currentTime, TIME nextTime)
-  {
+      if(threadopen){
+        TIME *retValue;
+	pthread_join(this->thread,(void**)&retValue);
+	threadopen=false;
+      }
+      
       TIME nextEstTime;
 
       if(nextTime < grantedTime)
@@ -92,11 +90,16 @@ namespace sim_comm
 	  
           if(minNextTime < myminNextTime){
 
-             /* if(minNextTime+Integrator::getGracePeriod()<myminNextTime) //we have to busy wait until other sims come to this time
-                  busywait=true;
-              else //TODO this will cause gld to re-iterate*/
-                  busywait=false;
-          }
+	      if(!threadopen && myminNextTime-interface->getMinNetworkDelay()<minNextTime){
+		this->threadopen=true;
+		this->threadOpenTime=currentTime;
+		this->threadEndTime=myminNextTime;
+		pthread_create(&this->thread,NULL,&GracePeriodNetworkDelaySyncAlgo::startThreadBusyWait,(void*)this);
+		busywait=false;
+	      }
+	      else
+		busywait=true;
+	  }
 
 
       }while(busywait);
@@ -106,4 +109,72 @@ namespace sim_comm
       return nextEstTime;
   }
 
+  bool GracePeriodNetworkDelaySyncAlgo::doDispatchNextEvent(TIME currentTime, TIME nextTime)
+  {
+    TIME syncedTime=this->GetNextTime(currentTime,nextTime);
+
+    return syncedTime==nextTime;
+  }
+  
+  void GracePeriodNetworkDelaySyncAlgo::threadBusyWait(TIME currentTime, TIME nextTime)
+  { 
+      TIME nextEstTime;
+
+      if(nextTime < grantedTime)
+	return nextTime;
+
+      bool busywait=false;
+      bool needToRespond=false;
+      //send all messages
+
+      do
+      {
+          uint8_t diff=interface->reduceTotalSendReceive();
+          //network unstable, we need to wait!
+          nextEstTime=currentTime+convertToFrameworkTime(Integrator::getCurSimMetric(),1); 
+          if(diff==0 && !needToRespond)
+          { //network stable grant next time
+              nextEstTime=nextTime;
+          }
+          else{
+	    needToRespond=true; //set this condition so that when the simulator wakes up from busy wait it responds to messages
+	  }
+
+          //Calculate next min time step
+          TIME myminNextTime=nextEstTime;
+          TIME minNextTime=(TIME)interface->reduceMinTime(myminNextTime);
+
+          //min time is the estimated next time, so grant nextEstimated time
+          if(minNextTime==myminNextTime)
+              busywait=false;
+	  
+	  if(minNextTime==0){ //a sim signal endded
+#if DEBUG
+	      CERR << "End Signaled!" << endl;
+#endif
+	      this->finished=true;
+	      return 0;
+	  }
+	  
+          if(minNextTime < myminNextTime){
+		busywait=true;
+	  }
+
+
+      }while(busywait);
+     
+      
+      this->grantedTime=nextEstTime;
+      return nextEstTime;
+  }
+
+
+  void* GracePeriodNetworkDelaySyncAlgo::startThreadBusyWait(void* args)
+  {
+      GracePeriodNetworkDelaySyncAlgo *dana=(GracePeriodNetworkDelaySyncAlgo*)args;
+      TIME returnVal=dana->startThreadBusyWait(this->threadOpenTime,this->threadEndTime);
+      return &returnVal;
+  }
+
 }
+

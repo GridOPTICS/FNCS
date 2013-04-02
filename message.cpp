@@ -64,6 +64,7 @@ Message::Message(
     }
     this->size=dataSize;
     this->tag=tag;
+    this->networkDeliverytime=Infinity;
 #if DEBUG
     CERR << *this << endl;
 #endif
@@ -94,6 +95,7 @@ Message::Message(
     }
     this->size=dataSize;
     this->tag=tag;
+    this->networkDeliverytime=Infinity;
 #if DEBUG
     CERR << *this << endl;
 #endif
@@ -180,6 +182,13 @@ void Message::serializeHeader(uint8_t*& buffToReturn,uint32_t& buffSize) const {
     /* timeStamp */
     timeptr=reinterpret_cast<const uint8_t*>(&this->timeStamp);
     for(int i=0, limit=sizeof(this->timeStamp); i<limit; i++) {
+        buff.push_back(timeptr[i]);
+    }
+    buff.push_back(0);
+    
+     /* networkdeliveryTime */
+    timeptr=reinterpret_cast<const uint8_t*>(&this->networkDeliverytime);
+    for(int i=0, limit=sizeof(this->networkDeliverytime); i<limit; i++) {
         buff.push_back(timeptr[i]);
     }
     buff.push_back(0);

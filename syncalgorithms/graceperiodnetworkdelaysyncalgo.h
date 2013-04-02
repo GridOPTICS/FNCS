@@ -24,66 +24,35 @@
     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include "config.h"
-
-#include "cintegrator.h"
-
-#include "mpinetworkinterface.h"
-#include "integrator.h"
-#include "callback.h"
-
-using namespace sim_comm;
 
 
-void InitMPI(int *arc,char ***argv){
+#ifndef GRACEPERIODNETWORKDELAYSYNCALGO_H
+#define GRACEPERIODNETWORKDELAYSYNCALGO_H
 
-  MPI_Init(arc,argv);
+#include <pthread.h>
+
+#include "abssyncalgorithm.h"
+
+namespace sim_comm{
+
+  class GracePeriodNetworkDelaySyncAlgo : public sim_comm::AbsSyncAlgorithm
+  {
+    private:
+      pthread_t thread;
+      bool threadopen;
+      TIME threadOpenTime;
+      TIME threadEndTime;
+      //pthread_mutex_t threadstatus;
+      
+      TIME nextTime;
+      TIME threadBusyWait(TIME currentTime,TIME nextTime);
+      static void* startThreadBusyWait(void *args);
+    public:
+      GracePeriodNetworkDelaySyncAlgo(AbsCommManager *interface);
+      virtual bool doDispatchNextEvent(TIME currentTime, TIME nextTime);
+      virtual TIME GetNextTime(TIME currentTime, TIME nextTime);
+      virtual ~GracePeriodNetworkDelaySyncAlgo();
+  };
+
 }
-
-void finalizeMPI(){
-  MPI_Finalize();
-  
-}
-
-uint8_t isFinished()
-{
-  return (uint8_t)Integrator::isFinished();
-}
-
- void initIntegratorGracePeriod(enum time_metric simTimeStep, 
-				TIME packetLostPeriod, TIME initialTime){
-   MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, false);
-   Integrator::initIntegratorGracePeriod(comm,SECONDS,packetLostPeriod,initialTime);
- }
- 
-void initIntegratorSpeculative(enum time_metric simTimeStep, 
-				TIME packetLostPeriod, TIME initialTime, TIME specTime){
-   MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, false);
-   Integrator::initIntegratorSpeculative(comm,SECONDS,packetLostPeriod,initialTime,specTime);			 
-}
- 
-void finalizeRegistrations()
-{
-  Integrator::finalizeRegistrations();
-}
-
-void setregistercallback(TIME (*callback)())
-{
-  CallBack<TIME,empty,empty,empty> *cb=CreateCallback(callback);
-  Integrator::setTimeCallBack(cb);
-}
-
-void stopIntegrator()
-{
-  Integrator::stopIntegrator();
-}
-
-TIME getNextTime(TIME currentTime, TIME nextTime)
-{
-  return Integrator::getNextTime(currentTime,nextTime);
-}
-
-void setOffset(TIME initialTime)
-{
-  Integrator::setOffset(initialTime);
-}
+#endif // GRACEPERIODNETWORKDELAYSYNCALGO_H

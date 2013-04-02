@@ -67,6 +67,7 @@ namespace sim_comm{
 	      vector<Message*>  outmessges=in->getOutBox();
 	      for(int i=0; i<outmessges.size(); i++) {
 		  try {
+		      outmessges[i]->setDeliveryTime(Integrator::getCurSimTime());
 		      if (outmessges[i]->isBroadCast()) {
 			  int scount = this->currentInterface->broadcast(outmessges[i]);
 			    // sendCount +=scount;
@@ -95,7 +96,7 @@ namespace sim_comm{
 #endif
       //Get Time frame to accept the messageReceived
       TIME currentTime=Integrator::getCurSimTime();
-      TIME graceTime=currentTime- Integrator::getGracePeriod();
+      TIME graceTime=currentTime- Integrator::getPacketLostPeriod();
       if(graceTime>currentTime){ //overflowed
 	graceTime=0;
       }

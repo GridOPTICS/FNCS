@@ -66,7 +66,7 @@ int ObjectCommInterface::getInboxMessagesCount() {
     //we can write a better one!
 
      TIME timeframe=Integrator::getCurSimTime();
-     TIME timeframe1=timeframe-Integrator::getGracePeriod();
+     TIME timeframe1=timeframe-Integrator::getPacketLostPeriod();
       if(timeframe1>timeframe){ //overflowed!
 	timeframe1=0;
       }
@@ -89,7 +89,7 @@ std::vector< Message* > ObjectCommInterface::getAllInboxMessages() {
     CERR << "ObjectCommInterface::getAllInboxMessages()" << endl;
 #endif
     TIME currentTime=Integrator::getCurSimTime();
-    TIME graceTime=currentTime- Integrator::getGracePeriod();
+    TIME graceTime=currentTime- Integrator::getPacketLostPeriod();
     if(graceTime>currentTime){ //overflowed
       graceTime=0;
     }

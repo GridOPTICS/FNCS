@@ -52,7 +52,7 @@ int main(int argc,char* argv[]){
   TIME grantedTime;
   do{
      //execute calculations that will solve all our problems
-     usleep(rand()%2000);
+     usleep(rand()%200);
      //start the time sync
      grantedTime=Integrator::getNextTime(currentTime,currentTime+1);
      assert(grantedTime==currentTime+1);

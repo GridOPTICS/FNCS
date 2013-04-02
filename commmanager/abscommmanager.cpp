@@ -46,6 +46,7 @@ namespace sim_comm{
     this->syncAlgoCallBackRecv=NULL;
     this->syncAlgoCallBackSend=NULL;
     this->currentInterface->setMessageCallBack(msgCallback);
+    this->minNetworkDelay=Infinity;
   }
   
   AbsCommManager::~AbsCommManager()
@@ -68,7 +69,7 @@ namespace sim_comm{
 #endif
     //Get Time frame to accept the messageReceived
     TIME currentTime=Integrator::getCurSimTime();
-    TIME graceTime=currentTime- Integrator::getGracePeriod();
+    TIME graceTime=currentTime- Integrator::getPacketLostPeriod();
     if(graceTime>currentTime){ //overflowed
 	graceTime=0;
     }
@@ -95,6 +96,7 @@ namespace sim_comm{
      if(this->syncAlgoCallBackRecv){
 	  (*(this->syncAlgoCallBackRecv))(message);
      }
+     this->adjustNetworkDelay(message->getDeliveryPeriod());
   }
   
   bool AbsCommManager::isReceiverRunning() {
@@ -181,6 +183,11 @@ namespace sim_comm{
   }
 
 
+  void AbsCommManager::adjustNetworkDelay(TIME msgDeliveryTime)
+  {
+      if(msgDeliveryTime<this->minNetworkDelay)
+	this->minNetworkDelay=msgDeliveryTime;
+  }
 
 }
 

@@ -49,6 +49,7 @@ private:
     uint8_t tag;
     uint8_t *data;
     uint32_t size;
+    TIME networkDeliverytime;
 public:
     /** Explicit constructor. */
     Message(const string &from,
@@ -131,6 +132,15 @@ public:
 
     bool operator==(const Message &that) const;
     bool operator!=(const Message &that) const;
+    
+    void setDeliveryTime(TIME currentTime){
+      TIME curTimeinframework=convertToFrameworkTime(Integrator::getCurSimMetric(),currentTime);
+      this->networkDeliverytime=curTimeinframework -this->timeStamp;
+    }
+    
+    TIME getDeliveryPeriod(){
+      return networkDeliverytime;
+    }
 };
 
 ostream& operator<<(ostream &os, const Message &message);

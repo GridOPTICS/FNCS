@@ -110,10 +110,11 @@ namespace sim_comm{
 	bool receiverRunning; /**< @TODO doc */
 	bool allowRegistrations;
       
-	
+	TIME minNetworkDelay;
 	//uint8_t messageReceived();
 	CallBack<void,Message*,empty,empty> *syncAlgoCallBackSend,*syncAlgoCallBackRecv;
 	sim_comm::AbsNetworkInterface *currentInterface;
+	void adjustNetworkDelay(TIME msgDeliveryTime);
     public:
       /**
 	  * Called by subclasses to notify about a new message.
@@ -188,6 +189,14 @@ namespace sim_comm{
 			      CallBack<void,Message*,empty,empty> *syncCallBackRecv){
       this->syncAlgoCallBackRecv=syncCallBackRecv;
       this->syncAlgoCallBackSend=syncCallBackSend;
+    }
+    
+    /**
+     * Returns the min network delay.
+     * This value is always equal to infinity for network simulator.
+     */
+    TIME getMinNetworkDelay(){
+      return this->minNetworkDelay;
     }
     
   };

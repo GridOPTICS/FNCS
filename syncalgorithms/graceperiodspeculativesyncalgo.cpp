@@ -252,9 +252,9 @@ TIME   GracePeriodSpeculativeSyncAlgo::GetNextTime(TIME currentTime, TIME nextTi
 	      if(this->isExecutingChild())
 		return nextTime; //let speculation continue
 	    }
-            if(minNextTime+Integrator::getGracePeriod()<myminNextTime) //we have to busy wait until other sims come to this time
+            /*if(minNextTime+Integrator::getGracePeriod()<myminNextTime) //we have to busy wait until other sims come to this time
                   busywait=true;
-            else //TODO this will cause gld to re-iterate
+            else //TODO this will cause gld to re-iterate*/
                   busywait=false;
           }
 

@@ -50,7 +50,6 @@ Integrator::Integrator(
         AbsCommManager *currentInterface,
         AbsSyncAlgorithm *algo,
         time_metric simTimeStep,
-        TIME gracePeriod,
 	TIME packetLostPeriod) {
 #if DEBUG
 #   if DEBUG_TO_FILE
@@ -62,14 +61,14 @@ Integrator::Integrator(
         << "AbsCommInterface*,"
         << "AbsSyncAlgorithm*,"
         << "simTimeStep=" << simTimeStep << ","
-        << "gracePeriod=" << gracePeriod << ")" << endl;
+        << "packetlost=" << packetLostPeriod << ")" << endl;
 #endif
     this->currentInterface=currentInterface;
     this->simTimeMetric=simTimeStep;
-    this->gracePeriod=gracePeriod;
     this->allowRegistrations = true;
     this->syncAlgo=algo;
     this->packetLostPeriod=packetLostPeriod;
+   
 }
 
 
@@ -81,6 +80,11 @@ Integrator::~Integrator(){
 	delete currentInterface;
 	delete syncAlgo;
 	instance=NULL;
+}
+
+TIME Integrator::getMinNetworkDelay()
+{
+  return instance->currentInterface->getMinNetworkDelay();
 }
 
 
@@ -106,26 +110,24 @@ TIME Integrator::getPacketLostPeriod()
 void Integrator::initIntegratorGracePeriod(
         AbsNetworkInterface *currentInterface,
         time_metric simTimeStep,
-        TIME gracePeriod,
 	TIME packetLostPeriod,
         TIME initialTime) {
 #if DEBUG
     CERR << "Integrator::initIntegratorGracePeriod("
         << "AbsCommInterface*,"
         << "simTimeStep=" << simTimeStep << ","
-        << "gracePeriod=" << gracePeriod << ","
+        << "packetlost=" << packetLostPeriod << ","
         << "initialTime=" << initialTime << ")" << endl;
 #endif
     AbsCommManager *command=new GracePeriodCommManager(currentInterface);
     AbsSyncAlgorithm *algo=new GracePeriodSyncAlgo(command);
-    instance=new Integrator(command,algo,simTimeStep,gracePeriod,packetLostPeriod);
+    instance=new Integrator(command,algo,simTimeStep,packetLostPeriod);
     instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
 }
 
 void Integrator::initIntegratorSpeculative(
         AbsNetworkInterface *currentInterface,
         time_metric simTimeStep,
-        TIME gracePeriod,
 	TIME packetLostPeriod,
         TIME initialTime,
 	TIME specDifference) {
@@ -133,42 +135,36 @@ void Integrator::initIntegratorSpeculative(
     CERR << "Integrator::initIntegratorSpeculative("
         << "AbsCommInterface*,"
         << "simTimeStep=" << simTimeStep << ","
-        << "gracePeriod=" << gracePeriod << ","
+        << "packetlost=" << packetLostPeriod << ","
         << "initialTime=" << initialTime << ")" << endl;
 #endif
     AbsCommManager *command=new GracePeriodCommManager(currentInterface);
     TIME specDifferentFramework=convertToFrameworkTime(simTimeStep,specDifference);
     AbsSyncAlgorithm *algo=new GracePeriodSpeculativeSyncAlgo(command,specDifferentFramework);
-    instance=new Integrator(command,algo,simTimeStep,gracePeriod,packetLostPeriod);
+    instance=new Integrator(command,algo,simTimeStep,packetLostPeriod);
     instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
 }
 
 void Integrator::initIntegratorCommunicationSim(
         AbsNetworkInterface *currentInterface,
         time_metric simTimeStep,
-        TIME gracePeriod,
         TIME initialTime,
 	TIME packetLostPeriod) {
 #if DEBUG
     CERR << "Integrator::initIntegratorCommunicationSim("
         << "AbsCommInterface*,"
         << "simTimeStep=" << simTimeStep << ","
-        << "gracePeriod=" << gracePeriod << ","
+        << "packetLost=" << packetLostPeriod << ","
         << "initialTime=" << initialTime << ")" << endl;
 #endif
     AbsCommManager *command=new CommunicationComManager(currentInterface);
     AbsSyncAlgorithm *algo=new CommunicatorSimulatorSyncalgo(command);
-    instance=new Integrator(command,algo,simTimeStep,gracePeriod,packetLostPeriod);
+    instance=new Integrator(command,algo,simTimeStep,packetLostPeriod);
     instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
 }
 
 
-TIME Integrator::getGracePeriod() {
-#if DEBUG
-    CERR << "Integrator::getGracePeriod()" << endl;
-#endif
-    return instance->gracePeriod;
-}
+
 
 
 void Integrator::setTimeCallBack(CallBack<TIME,empty,empty,empty>* t) {
@@ -179,12 +175,7 @@ void Integrator::setTimeCallBack(CallBack<TIME,empty,empty,empty>* t) {
 }
 
 
-TIME Integrator::getAdjustedGracePeriod() {
-#if DEBUG
-    CERR << "Integrator::getAdjustedGracePeriod()" << endl;
-#endif
-    return convertToMyTime(instance->simTimeMetric,instance->gracePeriod);
-}
+
 
 
 TIME Integrator::getCurSimTime() {
