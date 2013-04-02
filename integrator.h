@@ -162,6 +162,13 @@ public:
     static void initIntegratorCommunicationSim(AbsNetworkInterface *currentInterface, 
 					time_metric simTimeStep, 
 					TIME initialTime, TIME packetLostPeriod);
+    
+    /**
+     * Initializes the integrator with network delay support
+     */
+    static void initIntegratorNetworkDelaySupport(AbsNetworkInterface *currentInterface, 
+					time_metric simTimeStep, 
+					TIME initialTime, TIME packetLostPeriod);    
 
     /**
      * Initializes the integrator with speculative threading support

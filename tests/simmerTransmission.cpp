@@ -44,7 +44,7 @@ int main(int argc,char* argv[]){
   currentTime=0;
   MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, false);
   CallBack<TIME,empty,empty,empty>* cb=CreateCallback(getCurTime);
-  Integrator::initIntegratorGracePeriod(comm,MILLISECONDS,20000000,2000000000,0);
+  Integrator::initIntegratorGracePeriod(comm,MILLISECONDS,2000000000,0);
   Integrator::setTimeCallBack(cb);
   
   Integrator::finalizeRegistrations();

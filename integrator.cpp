@@ -35,6 +35,7 @@
 #include "graceperiodcommmanager.h"
 #include "communicationcommanager.h"
 #include "syncalgorithms/graceperiodspeculativesyncalgo.h"
+#include <graceperiodnetworkdelaysyncalgo.h>
 
 #if DEBUG && DEBUG_TO_FILE
 ofstream ferr;
@@ -104,6 +105,24 @@ void Integrator::stopIntegrator(){
 TIME Integrator::getPacketLostPeriod()
 {
   return instance->packetLostPeriod;
+}
+
+void Integrator::initIntegratorNetworkDelaySupport(
+  AbsNetworkInterface* currentInterface, 
+  time_metric simTimeStep, 
+  TIME initialTime, TIME packetLostPeriod)
+{
+#if DEBUG
+    CERR << "Integrator::initIntegratorNetworkDelaySupport("
+        << "AbsCommInterface*,"
+        << "simTimeStep=" << simTimeStep << ","
+        << "packetlost=" << packetLostPeriod << ","
+        << "initialTime=" << initialTime << ")" << endl;
+#endif
+    AbsCommManager *command=new GracePeriodCommManager(currentInterface);
+    AbsSyncAlgorithm *algo=new GracePeriodNetworkDelaySyncAlgo(command);
+    instance=new Integrator(command,algo,simTimeStep,packetLostPeriod);
+    instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
 }
 
 
