@@ -61,7 +61,14 @@ void initIntegratorSpeculative(enum time_metric simTimeStep,
    MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, false);
    Integrator::initIntegratorSpeculative(comm,SECONDS,packetLostPeriod,initialTime,specTime);			 
 }
- 
+
+void initIntegratorNetworkDelay(time_metric simTimeStep, TIME packetLostPeriod, TIME initialTime, TIME specTime)
+{
+  MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, false);
+  Integrator::initIntegratorNetworkDelaySupport(comm,SECONDS,initialTime,packetLostPeriod);
+}
+
+
 void finalizeRegistrations()
 {
   Integrator::finalizeRegistrations();

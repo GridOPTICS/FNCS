@@ -156,12 +156,14 @@ void Message::serializeHeader(uint8_t*& buffToReturn,uint32_t& buffSize) const {
     vector<uint8_t> buff;
     const uint8_t* timeptr=NULL;
     const uint8_t* sizeptr=NULL;
-
+    const uint8_t* netdelayptr=NULL;
+    
     /* attempt to guess how much space we'll need to serialize */
     buff.reserve(
             this->from.size() + 1 +
             this->to.size() + 1 +
             sizeof(this->timeStamp) + 1 +
+	    //sizeof(this->networkDeliverytime) + 1 +
             sizeof(this->size) + 1 +
             1 + 1);
 
@@ -187,9 +189,9 @@ void Message::serializeHeader(uint8_t*& buffToReturn,uint32_t& buffSize) const {
     buff.push_back(0);
     
      /* networkdeliveryTime */
-    timeptr=reinterpret_cast<const uint8_t*>(&this->networkDeliverytime);
+    netdelayptr=reinterpret_cast<const uint8_t*>(&this->networkDeliverytime);
     for(int i=0, limit=sizeof(this->networkDeliverytime); i<limit; i++) {
-        buff.push_back(timeptr[i]);
+        buff.push_back(netdelayptr[i]);
     }
     buff.push_back(0);
 
@@ -218,7 +220,8 @@ void Message::deserializeHeader(uint8_t *buff, uint32_t buffSize) {
     uint32_t it=0;
     uint8_t *timeptr=NULL;
     uint8_t *sizeptr=NULL;
-
+    uint8_t *networkptr=NULL;
+    
     /* from */
     for(; it<buffSize; it++) {
         if(buff[it]==0) {
@@ -258,9 +261,9 @@ void Message::deserializeHeader(uint8_t *buff, uint32_t buffSize) {
     ++it;
 
     /* networkDeliverytime */
-    timeptr=reinterpret_cast<uint8_t*>(&this->networkDeliverytime);
+    networkptr=reinterpret_cast<uint8_t*>(&this->networkDeliverytime);
     for(int i=0, limit=sizeof(this->networkDeliverytime); i<limit && it<buffSize; i++) {
-        timeptr[i]=buff[it++];
+        networkptr[i]=buff[it++];
     }
     if (it >= buffSize) {
         throw "TODO better exception for deserialize time";
@@ -294,6 +297,7 @@ Message::~Message() {
 #if DEBUG
     CERR << "Message::~Message()" << endl;
 #endif
+    delete[] data;
 }
 
 
