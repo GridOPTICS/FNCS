@@ -17,3 +17,4 @@ typedef uint64_t TIME;
 extern TIME Infinity;
 
 #endif
+

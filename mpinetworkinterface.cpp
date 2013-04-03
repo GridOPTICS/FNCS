@@ -386,6 +386,8 @@ void MpiNetworkInterface::finalizeRegistrations() {
 #endif
         }
     }
+
+    delete [] objectCounts;
 }
 
 

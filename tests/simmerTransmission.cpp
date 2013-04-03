@@ -1,3 +1,6 @@
+/* autoconf header */
+#include "config.h"
+
 #include <cassert>
 #include <cstdlib>
 #include <exception>

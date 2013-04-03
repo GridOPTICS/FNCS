@@ -47,7 +47,7 @@ int main(int argc, char **argv){
 
   deserialized=new Message(serbuff,size,data);
   cout << "Deserialized Message" << endl;
-  
+
   cout << "Comparing Messages... ";
   if (*original != *deserialized) {
       cout << "FAILED" << endl;
@@ -60,5 +60,10 @@ int main(int argc, char **argv){
   Integrator::stopIntegrator();
   cout << "Integrator stopped" << endl;
 
+  delete original;
+  delete deserialized;
+  delete [] serbuff;
+  delete cb;
+  
   return 0;
 }
