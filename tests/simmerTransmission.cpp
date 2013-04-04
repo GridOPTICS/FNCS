@@ -47,7 +47,7 @@ int main(int argc,char* argv[]){
   currentTime=0;
   MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, false);
   CallBack<TIME,empty,empty,empty>* cb=CreateCallback(getCurTime);
-  Integrator::initIntegratorGracePeriod(comm,MILLISECONDS,2000000000,0);
+  Integrator::initIntegratorNetworkDelaySupport(comm,MILLISECONDS,0,2000000000);
   Integrator::setTimeCallBack(cb);
   
   Integrator::finalizeRegistrations();
@@ -55,10 +55,10 @@ int main(int argc,char* argv[]){
   TIME grantedTime;
   do{
      //execute calculations that will solve all our problems
-     usleep(rand()%200);
+     usleep(rand()%20);
      //start the time sync
      grantedTime=Integrator::getNextTime(currentTime,currentTime+1);
-     assert(grantedTime==currentTime+1);
+     //assert(grantedTime==currentTime+1);
      currentTime=grantedTime;
   }while(!Integrator::isFinished());
 

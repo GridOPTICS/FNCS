@@ -37,25 +37,7 @@
 using namespace std;
 
 namespace sim_comm{
-  
-class SpecStateException: exception{
-  private:
-      string statemsg;
-  public:
-    virtual const char* what() const throw() {
-	stringstream ss;
-	ss << "Incorrect Speculation state:" << statemsg;
-	return ss.str().c_str();
-    }
-   SpecStateException(string statemsg){
-    
-      this->statemsg=statemsg;
-    }
-    
-  virtual ~SpecStateException() throw(){
-  }
-};
-
+ 
 class GracePeriodSpeculativeSyncAlgo : public AbsSyncAlgorithm
 {
   private:

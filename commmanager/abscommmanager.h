@@ -181,7 +181,7 @@ namespace sim_comm{
     
     virtual uint64_t reduceMinTime(uint64_t currentTime);
     
-    
+    virtual uint64_t reduceNetworkDelay();
     /**
      * Sets the callback for the sync algorithm.
      */
@@ -196,7 +196,8 @@ namespace sim_comm{
      * This value is always equal to infinity for network simulator.
      */
     TIME getMinNetworkDelay(){
-      return this->minNetworkDelay;
+      
+      return minNetworkDelay!=Infinity? this->minNetworkDelay : 0;
     }
     
   };

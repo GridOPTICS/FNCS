@@ -54,6 +54,23 @@ namespace sim_comm
       }
   };
   
+  class SyncStateException: exception{
+  private:
+      string statemsg;
+  public:
+    virtual const char* what() const throw() {
+	stringstream ss;
+	ss << "Incorrect Speculation state:" << statemsg;
+	return ss.str().c_str();
+    }
+   SyncStateException(string statemsg){
+    
+      this->statemsg=statemsg;
+    }
+    
+  virtual ~SyncStateException() throw(){
+  }
+};
   enum ALGOTYPE{
     ALGO_COMM_SIM = 0,
     ALGO_PESIMISTIC,

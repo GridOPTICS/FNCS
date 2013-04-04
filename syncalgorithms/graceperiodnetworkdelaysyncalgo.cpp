@@ -34,7 +34,8 @@ namespace sim_comm{
   
   GracePeriodNetworkDelaySyncAlgo::GracePeriodNetworkDelaySyncAlgo(AbsCommManager *interface) : AbsSyncAlgorithm(interface)
   {
-      this->threadopen;
+      this->threadopen=false;
+      
   }
 
   GracePeriodNetworkDelaySyncAlgo::~GracePeriodNetworkDelaySyncAlgo()
@@ -50,7 +51,9 @@ namespace sim_comm{
 	      CERR << "Waiting for busy wait thread!" << endl;
 	#endif
         TIME *retValue;
-	pthread_join(this->thread,(void**)&retValue);
+	int error=pthread_join(this->thread,(void**)&retValue);
+	if(error!=0)
+	    throw SyncStateException(string("Pthread join operation failed!"));
 	if(retValue==0)
 	  return 0;
 	threadopen=false;
@@ -60,7 +63,8 @@ namespace sim_comm{
       }
       
       TIME nextEstTime;
-
+      TIME minnetworkdelay;
+      uint64_t bwaitCount=0;
       if(nextTime < grantedTime)
 	return nextTime;
 
@@ -73,14 +77,19 @@ namespace sim_comm{
           uint8_t diff=interface->reduceTotalSendReceive();
           //network unstable, we need to wait!
           nextEstTime=currentTime+convertToFrameworkTime(Integrator::getCurSimMetric(),1); 
-          if(diff==0 && !needToRespond)
-          { //network stable grant next time
-              nextEstTime=nextTime;
-          }
-          else{
-	    needToRespond=true; //set this condition so that when the simulator wakes up from busy wait it responds to messages
-	  }
+	  minnetworkdelay=interface->reduceNetworkDelay();
+	    if(diff==0 && !needToRespond)
+	    { //network stable grant next time
+		nextEstTime=nextTime;
+		if(minnetworkdelay!=Infinity && nextEstTime < currentTime + minnetworkdelay)
+		  nextEstTime = currentTime + minnetworkdelay;
+	    }
+	    else{
+	      needToRespond=true; //set this condition so that when the simulator wakes up from busy wait it responds to messages
+	    }
 
+	 
+	  //this->maxBusyWaitTime=0;
           //Calculate next min time step
           TIME myminNextTime=nextEstTime;
           TIME minNextTime=(TIME)interface->reduceMinTime(myminNextTime);
@@ -99,18 +108,20 @@ namespace sim_comm{
 	  
           if(minNextTime < myminNextTime){
 
-	      if(!threadopen && myminNextTime-interface->getMinNetworkDelay()<minNextTime){
+	     /* if(!threadopen && myminNextTime-interface->getMinNetworkDelay()<minNextTime){
 		this->threadopen=true;
 		this->threadOpenTime=currentTime;
 		this->threadEndTime=myminNextTime;
+		
 #if DEBUG
 	      CERR << "Starting busy wait thread! my:" << myminNextTime << " others:" << minNextTime <<  endl;
 #endif
 		pthread_create(&this->thread,NULL,&GracePeriodNetworkDelaySyncAlgo::startThreadBusyWait,(void*)this);
 		busywait=false;
 	      }
-	      else
+	      else{*/
 		busywait=true;
+	      //}
 	  }
 
 
@@ -176,7 +187,7 @@ namespace sim_comm{
       }while(busywait);
      
       
-      this->grantedTime=nextEstTime;
+      //this->grantedTime=nextEstTime;
       return nextEstTime;
   }
 

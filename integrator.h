@@ -56,6 +56,24 @@ class AbsNetworkInterface;
 class AbsCommManager;
 class ObjectCommInterface;
 
+class FNCSException: exception{
+  private:
+      string statemsg;
+  public:
+    virtual const char* what() const throw() {
+	stringstream ss;
+	ss << "FNCS encountered error:" << statemsg;
+	return ss.str().c_str();
+    }
+   FNCSException(string statemsg){
+    
+      this->statemsg=statemsg;
+    }
+    
+  virtual ~FNCSException() throw(){
+  }
+};
+
 
 /**
  * Integrator is the main init point for the framework.

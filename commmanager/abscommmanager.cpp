@@ -165,6 +165,14 @@ namespace sim_comm{
   }
   
 
+  uint64_t AbsCommManager::reduceNetworkDelay()
+  {
+     #if DEBUG
+      CERR << "AbsCommManager::reduceTotalSendReceive()" << endl;
+    #endif
+      this->currentInterface->reduceMinTime(this->minNetworkDelay);
+  }
+
   uint64_t AbsCommManager::reduceTotalSendReceive()
   {
 

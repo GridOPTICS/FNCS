@@ -275,6 +275,7 @@ TIME Integrator::getNextTime(TIME currentTime, TIME nextTime) {
         << "currentTime=" << currentTime << ","
         << "nextTime=" << nextTime << ")" << endl;
 #endif
+    
     TIME curTimeInFramework=convertToFrameworkTime(
             instance->simTimeMetric,currentTime) - instance->offset;
     TIME nextframeTime = convertToFrameworkTime(

@@ -40,10 +40,11 @@ namespace sim_comm{
     private:
       pthread_t thread;
       bool threadopen;
+     
       TIME threadOpenTime;
       TIME threadEndTime;
       //pthread_mutex_t threadstatus;
-      
+      //TIME avgBusyWait;
       TIME nextTime;
       TIME threadBusyWait(TIME currentTime,TIME nextTime);
       static void* startThreadBusyWait(void *args);

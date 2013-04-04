@@ -14,7 +14,7 @@ extern "C"{
   void initIntegratorSpeculative(enum time_metric simTimeStep, 
 				TIME packetLostPeriod, TIME initialTime, TIME specTime);
   void initIntegratorNetworkDelay(enum time_metric simTimeStep, 
-				TIME packetLostPeriod, TIME initialTime, TIME specTime);
+				TIME packetLostPeriod, TIME initialTime);
   void setOffset(TIME initialTime);
   void finalizeRegistrations();
   void setregistercallback(TIME (*callback)());

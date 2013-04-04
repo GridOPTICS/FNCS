@@ -62,7 +62,7 @@ namespace sim_comm {
 		      this->currentState=Integrator::getCurSimTime();
 		      updated=false;
 		    }
-
+		    TIME minnetworkdelay=interface->reduceNetworkDelay();
 		    //We never wait for comm sim, instead we wait for oter sims
 		    TIME myminNextTime=Infinity;
 		    TIME minNextTime=(TIME)interface->reduceMinTime(myminNextTime);

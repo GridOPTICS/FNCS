@@ -43,7 +43,7 @@ namespace sim_comm{
 GracePeriodSpeculativeSyncAlgo::GracePeriodSpeculativeSyncAlgo(AbsCommManager *interface, TIME specDifference) : AbsSyncAlgorithm(interface){
   CommunicationComManager *given=dynamic_cast<CommunicationComManager*>(interface);
   if(given!=nullptr)
-      throw SpecStateException(string("Speculative threading cannot be used with communication simulator!"));
+      throw SyncStateException(string("Speculative threading cannot be used with communication simulator!"));
   this->isParent = true;
   this->hasParent = false;
   this->isChild = false;
@@ -117,7 +117,7 @@ void GracePeriodSpeculativeSyncAlgo::speculationSucceed()
   //let child nknow that it can speculative. 
   //after this call forkedSpeculativePRocees in the child will return false (so it can firther speculate).
   if(this->isChild)
-    throw SpecStateException("Child cannot signal!");
+    throw SyncStateException("Child cannot signal!");
   
   kill(this->pidChild,SIGUSR1);
 }
@@ -158,7 +158,7 @@ void GracePeriodSpeculativeSyncAlgo::sentMessage(Message* msg)
 void GracePeriodSpeculativeSyncAlgo::waitForChild()
 {
   if(this->isChild)
-    throw SpecStateException("Child cannot wait for child!");
+    throw SyncStateException("Child cannot wait for child!");
   
   int status;
   wait(&status);
@@ -167,7 +167,7 @@ void GracePeriodSpeculativeSyncAlgo::waitForChild()
 void GracePeriodSpeculativeSyncAlgo::waitForSpeculationSignal()
 {
   if(this->isParent)
-    throw SpecStateException("Parent cannot wait for speculation signal");
+    throw SyncStateException("Parent cannot wait for speculation signal");
   
   sigset_t usrsignal;
   sigemptyset(&usrsignal);
@@ -211,6 +211,7 @@ TIME   GracePeriodSpeculativeSyncAlgo::GetNextTime(TIME currentTime, TIME nextTi
           uint8_t diff=interface->reduceTotalSendReceive();
           //network unstable, we need to wait!
           nextEstTime=currentTime+convertToFrameworkTime(Integrator::getCurSimMetric(),1);
+	  TIME minnetworkdelay=interface->reduceNetworkDelay();
           if(diff==0)
           { //network stable grant next time
               nextEstTime=nextTime;

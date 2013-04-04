@@ -163,7 +163,7 @@ void Message::serializeHeader(uint8_t*& buffToReturn,uint32_t& buffSize) const {
             this->from.size() + 1 +
             this->to.size() + 1 +
             sizeof(this->timeStamp) + 1 +
-	    //sizeof(this->networkDeliverytime) + 1 +
+	    sizeof(this->networkDeliverytime) + 1 +
             sizeof(this->size) + 1 +
             1 + 1);
 
