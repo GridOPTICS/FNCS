@@ -192,6 +192,11 @@ namespace sim_comm{
     }
     
     /**
+     * Calls the barier function of the network interface to pause the execution.
+     */
+    virtual void waitforAll();
+    
+    /**
      * Returns the min network delay.
      * This value is always equal to infinity for network simulator.
      */

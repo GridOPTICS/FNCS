@@ -253,6 +253,9 @@ TIME   GracePeriodSpeculativeSyncAlgo::GetNextTime(TIME currentTime, TIME nextTi
 	      if(this->isExecutingChild())
 		return nextTime; //let speculation continue
 	    }
+	      //update the value of the currentTime
+	      currentTime = convertToMyTime(Integrator::getCurSimMetric(),minNextTime);
+	      currentTime = convertToFrameworkTime(Integrator::getCurSimMetric(),currentTime);
             /*if(minNextTime+Integrator::getGracePeriod()<myminNextTime) //we have to busy wait until other sims come to this time
                   busywait=true;
             else //TODO this will cause gld to re-iterate*/

@@ -178,7 +178,10 @@ public:
         return !this->registrationsAreFinalized;
     }
     
-    
+    /**
+     * Barier function.
+     */
+    virtual void barier() =0;
 };
 
 } /* end namespace sim_comm */

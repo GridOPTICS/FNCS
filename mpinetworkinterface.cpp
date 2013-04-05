@@ -132,6 +132,16 @@ MpiNetworkInterface::~MpiNetworkInterface() {
     assert(MPI_SUCCESS == ierr);
 }
 
+void MpiNetworkInterface::barier()
+{
+   int ierr;
+  
+   ierr = MPI_Barrier(comm);
+   assert(MPI_SUCCESS == ierr);
+   makeProgress(); //clean the mpi buffer
+}
+
+
 
 void MpiNetworkInterface::send(Message *message) {
 #if DEBUG

@@ -114,6 +114,9 @@ public:
 
     /** @copydoc AbsNetworkInterface::finalizeRegistrations() */
     virtual void finalizeRegistrations();
+    
+    /** @copydoc AbsNetworkInterface::barier()*/
+    virtual void barier();
 };
 
 }

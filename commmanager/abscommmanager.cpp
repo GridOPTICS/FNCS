@@ -63,6 +63,15 @@ namespace sim_comm{
     this->interfaces.clear();
     delete this->currentInterface;
   }
+  
+  void AbsCommManager::waitforAll()
+  {
+  #if DEBUG
+    CERR << "AbsCommManager::waitforAll()" << endl;
+  #endif
+    this->currentInterface->barier();
+  }
+
 
   void AbsCommManager::messageReceived(Message *message)
   {

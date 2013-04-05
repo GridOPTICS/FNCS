@@ -107,7 +107,9 @@ namespace sim_comm{
 	  }
 	  
           if(minNextTime < myminNextTime){
-
+	      //update the current Time!
+	      currentTime = convertToMyTime(Integrator::getCurSimMetric(),minNextTime);
+	      currentTime = convertToFrameworkTime(Integrator::getCurSimMetric(),currentTime);
 	     /* if(!threadopen && myminNextTime-interface->getMinNetworkDelay()<minNextTime){
 		this->threadopen=true;
 		this->threadOpenTime=currentTime;

@@ -107,6 +107,11 @@ namespace sim_comm
 	
 	  return this->algotype;
 	}
+	
+	/**
+	 * Called when the simulator is starting a time step!
+	 */
+	virtual void timeStepStart(TIME currentTime);
   };
   
 }

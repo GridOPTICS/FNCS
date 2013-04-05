@@ -45,6 +45,12 @@ void finalizeMPI(){
   
 }
 
+void timeStepStart(TIME currentTime)
+{
+  Integrator::timeStepStart(currentTime);
+}
+
+
 uint8_t isFinished()
 {
   return (uint8_t)Integrator::isFinished();

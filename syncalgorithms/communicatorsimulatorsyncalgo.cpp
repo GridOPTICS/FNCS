@@ -27,8 +27,7 @@ namespace sim_comm {
 	CommunicatorSimulatorSyncalgo::~CommunicatorSimulatorSyncalgo() {
 		
 	}
-	
-	
+
 	//TODO: packet loss needs a counter!
 	TIME CommunicatorSimulatorSyncalgo::GetNextTime(TIME currentTime,TIME nextTime){
 	  	

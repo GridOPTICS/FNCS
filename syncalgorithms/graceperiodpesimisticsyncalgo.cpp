@@ -60,7 +60,8 @@ namespace sim_comm
       bool busywait=false;
       bool needToRespond=false;
       //send all messages
-
+      
+      //nextEstTime=currentTime;
       do
       {
           uint8_t diff=interface->reduceTotalSendReceive();
@@ -92,7 +93,8 @@ namespace sim_comm
 	  }
 	  
           if(minNextTime < myminNextTime){
-
+		currentTime = convertToMyTime(Integrator::getCurSimMetric(),minNextTime);
+		currentTime = convertToFrameworkTime(Integrator::getCurSimMetric(),currentTime);
              /* if(minNextTime+Integrator::getGracePeriod()<myminNextTime) //we have to busy wait until other sims come to this time
                   busywait=true;
               else //TODO this will cause gld to re-iterate*/

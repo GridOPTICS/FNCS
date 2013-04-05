@@ -194,6 +194,22 @@ void Integrator::setTimeCallBack(CallBack<TIME,empty,empty,empty>* t) {
 }
 
 
+void Integrator::grantTimeCompleted(TIME currentTime)
+{
+#if DEBUG
+    CERR << "Integrator::grantTimeCompleted(" << currentTime << ")" << endl;
+#endif
+    instance->syncAlgo->timeStepStart(currentTime);
+}
+
+void Integrator::timeStepStart(TIME currentTime)
+{
+#if DEBUG
+    CERR << "Integrator::timeStepStart(" << currentTime << ")" << endl;
+#endif
+    instance->syncAlgo->timeStepStart(currentTime);
+}
+
 
 
 

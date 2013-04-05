@@ -123,6 +123,20 @@ public:
      * TODO
      */
     static bool doDispatchNextEvent(TIME currentTime, TIME nextTime);
+    
+    /**
+     * Should be called by a power simulator when it starts a new iteration.
+     */
+    static void timeStepStart(TIME currentTime);
+    
+    /**
+     * Should be called by a network simulator when it 
+     * finishes processing all events less than granted
+     * time.
+     * This method is the same as timeStepStart(), the different
+     * name is a synctactic sugar.
+     */
+    static void grantTimeCompleted(TIME currentTime);
 
     /**
      * Registers an object for communication.

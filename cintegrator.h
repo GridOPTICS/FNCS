@@ -23,6 +23,7 @@ extern "C"{
   uint8_t isFinished();
   void InitMPI(int *arc,char ***argv);
   void finalizeMPI();
+  void timeStepStart(TIME currenTime);
 
 #ifdef __cplusplus
 }

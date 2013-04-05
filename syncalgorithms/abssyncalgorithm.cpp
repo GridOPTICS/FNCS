@@ -49,6 +49,15 @@ namespace sim_comm
   {
     return this->finished;
   }
+  
+  void AbsSyncAlgorithm::timeStepStart(TIME currentTime)
+  {
+      if(currentTime < grantedTime)
+	return;
+      
+      this->interface->waitforAll();
+  }
+
 
 }
 
