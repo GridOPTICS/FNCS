@@ -199,7 +199,9 @@ void Integrator::grantTimeCompleted(TIME currentTime)
 #if DEBUG
     CERR << "Integrator::grantTimeCompleted(" << currentTime << ")" << endl;
 #endif
-    instance->syncAlgo->timeStepStart(currentTime);
+   TIME curTimeInFramework=convertToFrameworkTime(
+            instance->simTimeMetric,currentTime) - instance->offset;
+    instance->syncAlgo->timeStepStart(curTimeInFramework);
 }
 
 void Integrator::timeStepStart(TIME currentTime)
@@ -207,7 +209,9 @@ void Integrator::timeStepStart(TIME currentTime)
 #if DEBUG
     CERR << "Integrator::timeStepStart(" << currentTime << ")" << endl;
 #endif
-    instance->syncAlgo->timeStepStart(currentTime);
+     TIME curTimeInFramework=convertToFrameworkTime(
+            instance->simTimeMetric,currentTime) - instance->offset;
+    instance->syncAlgo->timeStepStart(curTimeInFramework);
 }
 
 
