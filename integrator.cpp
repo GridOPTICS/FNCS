@@ -307,8 +307,6 @@ TIME Integrator::getNextTime(TIME currentTime, TIME nextTime) {
         << "nextTime=" << nextframeTime << ")" << endl;
 #endif
     TIME toReturn=instance->syncAlgo->GetNextTime(curTimeInFramework,nextframeTime);
-    if(toReturn==nextframeTime) //we are granted upto (but not equal to) our next time, so we must sync again
-      toReturn=instance->syncAlgo->GetNextTime(curTimeInFramework,nextframeTime);
     return convertToMyTime(instance->simTimeMetric,toReturn+instance->offset);
 }
 
