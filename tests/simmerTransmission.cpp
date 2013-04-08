@@ -47,8 +47,9 @@ int main(int argc,char* argv[]){
   currentTime=2000000000;
   MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, false);
   CallBack<TIME,empty,empty,empty>* cb=CreateCallback(getCurTime);
-  //Integrator::initIntegratorGracePeriod (comm,MILLISECONDS,2000000000,0);
-  Integrator::initIntegratorNetworkDelaySupport(comm,MILLISECONDS,2000000000,0);
+  //Integrator::initIntegratorGracePeriod(comm,MILLISECONDS,2300000000,currentTime);
+  Integrator::initIntegratorNetworkDelaySupport(comm,MILLISECONDS,2300000000,currentTime);
+  //Integrator::initIntegratorNetworkDelaySupport(comm,MILLISECONDS,2000000000,0);
   Integrator::setTimeCallBack(cb);
   
   Integrator::finalizeRegistrations();
