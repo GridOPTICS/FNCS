@@ -110,8 +110,10 @@ TIME Integrator::getPacketLostPeriod()
 void Integrator::initIntegratorNetworkDelaySupport(
   AbsNetworkInterface* currentInterface, 
   time_metric simTimeStep, 
-  TIME initialTime, TIME packetLostPeriod)
+  TIME packetLostPeriod, 
+  TIME initialTime)
 {
+
 #if DEBUG
     CERR << "Integrator::initIntegratorNetworkDelaySupport("
         << "AbsCommInterface*,"
@@ -127,10 +129,12 @@ void Integrator::initIntegratorNetworkDelaySupport(
 
 
 void Integrator::initIntegratorGracePeriod(
-        AbsNetworkInterface *currentInterface,
-        time_metric simTimeStep,
-	TIME packetLostPeriod,
-        TIME initialTime) {
+  AbsNetworkInterface* currentInterface,
+  time_metric simTimeStep, 
+  TIME packetLostPeriod, 
+  TIME initialTime)
+{
+
 #if DEBUG
     CERR << "Integrator::initIntegratorGracePeriod("
         << "AbsCommInterface*,"
@@ -167,8 +171,9 @@ void Integrator::initIntegratorSpeculative(
 void Integrator::initIntegratorCommunicationSim(
         AbsNetworkInterface *currentInterface,
         time_metric simTimeStep,
-        TIME initialTime,
-	TIME packetLostPeriod) {
+	TIME packetLostPeriod,
+	TIME initialTime)
+{
 #if DEBUG
     CERR << "Integrator::initIntegratorCommunicationSim("
         << "AbsCommInterface*,"

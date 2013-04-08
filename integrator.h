@@ -187,20 +187,23 @@ public:
      */
     static void initIntegratorGracePeriod(AbsNetworkInterface *currentInterface, 
 					  time_metric simTimeStep, 
-					  TIME packetLostPeriod, TIME initialTime);
+					  TIME packetLostPeriod,
+					  TIME initialTime);
     /**
      * Initializes the integrator for the communication simulator
      */
     static void initIntegratorCommunicationSim(AbsNetworkInterface *currentInterface, 
 					time_metric simTimeStep, 
-					TIME initialTime, TIME packetLostPeriod);
+					TIME packetLostPeriod,
+					TIME initialTime);
     
     /**
      * Initializes the integrator with network delay support
      */
     static void initIntegratorNetworkDelaySupport(AbsNetworkInterface *currentInterface, 
 					time_metric simTimeStep, 
-					TIME initialTime, TIME packetLostPeriod);    
+					TIME packetLostPeriod,
+					TIME initialTime);    
 
     /**
      * Initializes the integrator with speculative threading support

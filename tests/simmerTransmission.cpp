@@ -44,9 +44,10 @@ int main(int argc,char* argv[]){
   ierr = MPI_Comm_size(MPI_COMM_WORLD, &comm_size);
   assert(MPI_SUCCESS == ierr);
     
-  currentTime=0;
+  currentTime=2000000000;
   MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, false);
   CallBack<TIME,empty,empty,empty>* cb=CreateCallback(getCurTime);
+  //Integrator::initIntegratorGracePeriod (comm,MILLISECONDS,0,2000000000);
   Integrator::initIntegratorNetworkDelaySupport(comm,MILLISECONDS,0,2000000000);
   Integrator::setTimeCallBack(cb);
   
