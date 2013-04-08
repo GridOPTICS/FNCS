@@ -64,6 +64,8 @@ namespace sim_comm
       //nextEstTime=currentTime;
       do
       {
+	  if(busywait)
+	    this->interface->waitforAll();
           uint8_t diff=interface->reduceTotalSendReceive();
           //network unstable, we need to wait!
           nextEstTime=currentTime+convertToFrameworkTime(Integrator::getCurSimMetric(),1); 

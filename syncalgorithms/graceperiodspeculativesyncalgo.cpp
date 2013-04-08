@@ -208,6 +208,8 @@ TIME   GracePeriodSpeculativeSyncAlgo::GetNextTime(TIME currentTime, TIME nextTi
 
       do
       {
+	  if(busywait)//when busywaiting we need to first hit barier.
+	    this->interface->waitforAll();
           uint8_t diff=interface->reduceTotalSendReceive();
           //network unstable, we need to wait!
           nextEstTime=currentTime+convertToFrameworkTime(Integrator::getCurSimMetric(),1);

@@ -35,6 +35,7 @@ namespace sim_comm{
   GracePeriodNetworkDelaySyncAlgo::GracePeriodNetworkDelaySyncAlgo(AbsCommManager *interface) : AbsSyncAlgorithm(interface)
   {
       this->threadopen=false;
+      //this->busywaiting=false;
       
   }
 
@@ -74,6 +75,8 @@ namespace sim_comm{
 
       do
       {
+	  if(busywait)
+	    this->interface->waitforAll();
           uint8_t diff=interface->reduceTotalSendReceive();
           //network unstable, we need to wait!
           nextEstTime=currentTime+convertToFrameworkTime(Integrator::getCurSimMetric(),1); 

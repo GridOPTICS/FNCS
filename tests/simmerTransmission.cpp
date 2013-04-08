@@ -54,12 +54,13 @@ int main(int argc,char* argv[]){
   
   TIME grantedTime;
   do{
+    Integrator::timeStepStart(currentTime);
      //execute calculations that will solve all our problems
      usleep(rand()%20);
      //start the time sync
      grantedTime=Integrator::getNextTime(currentTime,currentTime+1);
      //assert(grantedTime==currentTime+1);
-     currentTime=grantedTime;
+     currentTime=currentTime+1;
   }while(!Integrator::isFinished());
 
   return 0;

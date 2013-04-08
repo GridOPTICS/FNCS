@@ -48,6 +48,8 @@ namespace sim_comm{
       TIME nextTime;
       TIME threadBusyWait(TIME currentTime,TIME nextTime);
       static void* startThreadBusyWait(void *args);
+      //bool busywaiting;
+      
     public:
       GracePeriodNetworkDelaySyncAlgo(AbsCommManager *interface);
       virtual bool doDispatchNextEvent(TIME currentTime, TIME nextTime);
