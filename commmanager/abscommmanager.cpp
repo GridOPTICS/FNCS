@@ -179,7 +179,7 @@ namespace sim_comm{
      #if DEBUG
       CERR << "AbsCommManager::reduceTotalSendReceive()" << endl;
     #endif
-      this->currentInterface->reduceMinTime(this->minNetworkDelay);
+      return this->currentInterface->reduceMinTime(this->minNetworkDelay);
   }
 
   uint64_t AbsCommManager::reduceTotalSendReceive()
@@ -188,7 +188,7 @@ namespace sim_comm{
     #if DEBUG
       CERR << "AbsCommManager::reduceTotalSendReceive()" << endl;
     #endif
-      this->currentInterface->reduceTotalSendReceive(this->sendCount,this->receiveCount);
+      return this->currentInterface->reduceTotalSendReceive(this->sendCount,this->receiveCount);
   }
   
   
@@ -198,7 +198,7 @@ namespace sim_comm{
       CERR << "AbsCommManager::reduceMinTime("
 	  << currentTime << ")" << endl;
   #endif
-      this->currentInterface->reduceMinTime(currentTime);
+      return this->currentInterface->reduceMinTime(currentTime);
   }
 
 
