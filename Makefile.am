@@ -1,6 +1,7 @@
 ACLOCAL_AMFLAGS = -I m4
 
 include_HEADERS =
+noinst_HEADERS = 
 lib_LTLIBRARIES =
 bin_PROGRAMS =
 check_PROGRAMS =
@@ -39,6 +40,8 @@ include_HEADERS	+= syncalgorithms/graceperiodnetworkdelaysyncalgo.h
 include_HEADERS += util/callback.h
 include_HEADERS += util/simtime.h
 include_HEADERS += util/csimtime.h
+
+noinst_HEADERS += tests/echo.h
 
 AM_CPPFLAGS += -I$(top_srcdir)/commmanager
 AM_CPPFLAGS += -I$(top_srcdir)/syncalgorithms
