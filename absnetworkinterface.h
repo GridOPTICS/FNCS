@@ -182,6 +182,12 @@ public:
      * Barier function.
      */
     virtual void barier() =0;
+    
+    /**
+     * Duplicates the current interfce, creates a new interface that
+     * has the same connections as the previous.
+     */
+    virtual AbsNetworkInterface* duplicateInterface() =0;
 };
 
 } /* end namespace sim_comm */

@@ -89,6 +89,8 @@ protected:
 public:
     MpiNetworkInterface(MPI_Comm comm, bool iAmNetSim);
 
+    MpiNetworkInterface(MpiNetworkInterface &toCopy);
+    
     virtual ~MpiNetworkInterface();
 
     /** @copydoc AbsNetworkInterface::send(Message*) */
@@ -117,6 +119,9 @@ public:
     
     /** @copydoc AbsNetworkInterface::barier()*/
     virtual void barier();
+    
+    /** @copydoc AbsNetworkInterface::duplicateInterface()*/
+    virtual AbsNetworkInterface* duplicateInterface();
 };
 
 }

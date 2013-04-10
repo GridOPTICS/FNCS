@@ -121,6 +121,25 @@ MpiNetworkInterface::MpiNetworkInterface(MPI_Comm comm_, bool iAmNetSim)
 #endif
 }
 
+MpiNetworkInterface::MpiNetworkInterface(MpiNetworkInterface& toCopy)
+{
+  this->commRank=toCopy.commRank;
+  MPI_Comm_dup(toCopy.comm,&this->commRank);
+  this->commSize=toCopy.commSize;
+  this->netSimRank=toCopy.netSimRank;
+  this->globalObjectCount=toCopy.globalObjectCount;
+  this->iAmNetSim=toCopy.iAmNetSim;
+  this->localObjectCount=toCopy.localObjectCount;
+  this->netObject=toCopy.netObject;
+  this->netSimRank=toCopy.netSimRank;
+  this->objectRank=toCopy.objectRank;
+  this->receivedMessages=toCopy.receivedMessages;
+  this->sentMessages=toCopy.sentMessages;
+  this->messageCallBack=toCopy.messageCallBack;
+  this->myObjects=toCopy.myObjects;
+  this->registrationsAreFinalized=toCopy.registrationsAreFinalized;
+}
+
 
 MpiNetworkInterface::~MpiNetworkInterface() {
 #if DEBUG
@@ -400,6 +419,14 @@ void MpiNetworkInterface::finalizeRegistrations() {
     delete [] objectCounts;
 }
 
+AbsNetworkInterface* MpiNetworkInterface::duplicateInterface()
+{
+  MpiNetworkInterface *toReturn=new MpiNetworkInterface(*this);
+  
+  return toReturn;
+}
+
+
 
 void MpiNetworkInterface::makeProgress() {
 #if DEBUG
@@ -485,5 +512,7 @@ void MpiNetworkInterface::makeProgress() {
            
         }
     }
+    
+    
 }
 

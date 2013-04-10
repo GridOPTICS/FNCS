@@ -40,9 +40,9 @@ namespace sim_comm{
  
 class GracePeriodSpeculativeSyncAlgo : public AbsSyncAlgorithm
 {
-  private:
-    TIME specTime;
+  protected:
     TIME specDifference;
+    TIME specTime;
     bool isParent;
     bool hasParent;
     bool isChild;
@@ -63,6 +63,7 @@ class GracePeriodSpeculativeSyncAlgo : public AbsSyncAlgorithm
     virtual ~GracePeriodSpeculativeSyncAlgo();
     virtual TIME GetNextTime(TIME currentTime, TIME nextTime);
     virtual bool doDispatchNextEvent(TIME currentTime, TIME nextTime);
+    virtual void timeStepStart(TIME currentTime);
 };
 
 }

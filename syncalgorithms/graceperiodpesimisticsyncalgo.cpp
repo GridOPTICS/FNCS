@@ -43,6 +43,7 @@ namespace sim_comm
 
   }
 
+ 
   bool  GracePeriodSyncAlgo::doDispatchNextEvent(TIME currentTime, TIME nextTime)
   {
     TIME syncedTime=this->GetNextTime(currentTime,nextTime);
@@ -66,7 +67,7 @@ namespace sim_comm
       {
 	  if(busywait)
 	    this->interface->waitforAll();
-          uint8_t diff=interface->reduceTotalSendReceive();
+          uint64_t diff=interface->reduceTotalSendReceive();
           //network unstable, we need to wait!
           nextEstTime=currentTime+convertToFrameworkTime(Integrator::getCurSimMetric(),1); 
 	  TIME minnetworkdelay=interface->reduceNetworkDelay();

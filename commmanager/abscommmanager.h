@@ -205,6 +205,13 @@ namespace sim_comm{
       return minNetworkDelay!=Infinity? this->minNetworkDelay : 0;
     }
     
+    /**
+     * Calls the network interface duplicate function
+     * to create a new network communication layer.
+     */
+    void createLayer(){
+      this->currentInterface=this->currentInterface->duplicateInterface();
+    }
   };
 
 }

@@ -90,11 +90,14 @@ void GracePeriodSpeculativeSyncAlgo::createSpeculativeProcess()
         /* I am a child */
         this->isChild = true;
         this->hasParent = true;
+	this->isParent=false;
+	
     }
     else {
         /* I am a parent */
         this->isParent = true;
         this->hasChild = true;
+	this->isParent=false;
     }
 }
 
@@ -196,6 +199,19 @@ bool GracePeriodSpeculativeSyncAlgo::doDispatchNextEvent(TIME currentTime, TIME 
     return syncedTime==nextTime;
 }
 
+void GracePeriodSpeculativeSyncAlgo::timeStepStart(TIME currentTime)
+{
+  if(currentTime < grantedTime)
+    return;
+  
+  if(this->isChild)
+    return;
+  else{
+    this->interface->waitforAll();
+  }
+}
+
+
 TIME   GracePeriodSpeculativeSyncAlgo::GetNextTime(TIME currentTime, TIME nextTime)
   {
       TIME nextEstTime;
@@ -209,28 +225,26 @@ TIME   GracePeriodSpeculativeSyncAlgo::GetNextTime(TIME currentTime, TIME nextTi
 
       do
       {
+	if(!this->isExecutingChild() && this->forkedSpeculativeProcess() && currentTime==this->specTime){
+	    //speculation worked!!!!
+	    this->speculationSucceed();
+	    this->waitForChild();
+	  }
+	  
+	  if(this->isExecutingChild() && currentTime<=this->specTime){
+	    this->waitForSpeculationSignal();
+	  }
+	  
 	  if(busywait)//when busywaiting we need to first hit barier.
 	    this->interface->waitforAll();
-          uint8_t diff=interface->reduceTotalSendReceive();
+          uint64_t diff=interface->reduceTotalSendReceive();
           //network unstable, we need to wait!
           nextEstTime=currentTime+convertToFrameworkTime(Integrator::getCurSimMetric(),1);
 	  TIME minnetworkdelay=interface->reduceNetworkDelay();
           if(diff==0)
           { //network stable grant next time
               nextEstTime=nextTime;
-          }
-     
-      
-      
-	  if(!this->isExecutingChild() && this->forkedSpeculativeProcess() && currentTime==this->specTime){
-	    //speculation worked!!!!
-	    this->speculationSucceed();
-	    this->waitForChild();
-	  }
-	  
-	  if(this->isExecutingChild() && currentTime!=this->specTime){
-	    this->waitForSpeculationSignal();
-	  }
+          }  
 
           //Calculate next min time step
           TIME myminNextTime=nextEstTime;

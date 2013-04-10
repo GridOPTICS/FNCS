@@ -35,7 +35,7 @@ namespace sim_comm {
 		     return grantedTime;
 		    
 
-		    uint8_t diff=interface->reduceTotalSendReceive();
+		    uint64_t diff=interface->reduceTotalSendReceive();
 		    //assume network stable
 		   
 		    if(diff>0)
