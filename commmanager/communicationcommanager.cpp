@@ -69,6 +69,11 @@ namespace sim_comm{
 	      for(int i=0; i<outmessges.size(); i++) {
 		  try {
 		      outmessges[i]->setDeliveryTime(Integrator::getCurSimTime());
+		      if(this->syncAlgoCallBackSend){
+			 bool val=(*(this->syncAlgoCallBackSend))(outmessges[i]);
+			 if(!val) //syncalgo signaled ignore!
+			   continue;
+		      }
 		      if (outmessges[i]->isBroadCast()) {
 			  int scount = this->currentInterface->broadcast(outmessges[i]);
 			    // sendCount +=scount;

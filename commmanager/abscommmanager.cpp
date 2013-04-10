@@ -105,7 +105,9 @@ namespace sim_comm{
     comm->newMessage(message);
     
      if(this->syncAlgoCallBackRecv){
-	  (*(this->syncAlgoCallBackRecv))(message);
+	 bool val=(*(this->syncAlgoCallBackRecv))(message);
+	 if(!val) //syncalgo signaled ignore message!
+	   return;
      }
      this->adjustNetworkDelay(message->getDeliveryPeriod());
   }

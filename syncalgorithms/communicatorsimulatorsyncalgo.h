@@ -12,6 +12,7 @@
 
 namespace sim_comm {
 
+ 
 	class CommSyncAlgoException: exception{
 	
 	  public:
@@ -21,6 +22,10 @@ namespace sim_comm {
 	    
 	};
 	
+	/**
+	 *Conservative sync algorithm for comminucator simulator
+	 *(or any discrete event simulator).
+	 */ 
 	class CommunicatorSimulatorSyncalgo: public sim_comm::AbsSyncAlgorithm {
 		private:
 			TIME currentState;
@@ -28,7 +33,9 @@ namespace sim_comm {
 		public:
 			CommunicatorSimulatorSyncalgo(AbsCommManager* currentInterface);
 			virtual ~CommunicatorSimulatorSyncalgo();
+			/** @copydoc AbsSyncAlgorithm::GetNextTime(TIME currentTime, TIME nextTime) */
 			virtual TIME GetNextTime(TIME currentTime,TIME nextTime);
+			/** @copydoc AbsSyncAlgorithm::doDispatchNextEvent(TIME currentTime, TIME nextTime) */
 			virtual bool doDispatchNextEvent(TIME currentTime,TIME nextTime);
 			
 	};

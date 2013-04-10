@@ -35,13 +35,18 @@
 
 namespace sim_comm{
 
+    /**
+     * Conservative sync algo for power simulators (or tick based sims).
+     */
     class GracePeriodSyncAlgo : public AbsSyncAlgorithm
     {
 
       public:
 	    GracePeriodSyncAlgo(AbsCommManager *interface);
 	    virtual ~ GracePeriodSyncAlgo();
+	    /** @copydoc AbsSyncAlgorithm::doDispatchNextEvent(TIME currentTime, TIME nextTime) */
 	    virtual bool doDispatchNextEvent(TIME currentTime, TIME nextTime);
+	    /** @copydoc AbsSyncAlgorithm::doDispatchNextEvent(TIME currentTime, TIME nextTime) */
 	    virtual TIME GetNextTime(TIME currentTime, TIME nextTime);
     };
 

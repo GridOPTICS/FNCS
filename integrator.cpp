@@ -36,6 +36,8 @@
 #include "communicationcommanager.h"
 #include "syncalgorithms/graceperiodspeculativesyncalgo.h"
 #include <graceperiodnetworkdelaysyncalgo.h>
+#include "optimisticcommsyncalgo.h"
+#include "optimisticticksyncalgo.h"
 
 #if DEBUG && DEBUG_TO_FILE
 ofstream ferr;
@@ -159,7 +161,7 @@ void Integrator::initIntegratorSpeculative(
         << "AbsCommInterface*,"
         << "simTimeStep=" << simTimeStep << ","
         << "packetlost=" << packetLostPeriod << ","
-        << "initialTime=" << initialTime << ")" << endl;
+        << "initialTime=" << specDifference << ")" << endl;
 #endif
     AbsCommManager *command=new GracePeriodCommManager(currentInterface);
     TIME specDifferentFramework=convertToFrameworkTime(simTimeStep,specDifference);
@@ -167,6 +169,48 @@ void Integrator::initIntegratorSpeculative(
     instance=new Integrator(command,algo,simTimeStep,packetLostPeriod);
     instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
 }
+
+void Integrator::initIntegratorOptimistic(
+	AbsNetworkInterface* currentInterface,
+	time_metric simTimeStep,
+	TIME packetLostPeriod,
+	TIME initialTime, 
+	TIME specDifference){
+#if DEBUG
+    CERR << "Integrator::initIntegratorOptimistic("
+        << "AbsCommInterface*,"
+        << "simTimeStep=" << simTimeStep << ","
+        << "packetlost=" << packetLostPeriod << ","
+        << "initialTime=" << specDifference << ")" << endl;
+#endif
+    AbsCommManager *command=new GracePeriodCommManager(currentInterface);
+    TIME specDifferentFramework=convertToFrameworkTime(simTimeStep,specDifference);
+    AbsSyncAlgorithm *algo=new OptimisticTickSyncAlgo(command,specDifferentFramework);
+    instance=new Integrator(command,algo,simTimeStep,packetLostPeriod);
+    instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
+}
+
+void Integrator::initIntegratorOptimisticComm(
+	    AbsNetworkInterface* currentInterface, 
+	    time_metric simTimeStep, 
+	    TIME packetLostPeriod, 
+	    TIME initialTime, 
+	    TIME specDifference)
+{
+#if DEBUG
+    CERR << "Integrator::initIntegratorOptimisticComm("
+        << "AbsCommInterface*,"
+        << "simTimeStep=" << simTimeStep << ","
+        << "packetlost=" << packetLostPeriod << ","
+        << "initialTime=" << specDifference << ")" << endl;
+#endif
+    AbsCommManager *command=new GracePeriodCommManager(currentInterface);
+    TIME specDifferentFramework=convertToFrameworkTime(simTimeStep,specDifference);
+    AbsSyncAlgorithm *algo=new OptimisticCommSyncAlgo(command,specDifferentFramework);
+    instance=new Integrator(command,algo,simTimeStep,packetLostPeriod);
+    instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
+}
+
 
 void Integrator::initIntegratorCommunicationSim(
         AbsNetworkInterface *currentInterface,

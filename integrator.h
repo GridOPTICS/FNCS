@@ -216,6 +216,26 @@ public:
 	TIME specDifference);
     
     /**
+     * Initializes the integrator with optimistic sync algorithm
+     */
+    static void initIntegratorOptimistic(
+        AbsNetworkInterface *currentInterface,
+        time_metric simTimeStep,
+	TIME packetLostPeriod,
+        TIME initialTime,
+	TIME specDifference);
+    
+    /**
+     * Initializes the integrator with optimistic sync algorithm for comm simm
+     */
+    static void initIntegratorOptimisticComm(
+        AbsNetworkInterface *currentInterface,
+        time_metric simTimeStep,
+	TIME packetLostPeriod,
+        TIME initialTime,
+	TIME specDifference);
+    
+    /**
      * sets simulator callback that returns time
      */
     static void setTimeCallBack(CallBack<TIME,empty,empty,empty> *t);
