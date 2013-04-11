@@ -42,9 +42,6 @@
 namespace sim_comm{
   
 GracePeriodSpeculativeSyncAlgo::GracePeriodSpeculativeSyncAlgo(AbsCommManager *interface, TIME specDifference) : AbsSyncAlgorithm(interface){
-  CommunicationComManager *given=dynamic_cast<CommunicationComManager*>(interface);
-  if(given!=nullptr)
-      throw SyncStateException(string("Speculative threading cannot be used with communication simulator!"));
   this->isParent = true;
   this->hasParent = false;
   this->isChild = false;
@@ -167,6 +164,24 @@ void GracePeriodSpeculativeSyncAlgo::waitForChild()
   int status;
   wait(&status);
 }
+
+void GracePeriodSpeculativeSyncAlgo::block()
+{
+  sigset_t usrsignal;
+  sigemptyset(&usrsignal);
+  sigaddset(&usrsignal,SIGUSR2);
+  
+  int sigval=sigsuspend(&usrsignal);
+  
+  assert(sigval==0);
+}
+
+void GracePeriodSpeculativeSyncAlgo::notify(pid_t pid)
+{
+  kill(pid,SIGUSR2);
+}
+
+
 
 void GracePeriodSpeculativeSyncAlgo::waitForSpeculationSignal()
 {

@@ -124,7 +124,7 @@ MpiNetworkInterface::MpiNetworkInterface(MPI_Comm comm_, bool iAmNetSim)
 MpiNetworkInterface::MpiNetworkInterface(MpiNetworkInterface& toCopy)
 {
   this->commRank=toCopy.commRank;
-  MPI_Comm_dup(toCopy.comm,&this->commRank);
+  MPI_Comm_dup(toCopy.comm,&this->comm);
   this->commSize=toCopy.commSize;
   this->netSimRank=toCopy.netSimRank;
   this->globalObjectCount=toCopy.globalObjectCount;

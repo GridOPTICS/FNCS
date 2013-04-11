@@ -26,56 +26,28 @@
 */
 
 
-#ifndef GRACEPERIODSPECULATIVESYNCALGO_H
-#define GRACEPERIODSPECULATIVESYNCALGO_H
+#ifndef OPTIMISTICCOMMSYNCALGO_H
+#define OPTIMISTICCOMMSYNCALGO_H
 
-#include "abssyncalgorithm.h"
-#include "abscommmanager.h"
-#include "message.h"
-#include "callback.h"
-
-using namespace std;
+#include "graceperiodspeculativesyncalgo.h"
+#include "optimisticticksyncalgo.h"
 
 namespace sim_comm{
- 
-class GracePeriodSpeculativeSyncAlgo : public AbsSyncAlgorithm
-{
-  protected:
-    TIME specDifference;
-    TIME specTime;
-    bool isParent;
-    bool hasParent;
-    bool isChild;
-    bool hasChild;
-    pid_t pidChild;
 
-    /**
-     * Causes calling process to block on USR2.
-     */
-    void block();
-      
-    /**
-      * Sends usr2 to the given pid.
-      * @param[in] toSignal the process id to signal 
-    */
-    void notify(pid_t toSignal);
-    void createSpeculativeProcess();
-    bool isExecutingChild();
-    bool forkedSpeculativeProcess();
-    void cancelChild();
-    void waitForSpeculationSignal();
-    void waitForChild();
-    void sentMessage(Message *msg);
-    void receivedMessage(Message *msg);
-    void speculationSucceed();
-  public:
-    GracePeriodSpeculativeSyncAlgo(AbsCommManager *interface, TIME specDifference);
-    virtual ~GracePeriodSpeculativeSyncAlgo();
-    virtual TIME GetNextTime(TIME currentTime, TIME nextTime);
-    virtual bool doDispatchNextEvent(TIME currentTime, TIME nextTime);
-    virtual void timeStepStart(TIME currentTime);
-};
+  /**
+   * Optimistic sync algorithm for discrete event simulator!
+   */
+  class OptimisticCommSyncAlgo : public OptimisticTickSyncAlgo
+  {
+    private:
+      TIME currentState;
+      bool updated;
+    public:
+      OptimisticCommSyncAlgo(AbsCommManager* interface, TIME specDifference);
+      virtual TIME GetNextTime(TIME currentTime, TIME nextTime);
+      virtual ~OptimisticCommSyncAlgo();
+  };
 
 }
 
-#endif // GRACEPERIODSPECULATIVESYNCALGO_H
+#endif // OPTIMISTICCOMMSYNCALGO_H

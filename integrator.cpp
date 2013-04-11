@@ -204,7 +204,7 @@ void Integrator::initIntegratorOptimisticComm(
         << "packetlost=" << packetLostPeriod << ","
         << "initialTime=" << specDifference << ")" << endl;
 #endif
-    AbsCommManager *command=new GracePeriodCommManager(currentInterface);
+    AbsCommManager *command=new CommunicationComManager(currentInterface);
     TIME specDifferentFramework=convertToFrameworkTime(simTimeStep,specDifference);
     AbsSyncAlgorithm *algo=new OptimisticCommSyncAlgo(command,specDifferentFramework);
     instance=new Integrator(command,algo,simTimeStep,packetLostPeriod);

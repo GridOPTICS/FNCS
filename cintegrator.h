@@ -13,6 +13,8 @@ extern "C"{
 				TIME packetLostPeriod, TIME initialTime);
   void initIntegratorSpeculative(enum time_metric simTimeStep, 
 				TIME packetLostPeriod, TIME initialTime, TIME specTime);
+  void initIntegratorOptimistic(enum time_metric simTimeStep, 
+				TIME packetLostPeriod, TIME initialTime, TIME specTime);
   void initIntegratorNetworkDelay(enum time_metric simTimeStep, 
 				TIME packetLostPeriod, TIME initialTime);
   void setOffset(TIME initialTime);

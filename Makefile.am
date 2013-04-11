@@ -36,6 +36,9 @@ include_HEADERS += syncalgorithms/communicatorsimulatorsyncalgo.h
 include_HEADERS += syncalgorithms/graceperiodpesimisticsyncalgo.h
 include_HEADERS	+= syncalgorithms/graceperiodspeculativesyncalgo.h
 include_HEADERS	+= syncalgorithms/graceperiodnetworkdelaysyncalgo.h
+include_HEADERS	+= syncalgorithms/optimisticticksyncalgo.h
+include_HEADERS	+= syncalgorithms/optimisticcommsyncalgo.h
+
 
 include_HEADERS += util/callback.h
 include_HEADERS += util/simtime.h
@@ -65,6 +68,8 @@ libfncs_api_la_SOURCES += syncalgorithms/communicatorsimulatorsyncalgo.cpp
 libfncs_api_la_SOURCES += syncalgorithms/graceperiodpesimisticsyncalgo.cpp
 libfncs_api_la_SOURCES += syncalgorithms/graceperiodspeculativesyncalgo.cpp
 libfncs_api_la_SOURCES += syncalgorithms/graceperiodnetworkdelaysyncalgo.cpp
+libfncs_api_la_SOURCES += syncalgorithms/optimisticticksyncalgo.cpp
+libfncs_api_la_SOURCES += syncalgorithms/optimisticcommsyncalgo.cpp
 
 libfncs_api_la_SOURCES += util/simtime.cpp
 
