@@ -191,16 +191,16 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTime, TIME nextTime)
 {
       TIME nextEstTime;
 
-      if(nextTime < grantedTime)
+      if(nextTime <= grantedTime)
 	return nextTime;
       
       bool busywait=false;
       bool canSpeculate=false;
       //send all messages
   
-      if(this->isChild) //if a child comes here, algorithm is not working!
-	throw SyncStateException("Child wants to sync but parent is still alive cannot happen!");
-      
+      if(currentTime < grantedTime){ //we still have some granted time we need to barier at granted Time
+	    busywait=true;
+      }
       do
       {
 	  if(busywait)
@@ -236,9 +236,6 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTime, TIME nextTime)
 	  
 	  //normal conservative algorithm
           //min time is the estimated next time, so grant nextEstimated time
-          if(minNextTime==myminNextTime)
-              busywait=false;
-	  
 	  if(minNextTime==0){ //a sim signal endded
 #if DEBUG
 	      CERR << "End Signaled!" << endl;
@@ -250,17 +247,15 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTime, TIME nextTime)
           if(minNextTime < myminNextTime){
 	    //next time is some seconds away and the simulator has to wait so fork speculative unless we already forked
 	      //update the value of the currentTime
-	      currentTime = convertToMyTime(Integrator::getCurSimMetric(),minNextTime);
-	      currentTime = convertToFrameworkTime(Integrator::getCurSimMetric(),currentTime);
-            /*if(minNextTime+Integrator::getGracePeriod()<myminNextTime) //we have to busy wait until other sims come to this time
-                  busywait=true;
-            else //TODO this will cause gld to re-iterate*/
-                  busywait=true;
+	      currentTime=minNextTime;
+	      busywait=true;
           }
+          else{
+	    busywait=false;
+	  }
 
-
+	this->grantedTime=minNextTime;
       }while(busywait);
-      this->grantedTime=nextEstTime;
       return nextEstTime;
   }
   
