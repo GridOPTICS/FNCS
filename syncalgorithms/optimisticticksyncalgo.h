@@ -84,8 +84,6 @@ namespace sim_comm{
     virtual ~ProcessGroupManagerClient();
   };*/
   
-  extern uint64_t killChildernFlag;
-  
 
   /**
    * Optimistic sync algorithm for power simulators.
@@ -94,7 +92,9 @@ namespace sim_comm{
   class OptimisticTickSyncAlgo : public GracePeriodSpeculativeSyncAlgo
   {
     private:
-      uint64_t currentSpectDifference;
+      uint64_t killChildernFlag;
+      uint64_t specFailTime;
+      key_t specTimeKey;
     protected:  
       /**
        * Callback function registered with comm manager. 
@@ -119,6 +119,29 @@ namespace sim_comm{
        */
       virtual TIME testSpeculationState(TIME specNextTime);
       
+      /**
+       * Allows speculative children to communicate when speculation has failed!
+       */
+      void writeSpeculationFailureTime(TIME given);
+      /**
+       * Creates shared memory for speculative children write the fail time.
+       */
+      void createSpeculationTimeShm();
+      /**
+       * Returns the failed spec time to kids!
+       */
+      TIME getSpeculationFailureTime();
+      
+      //we will subclass these later!!!
+      void failedRecalculateSpecDifference(TIME specFailTime){
+	this->specDifference/=2;
+	cout << "Recaulted spec diff " << this->specDifference << endl;
+	//return specDifference
+      }
+      void succeedRecalculateSpecDifference(TIME specSuccessTime){
+	this->specDifference*=2;
+	//return specDifference
+      }
       
     public:
       OptimisticTickSyncAlgo(AbsCommManager* interface, TIME specDifference);

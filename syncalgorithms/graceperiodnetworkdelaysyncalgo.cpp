@@ -154,7 +154,11 @@ namespace sim_comm{
       bool busywait=false;
       bool needToRespond=false;
       //send all messages
-
+       if(currentTime < grantedTime){ //we still have some granted time we need to barier at granted Time
+	    busywait=true;
+	    currentTime=grantedTime;
+      }
+      
       do
       {
           uint8_t diff=interface->reduceTotalSendReceive();

@@ -40,6 +40,12 @@
 #include "communicationcommanager.h"
 
 namespace sim_comm{
+ 
+  void user2handler(int num){
+    //child wants to die!
+    //killChildernFlag=DOKILLCHILD;
+    cout << "I got signal!!" << endl;
+  }
   
 GracePeriodSpeculativeSyncAlgo::GracePeriodSpeculativeSyncAlgo(AbsCommManager *interface, TIME specDifference) : AbsSyncAlgorithm(interface){
   this->isParent = true;
@@ -48,6 +54,7 @@ GracePeriodSpeculativeSyncAlgo::GracePeriodSpeculativeSyncAlgo(AbsCommManager *i
   this->hasChild = false;
   this->specDifference=specDifference;
   this->interface=interface;
+  signal(SIGUSR2,user2handler);
   CallBack<void,Message*,empty,empty> *syncAlgoCallBackSend=
     CreateObjCallback<GracePeriodSpeculativeSyncAlgo*, void (GracePeriodSpeculativeSyncAlgo::*)(Message *),void, Message*>(this,&GracePeriodSpeculativeSyncAlgo::sentMessage);
   CallBack<void,Message*,empty,empty> *syncAlgoCallBackRev=
@@ -67,6 +74,12 @@ void GracePeriodSpeculativeSyncAlgo::cancelChild()
         assert(this->hasChild);
         assert(this->pidChild > 0);
         kill(this->pidChild, SIGTERM);
+	this->hasChild=false;
+	this->isChild=false;
+	this->hasParent=false;
+	this->isParent=true;
+	uint64_t status;
+	wait(&status);
     }
     //in child terminate child
     else {
@@ -88,13 +101,14 @@ void GracePeriodSpeculativeSyncAlgo::createSpeculativeProcess()
         this->isChild = true;
         this->hasParent = true;
 	this->isParent=false;
-	
+	this->hasChild=false;
     }
     else {
         /* I am a parent */
         this->isParent = true;
         this->hasChild = true;
-	this->isParent=false;
+	this->isChild=false;
+	this->hasParent=false;
     }
 }
 
@@ -168,6 +182,7 @@ void GracePeriodSpeculativeSyncAlgo::waitForChild()
 void GracePeriodSpeculativeSyncAlgo::block()
 {
   sigset_t usrsignal;
+  signal(SIGUSR2,user2handler);
   sigemptyset(&usrsignal);
   sigaddset(&usrsignal,SIGUSR2);
   
@@ -178,7 +193,12 @@ void GracePeriodSpeculativeSyncAlgo::block()
 
 void GracePeriodSpeculativeSyncAlgo::notify(pid_t pid)
 {
-  kill(pid,SIGUSR2);
+  cout << "Sending usr2 to " << pid << endl;
+  int sigval=kill(pid,SIGUSR2);
+  if(sigval < 0){
+    perror("Notification failed");
+    exit(0);
+  }
 }
 
 
