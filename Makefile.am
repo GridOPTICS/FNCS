@@ -12,13 +12,14 @@ AM_LDFLAGS =
 LDADD =
 
 AM_CPPFLAGS += $(MPI_CPPFLAGS)
+AM_CPPFLAGS += $(ZMQ_CPPFLAGS)
 
 AM_LDFLAGS += $(MPI_LDFLAGS)
-
-AM_LDFLAGS += $(MPI_LDFLAGS)
+AM_LDFLAGS += $(ZMQ_LDFLAGS)
 
 LDADD += libfncs_api.la
 LDADD += $(MPI_LIBS)
+LDADD += $(ZMQ_LIBS)
 
 include_HEADERS += absnetworkinterface.h
 include_HEADERS += cintegrator.h

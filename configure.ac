@@ -52,6 +52,7 @@ AS_IF([test x$with_mpi_wrappers = xyes],
 FNCS_MPICXX_TEST_LINK
 
 # Checks for libraries.
+FNCS_CHECK_PACKAGE([zmq], [zmq.h], [zmq], [zmq_ctx_new])
 
 # Checks for header files.
 FNCS_CHECK_HEADERS([cstdint])
