@@ -78,7 +78,7 @@ void GracePeriodSpeculativeSyncAlgo::cancelChild()
 	this->isChild=false;
 	this->hasParent=false;
 	this->isParent=true;
-	uint64_t status;
+	int status;
 	wait(&status);
     }
     //in child terminate child

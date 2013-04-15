@@ -24,15 +24,15 @@
     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
+#include "config.h"
 
 #include "optimisticticksyncalgo.h"
 #include <signal.h>
 
 #include <stdlib.h>
-#include <wait.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <sys/wait.h>
 
 namespace sim_comm{
 
