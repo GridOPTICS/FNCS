@@ -671,6 +671,11 @@ ac_ct_CC
 CFLAGS
 CC
 MPICC
+HAVE_ZMQ_FALSE
+HAVE_ZMQ_TRUE
+ZMQ_CPPFLAGS
+ZMQ_LDFLAGS
+ZMQ_LIBS
 EGREP
 GREP
 CXXCPP
@@ -5177,15 +5182,17 @@ $as_echo "$as_me: WARNING: $arg of with_zmq not parsed" >&2;}
 fi
 done ;;
 esac
+happy_header=no
 # Check for header.
 fncs_save_CPPFLAGS="$CPPFLAGS"; CPPFLAGS="$CPPFLAGS $ZMQ_CPPFLAGS"
 ac_fn_cxx_check_header_mongrel "$LINENO" "zmq.h" "ac_cv_header_zmq_h" "$ac_includes_default"
 if test "x$ac_cv_header_zmq_h" = xyes; then :
-
+  happy_header=yes
 fi
 
 
 CPPFLAGS="$fncs_save_CPPFLAGS"
+happy_lib=no
 # Check for library.
 fncs_save_LIBS="$LIBS"; LIBS="$ZMQ_LIBS $LIBS"
 fncs_save_LDFLAGS="$LDFLAGS"; LDFLAGS="$LDFLAGS $ZMQ_LDFLAGS"
@@ -5242,17 +5249,37 @@ $as_echo "$ac_cv_search_zmq_ctx_new" >&6; }
 ac_res=$ac_cv_search_zmq_ctx_new
 if test "$ac_res" != no; then :
   test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
-
+  happy_lib=yes
 fi
 
 LIBS="$fncs_save_LIBS"
 LDFLAGS="$fncs_save_LDFLAGS"
-if test "x$ac_cv_search_zmq_ctx_new" != xno; then :
+case $ac_cv_search_zmq_ctx_new in #(
+  *none*) :
+     ;; #(
+  no) :
+     ;; #(
+  *) :
+    as_fn_append ZMQ_LIBS $ac_cv_search_zmq_ctx_new ;;
+esac
+if test "x$happy_header" = xyes && test "x$happy_lib" = xyes; then :
 
 
 $as_echo "#define HAVE_ZMQ 1" >>confdefs.h
 
+
+
+
+
 fi
+ if test "x$happy_header" = xyes && test "x$happy_lib" = xyes; then
+  HAVE_ZMQ_TRUE=
+  HAVE_ZMQ_FALSE='#'
+else
+  HAVE_ZMQ_TRUE='#'
+  HAVE_ZMQ_FALSE=
+fi
+
 
 
 
@@ -17814,6 +17841,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${am__fastdepCXX_TRUE}" && test -z "${am__fastdepCXX_FALSE}"; then
   as_fn_error $? "conditional \"am__fastdepCXX\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${HAVE_ZMQ_TRUE}" && test -z "${HAVE_ZMQ_FALSE}"; then
+  as_fn_error $? "conditional \"HAVE_ZMQ\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${am__fastdepCC_TRUE}" && test -z "${am__fastdepCC_FALSE}"; then

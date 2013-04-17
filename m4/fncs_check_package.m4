@@ -23,20 +23,31 @@ AS_CASE([$with_$1],
                 [PKG_LIBS],
                 [PKG_LDFLAGS],
                 [PKG_CPPFLAGS])])
+happy_header=no
 # Check for header.
 fncs_save_CPPFLAGS="$CPPFLAGS"; CPPFLAGS="$CPPFLAGS $PKG_CPPFLAGS"
-AC_CHECK_HEADER([$2], [], [$7])
+AC_CHECK_HEADER([$2], [happy_header=yes], [$7])
 CPPFLAGS="$fncs_save_CPPFLAGS"
+happy_lib=no
 # Check for library.
 fncs_save_LIBS="$LIBS"; LIBS="$PKG_LIBS $LIBS"
 fncs_save_LDFLAGS="$LDFLAGS"; LDFLAGS="$LDFLAGS $PKG_LDFLAGS"
-AC_SEARCH_LIBS([$4], [$3], [], [], [$5])
+AC_SEARCH_LIBS([$4], [$3], [happy_lib=yes], [], [$5])
 LIBS="$fncs_save_LIBS"
 LDFLAGS="$fncs_save_LDFLAGS"
-AS_IF([test "x$ac_cv_search_$4" != xno],
+AS_CASE([$ac_cv_search_$4],
+    [*none*], [],
+    [no], [],
+    [AS_VAR_APPEND([PKG_LIBS], [$ac_cv_search_$4])])
+AS_IF([test "x$happy_header" = xyes && test "x$happy_lib" = xyes],
     [$6
-     AC_DEFINE([HAVE_PKG], [1], [set to 1 if we have the indicated package])],
+     AC_DEFINE([HAVE_PKG], [1], [set to 1 if we have the indicated package])
+     AC_SUBST(PKG_LIBS)
+     AC_SUBST(PKG_LDFLAGS)
+     AC_SUBST(PKG_CPPFLAGS)
+     ],
     [$7])
+AM_CONDITIONAL(HAVE_PKG, [test "x$happy_header" = xyes && test "x$happy_lib" = xyes])
 AS_VAR_POPDEF([HAVE_PKG])
 AS_VAR_POPDEF([PKG_LIBS])
 AS_VAR_POPDEF([PKG_LDFLAGS])

@@ -52,14 +52,18 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS =
+bin_PROGRAMS = $(am__EXEEXT_1)
 check_PROGRAMS = tests/sanity$(EXEEXT) tests/messageTest$(EXEEXT) \
-	tests/simmer$(EXEEXT)
+	tests/simmer$(EXEEXT) $(am__EXEEXT_2)
+@HAVE_ZMQ_TRUE@am__append_1 = zmqnetworkinterface.h
+@HAVE_ZMQ_TRUE@am__append_2 = zmqnetworkinterface.cpp
+@HAVE_ZMQ_TRUE@am__append_3 = fncsbroker
+@HAVE_ZMQ_TRUE@am__append_4 = tests/zimmer
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
 	$(srcdir)/config.h.in $(top_srcdir)/build-aux/depcomp \
-	$(include_HEADERS) $(noinst_HEADERS) INSTALL README \
+	$(am__include_HEADERS_DIST) $(noinst_HEADERS) INSTALL README \
 	build-aux/ar-lib build-aux/config.guess build-aux/config.sub \
 	build-aux/depcomp build-aux/install-sh build-aux/missing \
 	build-aux/ltmain.sh $(top_srcdir)/build-aux/ar-lib \
@@ -123,10 +127,25 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" \
 	"$(DESTDIR)$(includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libfncs_api_la_LIBADD =
+am__libfncs_api_la_SOURCES_DIST = absnetworkinterface.cpp \
+	cintegrator.cpp integrator.cpp message.cpp \
+	mpinetworkinterface.cpp objectcomminterface.cpp \
+	zmqnetworkinterface.cpp commmanager/abscommmanager.cpp \
+	commmanager/communicationcommanager.cpp \
+	commmanager/graceperiodcommmanager.cpp \
+	syncalgorithms/abssyncalgorithm.cpp \
+	syncalgorithms/communicatorsimulatorsyncalgo.cpp \
+	syncalgorithms/graceperiodpesimisticsyncalgo.cpp \
+	syncalgorithms/graceperiodspeculativesyncalgo.cpp \
+	syncalgorithms/graceperiodnetworkdelaysyncalgo.cpp \
+	syncalgorithms/optimisticticksyncalgo.cpp \
+	syncalgorithms/optimisticcommsyncalgo.cpp util/simtime.cpp
+@HAVE_ZMQ_TRUE@am__objects_1 = zmqnetworkinterface.lo
 am__dirstamp = $(am__leading_dot)dirstamp
 am_libfncs_api_la_OBJECTS = absnetworkinterface.lo cintegrator.lo \
 	integrator.lo message.lo mpinetworkinterface.lo \
-	objectcomminterface.lo commmanager/abscommmanager.lo \
+	objectcomminterface.lo $(am__objects_1) \
+	commmanager/abscommmanager.lo \
 	commmanager/communicationcommanager.lo \
 	commmanager/graceperiodcommmanager.lo \
 	syncalgorithms/abssyncalgorithm.lo \
@@ -141,20 +160,37 @@ AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
+@HAVE_ZMQ_TRUE@am__EXEEXT_1 = fncsbroker$(EXEEXT)
+@HAVE_ZMQ_TRUE@am__EXEEXT_2 = tests/zimmer$(EXEEXT)
 PROGRAMS = $(bin_PROGRAMS)
+am__fncsbroker_SOURCES_DIST = fncsbroker.cpp
+@HAVE_ZMQ_TRUE@am_fncsbroker_OBJECTS = fncsbroker.$(OBJEXT)
+fncsbroker_OBJECTS = $(am_fncsbroker_OBJECTS)
+fncsbroker_LDADD = $(LDADD)
+am__DEPENDENCIES_1 =
+fncsbroker_DEPENDENCIES = libfncs_api.la $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 am_tests_messageTest_OBJECTS = tests/messageTest.$(OBJEXT)
 tests_messageTest_OBJECTS = $(am_tests_messageTest_OBJECTS)
 tests_messageTest_LDADD = $(LDADD)
-am__DEPENDENCIES_1 =
-tests_messageTest_DEPENDENCIES = libfncs_api.la $(am__DEPENDENCIES_1)
+tests_messageTest_DEPENDENCIES = libfncs_api.la $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 am_tests_sanity_OBJECTS = tests/sanity.$(OBJEXT)
 tests_sanity_OBJECTS = $(am_tests_sanity_OBJECTS)
 tests_sanity_LDADD = $(LDADD)
-tests_sanity_DEPENDENCIES = libfncs_api.la $(am__DEPENDENCIES_1)
+tests_sanity_DEPENDENCIES = libfncs_api.la $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 am_tests_simmer_OBJECTS = tests/simmer.$(OBJEXT)
 tests_simmer_OBJECTS = $(am_tests_simmer_OBJECTS)
 tests_simmer_LDADD = $(LDADD)
-tests_simmer_DEPENDENCIES = libfncs_api.la $(am__DEPENDENCIES_1)
+tests_simmer_DEPENDENCIES = libfncs_api.la $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
+am__tests_zimmer_SOURCES_DIST = tests/zimmer.cpp
+@HAVE_ZMQ_TRUE@am_tests_zimmer_OBJECTS = tests/zimmer.$(OBJEXT)
+tests_zimmer_OBJECTS = $(am_tests_zimmer_OBJECTS)
+tests_zimmer_LDADD = $(LDADD)
+tests_zimmer_DEPENDENCIES = libfncs_api.la $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -189,15 +225,32 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(libfncs_api_la_SOURCES) $(tests_messageTest_SOURCES) \
-	$(tests_sanity_SOURCES) $(tests_simmer_SOURCES)
-DIST_SOURCES = $(libfncs_api_la_SOURCES) $(tests_messageTest_SOURCES) \
-	$(tests_sanity_SOURCES) $(tests_simmer_SOURCES)
+SOURCES = $(libfncs_api_la_SOURCES) $(fncsbroker_SOURCES) \
+	$(tests_messageTest_SOURCES) $(tests_sanity_SOURCES) \
+	$(tests_simmer_SOURCES) $(tests_zimmer_SOURCES)
+DIST_SOURCES = $(am__libfncs_api_la_SOURCES_DIST) \
+	$(am__fncsbroker_SOURCES_DIST) $(tests_messageTest_SOURCES) \
+	$(tests_sanity_SOURCES) $(tests_simmer_SOURCES) \
+	$(am__tests_zimmer_SOURCES_DIST)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
+am__include_HEADERS_DIST = absnetworkinterface.h cintegrator.h \
+	integrator.h message.h mpinetworkinterface.h \
+	objectcomminterface.h zmqnetworkinterface.h \
+	commmanager/abscommmanager.h \
+	commmanager/communicationcommanager.h \
+	commmanager/graceperiodcommmanager.h \
+	syncalgorithms/abssyncalgorithm.h \
+	syncalgorithms/communicatorsimulatorsyncalgo.h \
+	syncalgorithms/graceperiodpesimisticsyncalgo.h \
+	syncalgorithms/graceperiodspeculativesyncalgo.h \
+	syncalgorithms/graceperiodnetworkdelaysyncalgo.h \
+	syncalgorithms/optimisticticksyncalgo.h \
+	syncalgorithms/optimisticcommsyncalgo.h util/callback.h \
+	util/simtime.h util/csimtime.h
 HEADERS = $(include_HEADERS) $(noinst_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) \
 	$(LISP)config.h.in
@@ -311,6 +364,9 @@ SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
 VERSION = @VERSION@
+ZMQ_CPPFLAGS = @ZMQ_CPPFLAGS@
+ZMQ_LDFLAGS = @ZMQ_LDFLAGS@
+ZMQ_LIBS = @ZMQ_LIBS@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
@@ -367,7 +423,7 @@ top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
 include_HEADERS = absnetworkinterface.h cintegrator.h integrator.h \
 	message.h mpinetworkinterface.h objectcomminterface.h \
-	commmanager/abscommmanager.h \
+	$(am__append_1) commmanager/abscommmanager.h \
 	commmanager/communicationcommanager.h \
 	commmanager/graceperiodcommmanager.h \
 	syncalgorithms/abssyncalgorithm.h \
@@ -389,7 +445,8 @@ AM_LDFLAGS = $(MPI_LDFLAGS) $(ZMQ_LDFLAGS)
 LDADD = libfncs_api.la $(MPI_LIBS) $(ZMQ_LIBS)
 libfncs_api_la_SOURCES = absnetworkinterface.cpp cintegrator.cpp \
 	integrator.cpp message.cpp mpinetworkinterface.cpp \
-	objectcomminterface.cpp commmanager/abscommmanager.cpp \
+	objectcomminterface.cpp $(am__append_2) \
+	commmanager/abscommmanager.cpp \
 	commmanager/communicationcommanager.cpp \
 	commmanager/graceperiodcommmanager.cpp \
 	syncalgorithms/abssyncalgorithm.cpp \
@@ -402,6 +459,8 @@ libfncs_api_la_SOURCES = absnetworkinterface.cpp cintegrator.cpp \
 tests_sanity_SOURCES = tests/sanity.cpp
 tests_messageTest_SOURCES = tests/messageTest.cpp
 tests_simmer_SOURCES = tests/simmer.cpp
+@HAVE_ZMQ_TRUE@fncsbroker_SOURCES = fncsbroker.cpp
+@HAVE_ZMQ_TRUE@tests_zimmer_SOURCES = tests/zimmer.cpp
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -596,6 +655,9 @@ clean-checkPROGRAMS:
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
+fncsbroker$(EXEEXT): $(fncsbroker_OBJECTS) $(fncsbroker_DEPENDENCIES) $(EXTRA_fncsbroker_DEPENDENCIES) 
+	@rm -f fncsbroker$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(fncsbroker_OBJECTS) $(fncsbroker_LDADD) $(LIBS)
 tests/$(am__dirstamp):
 	@$(MKDIR_P) tests
 	@: > tests/$(am__dirstamp)
@@ -617,6 +679,11 @@ tests/simmer.$(OBJEXT): tests/$(am__dirstamp) \
 tests/simmer$(EXEEXT): $(tests_simmer_OBJECTS) $(tests_simmer_DEPENDENCIES) $(EXTRA_tests_simmer_DEPENDENCIES) tests/$(am__dirstamp)
 	@rm -f tests/simmer$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(tests_simmer_OBJECTS) $(tests_simmer_LDADD) $(LIBS)
+tests/zimmer.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
+tests/zimmer$(EXEEXT): $(tests_zimmer_OBJECTS) $(tests_zimmer_DEPENDENCIES) $(EXTRA_tests_zimmer_DEPENDENCIES) tests/$(am__dirstamp)
+	@rm -f tests/zimmer$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(tests_zimmer_OBJECTS) $(tests_zimmer_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -633,10 +700,12 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/absnetworkinterface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cintegrator.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fncsbroker.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/integrator.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/message.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpinetworkinterface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/objectcomminterface.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zmqnetworkinterface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@commmanager/$(DEPDIR)/abscommmanager.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@commmanager/$(DEPDIR)/communicationcommanager.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@commmanager/$(DEPDIR)/graceperiodcommmanager.Plo@am__quote@
@@ -650,6 +719,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/messageTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/sanity.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/simmer.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/zimmer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@util/$(DEPDIR)/simtime.Plo@am__quote@
 
 .cpp.o:

@@ -94,7 +94,7 @@ void GracePeriodSpeculativeSyncAlgo::createSpeculativeProcess()
     if (-1 == this->pidChild) {
         /* I am the parent, and an error was detected */
         perror("createSpeculativeProcess: fork");
-        MPI_Abort(MPI_COMM_WORLD, -1);
+        exit(-1);
     }
     else if (0 == this->pidChild) {
         /* I am a child */

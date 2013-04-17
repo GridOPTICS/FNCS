@@ -27,6 +27,9 @@ include_HEADERS += integrator.h
 include_HEADERS += message.h
 include_HEADERS += mpinetworkinterface.h
 include_HEADERS += objectcomminterface.h
+if HAVE_ZMQ
+include_HEADERS += zmqnetworkinterface.h
+endif
 
 include_HEADERS += commmanager/abscommmanager.h
 include_HEADERS += commmanager/communicationcommanager.h
@@ -59,6 +62,9 @@ libfncs_api_la_SOURCES += integrator.cpp
 libfncs_api_la_SOURCES += message.cpp
 libfncs_api_la_SOURCES += mpinetworkinterface.cpp
 libfncs_api_la_SOURCES += objectcomminterface.cpp
+if HAVE_ZMQ
+libfncs_api_la_SOURCES += zmqnetworkinterface.cpp
+endif
 
 libfncs_api_la_SOURCES += commmanager/abscommmanager.cpp
 libfncs_api_la_SOURCES += commmanager/communicationcommanager.cpp
@@ -82,3 +88,11 @@ tests_messageTest_SOURCES = tests/messageTest.cpp
 
 check_PROGRAMS += tests/simmer
 tests_simmer_SOURCES = tests/simmer.cpp
+
+if HAVE_ZMQ
+bin_PROGRAMS += fncsbroker
+fncsbroker_SOURCES = fncsbroker.cpp
+
+check_PROGRAMS += tests/zimmer
+tests_zimmer_SOURCES = tests/zimmer.cpp
+endif
