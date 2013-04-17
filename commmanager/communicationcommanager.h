@@ -38,6 +38,8 @@ namespace sim_comm{
 	     
       public:
 	CommunicationComManager(AbsNetworkInterface *interface);
+	CommunicationComManager(CommunicationComManager& given);
+	virtual AbsCommManager* duplicate();
 	virtual ~CommunicationComManager();
 	virtual void packetLost();
 	virtual void sendAll();

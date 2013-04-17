@@ -51,6 +51,20 @@ namespace sim_comm{
     this->minNetworkDelay=Infinity;
   }
   
+  AbsCommManager::AbsCommManager(AbsCommManager& given)
+  {
+    this->allowRegistrations=given.allowRegistrations;
+    this->interfaces=given.interfaces;
+    this->sendCount=given.sendCount;
+    this->receiveCount=given.receiveCount;
+    this->minNetworkDelay=given.minNetworkDelay;
+    this->syncAlgoCallBackRecv=given.syncAlgoCallBackRecv;
+    this->syncAlgoCallBackSend=given.syncAlgoCallBackSend;
+    this->receiverRunning=given.receiverRunning;
+    this->currentInterface=given.currentInterface->duplicateInterface();
+  }
+
+  
   AbsCommManager::~AbsCommManager()
   {
     #if DEBUG

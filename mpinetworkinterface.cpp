@@ -426,6 +426,15 @@ AbsNetworkInterface* MpiNetworkInterface::duplicateInterface()
   return toReturn;
 }
 
+uint8_t* MpiNetworkInterface::allgather(uint8_t* data, uint32_t &dataSize, uint32_t &recvBufSize)
+{
+  recvBufSize=this->commSize*dataSize;
+  uint8_t* recvBuf=new uint8_t[recvBufSize];
+  
+  MPI_Allgather(data,(int)dataSize,MPI_CHAR,recvBuf,recvBufSize,MPI_CHAR,comm);
+  
+  return recvBuf;
+}
 
 
 void MpiNetworkInterface::makeProgress() {

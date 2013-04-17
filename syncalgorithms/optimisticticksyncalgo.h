@@ -29,9 +29,6 @@
 #ifndef OPTIMISTICTICKSYNCALGO_H
 #define OPTIMISTICTICKSYNCALGO_H
 
-#define DOKILLCHILD 0
-#define DONTKILLCHILD 1
-
 #include "abssyncalgorithm.h"
 #include "graceperiodspeculativesyncalgo.h"
 #include <sys/socket.h>
@@ -44,58 +41,26 @@ using namespace std;
 
 namespace sim_comm{
 
-  /*class ProcessMessage{
-    uint8_t type;
-    pid_t processId;
-    static uint8_t* serializeMessage(ProcessMessage *given, uint8_t &size);
-    static ProcessMessage* deserializeMessage(uint8_t *arr,uint8_t size);
-  };
-  
-  class ProcessGroupManager{
-  private:
-      uint32_t *newprocessArr;
-      uint32_t *oldprocessArr;
-      uint32_t numOfProcesses,numRegistered;
-      int sockfd;
-      bool looping;
-      sockaddr_un sockStruct;
-      vector<int> connSocks;
-      void killchildren();
-      void killparents();
-  public:
-      ProcessGroupManager(uint32_t noOfProcesses);
-      
-      void startManager();
-      void terminateManager();
-      
-      virtual ~ProcessGroupManager();
-  };
-  
-  class ProcessGroupManagerClient{
-  private:
-    int sockfd;
-   
-  public:
-    ProcessGroupManagerClient();
-    bool isMyChildActive(pid_t childId);
-    void registerParent(pid_t parentId);
-    void registerChild(pid_t childId);
-    void childWorked(pid_t childId);
-    virtual ~ProcessGroupManagerClient();
-  };*/
-  
-
   /**
    * Optimistic sync algorithm for power simulators.
    * 
    */
-  class OptimisticTickSyncAlgo : public GracePeriodSpeculativeSyncAlgo
+  class OptimisticTickSyncAlgo : public AbsSyncAlgorithm
   {
     private:
-      uint64_t killChildernFlag;
-      uint64_t specFailTime;
+      TIME killChildernFlag;
+      TIME specFailTime;
       key_t specTimeKey;
-    protected:  
+      TIME specDifference;
+      /**
+       * @TODO I assume 3 processes!
+       */
+      pid_t mypid,parentPid,childPid; 
+      bool isChild,isParent;
+      
+    protected: 
+    
+      void createSpeculativeProcess();
       /**
        * Callback function registered with comm manager. 
        */
@@ -104,11 +69,7 @@ namespace sim_comm{
        * Callback function registered with comm manager.
        */
       bool nodeReceivedMessage(Message *msg);
-      /**
-       * Called by the speculative child to signal it's parent that
-       * speculation has failed.
-       */
-      void signalParent();
+     
 
       /**
        * Starts the speculative process if possible.
@@ -143,6 +104,18 @@ namespace sim_comm{
 	//return specDifference
       }
       
+      bool hasChild(){
+	return this->childPid>0? true:false;
+      }
+      
+      void becomeChild();
+      /**
+       * Sets the flags and kills the parent process.
+       */
+      void becomeParent();
+      void gotChild(pid_t childpid);
+      void terminateChild();
+      void childTerminated();
     public:
       OptimisticTickSyncAlgo(AbsCommManager* interface, TIME specDifference);
       virtual ~OptimisticTickSyncAlgo();

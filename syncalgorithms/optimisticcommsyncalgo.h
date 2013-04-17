@@ -46,6 +46,7 @@ namespace sim_comm{
       OptimisticCommSyncAlgo(AbsCommManager* interface, TIME specDifference);
       virtual TIME GetNextTime(TIME currentTime, TIME nextTime);
       virtual ~OptimisticCommSyncAlgo();
+      
   };
 
 }

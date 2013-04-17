@@ -72,7 +72,11 @@ namespace sim_comm{
       bool busywait=false;
       bool needToRespond=false;
       //send all messages
-
+      if(currentTime < grantedTime){ //we still have some granted time we need to barier at granted Time
+	    busywait=true;
+	    currentTime=grantedTime;
+      }
+      
       do
       {
 	  if(busywait)
@@ -144,69 +148,7 @@ namespace sim_comm{
     return syncedTime==nextTime;
   }
   
-  TIME GracePeriodNetworkDelaySyncAlgo::threadBusyWait(TIME currentTime, TIME nextTime)
-  { 
-      TIME nextEstTime;
-
-      if(nextTime < grantedTime)
-	return nextTime;
-
-      bool busywait=false;
-      bool needToRespond=false;
-      //send all messages
-       if(currentTime < grantedTime){ //we still have some granted time we need to barier at granted Time
-	    busywait=true;
-	    currentTime=grantedTime;
-      }
-      
-      do
-      {
-          uint8_t diff=interface->reduceTotalSendReceive();
-          //network unstable, we need to wait!
-          nextEstTime=currentTime+convertToFrameworkTime(Integrator::getCurSimMetric(),1); 
-          if(diff==0 && !needToRespond)
-          { //network stable grant next time
-              nextEstTime=nextTime;
-          }
-          else{
-	    needToRespond=true; //set this condition so that when the simulator wakes up from busy wait it responds to messages
-	  }
-
-          //Calculate next min time step
-          TIME myminNextTime=nextEstTime;
-          TIME minNextTime=(TIME)interface->reduceMinTime(myminNextTime);
-
-          //min time is the estimated next time, so grant nextEstimated time
-          if(minNextTime==myminNextTime)
-              busywait=false;
-	  
-	  if(minNextTime==0){ //a sim signal endded
-#if DEBUG
-	      CERR << "End Signaled!" << endl;
-#endif
-	      this->finished=true;
-	      return 0;
-	  }
-	  
-          if(minNextTime < myminNextTime){
-		busywait=true;
-	  }
-
-
-      }while(busywait);
-     
-      
-      //this->grantedTime=nextEstTime;
-      return nextEstTime;
-  }
-
-
-  void* GracePeriodNetworkDelaySyncAlgo::startThreadBusyWait(void* args)
-  {
-      GracePeriodNetworkDelaySyncAlgo *dana=(GracePeriodNetworkDelaySyncAlgo*)args;
-      TIME returnVal=dana->threadBusyWait(dana->threadOpenTime,dana->threadEndTime);
-      return &returnVal;
-  }
+ 
 
 }
 

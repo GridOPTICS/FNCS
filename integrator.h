@@ -163,8 +163,12 @@ public:
      * TODO
      */
     static ObjectCommInterface *getCommInterface(const char *objectName);
-
-   
+    
+    /**
+     * Used by speculative threading to set the 
+     * commanager of childern.
+     */
+    static void setCommManager(AbsCommManager* given);
     
     /**
      * Returns the network delay in framework time 

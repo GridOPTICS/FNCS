@@ -35,6 +35,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <unistd.h>
 
 #include "absnetworkinterface.h"
 #include "message.h"
@@ -115,6 +116,7 @@ namespace sim_comm{
 	CallBack<bool,Message*,empty,empty> *syncAlgoCallBackSend,*syncAlgoCallBackRecv;
 	sim_comm::AbsNetworkInterface *currentInterface;
 	void adjustNetworkDelay(TIME msgDeliveryTime);
+	AbsCommManager(AbsCommManager &given);
     public:
       /**
 	  * Called by subclasses to notify about a new message.
@@ -206,12 +208,12 @@ namespace sim_comm{
     }
     
     /**
-     * Calls the network interface duplicate function
-     * to create a new network communication layer.
+     * Creates a copy of the commanger. It also calls 
+     * the duplicate method of the AbsInterface.
      */
-    void createLayer(){
-      this->currentInterface=this->currentInterface->duplicateInterface();
-    }
+     virtual AbsCommManager* duplicate() =0;
+    
+   
 
     /**
      * Signals to others that we are finished.

@@ -45,8 +45,8 @@ namespace sim_comm{
 		if(nextTime < grantedTime)
 		     return grantedTime;
 		    
-		 if(this->isChild) //if a child comes here, algorithm is not working!
-		    throw SyncStateException("Child wants to sync but parent is still alive cannot happen!");
+		 /*if(this->isChild) //if a child comes here, algorithm is not working!
+		    throw SyncStateException("Child wants to sync but parent is still alive cannot happen!");*/
 		 
 		    uint64_t diff=interface->reduceTotalSendReceive();
 		    //assume network stable

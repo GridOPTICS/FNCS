@@ -54,6 +54,7 @@ GracePeriodSpeculativeSyncAlgo::GracePeriodSpeculativeSyncAlgo(AbsCommManager *i
   this->hasChild = false;
   this->specDifference=specDifference;
   this->interface=interface;
+  this->mypid=getpid();
   signal(SIGUSR2,user2handler);
   CallBack<void,Message*,empty,empty> *syncAlgoCallBackSend=
     CreateObjCallback<GracePeriodSpeculativeSyncAlgo*, void (GracePeriodSpeculativeSyncAlgo::*)(Message *),void, Message*>(this,&GracePeriodSpeculativeSyncAlgo::sentMessage);
@@ -102,6 +103,7 @@ void GracePeriodSpeculativeSyncAlgo::createSpeculativeProcess()
         this->hasParent = true;
 	this->isParent=false;
 	this->hasChild=false;
+	this->mypid=getpid();
     }
     else {
         /* I am a parent */
@@ -178,29 +180,6 @@ void GracePeriodSpeculativeSyncAlgo::waitForChild()
   int status;
   wait(&status);
 }
-
-void GracePeriodSpeculativeSyncAlgo::block()
-{
-  sigset_t usrsignal;
-  signal(SIGUSR2,user2handler);
-  sigemptyset(&usrsignal);
-  sigaddset(&usrsignal,SIGUSR2);
-  
-  int sigval=sigsuspend(&usrsignal);
-  
-  assert(sigval==0);
-}
-
-void GracePeriodSpeculativeSyncAlgo::notify(pid_t pid)
-{
-  cout << "Sending usr2 to " << pid << endl;
-  int sigval=kill(pid,SIGUSR2);
-  if(sigval < 0){
-    perror("Notification failed");
-    exit(0);
-  }
-}
-
 
 
 void GracePeriodSpeculativeSyncAlgo::waitForSpeculationSignal()

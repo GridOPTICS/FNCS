@@ -41,6 +41,16 @@ namespace sim_comm{
  
       this->currentInterface->setMessageCallBack(msgCallback);
     }
+    
+    CommunicationComManager::CommunicationComManager(CommunicationComManager& given): AbsCommManager(given)
+    {
+
+    }
+
+    AbsCommManager* CommunicationComManager::duplicate()
+    {
+      return new CommunicationComManager(*this);
+    }
 
     CommunicationComManager::~CommunicationComManager()
     {

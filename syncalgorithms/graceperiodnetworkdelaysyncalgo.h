@@ -46,9 +46,7 @@ namespace sim_comm{
       //pthread_mutex_t threadstatus;
       //TIME avgBusyWait;
       TIME nextTime;
-      TIME threadBusyWait(TIME currentTime,TIME nextTime);
-      static void* startThreadBusyWait(void *args);
-      //bool busywaiting;
+    
       
     public:
       GracePeriodNetworkDelaySyncAlgo(AbsCommManager *interface);

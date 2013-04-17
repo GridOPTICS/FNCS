@@ -122,6 +122,9 @@ public:
     
     /** @copydoc AbsNetworkInterface::duplicateInterface()*/
     virtual AbsNetworkInterface* duplicateInterface();
+    
+    /** @copydoc AbsNetworkInterface::allgather()*/
+    virtual uint8_t* allgather(uint8_t* data, uint32_t &dataSize, uint32_t &recvBufSize);
 };
 
 }

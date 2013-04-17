@@ -38,9 +38,11 @@ class GracePeriodCommManager : public AbsCommManager
 
 public:
       GracePeriodCommManager(AbsNetworkInterface *current);
+      GracePeriodCommManager(GracePeriodCommManager& given);
       virtual ~GracePeriodCommManager();
       virtual void packetLost();
       virtual void sendAll();
+      virtual AbsCommManager* duplicate();
 };
 
 }

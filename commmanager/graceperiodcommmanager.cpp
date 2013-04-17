@@ -42,6 +42,18 @@ namespace sim_comm{
   {
 
   }
+    
+  GracePeriodCommManager::GracePeriodCommManager(GracePeriodCommManager& given): AbsCommManager(given)
+  {
+
+  }
+  
+  AbsCommManager* GracePeriodCommManager::duplicate()
+  {
+    return new GracePeriodCommManager(*this);
+  }
+
+
   
   void GracePeriodCommManager::packetLost()
   {

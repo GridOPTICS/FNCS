@@ -221,6 +221,10 @@ void Integrator::initIntegratorCommunicationSim(
 }
 
 
+void Integrator::setCommManager(AbsCommManager* given)
+{
+    instance->currentInterface=given;
+}
 
 
 

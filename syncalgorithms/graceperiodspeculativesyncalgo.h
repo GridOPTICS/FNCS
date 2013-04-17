@@ -48,17 +48,8 @@ class GracePeriodSpeculativeSyncAlgo : public AbsSyncAlgorithm
     bool isChild;
     bool hasChild;
     pid_t pidChild;
-
-    /**
-     * Causes calling process to block on USR2.
-     */
-    void block();
-      
-    /**
-      * Sends usr2 to the given pid.
-      * @param[in] toSignal the process id to signal 
-    */
-    void notify(pid_t toSignal);
+    pid_t mypid;
+    
     void createSpeculativeProcess();
     bool isExecutingChild();
     bool forkedSpeculativeProcess();
@@ -68,6 +59,7 @@ class GracePeriodSpeculativeSyncAlgo : public AbsSyncAlgorithm
     void sentMessage(Message *msg);
     void receivedMessage(Message *msg);
     void speculationSucceed();
+    
   public:
     GracePeriodSpeculativeSyncAlgo(AbsCommManager *interface, TIME specDifference);
     virtual ~GracePeriodSpeculativeSyncAlgo();
