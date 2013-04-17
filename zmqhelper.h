@@ -98,7 +98,7 @@ static unsigned long utime()
 static string gen_id() {
     char identity [10];
     srandom(utime());
-    sprintf (identity, "%04X-%04X", randof (0x10000), randof (0x10000));
+    sprintf (identity, "%05d-%04X-%04X", getpid(), randof (0x10000), randof (0x10000));
     return string(identity);
 }
 
