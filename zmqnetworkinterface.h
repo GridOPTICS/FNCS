@@ -53,11 +53,14 @@ private:
     void *zmq_req;
     void *zmq_die;
     string ID;
+    int context;
     bool iAmNetSim;
     list<Message*> receivedMessages;
     uint64_t globalObjectCount;
 
 protected:
+    void init();
+
     void makeProgress();
 
     template <typename T>
@@ -68,6 +71,11 @@ public:
      * Constructs.
      */
     ZmqNetworkInterface(bool iAmNetSim);
+
+    /**
+     * Copy constructs.
+     */
+    ZmqNetworkInterface(const ZmqNetworkInterface &that);
 
     /**
      * Destroys.

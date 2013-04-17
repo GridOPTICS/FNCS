@@ -45,22 +45,35 @@
 using namespace std;
 using namespace sim_comm;
 
+typedef map<string,unsigned long> ReduceMap;
+typedef pair<string,unsigned long> ReducePair;
+
+#ifdef TODO
+vector<map<string,string> > obj_to_ID(1);
+vector<ReduceMap> reduce_min_time(1);
+vector<ReduceMap> reduce_sent(1);
+vector<ReduceMap> reduce_recv(1);
+vector<set<string> > connections(1);
+vector<set<string> > finalized(1);
+vector<set<string> > barrier(1);
+vector<set<string> > finished(1);
+vector<string> netSimID(1);
+#else
 map<string,string> obj_to_ID;
-map<string,unsigned long> m_reduce_min_time;
-map<string,unsigned long> m_reduce_sent;
-map<string,unsigned long> m_reduce_recv;
+ReduceMap reduce_min_time;
+ReduceMap reduce_sent;
+ReduceMap reduce_recv;
 set<string> connections;
 set<string> finalized;
 set<string> barrier;
 set<string> finished;
 string netSimID;
+#endif
 void *zmq_ctx = NULL;
 void *broker = NULL;
 void *killer = NULL;
 int world_size = 0;
 
-typedef map<string,unsigned long> ReduceMap;
-typedef pair<string,unsigned long> ReducePair;
 
 struct ReduceMinPairLess
 {
@@ -199,6 +212,13 @@ int main(int argc, char **argv)
         if ("HELLO" == control || "HELLO_NETSIM" == control) {
             /* a sim is notifying it wants to connect */
             /* we wait until all sims connect before replying */
+
+#ifdef TODO
+            /* do we need a new context? */
+            if (connections.back().size() == world_size) {
+                connections.resize(connections.size()+1);
+            }
+#endif
             connections.insert(identity);
             if ("HELLO_NETSIM" == control) {
                 if (netSimID.empty()) {
@@ -285,16 +305,16 @@ int main(int argc, char **argv)
         }
         else if ("REDUCE_MIN_TIME" == control) {
             unsigned long time;
-            if (1 == m_reduce_min_time.count(identity)) {
+            if (1 == reduce_min_time.count(identity)) {
                 CERR << "sim with ID '" << identity
                     << "' duplicate REDUCE_MIN_TIME" << endl;
                 graceful_death(EXIT_FAILURE);
             }
             (void) s_recv(broker, time);
-            m_reduce_min_time[identity] = time;
-            if (m_reduce_min_time.size() == world_size) {
-                ReducePair min = *min_element(m_reduce_min_time.begin(),
-                        m_reduce_min_time.end(), ReduceMinPairLess());
+            reduce_min_time[identity] = time;
+            if (reduce_min_time.size() == world_size) {
+                ReducePair min = *min_element(reduce_min_time.begin(),
+                        reduce_min_time.end(), ReduceMinPairLess());
                 /* send result to all sims */
                 for (set<string>::iterator it=connections.begin();
                         it != connections.end(); ++it) {
@@ -302,7 +322,7 @@ int main(int argc, char **argv)
                     (void) s_send(broker, min.second);
                 }
                 /* clear the map in preparation for next round */
-                m_reduce_min_time.clear();
+                reduce_min_time.clear();
             }
         }
         else if ("REDUCE_SEND_RECV" == control) {
@@ -310,23 +330,23 @@ int main(int argc, char **argv)
             unsigned long recv = 0;
             unsigned long m_sent = 0;
             unsigned long m_recv = 0;
-            if (1 == m_reduce_sent.count(identity)) {
-                assert(1 == m_reduce_recv.count(identity));
+            if (1 == reduce_sent.count(identity)) {
+                assert(1 == reduce_recv.count(identity));
                 CERR << "sim with ID '" << identity
                     << "' duplicate REDUCE_SEND_RECV" << endl;
                 graceful_death(EXIT_FAILURE);
             }
             (void) s_recv(broker, sent);
             (void) s_recv(broker, recv);
-            m_reduce_sent[identity] = sent;
-            m_reduce_recv[identity] = recv;
-            if (m_reduce_sent.size() == world_size) {
-                assert(m_reduce_recv.size() == world_size);
+            reduce_sent[identity] = sent;
+            reduce_recv[identity] = recv;
+            if (reduce_sent.size() == world_size) {
+                assert(reduce_recv.size() == world_size);
                 ReduceMap::const_iterator it;
-                for (it=m_reduce_sent.begin(); it!=m_reduce_sent.end(); ++it) {
+                for (it=reduce_sent.begin(); it!=reduce_sent.end(); ++it) {
                     m_sent += it->second;
                 }
-                for (it=m_reduce_recv.begin(); it!=m_reduce_recv.end(); ++it) {
+                for (it=reduce_recv.begin(); it!=reduce_recv.end(); ++it) {
                     m_recv += it->second;
                 }
                 /* send result to all sims */
@@ -337,8 +357,8 @@ int main(int argc, char **argv)
                     (void) s_send    (broker, m_recv);
                 }
                 /* clear the map in preparation for next round */
-                m_reduce_sent.clear();
-                m_reduce_recv.clear();
+                reduce_sent.clear();
+                reduce_recv.clear();
             }
         }
         else if ("REGISTER_OBJECT" == control) {

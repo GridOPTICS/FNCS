@@ -17,14 +17,7 @@ using namespace std;
 using namespace sim_comm;
 
 
-ZmqNetworkInterface::ZmqNetworkInterface(bool iAmNetSim)
-    :   AbsNetworkInterface()
-    ,   zmq_ctx(NULL)
-    ,   zmq_req(NULL)
-    ,   ID()
-    ,   iAmNetSim(iAmNetSim)
-    ,   receivedMessages()
-    ,   globalObjectCount(0)
+void ZmqNetworkInterface::init()
 {
     int zmq_connect_req_retval = 0;
     int zmq_connect_sub_retval = 0;
@@ -32,7 +25,7 @@ ZmqNetworkInterface::ZmqNetworkInterface(bool iAmNetSim)
     int zmq_setsockopt_retval = 0;
 
 #if DEBUG
-    CERR << "ZmqNetworkInterface::ZmqNetworkInterface()" << endl;
+    CERR << "ZmqNetworkInterface::init()" << endl;
 #endif
 
     this->ID = gen_id();
@@ -78,7 +71,7 @@ ZmqNetworkInterface::ZmqNetworkInterface(bool iAmNetSim)
     assert(0 == zmq_connect_sub_retval);
 
     /* send hello to broker */
-    if (iAmNetSim) {
+    if (this->iAmNetSim) {
         (void) s_send(this->zmq_req, "HELLO_NETSIM");
     }
     else {
@@ -91,6 +84,32 @@ ZmqNetworkInterface::ZmqNetworkInterface(bool iAmNetSim)
     assert(ack == "ACK");
 
     CERR << this->ID << " ACK" << endl;
+}
+
+
+ZmqNetworkInterface::ZmqNetworkInterface(bool iAmNetSim)
+    :   AbsNetworkInterface()
+    ,   zmq_ctx(NULL)
+    ,   zmq_req(NULL)
+    ,   ID()
+    ,   iAmNetSim(iAmNetSim)
+    ,   receivedMessages()
+    ,   globalObjectCount(0)
+{
+    init();
+}
+
+
+ZmqNetworkInterface::ZmqNetworkInterface(const ZmqNetworkInterface &that)
+    :   AbsNetworkInterface()
+    ,   zmq_ctx(NULL)
+    ,   zmq_req(NULL)
+    ,   ID()
+    ,   iAmNetSim(that.iAmNetSim)
+    ,   receivedMessages()
+    ,   globalObjectCount(that.globalObjectCount)
+{
+    init();
 }
 
 
