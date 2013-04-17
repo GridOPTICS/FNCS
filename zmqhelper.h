@@ -2,6 +2,7 @@
 #define _ZMQHELPER_H_
 
 #include <stdlib.h> /* for size_t */
+#include <sys/time.h> /* for gettimeofday */
 
 static int s_recv(void *socket, string &buf) {
     char buffer [256];
@@ -83,9 +84,20 @@ static int s_sendmore(void *socket, const T* &what, size_t count) {
     return zmq_send(socket, what, sizeof(T)*count, ZMQ_SNDMORE);
 }
 
+static unsigned long utime()
+{
+    struct timeval tv;
+
+    (void) gettimeofday(&tv, NULL);
+
+    return tv.tv_sec*1000000 + tv.tv_usec;
+}
+
+
 #define randof(num)  (int) ((float) (num) * random () / (RAND_MAX + 1.0))
 static string gen_id() {
     char identity [10];
+    srandom(utime());
     sprintf (identity, "%04X-%04X", randof (0x10000), randof (0x10000));
     return string(identity);
 }

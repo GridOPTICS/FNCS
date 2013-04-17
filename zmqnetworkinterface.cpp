@@ -35,7 +35,6 @@ ZmqNetworkInterface::ZmqNetworkInterface(bool iAmNetSim)
     CERR << "ZmqNetworkInterface::ZmqNetworkInterface()" << endl;
 #endif
 
-    srandom(unsigned(time(NULL)));
     this->ID = gen_id();
     CERR << "ZmqNetworkInterface ID=" << this->ID << endl;
 
