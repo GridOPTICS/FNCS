@@ -395,7 +395,6 @@ int main(int argc, char **argv)
         else if ("FINISHED" == control) {
             /* a simulation wants to terminate nicely */
             /* publish term message to all sims */
-            (void) s_send(killer, "FINISHED");
             if (1 == finished.count(identity)) {
                 CERR << "additional FINISHED received from '" << identity
                     << "'" << endl;
@@ -408,6 +407,7 @@ int main(int argc, char **argv)
             else if (finished.size() == world_size) {
                 break;
             }
+            (void) s_send(killer, "FINISHED");
         }
         else {
             CERR << "unrecognized control header '" << control << "'" << endl;

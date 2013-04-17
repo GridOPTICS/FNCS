@@ -365,7 +365,7 @@ void ZmqNetworkInterface::makeProgress()
                 this->receivedMessages.push_back(message);
             }
         }
-        else if (items[1].revents & ZMQ_POLLIN) {
+        if (items[1].revents & ZMQ_POLLIN) {
             string control;
 
             (void) s_recv(this->zmq_die, control);

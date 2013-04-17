@@ -116,39 +116,45 @@ int ZmqNetworkInterface::i_recv(void *socket, T &buf)
 
     CERR << "ZmqNetworkInterface::i_recv" << endl;
 
-    size = s_irecv(socket, buf);
+    while (true) {
+        zmq_pollitem_t items[2];
+        items[0].socket = socket;
+        items[0].events = ZMQ_POLLIN;
+        items[1].socket = this->zmq_die;
+        items[1].events = ZMQ_POLLIN;
+        int rc = zmq_poll(items, 1, 0);
+        assert(rc >= 0);
+        if (items[0].revents & ZMQ_POLLIN) {
+            size = s_recv(socket, buf);
+            break;
+        }
+        if (items[1].revents & ZMQ_POLLIN) {
+            string control;
 
-    CERR << "ZmqNetworkInterface::i_recv "
-        << "size=" << size << " "
-        << "buf=" << buf << endl;
+            (void) s_recv(this->zmq_die, control);
 
-    while (-1 == size && EAGAIN == errno) {
-        string control;
-
-        /* check for messages on the sub channel */
-        errno = 0;
-        size = s_irecv(this->zmq_die, control);
-
-        if (size >= 0) {
             if ("DIE" == control) {
                 CERR << "DIE received from SUB" << endl;
                 /* an application terminated abrubtly, so do we */
+                (void) s_send(this->zmq_req, "DIE");
                 exit(EXIT_FAILURE);
             }
             else if ("FINISHED" == control) {
                 CERR << "FINISHED received from SUB" << endl;
                 /* an application terminated cleanly, so do we */
-                s_send(socket, "FINISHED");
+                (void) s_send(this->zmq_req, "FINISHED");
                 exit(EXIT_SUCCESS);
             }
+            else {
+                CERR << "'" << control << "' received from SUB" << endl;
+                (void) s_send(this->zmq_req, "DIE");
+                exit(EXIT_FAILURE);
+            }
+
         }
-
-        CERR << "i_recv, sleeping" << endl;
-        (void) sleep(1);
-
-        errno = 0;
-        size = s_irecv(socket, buf);
     }
+
+    return size;
 }
 
 
