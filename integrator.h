@@ -33,21 +33,24 @@
 
 #include "abssyncalgorithm.h"
 #include "callback.h"
+#include "echo.h"
 #include "simtime.h"
-
-using namespace std;
 
 #define DEBUG 1
 #define DEBUG_TO_FILE 1
 #if DEBUG
 #   define PID (getpid())
 #   if DEBUG_TO_FILE
-extern ofstream ferr;
-#       define CERR (ferr << '[' << PID << "] ")
+extern Echo echo;
+#       define CERR (echo << '[' << PID << "] ")
 #   else
 #       define CERR (cerr << '[' << PID << "] ")
 #   endif
+#else
+#   define CERR echo
 #endif
+
+using namespace std;
 
 namespace sim_comm {
 

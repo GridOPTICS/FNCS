@@ -37,7 +37,7 @@ ZmqNetworkInterface::ZmqNetworkInterface(bool iAmNetSim)
 
     srandom(unsigned(time(NULL)));
     this->ID = gen_id();
-    cout << "ZmqNetworkInterface ID=" << this->ID << endl;
+    CERR << "ZmqNetworkInterface ID=" << this->ID << endl;
 
     /* create zmq context */
     this->zmq_ctx = zmq_ctx_new();
@@ -88,10 +88,10 @@ ZmqNetworkInterface::ZmqNetworkInterface(bool iAmNetSim)
 
     /* get ack from broker */
     string ack;
-    (void) s_recv(this->zmq_req, ack);
+    (void) i_recv(this->zmq_req, ack);
     assert(ack == "ACK");
 
-    cout << this->ID << " ACK" << endl;
+    CERR << this->ID << " ACK" << endl;
 }
 
 
@@ -138,8 +138,13 @@ void ZmqNetworkInterface::send(Message *message)
     else {
         (void) s_sendmore(this->zmq_req, "DELAY");
     }
-    (void) s_sendmore(this->zmq_req, envelop, envelopSize);
-    (void) s_send(this->zmq_req, const_cast<uint8_t*>(data), dataSize);
+    if (dataSize > 0) {
+        (void) s_sendmore(this->zmq_req, envelop, envelopSize);
+        (void) s_send    (this->zmq_req, const_cast<uint8_t*>(data), dataSize);
+    }
+    else {
+        (void) s_send    (this->zmq_req, envelop, envelopSize);
+    }
 }
 
 
@@ -201,13 +206,17 @@ uint64_t ZmqNetworkInterface::reduceMinTime(uint64_t myTime)
     unsigned long retval;
 
 #if DEBUG
-    CERR << "ZmqNetworkInterface::reduceMinTime()" << endl;
+    CERR << "ZmqNetworkInterface::reduceMinTime(" << myTime << ")" << endl;
 #endif
     makeProgress();
 
     (void) s_sendmore(this->zmq_req, "REDUCE_MIN_TIME");
     (void) s_send(this->zmq_req, &_myTime, sizeof(unsigned long));
-    (void) s_recv(this->zmq_req, retval);
+    (void) i_recv(this->zmq_req, retval);
+
+#if DEBUG
+    CERR << "\treceived " << retval << endl;
+#endif
 
     return retval;
 }
@@ -220,16 +229,25 @@ uint64_t ZmqNetworkInterface::reduceTotalSendReceive(
     unsigned long m_recv;
 
 #if DEBUG
-    CERR << "ZmqNetworkInterface::reduceTotalSendReceive()" << endl;
+    CERR << "ZmqNetworkInterface::reduceTotalSendReceive("
+        << sent << "," << received << ")" << endl;
 #endif
     makeProgress();
 
     (void) s_sendmore(this->zmq_req, "REDUCE_SEND_RECV");
     (void) s_sendmore(this->zmq_req, sent);
     (void) s_send    (this->zmq_req, received);
-    (void) s_recv(this->zmq_req, m_sent);
-    (void) s_recv(this->zmq_req, m_recv);
-    assert(m_sent >= m_recv);
+    (void) i_recv(this->zmq_req, m_sent);
+    (void) i_recv(this->zmq_req, m_recv);
+
+#if DEBUG
+    CERR << "\treceived m_sent=" << m_sent
+         << " m_recv=" << m_recv << endl;
+#endif
+
+    if (m_sent < m_recv) {
+        (void) s_send(this->zmq_req, "DIE");
+    }
 
     return static_cast<uint64_t>(m_sent - m_recv);
 }
@@ -255,7 +273,7 @@ void ZmqNetworkInterface::finalizeRegistrations()
     AbsNetworkInterface::finalizeRegistrations();
 
     (void) s_send(this->zmq_req, "FINALIZE_REGISTRATIONS");
-    (void) s_recv(this->zmq_req, this->globalObjectCount);
+    (void) i_recv(this->zmq_req, this->globalObjectCount);
 }
 
 
@@ -268,7 +286,7 @@ void ZmqNetworkInterface::barier()
 #endif
 
     (void) s_send(this->zmq_req, "BARRIER");
-    (void) s_recv(this->zmq_req, ack);
+    (void) i_recv(this->zmq_req, ack);
     assert(ack == "ACK");
 }
 
@@ -301,9 +319,11 @@ void ZmqNetworkInterface::makeProgress()
 #if DEBUG
         CERR << "testing for incoming messages" << endl;
 #endif
-        zmq_pollitem_t items[1];
+        zmq_pollitem_t items[2];
         items[0].socket = this->zmq_req;
         items[0].events = ZMQ_POLLIN;
+        items[1].socket = this->zmq_die;
+        items[1].events = ZMQ_POLLIN;
         int rc = zmq_poll(items, 1, 0);
         assert(rc >= 0);
         if (items[0].revents & ZMQ_POLLIN) {
@@ -315,9 +335,19 @@ void ZmqNetworkInterface::makeProgress()
             Message *message;
 
             (void) s_recv(this->zmq_req, control);
-            if ("ROUTE" != control) {
-                cerr << "invalid control message" << endl;
-                (void) s_send(this->zmq_req, "DIE");
+            if (iAmNetSim) {
+                if ("DELAY" != control) {
+                    CERR << "net sim invalid control message '"
+                        << control << "'" << endl;
+                    (void) s_send(this->zmq_req, "DIE");
+                }
+            }
+            else {
+                if ("ROUTE" != control) {
+                    CERR << "gen sim invalid control message '"
+                        << control << "'" << endl;
+                    (void) s_send(this->zmq_req, "DIE");
+                }
             }
             envelopeSize = s_recv(this->zmq_req, envelope, 256);
             message = new Message(envelope,envelopeSize);
@@ -335,8 +365,32 @@ void ZmqNetworkInterface::makeProgress()
                 this->receivedMessages.push_back(message);
             }
         }
+        else if (items[1].revents & ZMQ_POLLIN) {
+            string control;
+
+            (void) s_recv(this->zmq_die, control);
+
+            if ("DIE" == control) {
+                CERR << "DIE received from SUB" << endl;
+                /* an application terminated abrubtly, so do we */
+                exit(EXIT_FAILURE);
+            }
+            else if ("FINISHED" == control) {
+                CERR << "FINISHED received from SUB" << endl;
+                /* an application terminated cleanly, so do we */
+                s_send(this->zmq_req, "FINISHED");
+                exit(EXIT_SUCCESS);
+            }
+        }
         else {
             incoming = false;
         }
     }
 }
+
+
+void ZmqNetworkInterface::sendFinishedSignal()
+{
+    (void) s_send(this->zmq_req, "FINISHED");
+}
+

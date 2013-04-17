@@ -38,6 +38,7 @@
 
 #include <zmq.h>
 
+#include "integrator.h"
 #include "message.h"
 #include "zmqhelper.h"
 
@@ -51,6 +52,7 @@ map<string,unsigned long> m_reduce_recv;
 set<string> connections;
 set<string> finalized;
 set<string> barrier;
+set<string> finished;
 string netSimID;
 void *zmq_ctx = NULL;
 void *broker = NULL;
@@ -109,6 +111,10 @@ static void graceful_death(int exit_code)
         }
     }
 
+#if DEBUG && DEBUG_TO_FILE
+    echo.close();
+#endif
+
     exit(exit_code);
 }
 
@@ -117,18 +123,26 @@ int main(int argc, char **argv)
 {
     int retval;
     const int ONE = 1;
+
+#if DEBUG
+#   if DEBUG_TO_FILE
+    ostringstream ferrName;
+    ferrName << "tracer." << PID << ".log";
+    echo.open(ferrName.str().c_str());
+#   endif
+#endif
     
     if (1 >= argc) {
-        cerr << "missing world_size argument" << endl;
+        CERR << "missing world_size argument" << endl;
         exit(EXIT_FAILURE);
     }
     else if (3 <= argc) {
-        cerr << "too many arguments" << endl;
+        CERR << "too many arguments" << endl;
         exit(EXIT_FAILURE);
     }
     world_size = atoi(argv[1]);
     if (world_size <= 1) {
-        cerr << "world size must be > 1" << endl;
+        CERR << "world size must be > 1" << endl;
         exit(EXIT_FAILURE);
     }
 
@@ -179,7 +193,7 @@ int main(int argc, char **argv)
 
         (void) s_recv(broker, identity);
         (void) s_recv(broker, control);
-        cout << "broker recv - identity '" << identity << "' control '"
+        CERR << "broker recv - identity '" << identity << "' control '"
             << control << "'" << endl;
 
         if ("HELLO" == control || "HELLO_NETSIM" == control) {
@@ -191,7 +205,7 @@ int main(int argc, char **argv)
                     netSimID = identity;
                 }
                 else {
-                    cerr << "a net sim is already connected" << endl;
+                    CERR << "a net sim is already connected" << endl;
                     graceful_death(EXIT_FAILURE);
                 }
             }
@@ -225,7 +239,7 @@ int main(int argc, char **argv)
             }
 
             if (0 == obj_to_ID.count(message->getTo())) {
-                cerr << "object '" << message->getTo()
+                CERR << "object '" << message->getTo()
                     << "' not registered" << endl;
                 graceful_death(EXIT_FAILURE);
             }
@@ -233,8 +247,13 @@ int main(int argc, char **argv)
 
             (void) s_sendmore(broker, identity);
             (void) s_sendmore(broker, "ROUTE");
-            (void) s_sendmore(broker, envelope, envelopeSize);
-            (void) s_send    (broker, data, dataSize);
+            if (dataSize > 0) {
+                (void) s_sendmore(broker, envelope, envelopeSize);
+                (void) s_send    (broker, data, dataSize);
+            }
+            else {
+                (void) s_send    (broker, envelope, envelopeSize);
+            }
         }
         else if ("DELAY" == control) {
             /* a sim needs to route message through net sim */
@@ -246,6 +265,7 @@ int main(int argc, char **argv)
 
             envelopeSize = s_recv(broker, envelope, 256);
             message = new Message(envelope, envelopeSize);
+            CERR << "broker - recv message: " << *message << endl;
             dataSize = message->getSize();
             if (dataSize > 0) {
                 data = new uint8_t[dataSize];
@@ -255,13 +275,18 @@ int main(int argc, char **argv)
 
             (void) s_sendmore(broker, netSimID);
             (void) s_sendmore(broker, "DELAY");
-            (void) s_sendmore(broker, envelope, envelopeSize);
-            (void) s_send    (broker, data, dataSize);
+            if (dataSize > 0) {
+                (void) s_sendmore(broker, envelope, envelopeSize);
+                (void) s_send    (broker, data, dataSize);
+            }
+            else {
+                (void) s_send    (broker, envelope, envelopeSize);
+            }
         }
         else if ("REDUCE_MIN_TIME" == control) {
             unsigned long time;
             if (1 == m_reduce_min_time.count(identity)) {
-                cerr << "sim with ID '" << identity
+                CERR << "sim with ID '" << identity
                     << "' duplicate REDUCE_MIN_TIME" << endl;
                 graceful_death(EXIT_FAILURE);
             }
@@ -287,7 +312,7 @@ int main(int argc, char **argv)
             unsigned long m_recv = 0;
             if (1 == m_reduce_sent.count(identity)) {
                 assert(1 == m_reduce_recv.count(identity));
-                cerr << "sim with ID '" << identity
+                CERR << "sim with ID '" << identity
                     << "' duplicate REDUCE_SEND_RECV" << endl;
                 graceful_death(EXIT_FAILURE);
             }
@@ -324,7 +349,7 @@ int main(int argc, char **argv)
                 continue;
             }
             if (1 == obj_to_ID.count(name)) {
-                cerr << "object '" << name << "' already registered to sim '"
+                CERR << "object '" << name << "' already registered to sim '"
                     << identity << "'" << endl;
                 graceful_death(EXIT_FAILURE);
             }
@@ -345,13 +370,13 @@ int main(int argc, char **argv)
         }
         else if ("BARRIER" == control) {
             if (1 == barrier.count(identity)) {
-                cerr << "barrier already initialized for sim '"
+                CERR << "barrier already initialized for sim '"
                     << identity << "'" << endl;
                 graceful_death(EXIT_FAILURE);
             }
             barrier.insert(identity);
             if (barrier.size() > world_size) {
-                cerr << "barrier size > world size" << endl;
+                CERR << "barrier size > world size" << endl;
                 graceful_death(EXIT_FAILURE);
             }
             else if (barrier.size() == world_size) {
@@ -363,12 +388,29 @@ int main(int argc, char **argv)
                 barrier.clear();
             }
         }
-        else if ("QUIT" == control) {
+        else if ("DIE" == control) {
+            /* a simulation wants to terminate abrubtly */
+            graceful_death(EXIT_FAILURE);
+        }
+        else if ("FINISHED" == control) {
             /* a simulation wants to terminate nicely */
-            break;
+            /* publish term message to all sims */
+            (void) s_send(killer, "FINISHED");
+            if (1 == finished.count(identity)) {
+                CERR << "additional FINISHED received from '" << identity
+                    << "'" << endl;
+            }
+            finished.insert(identity);
+            if (finished.size() > world_size) {
+                CERR << "finished size > world size" << endl;
+                graceful_death(EXIT_FAILURE);
+            }
+            else if (finished.size() == world_size) {
+                break;
+            }
         }
         else {
-            cout << "unrecognized control header '" << control << "'" << endl;
+            CERR << "unrecognized control header '" << control << "'" << endl;
             graceful_death(EXIT_FAILURE);
         }
     }

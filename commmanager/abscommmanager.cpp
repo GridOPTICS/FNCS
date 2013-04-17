@@ -210,5 +210,11 @@ namespace sim_comm{
 	this->minNetworkDelay=msgDeliveryTime;
   }
 
+  
+  void AbsCommManager::sendFinishedSignal()
+  {
+      this->currentInterface->sendFinishedSignal();
+  }
+
 }
 

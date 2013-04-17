@@ -212,6 +212,11 @@ namespace sim_comm{
     void createLayer(){
       this->currentInterface=this->currentInterface->duplicateInterface();
     }
+
+    /**
+     * Signals to others that we are finished.
+     */
+    virtual void sendFinishedSignal();
   };
 
 }

@@ -434,7 +434,7 @@ include_HEADERS = absnetworkinterface.h cintegrator.h integrator.h \
 	syncalgorithms/optimisticticksyncalgo.h \
 	syncalgorithms/optimisticcommsyncalgo.h util/callback.h \
 	util/simtime.h util/csimtime.h
-noinst_HEADERS = tests/echo.h
+noinst_HEADERS = echo.h
 lib_LTLIBRARIES = libfncs_api.la
 EXTRA_DIST = README
 AM_CXXFLAGS = 

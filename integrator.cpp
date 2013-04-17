@@ -28,20 +28,16 @@
 
 #include "abscommmanager.h"
 #include "absnetworkinterface.h"
+#include "communicationcommanager.h"
+#include "graceperiodcommmanager.h"
+#include "graceperiodnetworkdelaysyncalgo.h"
 #include "integrator.h"
 #include "objectcomminterface.h"
-#include "syncalgorithms/graceperiodpesimisticsyncalgo.h"
-#include "syncalgorithms/communicatorsimulatorsyncalgo.h"
-#include "graceperiodcommmanager.h"
-#include "communicationcommanager.h"
-#include "syncalgorithms/graceperiodspeculativesyncalgo.h"
-#include <graceperiodnetworkdelaysyncalgo.h>
 #include "optimisticcommsyncalgo.h"
 #include "optimisticticksyncalgo.h"
-
-#if DEBUG && DEBUG_TO_FILE
-ofstream ferr;
-#endif
+#include "syncalgorithms/communicatorsimulatorsyncalgo.h"
+#include "syncalgorithms/graceperiodpesimisticsyncalgo.h"
+#include "syncalgorithms/graceperiodspeculativesyncalgo.h"
 
 namespace sim_comm {
 
@@ -55,11 +51,6 @@ Integrator::Integrator(
         time_metric simTimeStep,
 	TIME packetLostPeriod) {
 #if DEBUG
-#   if DEBUG_TO_FILE
-    ostringstream ferrName;
-    ferrName << "tracer." << PID << ".log";
-    ferr.open(ferrName.str().c_str());
-#   endif
     CERR << "Integrator::Integrator("
         << "AbsCommInterface*,"
         << "AbsSyncAlgorithm*,"
@@ -76,9 +67,6 @@ Integrator::Integrator(
 
 
 Integrator::~Integrator(){
-#if DEBUG && DEBUG_TO_FILE
-    ferr.close();
-#endif
 	this->currentInterface->stopReceiver();
 	delete currentInterface;
 	delete syncAlgo;
@@ -99,7 +87,8 @@ void Integrator::stopIntegrator(){
 #if DEBUG
 	    CERR << "Signaling finish to other sims" << endl;
 #endif
-	    instance->syncAlgo->GetNextTime(instance->getCurSimTime(),Infinity);
+	    //instance->syncAlgo->GetNextTime(instance->getCurSimTime(),Infinity);
+        instance->currentInterface->sendFinishedSignal();
     }
 	delete instance;
 }

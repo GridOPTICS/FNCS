@@ -48,7 +48,7 @@ include_HEADERS += util/callback.h
 include_HEADERS += util/simtime.h
 include_HEADERS += util/csimtime.h
 
-noinst_HEADERS += tests/echo.h
+noinst_HEADERS += echo.h
 
 AM_CPPFLAGS += -I$(top_srcdir)/commmanager
 AM_CPPFLAGS += -I$(top_srcdir)/syncalgorithms

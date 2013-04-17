@@ -34,6 +34,8 @@
 #include <vector>
 
 #include "absnetworkinterface.h"
+#include "integrator.h"
+#include "echo.h"
 
 using std::endl;
 using std::find;
@@ -42,6 +44,10 @@ using std::ostringstream;
 using std::string;
 using std::vector;
 
+#if DEBUG && DEBUG_TO_FILE
+Echo echo;
+#endif
+
 using namespace sim_comm;
 
 
@@ -49,10 +55,18 @@ AbsNetworkInterface::AbsNetworkInterface()
     :   myObjects()
     ,   registrationsAreFinalized(false)
 {
+#if DEBUG && DEBUG_TO_FILE
+    ostringstream ferrName;
+    ferrName << "tracer." << PID << ".log";
+    echo.open(ferrName.str().c_str());
+#endif
 }
 
 
 AbsNetworkInterface::~AbsNetworkInterface() {
+#if DEBUG && DEBUG_TO_FILE
+    echo.close();
+#endif
 }
 
 
@@ -89,5 +103,10 @@ void AbsNetworkInterface::registerObject(string name) {
 
 void AbsNetworkInterface::finalizeRegistrations() {
     this->registrationsAreFinalized = true;
+}
+
+
+void AbsNetworkInterface::sendFinishedSignal()
+{
 }
 

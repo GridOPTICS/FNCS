@@ -27,9 +27,16 @@
 #ifndef ZMQNETWORKINTERFACE_H_
 #define ZMQNETWORKINTERFACE_H_
 
+#include <errno.h>
+#include <unistd.h>
+
+#include <zmq.h>
+
 #include <list>
 
 #include "absnetworkinterface.h"
+#include "integrator.h"
+#include "zmqhelper.h"
 
 using std::list;
 
@@ -52,6 +59,9 @@ private:
 
 protected:
     void makeProgress();
+
+    template <typename T>
+    int i_recv(void *socket, T &buf);
     
 public:
     /**
@@ -93,7 +103,54 @@ public:
 
     /** @copydoc AbsNetworkInterface::duplicateInterface()*/
     virtual AbsNetworkInterface* duplicateInterface();
+
+    /** @copydoc AbsNetworkInterface::sendFinishedSignal()*/
+    virtual void sendFinishedSignal();
 };
+
+
+template <typename T>
+int ZmqNetworkInterface::i_recv(void *socket, T &buf)
+{
+    int size;
+
+    CERR << "ZmqNetworkInterface::i_recv" << endl;
+
+    size = s_irecv(socket, buf);
+
+    CERR << "ZmqNetworkInterface::i_recv "
+        << "size=" << size << " "
+        << "buf=" << buf << endl;
+
+    while (-1 == size && EAGAIN == errno) {
+        string control;
+
+        /* check for messages on the sub channel */
+        errno = 0;
+        size = s_irecv(this->zmq_die, control);
+
+        if (size >= 0) {
+            if ("DIE" == control) {
+                CERR << "DIE received from SUB" << endl;
+                /* an application terminated abrubtly, so do we */
+                exit(EXIT_FAILURE);
+            }
+            else if ("FINISHED" == control) {
+                CERR << "FINISHED received from SUB" << endl;
+                /* an application terminated cleanly, so do we */
+                s_send(socket, "FINISHED");
+                exit(EXIT_SUCCESS);
+            }
+        }
+
+        CERR << "i_recv, sleeping" << endl;
+        (void) sleep(1);
+
+        errno = 0;
+        size = s_irecv(socket, buf);
+    }
+}
+
 
 } /* end namespace sim_comm */
 

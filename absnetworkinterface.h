@@ -32,7 +32,6 @@
 #include <unistd.h>
 
 #include <exception>
-//#include <iostream>
 #include <map>
 #include <sstream>
 #include <string>
@@ -188,6 +187,11 @@ public:
      * has the same connections as the previous.
      */
     virtual AbsNetworkInterface* duplicateInterface() =0;
+
+    /**
+     * Signals that we are finished.
+     */
+    virtual void sendFinishedSignal();
 };
 
 } /* end namespace sim_comm */
