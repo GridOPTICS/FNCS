@@ -132,26 +132,7 @@ ZmqNetworkInterface::ZmqNetworkInterface(const ZmqNetworkInterface &that)
 
 ZmqNetworkInterface::~ZmqNetworkInterface()
 {
-    int zmq_close_retval = 0;
-    int zmq_ctx_destroy_retval = 0;
-
-#if DEBUG
-    CERR << "ZmqNetworkInterface::~ZmqNetworkInterface()" << endl;
-#endif
-
-    makeProgress();
-
-    zmq_close_retval = zmq_close(this->zmq_req);
-    assert(0 == zmq_close_retval);
-
-    zmq_close_retval = zmq_close(this->zmq_async);
-    assert(0 == zmq_close_retval);
-
-    zmq_close_retval = zmq_close(this->zmq_die);
-    assert(0 == zmq_close_retval);
-
-    zmq_ctx_destroy_retval = zmq_ctx_destroy(this->zmq_ctx);
-    assert(0 == zmq_ctx_destroy_retval);
+    cleanup();
 }
 
 
@@ -185,6 +166,8 @@ void ZmqNetworkInterface::send(Message *message)
     else {
         (void) s_send    (this->zmq_async, envelope, envelopeSize);
     }
+
+    delete [] envelope;
 }
 
 
@@ -378,6 +361,8 @@ void ZmqNetworkInterface::processAsyncMessage()
     else {
         this->receivedMessages.push_back(message);
     }
+
+    delete [] envelope;
 }
 
 
@@ -389,17 +374,20 @@ void ZmqNetworkInterface::processSubMessage()
     if ("DIE" == control) {
         CERR << "DIE received from SUB" << endl;
         /* an application terminated abrubtly, so do we */
+        cleanup();
         exit(EXIT_FAILURE);
     }
     else if ("FINISHED" == control) {
         CERR << "FINISHED received from SUB" << endl;
         /* an application terminated cleanly, so do we */
         (void) s_send(this->zmq_req, this->context, "FINISHED");
+        cleanup();
         exit(EXIT_SUCCESS);
     }
     else {
         CERR << "'" << control << "' received from SUB" << endl;
         (void) s_send(this->zmq_req, "DIE");
+        cleanup();
         exit(EXIT_FAILURE);
     }
 }
@@ -446,3 +434,27 @@ void ZmqNetworkInterface::sendFinishedSignal()
     (void) s_send(this->zmq_req, this->context, "FINISHED");
 }
 
+
+void ZmqNetworkInterface::cleanup()
+{
+    int zmq_close_retval = 0;
+    int zmq_ctx_destroy_retval = 0;
+
+#if DEBUG
+    CERR << "ZmqNetworkInterface::~ZmqNetworkInterface()" << endl;
+#endif
+
+    makeProgress();
+
+    zmq_close_retval = zmq_close(this->zmq_req);
+    assert(0 == zmq_close_retval);
+
+    zmq_close_retval = zmq_close(this->zmq_async);
+    assert(0 == zmq_close_retval);
+
+    zmq_close_retval = zmq_close(this->zmq_die);
+    assert(0 == zmq_close_retval);
+
+    zmq_ctx_destroy_retval = zmq_ctx_destroy(this->zmq_ctx);
+    assert(0 == zmq_ctx_destroy_retval);
+}

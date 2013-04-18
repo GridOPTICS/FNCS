@@ -63,6 +63,7 @@ protected:
     void init();
     void processAsyncMessage();
     void processSubMessage();
+    void cleanup();
     void makeProgress();
     template <typename T> int i_recv(T &buf);
     
