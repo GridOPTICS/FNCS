@@ -237,7 +237,7 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-am__include_HEADERS_DIST = absnetworkinterface.h cintegrator.h \
+am__include_HEADERS_DIST = absnetworkinterface.h cintegrator.h echo.h \
 	integrator.h message.h mpinetworkinterface.h \
 	objectcomminterface.h zmqnetworkinterface.h \
 	commmanager/abscommmanager.h \
@@ -421,9 +421,10 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
-include_HEADERS = absnetworkinterface.h cintegrator.h integrator.h \
-	message.h mpinetworkinterface.h objectcomminterface.h \
-	$(am__append_1) commmanager/abscommmanager.h \
+include_HEADERS = absnetworkinterface.h cintegrator.h echo.h \
+	integrator.h message.h mpinetworkinterface.h \
+	objectcomminterface.h $(am__append_1) \
+	commmanager/abscommmanager.h \
 	commmanager/communicationcommanager.h \
 	commmanager/graceperiodcommmanager.h \
 	syncalgorithms/abssyncalgorithm.h \
@@ -434,7 +435,7 @@ include_HEADERS = absnetworkinterface.h cintegrator.h integrator.h \
 	syncalgorithms/optimisticticksyncalgo.h \
 	syncalgorithms/optimisticcommsyncalgo.h util/callback.h \
 	util/simtime.h util/csimtime.h
-noinst_HEADERS = echo.h
+noinst_HEADERS = 
 lib_LTLIBRARIES = libfncs_api.la
 EXTRA_DIST = README
 AM_CXXFLAGS = 

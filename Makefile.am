@@ -23,6 +23,7 @@ LDADD += $(ZMQ_LIBS)
 
 include_HEADERS += absnetworkinterface.h
 include_HEADERS += cintegrator.h
+include_HEADERS += echo.h
 include_HEADERS += integrator.h
 include_HEADERS += message.h
 include_HEADERS += mpinetworkinterface.h
@@ -43,12 +44,9 @@ include_HEADERS	+= syncalgorithms/graceperiodnetworkdelaysyncalgo.h
 include_HEADERS	+= syncalgorithms/optimisticticksyncalgo.h
 include_HEADERS	+= syncalgorithms/optimisticcommsyncalgo.h
 
-
 include_HEADERS += util/callback.h
 include_HEADERS += util/simtime.h
 include_HEADERS += util/csimtime.h
-
-noinst_HEADERS += echo.h
 
 AM_CPPFLAGS += -I$(top_srcdir)/commmanager
 AM_CPPFLAGS += -I$(top_srcdir)/syncalgorithms
