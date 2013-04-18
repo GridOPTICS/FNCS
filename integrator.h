@@ -36,12 +36,11 @@
 #include "echo.h"
 #include "simtime.h"
 
-#define DEBUG 1
-#define DEBUG_TO_FILE 1
+#define DEBUG 0
+#define DEBUG_TO_FILE 0
 #if DEBUG
 #   define PID (getpid())
 #   if DEBUG_TO_FILE
-extern Echo echo;
 #       define CERR (echo << '[' << PID << "] ")
 #   else
 #       define CERR (cerr << '[' << PID << "] ")
@@ -49,6 +48,7 @@ extern Echo echo;
 #else
 #   define CERR echo
 #endif
+extern Echo echo;
 
 using namespace std;
 

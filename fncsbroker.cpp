@@ -27,6 +27,7 @@
  */
 #include "config.h"
 
+#include <algorithm>
 #include <cassert>
 #include <csignal>
 #include <cstdlib>

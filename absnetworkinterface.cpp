@@ -44,9 +44,9 @@ using std::ostringstream;
 using std::string;
 using std::vector;
 
-#if DEBUG && DEBUG_TO_FILE
+//#if DEBUG && DEBUG_TO_FILE
 Echo echo;
-#endif
+//#endif
 
 using namespace sim_comm;
 
