@@ -51,6 +51,7 @@ class ZmqNetworkInterface : public AbsNetworkInterface {
 private:
     void *zmq_ctx;
     void *zmq_req;
+    void *zmq_async;
     void *zmq_die;
     string ID;
     int context;
@@ -60,11 +61,10 @@ private:
 
 protected:
     void init();
-
+    void processAsyncMessage();
+    void processSubMessage();
     void makeProgress();
-
-    template <typename T>
-    int i_recv(void *socket, T &buf);
+    template <typename T> int i_recv(T &buf);
     
 public:
     /**
@@ -118,47 +118,32 @@ public:
 
 
 template <typename T>
-int ZmqNetworkInterface::i_recv(void *socket, T &buf)
+int ZmqNetworkInterface::i_recv(T &buf)
 {
+    bool done;
     int size;
 
     CERR << "ZmqNetworkInterface::i_recv" << endl;
 
-    while (true) {
-        zmq_pollitem_t items[2];
-        items[0].socket = socket;
-        items[0].events = ZMQ_POLLIN;
-        items[1].socket = this->zmq_die;
-        items[1].events = ZMQ_POLLIN;
-        int rc = zmq_poll(items, 1, 0);
+    done = false;
+    while (!done) {
+        zmq_pollitem_t items[] = {
+            { this->zmq_req,   0, ZMQ_POLLIN, 0 },
+            { this->zmq_async, 0, ZMQ_POLLIN, 0 },
+            { this->zmq_die,   0, ZMQ_POLLIN, 0 }
+        };
+        int rc = zmq_poll(items, 3, -1);
         assert(rc >= 0);
         if (items[0].revents & ZMQ_POLLIN) {
-            size = s_recv(socket, buf);
-            break;
+            size = s_recv(this->zmq_req, buf);
+            CERR << "ZmqNetworkInterface:i_recv got '" << buf << "'" << endl;
+            done = true;
         }
         if (items[1].revents & ZMQ_POLLIN) {
-            string control;
-
-            (void) s_recv(this->zmq_die, control);
-
-            if ("DIE" == control) {
-                CERR << "DIE received from SUB" << endl;
-                /* an application terminated abrubtly, so do we */
-                (void) s_send(this->zmq_req, "DIE");
-                exit(EXIT_FAILURE);
-            }
-            else if ("FINISHED" == control) {
-                CERR << "FINISHED received from SUB" << endl;
-                /* an application terminated cleanly, so do we */
-                (void) s_send(this->zmq_req, "FINISHED");
-                exit(EXIT_SUCCESS);
-            }
-            else {
-                CERR << "'" << control << "' received from SUB" << endl;
-                (void) s_send(this->zmq_req, "DIE");
-                exit(EXIT_FAILURE);
-            }
-
+            processAsyncMessage();
+        }
+        if (items[2].revents & ZMQ_POLLIN) {
+            processSubMessage();
         }
     }
 

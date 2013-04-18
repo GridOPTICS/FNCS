@@ -28,6 +28,7 @@
 #include "config.h"
 
 #include <cassert>
+#include <csignal>
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
@@ -48,32 +49,22 @@ using namespace sim_comm;
 typedef map<string,unsigned long> ReduceMap;
 typedef pair<string,unsigned long> ReducePair;
 
-#ifdef TODO
-vector<map<string,string> > obj_to_ID(1);
-vector<ReduceMap> reduce_min_time(1);
-vector<ReduceMap> reduce_sent(1);
-vector<ReduceMap> reduce_recv(1);
-vector<set<string> > connections(1);
-vector<set<string> > finalized(1);
-vector<set<string> > barrier(1);
-vector<set<string> > finished(1);
-vector<string> netSimID(1);
-#else
-map<string,string> obj_to_ID;
-ReduceMap reduce_min_time;
-ReduceMap reduce_sent;
-ReduceMap reduce_recv;
-set<string> connections;
-set<string> finalized;
-set<string> barrier;
-set<string> finished;
-string netSimID;
-#endif
+vector<map<string,string> > obj_to_ID;
+vector<ReduceMap> reduce_min_time;
+vector<ReduceMap> reduce_sent;
+vector<ReduceMap> reduce_recv;
+string newNetSimID;
+set<string> newConnections;
+vector<set<string> > contexts;
+vector<set<string> > finalized;
+vector<set<string> > barrier;
+vector<set<string> > finished;
+vector<string> netSimID;
 void *zmq_ctx = NULL;
 void *broker = NULL;
+void *async_broker = NULL;
 void *killer = NULL;
 int world_size = 0;
-
 
 struct ReduceMinPairLess
 {
@@ -83,52 +74,34 @@ struct ReduceMinPairLess
     }
 };
 
-static bool starts_with(const string &str, const string &prefix)
+static int add_context();
+static bool starts_with(const string &str, const string &prefix);
+static void graceful_death(int exit_code);
+static void hello_handler(const string &identity, const int &context, const string &control);
+static void route_handler(const string &identity, const int &context, const string &control);
+static void delay_handler(const string &identity, const int &context, const string &control);
+static void reduce_min_time_handler(const string &identity, const int &context, const string &control);
+static void reduce_send_recv_handler(const string &identity, const int &context, const string &control);
+static void register_handler(const string &identity, const int &context, const string &control);
+static void finalize_handler(const string &identity, const int &context, const string &control);
+static void barrier_handler(const string &identity, const int &context, const string &control);
+static bool finished_handler(const string &identity, const int &context, const string &control);
+
+
+/* handle signals */
+static int s_interrupted = 0;
+static void s_signal_handler(int signal_value)
 {
-    return str.substr(0, prefix.size()) == prefix;
+    s_interrupted = 1;
 }
-
-static void graceful_death(int exit_code)
+static void s_catch_signals()
 {
-    int retval;
-
-    /* send term message to all sims */
-    if (killer) {
-        (void) s_send(killer, "DIE");
-    }
-
-    /* clean up killer */
-    if (killer) {
-        retval = zmq_close(killer);
-        if (-1 == retval) {
-            perror("zmq_close(killer)");
-            exit_code = EXIT_FAILURE;
-        }
-    }
-
-    /* clean up broker */
-    if (broker) {
-        retval = zmq_close(broker);
-        if (-1 == retval) {
-            perror("zmq_close(broker)");
-            exit_code = EXIT_FAILURE;
-        }
-    }
-
-    /* clean up context */
-    if (zmq_ctx) {
-        retval = zmq_ctx_destroy(zmq_ctx);
-        if (-1 == retval) {
-            perror("zmq_ctx_destroy");
-            exit_code = EXIT_FAILURE;
-        }
-    }
-
-#if DEBUG && DEBUG_TO_FILE
-    echo.close();
-#endif
-
-    exit(exit_code);
+    struct sigaction action;
+    action.sa_handler = s_signal_handler;
+    action.sa_flags = 0;
+    sigemptyset(&action.sa_mask);
+    sigaction(SIGINT, &action, NULL);
+    sigaction(SIGTERM, &action, NULL);
 }
 
 
@@ -165,7 +138,7 @@ int main(int argc, char **argv)
         graceful_death(EXIT_FAILURE);
     }
 
-    /* create socket for receiving messages from simulations */
+    /* create socket for receiving barrier/sync messages from simulations */
     broker = zmq_socket(zmq_ctx, ZMQ_ROUTER);
     if (NULL == broker) {
         perror("zmq_socket(zmq_ctx, ZMQ_ROUTER)");
@@ -186,6 +159,27 @@ int main(int argc, char **argv)
         graceful_death(EXIT_FAILURE);
     }
 
+    /* create socket for receiving sim messages from simulations */
+    async_broker = zmq_socket(zmq_ctx, ZMQ_ROUTER);
+    if (NULL == async_broker) {
+        perror("zmq_socket(zmq_ctx, ZMQ_ROUTER)");
+        graceful_death(EXIT_FAILURE);
+    }
+
+    /* async_broker should not silently drop packets that can't be sent out */
+    retval = zmq_setsockopt(async_broker, ZMQ_ROUTER_MANDATORY, &ONE, sizeof(int));
+    if (-1 == retval) {
+        perror("zmq_setsockopt(async_broker, ZMQ_ROUTER_MANDATORY, &ONE, sizeof(int))");
+        graceful_death(EXIT_FAILURE);
+    }
+
+    /* bind async_broker to physical address */
+    retval = zmq_bind(async_broker, "tcp://*:5556");
+    if (-1 == retval) {
+        perror("zmq_bind(async_broker, \"tcp://*:5556\")");
+        graceful_death(EXIT_FAILURE);
+    }
+
     /* create socket for sending kill message to simulations */
     killer = zmq_socket(zmq_ctx, ZMQ_PUB);
     if (NULL == killer) {
@@ -194,247 +188,459 @@ int main(int argc, char **argv)
     }
 
     /* bind killer to physical address */
-    retval = zmq_bind(killer, "tcp://*:5556");
+    retval = zmq_bind(killer, "tcp://*:5557");
     if (-1 == retval) {
-        perror("zmq_bind(killer, \"tcp://*:5556\")");
+        perror("zmq_bind(killer, \"tcp://*:5557\")");
         graceful_death(EXIT_FAILURE);
     }
 
+    s_catch_signals();
+
     while (1) {
         string identity; // simulation identifier
+        int context; // which group of sims?
         string control; // control field
 
-        (void) s_recv(broker, identity);
-        (void) s_recv(broker, control);
-        CERR << "broker recv - identity '" << identity << "' control '"
-            << control << "'" << endl;
+        zmq_pollitem_t items[] = {
+            { broker,       0, ZMQ_POLLIN, 0 },
+            { async_broker, 0, ZMQ_POLLIN, 0 },
+        };
 
-        if ("HELLO" == control || "HELLO_NETSIM" == control) {
-            /* a sim is notifying it wants to connect */
-            /* we wait until all sims connect before replying */
-
-#ifdef TODO
-            /* do we need a new context? */
-            if (connections.back().size() == world_size) {
-                connections.resize(connections.size()+1);
-            }
-#endif
-            connections.insert(identity);
-            if ("HELLO_NETSIM" == control) {
-                if (netSimID.empty()) {
-                    netSimID = identity;
-                }
-                else {
-                    CERR << "a net sim is already connected" << endl;
-                    graceful_death(EXIT_FAILURE);
-                }
-            }
-            if (connections.size() > world_size) {
-                graceful_death(EXIT_FAILURE);
-            }
-            else if (connections.size() == world_size) {
-                for (set<string>::iterator it=connections.begin();
-                        it != connections.end(); ++it) {
-                    (void) s_sendmore(broker, *it);
-                    (void) s_send(broker, "ACK");
-                }
-            }
-        }
-        else if ("ROUTE" == control) {
-            /* net sim finished routing message;
-             * needs to route payload to dest sim */
-            uint8_t *envelope;
-            uint32_t envelopeSize;
-            uint8_t *data;
-            uint32_t dataSize;
-            Message *message;
-
-            envelopeSize = s_recv(broker, envelope, 256);
-            message = new Message(envelope, envelopeSize);
-            dataSize = message->getSize();
-            if (dataSize > 0) {
-                data = new uint8_t[dataSize];
-                (void) s_recv(broker, data, dataSize);
-                message->setData(data, dataSize);
-            }
-
-            if (0 == obj_to_ID.count(message->getTo())) {
-                CERR << "object '" << message->getTo()
-                    << "' not registered" << endl;
-                graceful_death(EXIT_FAILURE);
-            }
-            string identity = obj_to_ID[message->getTo()];
-
-            (void) s_sendmore(broker, identity);
-            (void) s_sendmore(broker, "ROUTE");
-            if (dataSize > 0) {
-                (void) s_sendmore(broker, envelope, envelopeSize);
-                (void) s_send    (broker, data, dataSize);
-            }
-            else {
-                (void) s_send    (broker, envelope, envelopeSize);
-            }
-        }
-        else if ("DELAY" == control) {
-            /* a sim needs to route message through net sim */
-            uint8_t *envelope;
-            uint32_t envelopeSize;
-            uint8_t *data;
-            uint32_t dataSize;
-            Message *message;
-
-            envelopeSize = s_recv(broker, envelope, 256);
-            message = new Message(envelope, envelopeSize);
-            CERR << "broker - recv message: " << *message << endl;
-            dataSize = message->getSize();
-            if (dataSize > 0) {
-                data = new uint8_t[dataSize];
-                (void) s_recv(broker, data, dataSize);
-                message->setData(data, dataSize);
-            }
-
-            (void) s_sendmore(broker, netSimID);
-            (void) s_sendmore(broker, "DELAY");
-            if (dataSize > 0) {
-                (void) s_sendmore(broker, envelope, envelopeSize);
-                (void) s_send    (broker, data, dataSize);
-            }
-            else {
-                (void) s_send    (broker, envelope, envelopeSize);
-            }
-        }
-        else if ("REDUCE_MIN_TIME" == control) {
-            unsigned long time;
-            if (1 == reduce_min_time.count(identity)) {
-                CERR << "sim with ID '" << identity
-                    << "' duplicate REDUCE_MIN_TIME" << endl;
-                graceful_death(EXIT_FAILURE);
-            }
-            (void) s_recv(broker, time);
-            reduce_min_time[identity] = time;
-            if (reduce_min_time.size() == world_size) {
-                ReducePair min = *min_element(reduce_min_time.begin(),
-                        reduce_min_time.end(), ReduceMinPairLess());
-                /* send result to all sims */
-                for (set<string>::iterator it=connections.begin();
-                        it != connections.end(); ++it) {
-                    (void) s_sendmore(broker, *it);
-                    (void) s_send(broker, min.second);
-                }
-                /* clear the map in preparation for next round */
-                reduce_min_time.clear();
-            }
-        }
-        else if ("REDUCE_SEND_RECV" == control) {
-            unsigned long sent = 0;
-            unsigned long recv = 0;
-            unsigned long m_sent = 0;
-            unsigned long m_recv = 0;
-            if (1 == reduce_sent.count(identity)) {
-                assert(1 == reduce_recv.count(identity));
-                CERR << "sim with ID '" << identity
-                    << "' duplicate REDUCE_SEND_RECV" << endl;
-                graceful_death(EXIT_FAILURE);
-            }
-            (void) s_recv(broker, sent);
-            (void) s_recv(broker, recv);
-            reduce_sent[identity] = sent;
-            reduce_recv[identity] = recv;
-            if (reduce_sent.size() == world_size) {
-                assert(reduce_recv.size() == world_size);
-                ReduceMap::const_iterator it;
-                for (it=reduce_sent.begin(); it!=reduce_sent.end(); ++it) {
-                    m_sent += it->second;
-                }
-                for (it=reduce_recv.begin(); it!=reduce_recv.end(); ++it) {
-                    m_recv += it->second;
-                }
-                /* send result to all sims */
-                for (set<string>::iterator it=connections.begin();
-                        it != connections.end(); ++it) {
-                    (void) s_sendmore(broker, *it);
-                    (void) s_sendmore(broker, m_sent);
-                    (void) s_send    (broker, m_recv);
-                }
-                /* clear the map in preparation for next round */
-                reduce_sent.clear();
-                reduce_recv.clear();
-            }
-        }
-        else if ("REGISTER_OBJECT" == control) {
-            string name;
-            (void) s_recv(broker, name);
-            /* don't register net sim objects */
-            if (identity == netSimID) {
-                continue;
-            }
-            if (1 == obj_to_ID.count(name)) {
-                CERR << "object '" << name << "' already registered to sim '"
-                    << identity << "'" << endl;
-                graceful_death(EXIT_FAILURE);
-            }
-            obj_to_ID[name] = identity;
-        }
-        else if ("FINALIZE_REGISTRATIONS" == control) {
-            finalized.insert(identity);
-            if (finalized.size() > world_size) {
-                graceful_death(EXIT_FAILURE);
-            }
-            else if (finalized.size() == world_size) {
-                for (set<string>::iterator it=finalized.begin();
-                        it != finalized.end(); ++it) {
-                    (void) s_sendmore(broker, *it);
-                    (void) s_send    (broker, obj_to_ID.size());
-                }
-            }
-        }
-        else if ("BARRIER" == control) {
-            if (1 == barrier.count(identity)) {
-                CERR << "barrier already initialized for sim '"
-                    << identity << "'" << endl;
-                graceful_death(EXIT_FAILURE);
-            }
-            barrier.insert(identity);
-            if (barrier.size() > world_size) {
-                CERR << "barrier size > world size" << endl;
-                graceful_death(EXIT_FAILURE);
-            }
-            else if (barrier.size() == world_size) {
-                for (set<string>::iterator it=barrier.begin();
-                        it != barrier.end(); ++it) {
-                    (void) s_sendmore(broker, *it);
-                    (void) s_send    (broker, "ACK");
-                }
-                barrier.clear();
-            }
-        }
-        else if ("DIE" == control) {
-            /* a simulation wants to terminate abrubtly */
+        int rc = zmq_poll(items, 2, -1);
+        if (s_interrupted) {
             graceful_death(EXIT_FAILURE);
-        }
-        else if ("FINISHED" == control) {
-            /* a simulation wants to terminate nicely */
-            /* publish term message to all sims */
-            if (1 == finished.count(identity)) {
-                CERR << "additional FINISHED received from '" << identity
-                    << "'" << endl;
-            }
-            finished.insert(identity);
-            if (finished.size() > world_size) {
-                CERR << "finished size > world size" << endl;
-                graceful_death(EXIT_FAILURE);
-            }
-            else if (finished.size() == world_size) {
-                break;
-            }
-            (void) s_send(killer, "FINISHED");
         }
         else {
-            CERR << "unrecognized control header '" << control << "'" << endl;
-            graceful_death(EXIT_FAILURE);
+            assert(rc >= 0);
+        }
+
+        if (items[0].revents & ZMQ_POLLIN) {
+            (void) s_recv(broker, identity);
+            (void) s_recv(broker, context);
+            (void) s_recv(broker, control);
+            CERR << "broker recv - identity '" << identity
+                << "' context '" << context
+                << "' control '" << control
+                << "'" << endl;
+            if (context < 0
+                    || (context >= contexts.size() && !contexts.empty())) {
+                CERR << "broker received invalid context" << endl;
+                graceful_death(EXIT_FAILURE);
+            }
+            if ("HELLO" == control || "HELLO_NETSIM" == control) {
+                hello_handler(identity, context, control);
+            }
+            else if ("REDUCE_MIN_TIME" == control) {
+                reduce_min_time_handler(identity, context, control);
+            }
+            else if ("REDUCE_SEND_RECV" == control) {
+                reduce_send_recv_handler(identity, context, control);
+            }
+            else if ("REGISTER_OBJECT" == control) {
+                register_handler(identity, context, control);
+            }
+            else if ("FINALIZE_REGISTRATIONS" == control) {
+                finalize_handler(identity, context, control);
+            }
+            else if ("BARRIER" == control) {
+                barrier_handler(identity, context, control);
+            }
+            else if ("DIE" == control) {
+                /* a simulation wants to terminate abrubtly */
+                graceful_death(EXIT_FAILURE);
+            }
+            else if ("FINISHED" == control) {
+                if (finished_handler(identity, context, control)) {
+                    break;
+                }
+            }
+            else {
+                CERR << "unrecognized control header '"
+                    << control << "'" << endl;
+                graceful_death(EXIT_FAILURE);
+            }
+        }
+        if (items[1].revents & ZMQ_POLLIN) {
+            (void) s_recv(async_broker, identity);
+            (void) s_recv(async_broker, context);
+            (void) s_recv(async_broker, control);
+            CERR << "async_broker recv - identity '" << identity
+                << "' context '" << context
+                << "' control '" << control
+                << "'" << endl;
+            if (context < 0
+                    || (context >= contexts.size() && !contexts.empty())) {
+                CERR << "async_broker received invalid context" << endl;
+                graceful_death(EXIT_FAILURE);
+            }
+            if ("ROUTE" == control) {
+                route_handler(identity, context, control);
+            }
+            else if ("DELAY" == control) {
+                delay_handler(identity, context, control);
+            }
+            else {
+                CERR << "unrecognized control header '"
+                    << control << "'" << endl;
+                graceful_death(EXIT_FAILURE);
+            }
         }
     }
 
     graceful_death(EXIT_SUCCESS);
 }
 
+
+static int add_context()
+{
+    size_t size;
+
+    netSimID.push_back(newNetSimID);
+    contexts.push_back(newConnections);
+    size = contexts.size();
+
+    obj_to_ID.resize(size);
+    reduce_min_time.resize(size);
+    reduce_sent.resize(size);
+    reduce_recv.resize(size);
+    finalized.resize(size);
+    barrier.resize(size);
+    finished.resize(size);
+
+    return int(size-1);
+}
+
+
+static bool starts_with(const string &str, const string &prefix)
+{
+    return str.substr(0, prefix.size()) == prefix;
+}
+
+
+static void graceful_death(int exit_code)
+{
+    int retval;
+
+    /* send term message to all sims */
+    if (killer) {
+        (void) s_send(killer, "DIE");
+    }
+
+    /* clean up killer */
+    if (killer) {
+        retval = zmq_close(killer);
+        if (-1 == retval) {
+            perror("zmq_close(killer)");
+            exit_code = EXIT_FAILURE;
+        }
+    }
+
+    /* clean up async_broker */
+    if (async_broker) {
+        retval = zmq_close(async_broker);
+        if (-1 == retval) {
+            perror("zmq_close(async_broker)");
+            exit_code = EXIT_FAILURE;
+        }
+    }
+
+    /* clean up broker */
+    if (broker) {
+        retval = zmq_close(broker);
+        if (-1 == retval) {
+            perror("zmq_close(broker)");
+            exit_code = EXIT_FAILURE;
+        }
+    }
+
+    /* clean up context */
+    if (zmq_ctx) {
+        retval = zmq_ctx_destroy(zmq_ctx);
+        if (-1 == retval) {
+            perror("zmq_ctx_destroy");
+            exit_code = EXIT_FAILURE;
+        }
+    }
+
+#if DEBUG && DEBUG_TO_FILE
+    echo.close();
+#endif
+
+    exit(exit_code);
+}
+
+
+/**
+ * a sim is notifying it wants to connect
+ * we wait until all sims connect before replying
+ */
+static void hello_handler(
+        const string &identity,
+        const int &context,
+        const string &control)
+{
+    newConnections.insert(identity);
+    if ("HELLO_NETSIM" == control) {
+        if (newNetSimID.empty()) {
+            newNetSimID = identity;
+        }
+        else {
+            CERR << "a net sim is already connected" << endl;
+            graceful_death(EXIT_FAILURE);
+        }
+    }
+    if (newConnections.size() > world_size) {
+        graceful_death(EXIT_FAILURE);
+    }
+    else if (newConnections.size() == world_size) {
+        int contextID = add_context();
+        for (set<string>::iterator it=newConnections.begin();
+                it != newConnections.end(); ++it) {
+            (void) s_sendmore(broker, *it);
+            (void) s_send(broker, contextID);
+        }
+        /* prep for next group of connections */
+        newConnections.clear();
+        newNetSimID.clear();
+    }
+}
+
+
+/**
+ * net sim finished routing message;
+ * needs to route payload to dest sim
+ */
+static void route_handler(
+        const string &identity,
+        const int &context,
+        const string &control)
+{
+    uint8_t *envelope;
+    uint32_t envelopeSize;
+    uint8_t *data;
+    uint32_t dataSize;
+    Message *message;
+
+    envelopeSize = s_recv(async_broker, envelope, 256);
+    message = new Message(envelope, envelopeSize);
+    dataSize = message->getSize();
+    if (dataSize > 0) {
+        data = new uint8_t[dataSize];
+        (void) s_recv(async_broker, data, dataSize);
+        message->setData(data, dataSize);
+    }
+
+    if (0 == obj_to_ID[context].count(message->getTo())) {
+        CERR << "object '" << message->getTo()
+            << "' not registered" << endl;
+        graceful_death(EXIT_FAILURE);
+    }
+    string object_owner = obj_to_ID[context][message->getTo()];
+
+    (void) s_sendmore(async_broker, object_owner);
+    (void) s_sendmore(async_broker, "ROUTE");
+    if (dataSize > 0) {
+        (void) s_sendmore(async_broker, envelope, envelopeSize);
+        (void) s_send    (async_broker, data, dataSize);
+    }
+    else {
+        (void) s_send    (async_broker, envelope, envelopeSize);
+    }
+}
+
+
+/** a sim needs to route message through net sim */
+static void delay_handler(
+        const string &identity,
+        const int &context,
+        const string &control)
+{
+    uint8_t *envelope;
+    uint32_t envelopeSize;
+    uint8_t *data;
+    uint32_t dataSize;
+    Message *message;
+
+    envelopeSize = s_recv(async_broker, envelope, 256);
+    CERR << "envelopeSize=" << envelopeSize << endl;
+    message = new Message(envelope, envelopeSize);
+    CERR << "async_broker - recv message: " << *message << endl;
+    dataSize = message->getSize();
+    if (dataSize > 0) {
+        dataSize = s_recv(async_broker, data, dataSize);
+        message->setData(data, dataSize);
+    }
+
+    (void) s_sendmore(async_broker, netSimID[context]);
+    (void) s_sendmore(async_broker, "DELAY");
+    if (dataSize > 0) {
+        (void) s_sendmore(async_broker, envelope, envelopeSize);
+        (void) s_send    (async_broker, data, dataSize);
+    }
+    else {
+        (void) s_send    (async_broker, envelope, envelopeSize);
+    }
+}
+
+
+static void reduce_min_time_handler(
+        const string &identity,
+        const int &context,
+        const string &control)
+{
+    unsigned long time;
+    if (1 == reduce_min_time[context].count(identity)) {
+        CERR << "sim with ID '" << identity
+            << "' duplicate REDUCE_MIN_TIME" << endl;
+        graceful_death(EXIT_FAILURE);
+    }
+    (void) s_recv(broker, time);
+    reduce_min_time[context][identity] = time;
+    if (reduce_min_time[context].size() == world_size) {
+        ReducePair min = *min_element(reduce_min_time[context].begin(),
+                reduce_min_time[context].end(), ReduceMinPairLess());
+        /* send result to all sims */
+        for (set<string>::iterator it=contexts[context].begin();
+                it != contexts[context].end(); ++it) {
+            (void) s_sendmore(broker, *it);
+            (void) s_send(broker, min.second);
+        }
+        /* clear the map in preparation for next round */
+        reduce_min_time[context].clear();
+    }
+}
+
+
+static void reduce_send_recv_handler(
+        const string &identity,
+        const int &context,
+        const string &control)
+{
+    unsigned long sent = 0;
+    unsigned long recv = 0;
+    unsigned long m_sent = 0;
+    unsigned long m_recv = 0;
+    if (1 == reduce_sent[context].count(identity)) {
+        assert(1 == reduce_recv[context].count(identity));
+        CERR << "sim with ID '" << identity
+            << "' duplicate REDUCE_SEND_RECV" << endl;
+        graceful_death(EXIT_FAILURE);
+    }
+    (void) s_recv(broker, sent);
+    (void) s_recv(broker, recv);
+    reduce_sent[context][identity] = sent;
+    reduce_recv[context][identity] = recv;
+    if (reduce_sent[context].size() == world_size) {
+        assert(reduce_recv[context].size() == world_size);
+        ReduceMap::const_iterator it;
+        for (it=reduce_sent[context].begin();
+                it!=reduce_sent[context].end(); ++it) {
+            m_sent += it->second;
+        }
+        for (it=reduce_recv[context].begin();
+                it!=reduce_recv[context].end(); ++it) {
+            m_recv += it->second;
+        }
+        /* send result to all sims */
+        for (set<string>::iterator it=contexts[context].begin();
+                it != contexts[context].end(); ++it) {
+            (void) s_sendmore(broker, *it);
+            (void) s_sendmore(broker, m_sent);
+            (void) s_send    (broker, m_recv);
+        }
+        /* clear the map in preparation for next round */
+        reduce_sent[context].clear();
+        reduce_recv[context].clear();
+    }
+}
+
+
+static void register_handler(
+        const string &identity,
+        const int &context,
+        const string &control)
+{
+    string name;
+    (void) s_recv(broker, name);
+    /* don't register net sim objects */
+    if (identity == netSimID[context]) {
+        return;
+    }
+    if (1 == obj_to_ID[context].count(name)) {
+        CERR << "object '" << name << "' already registered to sim '"
+            << identity << "'" << endl;
+        graceful_death(EXIT_FAILURE);
+    }
+    obj_to_ID[context][name] = identity;
+}
+
+
+
+static void finalize_handler(
+        const string &identity,
+        const int &context,
+        const string &control)
+{
+    finalized[context].insert(identity);
+    if (finalized[context].size() > world_size) {
+        graceful_death(EXIT_FAILURE);
+    }
+    else if (finalized[context].size() == world_size) {
+        for (set<string>::iterator it=finalized[context].begin();
+                it != finalized[context].end(); ++it) {
+            (void) s_sendmore(broker, *it);
+            (void) s_send    (broker, obj_to_ID[context].size());
+        }
+    }
+}
+
+
+static void barrier_handler(
+        const string &identity,
+        const int &context,
+        const string &control)
+{
+    if (1 == barrier[context].count(identity)) {
+        CERR << "barrier already initialized for sim '"
+            << identity << "'" << endl;
+        graceful_death(EXIT_FAILURE);
+    }
+    barrier[context].insert(identity);
+    if (barrier[context].size() > world_size) {
+        CERR << "barrier size > world size" << endl;
+        graceful_death(EXIT_FAILURE);
+    }
+    else if (barrier[context].size() == world_size) {
+        for (set<string>::iterator it=barrier[context].begin();
+                it != barrier[context].end(); ++it) {
+            (void) s_sendmore(broker, *it);
+            (void) s_send    (broker, "ACK");
+        }
+        barrier[context].clear();
+    }
+}
+
+
+static bool finished_handler(
+        const string &identity,
+        const int &context,
+        const string &control)
+{
+    /* a simulation wants to terminate nicely */
+    /* publish term message to all sims */
+    if (1 == finished[context].count(identity)) {
+        CERR << "additional FINISHED received from '" << identity
+            << "'" << endl;
+    }
+    finished[context].insert(identity);
+    if (finished[context].size() > world_size) {
+        CERR << "finished size > world size" << endl;
+        graceful_death(EXIT_FAILURE);
+    }
+    else if (finished[context].size() == world_size) {
+        return true;
+    }
+    (void) s_send(killer, "FINISHED");
+
+    return false;
+}

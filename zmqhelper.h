@@ -7,27 +7,29 @@
 static int s_recv(void *socket, string &buf) {
     char buffer [256];
     int size = zmq_recv (socket, buffer, 255, 0);
-    if (size == -1) {
-        buf.clear();
-        return size;
-    }
+    assert(size >= 0);
     if (size > 255) {
         size = 255;
     }
     buffer[size] = 0;
-
     buf.assign(buffer);
+    return size;
+}
+static int s_recv(void *socket, uint8_t* &buf, uint32_t buf_size) {
+    int size;
+    buf = new uint8_t[buf_size];
+    size = zmq_recv(socket, buf, buf_size, 0);
+    assert(size >= 0 && size <= buf_size);
     return size;
 }
 template <typename T>
 static int s_recv(void *socket, T &buf) {
-    return zmq_recv(socket, &buf, sizeof(T), 0);
+    int size;
+    size = zmq_recv(socket, &buf, sizeof(T), 0);
+    assert(size == sizeof(T));
+    return size;
 }
-template <typename T>
-static int s_recv(void *socket, T* &buf, size_t count) {
-    buf = new T[count];
-    return zmq_recv(socket, buf, sizeof(T)*count, 0);
-}
+
 
 static int s_irecv(void *socket, string &buf) {
     char buffer [256];
@@ -40,49 +42,93 @@ static int s_irecv(void *socket, string &buf) {
         size = 255;
     }
     buffer[size] = 0;
-
     buf.assign(buffer);
     return size;
 }
 template <typename T>
 static int s_irecv(void *socket, T &buf) {
-    return zmq_recv(socket, &buf, sizeof(T), ZMQ_DONTWAIT);
-}
-template <typename T>
-static int s_irecv(void *socket, T* &buf, size_t count) {
-    buf = new T[count];
-    return zmq_recv(socket, buf, sizeof(T)*count, ZMQ_DONTWAIT);
+    int size = zmq_recv(socket, &buf, sizeof(T), ZMQ_DONTWAIT);
+    assert((size == -1 && errno == EAGAIN)
+            || size == sizeof(T));
+    return size;
 }
 
+
 static int s_send(void *socket, const string &s) {
-    return zmq_send(socket, s.data(), s.size(), 0);
+    int size;
+    size = zmq_send(socket, s.data(), s.size(), 0);
+    assert(size == s.size());
+    return size;
 }
-static int s_send(void *socket, void *buf, size_t size) {
-    return zmq_send(socket, buf, size, 0);
+static int s_send(void *socket, uint8_t *buf, uint32_t buf_size) {
+    int size;
+    size = zmq_send(socket, buf, buf_size, 0);
+    assert(size >= 0 && size <= buf_size);
+    return size;
 }
 template <typename T>
 static int s_send(void *socket, const T &what) {
-    return zmq_send(socket, &what, sizeof(T), 0);
-}
-template <typename T>
-static int s_send(void *socket, const T* &what, size_t count) {
-    return zmq_send(socket, what, sizeof(T)*count, 0);
+    int size;
+    size = zmq_send(socket, &what, sizeof(T), 0);
+    assert(size == sizeof(T));
+    return size;
 }
 
+
 static int s_sendmore(void *socket, const string &s) {
-    return zmq_send(socket, s.data(), s.size(), ZMQ_SNDMORE);
+    int size;
+    size = zmq_send(socket, s.data(), s.size(), ZMQ_SNDMORE);
+    assert(size == s.size());
+    return size;
 }
-static int s_sendmore(void *socket, void *buf, size_t size) {
-    return zmq_send(socket, buf, size, ZMQ_SNDMORE);
+static int s_sendmore(void *socket, uint8_t *buf, uint32_t buf_size) {
+    int size;
+    size = zmq_send(socket, buf, buf_size, ZMQ_SNDMORE);
+    assert(size == buf_size);
+    return size;
 }
 template <typename T>
 static int s_sendmore(void *socket, const T &what) {
-    return zmq_send(socket, &what, sizeof(T), ZMQ_SNDMORE);
+    int size;
+    size = zmq_send(socket, &what, sizeof(T), ZMQ_SNDMORE);
+    assert(size == sizeof(T));
+    return size;
+}
+
+
+static int s_send(void *socket, int context, const string &command) {
+    int totalSize = 0;
+    totalSize += s_sendmore(socket, context);
+    totalSize += s_send    (socket, command);
+    return totalSize;
 }
 template <typename T>
-static int s_sendmore(void *socket, const T* &what, size_t count) {
-    return zmq_send(socket, what, sizeof(T)*count, ZMQ_SNDMORE);
+static int s_send(
+        void *socket, int context, const string &command, const T &t) {
+    int totalSize = 0;
+    totalSize += s_sendmore(socket, context);
+    totalSize += s_sendmore(socket, command);
+    totalSize += s_send    (socket, t);
+    return totalSize;
 }
+
+
+static int s_sendmore(void *socket, int context, const string &command) {
+    int totalSize = 0;
+    totalSize += s_sendmore(socket, context);
+    totalSize += s_sendmore(socket, command);
+    return totalSize;
+}
+template <typename T>
+static int s_sendmore(
+        void *socket, int context, const string &command, const T &t) {
+    int totalSize = 0;
+    totalSize += s_sendmore(socket, context);
+    totalSize += s_sendmore(socket, command);
+    totalSize += s_sendmore(socket, t);
+    return totalSize;
+}
+
 
 static unsigned long utime()
 {

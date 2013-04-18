@@ -50,6 +50,21 @@ void ZmqNetworkInterface::init()
     }
     assert(0 == zmq_connect_req_retval);
 
+    /* create and connect zmq socket for req/res to async broker */
+    this->zmq_async = zmq_socket(this->zmq_ctx, ZMQ_DEALER);
+    assert(this->zmq_async);
+    zmq_setsockopt_id_retval = zmq_setsockopt(
+            this->zmq_async, ZMQ_IDENTITY, this->ID.data(), this->ID.size());
+    if (0 != zmq_setsockopt_id_retval) {
+        perror("zmq_setsockopt ZMQ_IDENTITY");
+    }
+    assert(0 == zmq_setsockopt_id_retval);
+    zmq_connect_req_retval = zmq_connect(this->zmq_async, "tcp://localhost:5556");
+    if (0 != zmq_connect_req_retval) {
+        perror("zmq_connect ZMQ_DEALER");
+    }
+    assert(0 == zmq_connect_req_retval);
+
     /* create and connect zmq socket for kill signal */
     this->zmq_die = zmq_socket(this->zmq_ctx, ZMQ_SUB);
     assert(this->zmq_die);
@@ -64,26 +79,26 @@ void ZmqNetworkInterface::init()
         perror("zmq_setsockopt ZMQ_IDENTITY");
     }
     assert(0 == zmq_setsockopt_id_retval);
-    zmq_connect_sub_retval = zmq_connect(this->zmq_die, "tcp://localhost:5556");
+    zmq_connect_sub_retval = zmq_connect(this->zmq_die, "tcp://localhost:5557");
     if (0 != zmq_connect_sub_retval) {
         perror("zmq_connect ZMQ_SUB");
     }
     assert(0 == zmq_connect_sub_retval);
 
     /* send hello to broker */
+    int ZERO = 0;
     if (this->iAmNetSim) {
-        (void) s_send(this->zmq_req, "HELLO_NETSIM");
+        (void) s_send(this->zmq_req, ZERO, "HELLO_NETSIM");
     }
     else {
-        (void) s_send(this->zmq_req, "HELLO");
+        (void) s_send(this->zmq_req, ZERO, "HELLO");
     }
 
     /* get ack from broker */
-    string ack;
-    (void) i_recv(this->zmq_req, ack);
-    assert(ack == "ACK");
+    (void) i_recv(this->context);
+    assert(this->context >= 0);
 
-    CERR << this->ID << " ACK" << endl;
+    CERR << this->ID << " context=" << this->context << endl;
 }
 
 
@@ -91,6 +106,7 @@ ZmqNetworkInterface::ZmqNetworkInterface(bool iAmNetSim)
     :   AbsNetworkInterface()
     ,   zmq_ctx(NULL)
     ,   zmq_req(NULL)
+    ,   zmq_async(NULL)
     ,   ID()
     ,   iAmNetSim(iAmNetSim)
     ,   receivedMessages()
@@ -104,6 +120,7 @@ ZmqNetworkInterface::ZmqNetworkInterface(const ZmqNetworkInterface &that)
     :   AbsNetworkInterface()
     ,   zmq_ctx(NULL)
     ,   zmq_req(NULL)
+    ,   zmq_async(NULL)
     ,   ID()
     ,   iAmNetSim(that.iAmNetSim)
     ,   receivedMessages()
@@ -127,6 +144,9 @@ ZmqNetworkInterface::~ZmqNetworkInterface()
     zmq_close_retval = zmq_close(this->zmq_req);
     assert(0 == zmq_close_retval);
 
+    zmq_close_retval = zmq_close(this->zmq_async);
+    assert(0 == zmq_close_retval);
+
     zmq_close_retval = zmq_close(this->zmq_die);
     assert(0 == zmq_close_retval);
 
@@ -139,29 +159,31 @@ void ZmqNetworkInterface::send(Message *message)
 {
     const uint8_t *data = message->getData();
     uint32_t dataSize = message->getSize();
-    uint8_t *envelop = NULL;
-    uint32_t envelopSize = 0;
+    uint8_t *envelope = NULL;
+    uint32_t envelopeSize = 0;
 
 #if DEBUG
-    CERR << "ZmqNetworkInterface::send()" << endl;
+    CERR << "ZmqNetworkInterface::send(message)" << endl;
+    CERR << *message << endl;
 #endif
 
     makeProgress();
 
-    message->serializeHeader(envelop,envelopSize);
+    message->serializeHeader(envelope,envelopeSize);
+    CERR << "envelopeSize=" << envelopeSize << endl;
 
     if (iAmNetSim) {
-        (void) s_sendmore(this->zmq_req, "ROUTE");
+        (void) s_sendmore(this->zmq_async, this->context, "ROUTE");
     }
     else {
-        (void) s_sendmore(this->zmq_req, "DELAY");
+        (void) s_sendmore(this->zmq_async, this->context, "DELAY");
     }
     if (dataSize > 0) {
-        (void) s_sendmore(this->zmq_req, envelop, envelopSize);
-        (void) s_send    (this->zmq_req, const_cast<uint8_t*>(data), dataSize);
+        (void) s_sendmore(this->zmq_async, envelope, envelopeSize);
+        (void) s_send    (this->zmq_async, const_cast<uint8_t*>(data), dataSize);
     }
     else {
-        (void) s_send    (this->zmq_req, envelop, envelopSize);
+        (void) s_send    (this->zmq_async, envelope, envelopeSize);
     }
 }
 
@@ -228,9 +250,9 @@ uint64_t ZmqNetworkInterface::reduceMinTime(uint64_t myTime)
 #endif
     makeProgress();
 
-    (void) s_sendmore(this->zmq_req, "REDUCE_MIN_TIME");
-    (void) s_send(this->zmq_req, &_myTime, sizeof(unsigned long));
-    (void) i_recv(this->zmq_req, retval);
+    (void) s_sendmore(this->zmq_req, this->context, "REDUCE_MIN_TIME");
+    (void) s_send(this->zmq_req, _myTime);
+    (void) i_recv(retval);
 
 #if DEBUG
     CERR << "\treceived " << retval << endl;
@@ -252,11 +274,11 @@ uint64_t ZmqNetworkInterface::reduceTotalSendReceive(
 #endif
     makeProgress();
 
-    (void) s_sendmore(this->zmq_req, "REDUCE_SEND_RECV");
+    (void) s_sendmore(this->zmq_req, this->context, "REDUCE_SEND_RECV");
     (void) s_sendmore(this->zmq_req, sent);
     (void) s_send    (this->zmq_req, received);
-    (void) i_recv(this->zmq_req, m_sent);
-    (void) i_recv(this->zmq_req, m_recv);
+    (void) i_recv(m_sent);
+    (void) i_recv(m_recv);
 
 #if DEBUG
     CERR << "\treceived m_sent=" << m_sent
@@ -264,7 +286,7 @@ uint64_t ZmqNetworkInterface::reduceTotalSendReceive(
 #endif
 
     if (m_sent < m_recv) {
-        (void) s_send(this->zmq_req, "DIE");
+        (void) s_send(this->zmq_req, this->context, "DIE");
     }
 
     return static_cast<uint64_t>(m_sent - m_recv);
@@ -278,8 +300,7 @@ void ZmqNetworkInterface::registerObject(string name)
 #endif
     AbsNetworkInterface::registerObject(name);
 
-    (void) s_sendmore(this->zmq_req, "REGISTER_OBJECT");
-    (void) s_send    (this->zmq_req, name);
+    (void) s_send(this->zmq_req, this->context, "REGISTER_OBJECT", name);
 }
 
 
@@ -290,8 +311,8 @@ void ZmqNetworkInterface::finalizeRegistrations()
 #endif
     AbsNetworkInterface::finalizeRegistrations();
 
-    (void) s_send(this->zmq_req, "FINALIZE_REGISTRATIONS");
-    (void) i_recv(this->zmq_req, this->globalObjectCount);
+    (void) s_send(this->zmq_req, this->context, "FINALIZE_REGISTRATIONS");
+    (void) i_recv(this->globalObjectCount);
 }
 
 
@@ -303,8 +324,8 @@ void ZmqNetworkInterface::barier()
     CERR << "ZmqNetworkInterface::barier()" << endl;
 #endif
 
-    (void) s_send(this->zmq_req, "BARRIER");
-    (void) i_recv(this->zmq_req, ack);
+    (void) s_send(this->zmq_req, this->context, "BARRIER");
+    (void) i_recv(ack);
     assert(ack == "ACK");
 }
 
@@ -314,16 +335,79 @@ AbsNetworkInterface* ZmqNetworkInterface::duplicateInterface()
 #if DEBUG
     CERR << "ZmqNetworkInterface::duplicateInterface()" << endl;
 #endif
-    /* TODO: the clone needs to create its own sockets */
-    assert(0);
-    ZmqNetworkInterface *toReturn=new ZmqNetworkInterface(*this);
-    return toReturn;
+    return new ZmqNetworkInterface(*this);
+}
+
+
+void ZmqNetworkInterface::processAsyncMessage()
+{
+    string control;
+    uint8_t *envelope;
+    uint32_t envelopeSize;
+    uint8_t *data;
+    uint32_t dataSize;
+    Message *message;
+
+    (void) s_recv(this->zmq_async, control);
+    if (iAmNetSim) {
+        if ("DELAY" != control) {
+            CERR << "net sim invalid control message '"
+                << control << "'" << endl;
+            (void) s_send(this->zmq_req, this->context, "DIE");
+        }
+    }
+    else {
+        if ("ROUTE" != control) {
+            CERR << "gen sim invalid control message '"
+                << control << "'" << endl;
+            (void) s_send(this->zmq_req, this->context, "DIE");
+        }
+    }
+    envelopeSize = s_recv(this->zmq_async, envelope, 256);
+    message = new Message(envelope,envelopeSize);
+    dataSize = message->getSize();
+    if (dataSize > 0) {
+        data = new uint8_t[dataSize];
+        (void) s_recv(this->zmq_async, data, dataSize);
+        message->setData(data,dataSize);
+    }
+
+    if (this->messageCallBack) {
+        (*(this->messageCallBack))(message);
+    }
+    else {
+        this->receivedMessages.push_back(message);
+    }
+}
+
+
+void ZmqNetworkInterface::processSubMessage()
+{
+    string control;
+
+    (void) s_recv(this->zmq_die, control);
+    if ("DIE" == control) {
+        CERR << "DIE received from SUB" << endl;
+        /* an application terminated abrubtly, so do we */
+        exit(EXIT_FAILURE);
+    }
+    else if ("FINISHED" == control) {
+        CERR << "FINISHED received from SUB" << endl;
+        /* an application terminated cleanly, so do we */
+        (void) s_send(this->zmq_req, this->context, "FINISHED");
+        exit(EXIT_SUCCESS);
+    }
+    else {
+        CERR << "'" << control << "' received from SUB" << endl;
+        (void) s_send(this->zmq_req, "DIE");
+        exit(EXIT_FAILURE);
+    }
 }
 
 
 void ZmqNetworkInterface::makeProgress()
 {
-    bool incoming = true;
+    bool done;
 
 #if DEBUG
     CERR << "ZmqNetworkInterface::makeProgress()" << endl;
@@ -333,75 +417,25 @@ void ZmqNetworkInterface::makeProgress()
         NETWORK_EXCEPTION("object registration must first be finalized");
     }
 
-    while (incoming) {
+    done = false;
+    while (!done) {
+        done = true;
 #if DEBUG
         CERR << "testing for incoming messages" << endl;
 #endif
-        zmq_pollitem_t items[2];
-        items[0].socket = this->zmq_req;
-        items[0].events = ZMQ_POLLIN;
-        items[1].socket = this->zmq_die;
-        items[1].events = ZMQ_POLLIN;
-        int rc = zmq_poll(items, 1, 0);
+        zmq_pollitem_t items[] = {
+            { this->zmq_async, 0, ZMQ_POLLIN, 0 },
+            { this->zmq_die,   0, ZMQ_POLLIN, 0 }
+        };
+        int rc = zmq_poll(items, 2, 0);
         assert(rc >= 0);
         if (items[0].revents & ZMQ_POLLIN) {
-            string control;
-            uint8_t *envelope;
-            uint32_t envelopeSize;
-            uint8_t *data;
-            uint32_t dataSize;
-            Message *message;
-
-            (void) s_recv(this->zmq_req, control);
-            if (iAmNetSim) {
-                if ("DELAY" != control) {
-                    CERR << "net sim invalid control message '"
-                        << control << "'" << endl;
-                    (void) s_send(this->zmq_req, "DIE");
-                }
-            }
-            else {
-                if ("ROUTE" != control) {
-                    CERR << "gen sim invalid control message '"
-                        << control << "'" << endl;
-                    (void) s_send(this->zmq_req, "DIE");
-                }
-            }
-            envelopeSize = s_recv(this->zmq_req, envelope, 256);
-            message = new Message(envelope,envelopeSize);
-            dataSize = message->getSize();
-            if (dataSize > 0) {
-                data = new uint8_t[dataSize];
-                (void) s_recv(this->zmq_req, data, dataSize);
-                message->setData(data,dataSize);
-            }
-
-            if (this->messageCallBack) {
-                (*(this->messageCallBack))(message);
-            }
-            else {
-                this->receivedMessages.push_back(message);
-            }
+            processAsyncMessage();
+            done = false; /* we had a message */
         }
         if (items[1].revents & ZMQ_POLLIN) {
-            string control;
-
-            (void) s_recv(this->zmq_die, control);
-
-            if ("DIE" == control) {
-                CERR << "DIE received from SUB" << endl;
-                /* an application terminated abrubtly, so do we */
-                exit(EXIT_FAILURE);
-            }
-            else if ("FINISHED" == control) {
-                CERR << "FINISHED received from SUB" << endl;
-                /* an application terminated cleanly, so do we */
-                s_send(this->zmq_req, "FINISHED");
-                exit(EXIT_SUCCESS);
-            }
-        }
-        else {
-            incoming = false;
+            processSubMessage();
+            done = false; /* we had a message */
         }
     }
 }
@@ -409,6 +443,6 @@ void ZmqNetworkInterface::makeProgress()
 
 void ZmqNetworkInterface::sendFinishedSignal()
 {
-    (void) s_send(this->zmq_req, "FINISHED");
+    (void) s_send(this->zmq_req, this->context, "FINISHED");
 }
 
