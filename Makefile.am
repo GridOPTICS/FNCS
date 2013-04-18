@@ -62,6 +62,7 @@ libfncs_api_la_SOURCES += message.cpp
 libfncs_api_la_SOURCES += mpinetworkinterface.cpp
 libfncs_api_la_SOURCES += objectcomminterface.cpp
 if HAVE_ZMQ
+libfncs_api_la_SOURCES += zmqhelper.cpp
 libfncs_api_la_SOURCES += zmqnetworkinterface.cpp
 endif
 

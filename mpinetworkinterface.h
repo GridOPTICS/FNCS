@@ -59,7 +59,7 @@ public:
     {}
 
     ~MpiIsendPacket() {
-        if (nullptr != message) {
+        if (NULL != message) {
             delete [] message;
         }
     }

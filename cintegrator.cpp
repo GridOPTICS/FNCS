@@ -26,9 +26,14 @@
 */
 #include "config.h"
 
+#include <cassert>
+
 #include "cintegrator.h"
 
 #include "mpinetworkinterface.h"
+#if HAVE_ZMQ
+#include "zmqnetworkinterface.h"
+#endif
 #include "integrator.h"
 #include "callback.h"
 
@@ -58,27 +63,31 @@ uint8_t isFinished()
 
  void initIntegratorGracePeriod(enum time_metric simTimeStep, 
 				TIME packetLostPeriod, TIME initialTime){
-   MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, false);
+   //MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, false);
+   ZmqNetworkInterface *comm = new ZmqNetworkInterface(false);
    Integrator::initIntegratorGracePeriod(comm,SECONDS,packetLostPeriod,initialTime);
  }
  
 void initIntegratorSpeculative(enum time_metric simTimeStep, 
 				TIME packetLostPeriod, TIME initialTime, TIME specTime){
-   MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, false);
+   //MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, false);
+   ZmqNetworkInterface *comm = new ZmqNetworkInterface(false);
    Integrator::initIntegratorSpeculative(comm,SECONDS,packetLostPeriod,initialTime,specTime);			 
 }
 
 void initIntegratorOptimistic(time_metric simTimeStep, 
 			      TIME packetLostPeriod, TIME initialTime, TIME specTime)
 {
-  MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, false);
+  //MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, false);
+  ZmqNetworkInterface *comm = new ZmqNetworkInterface(false);
   Integrator::initIntegratorOptimistic(comm,SECONDS,packetLostPeriod,initialTime,specTime);	
 }
 
 
 void initIntegratorNetworkDelay(time_metric simTimeStep, TIME packetLostPeriod, TIME initialTime)
 {
-  MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, false);
+  //MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, false);
+  ZmqNetworkInterface *comm = new ZmqNetworkInterface(false);
   Integrator::initIntegratorNetworkDelaySupport(comm,SECONDS,packetLostPeriod,initialTime);
 }
 

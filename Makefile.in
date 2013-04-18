@@ -56,7 +56,7 @@ bin_PROGRAMS = $(am__EXEEXT_1)
 check_PROGRAMS = tests/sanity$(EXEEXT) tests/messageTest$(EXEEXT) \
 	tests/simmer$(EXEEXT) $(am__EXEEXT_2)
 @HAVE_ZMQ_TRUE@am__append_1 = zmqhelper.h zmqnetworkinterface.h
-@HAVE_ZMQ_TRUE@am__append_2 = zmqnetworkinterface.cpp
+@HAVE_ZMQ_TRUE@am__append_2 = zmqhelper.cpp zmqnetworkinterface.cpp
 @HAVE_ZMQ_TRUE@am__append_3 = fncsbroker
 @HAVE_ZMQ_TRUE@am__append_4 = tests/zimmer
 subdir = .
@@ -129,7 +129,7 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libfncs_api_la_LIBADD =
 am__libfncs_api_la_SOURCES_DIST = absnetworkinterface.cpp \
 	cintegrator.cpp integrator.cpp message.cpp \
-	mpinetworkinterface.cpp objectcomminterface.cpp \
+	mpinetworkinterface.cpp objectcomminterface.cpp zmqhelper.cpp \
 	zmqnetworkinterface.cpp commmanager/abscommmanager.cpp \
 	commmanager/communicationcommanager.cpp \
 	commmanager/graceperiodcommmanager.cpp \
@@ -140,7 +140,7 @@ am__libfncs_api_la_SOURCES_DIST = absnetworkinterface.cpp \
 	syncalgorithms/graceperiodnetworkdelaysyncalgo.cpp \
 	syncalgorithms/optimisticticksyncalgo.cpp \
 	syncalgorithms/optimisticcommsyncalgo.cpp util/simtime.cpp
-@HAVE_ZMQ_TRUE@am__objects_1 = zmqnetworkinterface.lo
+@HAVE_ZMQ_TRUE@am__objects_1 = zmqhelper.lo zmqnetworkinterface.lo
 am__dirstamp = $(am__leading_dot)dirstamp
 am_libfncs_api_la_OBJECTS = absnetworkinterface.lo cintegrator.lo \
 	integrator.lo message.lo mpinetworkinterface.lo \
@@ -706,6 +706,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/message.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpinetworkinterface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/objectcomminterface.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zmqhelper.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zmqnetworkinterface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@commmanager/$(DEPDIR)/abscommmanager.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@commmanager/$(DEPDIR)/communicationcommanager.Plo@am__quote@
