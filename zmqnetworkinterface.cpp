@@ -126,7 +126,19 @@ ZmqNetworkInterface::ZmqNetworkInterface(const ZmqNetworkInterface &that)
     ,   receivedMessages()
     ,   globalObjectCount(that.globalObjectCount)
 {
+    int globalObjectCountAgain;
+
     init();
+
+    for (vector<string>::const_iterator it=myObjects.begin();
+            it!=myObjects.end(); ++it) {
+        (void) s_send(this->zmq_req, this->context, "REGISTER_OBJECT", *it);
+    }
+
+    (void) s_send(this->zmq_req, this->context, "FINALIZE_REGISTRATIONS");
+    (void) i_recv(globalObjectCountAgain);
+
+    assert(globalObjectCountAgain == this->globalObjectCount);
 }
 
 
