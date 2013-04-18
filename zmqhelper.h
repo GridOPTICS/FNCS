@@ -1,6 +1,7 @@
 #ifndef _ZMQHELPER_H_
 #define _ZMQHELPER_H_
 
+#include <assert.h> /* for assert */
 #include <stdlib.h> /* for size_t */
 #include <sys/time.h> /* for gettimeofday */
 

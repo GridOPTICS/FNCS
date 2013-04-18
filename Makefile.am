@@ -29,6 +29,7 @@ include_HEADERS += message.h
 include_HEADERS += mpinetworkinterface.h
 include_HEADERS += objectcomminterface.h
 if HAVE_ZMQ
+include_HEADERS += zmqhelper.h
 include_HEADERS += zmqnetworkinterface.h
 endif
 

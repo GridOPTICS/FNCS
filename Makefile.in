@@ -55,7 +55,7 @@ host_triplet = @host@
 bin_PROGRAMS = $(am__EXEEXT_1)
 check_PROGRAMS = tests/sanity$(EXEEXT) tests/messageTest$(EXEEXT) \
 	tests/simmer$(EXEEXT) $(am__EXEEXT_2)
-@HAVE_ZMQ_TRUE@am__append_1 = zmqnetworkinterface.h
+@HAVE_ZMQ_TRUE@am__append_1 = zmqhelper.h zmqnetworkinterface.h
 @HAVE_ZMQ_TRUE@am__append_2 = zmqnetworkinterface.cpp
 @HAVE_ZMQ_TRUE@am__append_3 = fncsbroker
 @HAVE_ZMQ_TRUE@am__append_4 = tests/zimmer
@@ -239,7 +239,7 @@ am__can_run_installinfo = \
   esac
 am__include_HEADERS_DIST = absnetworkinterface.h cintegrator.h echo.h \
 	integrator.h message.h mpinetworkinterface.h \
-	objectcomminterface.h zmqnetworkinterface.h \
+	objectcomminterface.h zmqhelper.h zmqnetworkinterface.h \
 	commmanager/abscommmanager.h \
 	commmanager/communicationcommanager.h \
 	commmanager/graceperiodcommmanager.h \
