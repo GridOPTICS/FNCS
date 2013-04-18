@@ -446,6 +446,12 @@ static void route_handler(
     else {
         (void) s_send    (async_broker, envelope, envelopeSize);
     }
+
+    delete message;
+    delete [] envelope;
+    if (dataSize > 0) {
+        delete [] data;
+    }
 }
 
 
@@ -479,6 +485,12 @@ static void delay_handler(
     }
     else {
         (void) s_send    (async_broker, envelope, envelopeSize);
+    }
+
+    delete message;
+    delete [] envelope;
+    if (dataSize > 0) {
+        delete [] data;
     }
 }
 
