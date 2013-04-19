@@ -105,7 +105,7 @@ unsigned long s_utime()
 
 #define randof(num)  (int) ((float) (num) * random () / (RAND_MAX + 1.0))
 string gen_id() {
-    char identity [10];
+    char identity [16];
     srandom(s_utime());
     sprintf (identity, "%05d-%04X-%04X", getpid(), randof (0x10000), randof (0x10000));
     return string(identity);

@@ -123,9 +123,9 @@ int ZmqNetworkInterface::i_recv(T &buf)
 {
     bool done;
     int size;
-
+#if DEBUG
     CERR << "ZmqNetworkInterface::i_recv" << endl;
-
+#endif
     done = false;
     while (!done) {
         zmq_pollitem_t items[] = {
@@ -137,8 +137,10 @@ int ZmqNetworkInterface::i_recv(T &buf)
         assert(rc >= 0);
         if (items[0].revents & ZMQ_POLLIN) {
             size = s_recv(this->zmq_req, buf);
+#if DEBUG
             CERR << "ZmqNetworkInterface:i_recv got '" << buf << "'" << endl;
-            done = true;
+#endif
+	    done = true;
         }
         if (items[1].revents & ZMQ_POLLIN) {
             processAsyncMessage();

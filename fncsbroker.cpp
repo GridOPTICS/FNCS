@@ -37,7 +37,7 @@
 #include <set>
 #include <string>
 #include <vector>
-
+#include <algorithm>
 #include <zmq.h>
 
 #include "integrator.h"
@@ -120,16 +120,16 @@ int main(int argc, char **argv)
 #endif
     
     if (1 >= argc) {
-        CERR << "missing world_size argument" << endl;
+        cerr << "missing world_size argument" << endl;
         exit(EXIT_FAILURE);
     }
     else if (3 <= argc) {
-        CERR << "too many arguments" << endl;
+        cerr << "too many arguments" << endl;
         exit(EXIT_FAILURE);
     }
     world_size = atoi(argv[1]);
     if (world_size <= 1) {
-        CERR << "world size must be > 1" << endl;
+        cerr << "world size must be > 1" << endl;
         exit(EXIT_FAILURE);
     }
 
@@ -219,13 +219,15 @@ int main(int argc, char **argv)
             (void) s_recv(broker, identity);
             (void) s_recv(broker, context);
             (void) s_recv(broker, control);
+#if DEBUG
             CERR << "broker recv - identity '" << identity
                 << "' context '" << context
                 << "' control '" << control
                 << "'" << endl;
+#endif
             if (context < 0
                     || (context >= contexts.size() && !contexts.empty())) {
-                CERR << "broker received invalid context" << endl;
+                cerr << "broker received invalid context" << endl;
                 graceful_death(EXIT_FAILURE);
             }
             if ("HELLO" == control || "HELLO_NETSIM" == control) {
@@ -256,7 +258,7 @@ int main(int argc, char **argv)
                 }
             }
             else {
-                CERR << "unrecognized control header '"
+                cerr << "unrecognized control header '"
                     << control << "'" << endl;
                 graceful_death(EXIT_FAILURE);
             }
@@ -265,13 +267,17 @@ int main(int argc, char **argv)
             (void) s_recv(async_broker, identity);
             (void) s_recv(async_broker, context);
             (void) s_recv(async_broker, control);
+#if DEBUG
             CERR << "async_broker recv - identity '" << identity
                 << "' context '" << context
                 << "' control '" << control
                 << "'" << endl;
+#endif
             if (context < 0
                     || (context >= contexts.size() && !contexts.empty())) {
+#if DEBUG
                 CERR << "async_broker received invalid context" << endl;
+#endif
                 graceful_death(EXIT_FAILURE);
             }
             if ("ROUTE" == control) {
@@ -281,8 +287,10 @@ int main(int argc, char **argv)
                 delay_handler(identity, context, control);
             }
             else {
+#if DEBUG
                 CERR << "unrecognized control header '"
                     << control << "'" << endl;
+#endif
                 graceful_death(EXIT_FAILURE);
             }
         }
@@ -386,7 +394,7 @@ static void hello_handler(
             newNetSimID = identity;
         }
         else {
-            CERR << "a net sim is already connected" << endl;
+            cerr << "a net sim is already connected" << endl;
             graceful_death(EXIT_FAILURE);
         }
     }
@@ -432,7 +440,7 @@ static void route_handler(
     }
 
     if (0 == obj_to_ID[context].count(message->getTo())) {
-        CERR << "object '" << message->getTo()
+        cerr << "object '" << message->getTo()
             << "' not registered" << endl;
         graceful_death(EXIT_FAILURE);
     }
@@ -469,9 +477,13 @@ static void delay_handler(
     Message *message;
 
     envelopeSize = s_recv(async_broker, envelope, 256);
+#if DEBUG
     CERR << "envelopeSize=" << envelopeSize << endl;
+#endif
     message = new Message(envelope, envelopeSize);
+#if DEBUG
     CERR << "async_broker - recv message: " << *message << endl;
+#endif
     dataSize = message->getSize();
     if (dataSize > 0) {
         dataSize = s_recv(async_broker, data, dataSize);
@@ -503,7 +515,7 @@ static void reduce_min_time_handler(
 {
     unsigned long time;
     if (1 == reduce_min_time[context].count(identity)) {
-        CERR << "sim with ID '" << identity
+        cerr << "sim with ID '" << identity
             << "' duplicate REDUCE_MIN_TIME" << endl;
         graceful_death(EXIT_FAILURE);
     }
@@ -535,7 +547,7 @@ static void reduce_send_recv_handler(
     unsigned long m_recv = 0;
     if (1 == reduce_sent[context].count(identity)) {
         assert(1 == reduce_recv[context].count(identity));
-        CERR << "sim with ID '" << identity
+        cerr << "sim with ID '" << identity
             << "' duplicate REDUCE_SEND_RECV" << endl;
         graceful_death(EXIT_FAILURE);
     }
@@ -580,7 +592,7 @@ static void register_handler(
         return;
     }
     if (1 == obj_to_ID[context].count(name)) {
-        CERR << "object '" << name << "' already registered to sim '"
+        cerr << "object '" << name << "' already registered to sim '"
             << identity << "'" << endl;
         graceful_death(EXIT_FAILURE);
     }
@@ -614,13 +626,13 @@ static void barrier_handler(
         const string &control)
 {
     if (1 == barrier[context].count(identity)) {
-        CERR << "barrier already initialized for sim '"
+        cerr << "barrier already initialized for sim '"
             << identity << "'" << endl;
         graceful_death(EXIT_FAILURE);
     }
     barrier[context].insert(identity);
     if (barrier[context].size() > world_size) {
-        CERR << "barrier size > world size" << endl;
+        cerr << "barrier size > world size" << endl;
         graceful_death(EXIT_FAILURE);
     }
     else if (barrier[context].size() == world_size) {
@@ -642,12 +654,14 @@ static bool finished_handler(
     /* a simulation wants to terminate nicely */
     /* publish term message to all sims */
     if (1 == finished[context].count(identity)) {
+#if DEBUG
         CERR << "additional FINISHED received from '" << identity
             << "'" << endl;
+#endif
     }
     finished[context].insert(identity);
     if (finished[context].size() > world_size) {
-        CERR << "finished size > world size" << endl;
+        cerr << "finished size > world size" << endl;
         graceful_death(EXIT_FAILURE);
     }
     else if (finished[context].size() == world_size) {

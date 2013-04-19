@@ -29,8 +29,9 @@ void ZmqNetworkInterface::init()
 #endif
 
     this->ID = gen_id();
+#if DEBUG
     CERR << "ZmqNetworkInterface ID=" << this->ID << endl;
-
+#endif
     /* create zmq context */
     this->zmq_ctx = zmq_ctx_new();
     assert(this->zmq_ctx);
@@ -97,8 +98,9 @@ void ZmqNetworkInterface::init()
     /* get ack from broker */
     (void) i_recv(this->context);
     assert(this->context >= 0);
-
+#if DEBUG
     CERR << this->ID << " context=" << this->context << endl;
+#endif
 }
 
 
@@ -163,8 +165,9 @@ void ZmqNetworkInterface::send(Message *message)
     makeProgress();
 
     message->serializeHeader(envelope,envelopeSize);
+#if DEBUG
     CERR << "envelopeSize=" << envelopeSize << endl;
-
+#endif
     if (iAmNetSim) {
         (void) s_sendmore(this->zmq_async, this->context, "ROUTE");
     }
@@ -346,16 +349,20 @@ void ZmqNetworkInterface::processAsyncMessage()
     (void) s_recv(this->zmq_async, control);
     if (iAmNetSim) {
         if ("DELAY" != control) {
+#if DEBUG
             CERR << "net sim invalid control message '"
                 << control << "'" << endl;
+#endif
             (void) s_send(this->zmq_req, this->context, "DIE");
         }
     }
     else {
         if ("ROUTE" != control) {
+#if DEBUG
             CERR << "gen sim invalid control message '"
                 << control << "'" << endl;
-            (void) s_send(this->zmq_req, this->context, "DIE");
+#endif
+		(void) s_send(this->zmq_req, this->context, "DIE");
         }
     }
     envelopeSize = s_recv(this->zmq_async, envelope, 256);
@@ -384,21 +391,27 @@ void ZmqNetworkInterface::processSubMessage()
 
     (void) s_recv(this->zmq_die, control);
     if ("DIE" == control) {
+#if DEBUG
         CERR << "DIE received from SUB" << endl;
-        /* an application terminated abrubtly, so do we */
+#endif
+	/* an application terminated abrubtly, so do we */
         cleanup();
         exit(EXIT_FAILURE);
     }
     else if ("FINISHED" == control) {
+#if DEBUG
         CERR << "FINISHED received from SUB" << endl;
+#endif
         /* an application terminated cleanly, so do we */
         (void) s_send(this->zmq_req, this->context, "FINISHED");
         cleanup();
         exit(EXIT_SUCCESS);
     }
     else {
+#if DEBUG
         CERR << "'" << control << "' received from SUB" << endl;
-        (void) s_send(this->zmq_req, "DIE");
+#endif
+	(void) s_send(this->zmq_req, "DIE");
         cleanup();
         exit(EXIT_FAILURE);
     }
