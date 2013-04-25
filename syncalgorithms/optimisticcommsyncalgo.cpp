@@ -84,7 +84,7 @@ namespace sim_comm{
 		    TIME minNextTime=(TIME)interface->reduceMinTime(myminNextTime);
 		    
 		    //speculation stuff!!
-		    TIME specResult=testSpeculationState(specNextTime);
+		    TIME specResult=testSpeculationState(specNextTime,currentTime);
 		    if(specResult > 0) //we are in child! We are granted up to specNextTime
 			minNextTime=specNextTime;
 		    //normal convervative algorithm!!!

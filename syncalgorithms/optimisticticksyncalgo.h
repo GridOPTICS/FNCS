@@ -78,7 +78,7 @@ namespace sim_comm{
        * @param[in] specNextTime The speculation look ahead time.
        * @return For child new granted time, 0 for parent!
        */
-      virtual TIME testSpeculationState(TIME specNextTime);
+      virtual TIME testSpeculationState(TIME specNextTime, TIME currentTime);
       
       /**
        * Allows speculative children to communicate when speculation has failed!

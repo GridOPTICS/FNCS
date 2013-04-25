@@ -27,6 +27,8 @@
  */
 #include "config.h"
 
+#define DEBUG 1
+
 #include <algorithm>
 #include <cassert>
 #include <csignal>

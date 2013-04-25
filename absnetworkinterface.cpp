@@ -70,6 +70,14 @@ AbsNetworkInterface::~AbsNetworkInterface() {
 }
 
 
+AbsNetworkInterface::AbsNetworkInterface(const AbsNetworkInterface& that)
+{
+  this->myObjects=that.myObjects;
+  this->messageCallBack=that.messageCallBack;
+  this->registrationsAreFinalized=that.registrationsAreFinalized;
+}
+
+
 vector<Message*> AbsNetworkInterface::receiveAll() {
     vector<Message*> messages;
     Message *message;

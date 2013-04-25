@@ -112,6 +112,7 @@ void OptimisticTickSyncAlgo::timeStepStart(TIME currentTime)
     if(dokill!=Infinity){
       exit(0); //child dies here, so sad!
     }
+    this->specFailTime=Infinity;
     cout << "I'm child my pid:" << this->mypid << "; killing parent " << parentPid << endl;
     succeedRecalculateSpecDifference(currentTime);
     becomeParent();
@@ -181,7 +182,7 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
 	  TIME minNextTime=(TIME)interface->reduceMinTime(myminNextTime);
 	  
 	  //speculation stuff
-	  TIME specResult=testSpeculationState(specNextTime);
+	  TIME specResult=testSpeculationState(specNextTime,currentTime);
 	  if(specResult > 0) //we are in child! We are granted up to specNextTime
 	      minNextTime=specNextTime;
 	  
@@ -253,7 +254,8 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
       this->isParent=true;
       this->parentPid=0;
       kill(this->childPid,SIGTERM);
-      this->isChild=0;
+      this->isChild=false;
+      this->childPid=0;
       this->mypid=getpid();
   }
 
@@ -277,17 +279,19 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
 
 
 
-  TIME OptimisticTickSyncAlgo::testSpeculationState(TIME specNextTime)
+  TIME OptimisticTickSyncAlgo::testSpeculationState(TIME specNextTime,TIME currentTime)
   {
     if(!hasChild() && specNextTime!=0){
-	AbsCommManager* copy=interface->duplicate();
+	
 	this->createSpeculativeProcess();
 	this->specFailTime=Infinity;
 	if(this->isChild){ //createSpeculativeProcess will modify this flag!
+	 AbsCommManager* copy=interface->duplicate();
 	  this->interface=copy;
 	  Integrator::setCommManager(copy);
 	  killChildernFlag=Infinity; //if tihs value is anything other than Infinity spec has failed!
-	  cout << this->mypid << ": I'm child my parent " << this->parentPid << endl;
+	  cout << this->mypid << ": I'm child my parent " << this->parentPid << ", current time " << currentTime << endl;
+	  usleep(100);
 	  return specNextTime;
 	}
 	else{
@@ -300,17 +304,19 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
 	}
     }
     if(hasChild()){
-      TIME temp=this->getSpeculationFailureTime();
-      if(temp==0)
+      this->specFailTime=this->getSpeculationFailureTime();
+      if(specFailTime==0)
 	this->specFailTime=Infinity;
       this->specFailTime=interface->reduceMinTime(specFailTime);
-      cout << this->mypid << ": I'm parent and reduced spec failed time is " << this->specFailTime << endl;
+      //cout << this->mypid << ": I'm parent and reduced spec failed time is " << this->specFailTime << endl;
       if(specFailTime!=Infinity){ //child terminated
 	shmdt(speculationTime);
-	wait(nullptr);
-	cout << this->mypid << ": Speculation Failed, my child" << this->childPid << "died at time " << specFailTime << endl;
+	terminateChild();
+	//wait(nullptr);
+	cout << this->mypid << ": Speculation Failed, my child" << this->childPid << "died at time " << specFailTime << ", current time " << currentTime << endl;
+	
 	failedRecalculateSpecDifference(specFailTime);
-	childTerminated();
+	//childTerminated();
       }
     }
     return 0;
@@ -342,7 +348,7 @@ void OptimisticTickSyncAlgo::createSpeculationTimeShm()
       throw SyncStateException("Shared memory error!");
     TIME toReturn=*speculationTime;
     //shmdt(speculationTime);
-    speculationTime=nullptr;
+    //speculationTime=nullptr;
     return toReturn;
   }
   
@@ -350,7 +356,7 @@ void OptimisticTickSyncAlgo::createSpeculationTimeShm()
   {
     if(!this->isChild)
       throw SyncStateException("Only child can do this op!");
-    int shmid=shmget(this->specTimeKey,sizeof(uint64_t),IPC_CREAT | 0666);
+    int shmid=shmget(this->specTimeKey,sizeof(uint64_t), 0666);
     if(shmid < 0){
       throw new SyncStateException("Shm operation failed!");
     }

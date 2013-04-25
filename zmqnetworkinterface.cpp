@@ -119,7 +119,7 @@ ZmqNetworkInterface::ZmqNetworkInterface(bool iAmNetSim)
 
 
 ZmqNetworkInterface::ZmqNetworkInterface(const ZmqNetworkInterface &that)
-    :   AbsNetworkInterface()
+    :   AbsNetworkInterface(that)
     ,   zmq_ctx(NULL)
     ,   zmq_req(NULL)
     ,   zmq_async(NULL)
@@ -128,7 +128,7 @@ ZmqNetworkInterface::ZmqNetworkInterface(const ZmqNetworkInterface &that)
     ,   receivedMessages()
     ,   globalObjectCount(that.globalObjectCount)
 {
-    int globalObjectCountAgain;
+    size_t globalObjectCountAgain;
 
     init();
 

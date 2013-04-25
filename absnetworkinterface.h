@@ -87,6 +87,7 @@ public:
      */
     AbsNetworkInterface();
 
+    AbsNetworkInterface(const AbsNetworkInterface &that);
     /**
      * Destroys.
      */
