@@ -30,6 +30,7 @@
 #define OPTIMISTICTICKSYNCALGO_H
 
 #include "abssyncalgorithm.h"
+#include "speculationtimecalculationstrategy.h"
 #include "graceperiodspeculativesyncalgo.h"
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -52,6 +53,7 @@ namespace sim_comm{
       TIME specFailTime;
       key_t specTimeKey;
       TIME specDifference;
+      SpeculationTimeCalculationStrategy *st;
       /**
        * @TODO I assume 3 processes!
        */
@@ -93,16 +95,6 @@ namespace sim_comm{
        */
       TIME getSpeculationFailureTime();
       
-      //we will subclass these later!!!
-      void failedRecalculateSpecDifference(TIME specFailTime){
-	this->specDifference/=2;
-	cout << "Recaulted spec diff " << this->specDifference << endl;
-	//return specDifference
-      }
-      void succeedRecalculateSpecDifference(TIME specSuccessTime){
-	this->specDifference*=2;
-	//return specDifference
-      }
       
       bool hasChild(){
 	return this->childPid>0? true:false;
@@ -117,7 +109,7 @@ namespace sim_comm{
       void terminateChild();
       void childTerminated();
     public:
-      OptimisticTickSyncAlgo(AbsCommManager* interface, TIME specDifference);
+      OptimisticTickSyncAlgo(AbsCommManager* interface, TIME specDifference,SpeculationTimeCalculationStrategy *strategy);
       virtual ~OptimisticTickSyncAlgo();
       /** @copydoc AbsSyncAlgorithm::GetNextTime(TIME currentTime, TIME nextTime) */
       virtual TIME GetNextTime(TIME currentTime, TIME nextTime);

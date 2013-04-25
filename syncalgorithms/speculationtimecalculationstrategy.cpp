@@ -26,29 +26,37 @@
 */
 
 
-#ifndef OPTIMISTICCOMMSYNCALGO_H
-#define OPTIMISTICCOMMSYNCALGO_H
-
-#include "graceperiodspeculativesyncalgo.h"
-#include "optimisticticksyncalgo.h"
+#include "speculationtimecalculationstrategy.h"
 
 namespace sim_comm{
-
-  /**
-   * Optimistic sync algorithm for discrete event simulator!
-   */
-  class OptimisticCommSyncAlgo : public OptimisticTickSyncAlgo
+  
+  TIME SpeculationTimeCalculationStrategy::getSpecTime()
   {
-    private:
-      TIME currentState;
-      bool updated;
-    public:
-      OptimisticCommSyncAlgo(AbsCommManager* interface, TIME specDifference, SpeculationTimeCalculationStrategy *strategy);
-      virtual TIME GetNextTime(TIME currentTime, TIME nextTime);
-      virtual ~OptimisticCommSyncAlgo();
-      
-  };
+      return this->initialTime;
+  }
+  
+  SpeculationTimeCalculationStrategy::SpeculationTimeCalculationStrategy(TIME initialspecTime)
+  {
+    this->initialTime=initialspecTime;
+  }
 
+
+  ConstantSpeculationTimeStrategy::ConstantSpeculationTimeStrategy(TIME initialspecTime) : SpeculationTimeCalculationStrategy(initialspecTime)
+  {
+
+  }
+
+  IncreasingSpeculationTimeStrategy::IncreasingSpeculationTimeStrategy(TIME initialspecTime): SpeculationTimeCalculationStrategy(initialTime)
+  {
+  }
+  
+  void IncreasingSpeculationTimeStrategy::speculationFailed(TIME currentTime,TIME nextTime){
+    this->initialTime/=2;
+  }
+  
+  void IncreasingSpeculationTimeStrategy::speculationSuceeded(TIME currentTime,TIME nextTime){
+    this->initialTime*=2;
+    
+  }
+  
 }
-
-#endif // OPTIMISTICCOMMSYNCALGO_H

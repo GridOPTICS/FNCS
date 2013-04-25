@@ -93,6 +93,15 @@ void Integrator::stopIntegrator(){
 	delete instance;
 }
 
+void Integrator::terminate()
+{
+#if DEBUG
+    CERR << "Integrator::terminate()" << endl;
+#endif
+    delete instance;
+}
+
+
 TIME Integrator::getPacketLostPeriod()
 {
   return instance->packetLostPeriod;
@@ -164,7 +173,8 @@ void Integrator::initIntegratorOptimistic(
 	time_metric simTimeStep,
 	TIME packetLostPeriod,
 	TIME initialTime, 
-	TIME specDifference){
+	TIME specDifference,
+	SpeculationTimeCalculationStrategy *strategy){
 #if DEBUG
     CERR << "Integrator::initIntegratorOptimistic("
         << "AbsCommInterface*,"
@@ -174,7 +184,7 @@ void Integrator::initIntegratorOptimistic(
 #endif
     AbsCommManager *command=new GracePeriodCommManager(currentInterface);
     TIME specDifferentFramework=convertToFrameworkTime(simTimeStep,specDifference);
-    AbsSyncAlgorithm *algo=new OptimisticTickSyncAlgo(command,specDifferentFramework);
+    AbsSyncAlgorithm *algo=new OptimisticTickSyncAlgo(command,specDifferentFramework,strategy);
     instance=new Integrator(command,algo,simTimeStep,packetLostPeriod);
     instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
 }
@@ -184,8 +194,8 @@ void Integrator::initIntegratorOptimisticComm(
 	    time_metric simTimeStep, 
 	    TIME packetLostPeriod, 
 	    TIME initialTime, 
-	    TIME specDifference)
-{
+	    TIME specDifference,
+	    SpeculationTimeCalculationStrategy *strategy){
 #if DEBUG
     CERR << "Integrator::initIntegratorOptimisticComm("
         << "AbsCommInterface*,"
@@ -195,7 +205,7 @@ void Integrator::initIntegratorOptimisticComm(
 #endif
     AbsCommManager *command=new CommunicationComManager(currentInterface);
     TIME specDifferentFramework=convertToFrameworkTime(simTimeStep,specDifference);
-    AbsSyncAlgorithm *algo=new OptimisticCommSyncAlgo(command,specDifferentFramework);
+    AbsSyncAlgorithm *algo=new OptimisticCommSyncAlgo(command,specDifferentFramework,strategy);
     instance=new Integrator(command,algo,simTimeStep,packetLostPeriod);
     instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
 }

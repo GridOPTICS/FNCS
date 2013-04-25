@@ -35,6 +35,7 @@
 #include "callback.h"
 #include "echo.h"
 #include "simtime.h"
+#include "speculationtimecalculationstrategy.h"
 
 #define DEBUG 0
 #define DEBUG_TO_FILE 0
@@ -230,7 +231,8 @@ public:
         time_metric simTimeStep,
 	TIME packetLostPeriod,
         TIME initialTime,
-	TIME specDifference);
+	TIME specDifference,
+	SpeculationTimeCalculationStrategy *strategy);
     
     /**
      * Initializes the integrator with optimistic sync algorithm for comm simm
@@ -240,7 +242,8 @@ public:
         time_metric simTimeStep,
 	TIME packetLostPeriod,
         TIME initialTime,
-	TIME specDifference);
+	TIME specDifference,
+	SpeculationTimeCalculationStrategy *strategy);
     
     /**
      * sets simulator callback that returns time
@@ -272,6 +275,12 @@ public:
      * Returns the time offset in simulator time 
      */
     static TIME getAdjustedOffset();
+    
+    /**
+     * stops the integrator without sending
+     * the finish signal to the simulators.
+     */
+    static void terminate();
     
     /**
      * TODO

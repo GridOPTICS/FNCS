@@ -36,6 +36,7 @@
 #endif
 #include "integrator.h"
 #include "callback.h"
+#include "speculationtimecalculationstrategy.h"
 
 using namespace sim_comm;
 
@@ -75,12 +76,21 @@ void initIntegratorSpeculative(enum time_metric simTimeStep,
    Integrator::initIntegratorSpeculative(comm,SECONDS,packetLostPeriod,initialTime,specTime);			 
 }
 
-void initIntegratorOptimistic(time_metric simTimeStep, 
-			      TIME packetLostPeriod, TIME initialTime, TIME specTime)
+void initIntegratorOptimisticConstant(time_metric simTimeStep,
+				      TIME packetLostPeriod, TIME initialTime, TIME specTime)
 {
   //MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, false);
   ZmqNetworkInterface *comm = new ZmqNetworkInterface(false);
-  Integrator::initIntegratorOptimistic(comm,SECONDS,packetLostPeriod,initialTime,specTime);	
+  ConstantSpeculationTimeStrategy *st=new ConstantSpeculationTimeStrategy(specTime);
+  Integrator::initIntegratorOptimistic(comm,SECONDS,packetLostPeriod,initialTime,specTime,st);	
+}
+
+void initIntegratorOptimisticIncreasing(time_metric simTimeStep, 
+					TIME packetLostPeriod, TIME initialTime, TIME specTime)
+{
+    ZmqNetworkInterface *comm = new ZmqNetworkInterface(false);
+    IncreasingSpeculationTimeStrategy *st=new IncreasingSpeculationTimeStrategy(specTime);
+    Integrator::initIntegratorOptimistic(comm,SECONDS,packetLostPeriod,initialTime,specTime,st);
 }
 
 

@@ -26,29 +26,51 @@
 */
 
 
-#ifndef OPTIMISTICCOMMSYNCALGO_H
-#define OPTIMISTICCOMMSYNCALGO_H
+#ifndef SPECULATIONTIMECALCULATIONSTRATEGY_H
+#define SPECULATIONTIMECALCULATIONSTRATEGY_H
 
-#include "graceperiodspeculativesyncalgo.h"
-#include "optimisticticksyncalgo.h"
+#include "simtime.h"
 
 namespace sim_comm{
-
   /**
-   * Optimistic sync algorithm for discrete event simulator!
+   * Abstract class defining operations for 
+   * changing (recalculting) the speculation time.
    */
-  class OptimisticCommSyncAlgo : public OptimisticTickSyncAlgo
-  {
-    private:
-      TIME currentState;
-      bool updated;
-    public:
-      OptimisticCommSyncAlgo(AbsCommManager* interface, TIME specDifference, SpeculationTimeCalculationStrategy *strategy);
-      virtual TIME GetNextTime(TIME currentTime, TIME nextTime);
-      virtual ~OptimisticCommSyncAlgo();
-      
-  };
+class SpeculationTimeCalculationStrategy
+{
+  protected:
+    TIME initialTime;
+  public:
+    SpeculationTimeCalculationStrategy(TIME initialspecTime);
+    virtual void speculationFailed(TIME currentTime,TIME nextTime) = 0;
+    virtual void speculationSuceeded(TIME currentTime,TIME nextTime) =0;
+    virtual TIME getSpecTime();
+};
+
+/**
+ * This strategy does not change the speculation time.
+ */
+class ConstantSpeculationTimeStrategy : public SpeculationTimeCalculationStrategy
+{
+  public:
+    ConstantSpeculationTimeStrategy(TIME initialspecTime);
+    virtual void speculationFailed(TIME currentTime,TIME nextTime){};
+    virtual void speculationSuceeded(TIME currentTime,TIME nextTime){};
+};
+
+/**
+ * This strategy doubles the speculatoinTime iff speculation works.
+ * Otherwise it reduces the speculation time by half.
+ * 
+ */
+class IncreasingSpeculationTimeStrategy : public SpeculationTimeCalculationStrategy
+{
+  public:
+    IncreasingSpeculationTimeStrategy(TIME initialspecTime);
+    virtual void speculationFailed(TIME currentTime,TIME nextTime);
+    virtual void speculationSuceeded(TIME currentTime,TIME nextTime);
+};
 
 }
 
-#endif // OPTIMISTICCOMMSYNCALGO_H
+#endif // SPECULATIONTIMECALCULATIONSTRATEGY_H

@@ -62,6 +62,8 @@ namespace sim_comm{
     this->syncAlgoCallBackSend=given.syncAlgoCallBackSend;
     this->receiverRunning=given.receiverRunning;
     this->currentInterface=given.currentInterface->duplicateInterface();
+    CallBack<void,Message*,empty,empty> *msgCallback=CreateObjCallback<AbsCommManager *, void (AbsCommManager::*)(Message*), void,Message*>(this, &AbsCommManager::messageReceived);
+    this->currentInterface->setMessageCallBack(msgCallback);
   }
 
   

@@ -30,7 +30,7 @@
 
 namespace sim_comm{
 
-    OptimisticCommSyncAlgo::OptimisticCommSyncAlgo(AbsCommManager* interface, TIME specDifference): OptimisticTickSyncAlgo(interface, specDifference)
+    OptimisticCommSyncAlgo::OptimisticCommSyncAlgo(AbsCommManager* interface, TIME specDifference,SpeculationTimeCalculationStrategy *strategy): OptimisticTickSyncAlgo(interface, specDifference, strategy)
     {
       //the base constructor does what we want!
     }
