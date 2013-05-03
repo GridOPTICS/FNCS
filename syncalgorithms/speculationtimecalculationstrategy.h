@@ -41,10 +41,12 @@ class SpeculationTimeCalculationStrategy
   protected:
     TIME initialTime;
   public:
-    SpeculationTimeCalculationStrategy(TIME initialspecTime);
+    SpeculationTimeCalculationStrategy(time_metric metric, TIME initialspecTime);
     virtual void speculationFailed(TIME currentTime,TIME nextTime) = 0;
     virtual void speculationSuceeded(TIME currentTime,TIME nextTime) =0;
-    virtual TIME getSpecTime();
+    inline TIME getSpecTime(){
+      return this->initialTime;
+    }
 };
 
 /**
@@ -53,7 +55,7 @@ class SpeculationTimeCalculationStrategy
 class ConstantSpeculationTimeStrategy : public SpeculationTimeCalculationStrategy
 {
   public:
-    ConstantSpeculationTimeStrategy(TIME initialspecTime);
+    ConstantSpeculationTimeStrategy(time_metric metric, TIME initialspecTime);
     virtual void speculationFailed(TIME currentTime,TIME nextTime){};
     virtual void speculationSuceeded(TIME currentTime,TIME nextTime){};
 };
@@ -65,8 +67,10 @@ class ConstantSpeculationTimeStrategy : public SpeculationTimeCalculationStrateg
  */
 class IncreasingSpeculationTimeStrategy : public SpeculationTimeCalculationStrategy
 {
+  private:
+    TIME startup;
   public:
-    IncreasingSpeculationTimeStrategy(TIME initialspecTime);
+    IncreasingSpeculationTimeStrategy(time_metric metric, TIME initialspecTime);
     virtual void speculationFailed(TIME currentTime,TIME nextTime);
     virtual void speculationSuceeded(TIME currentTime,TIME nextTime);
 };

@@ -81,7 +81,7 @@ void initIntegratorOptimisticConstant(time_metric simTimeStep,
 {
   //MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, false);
   ZmqNetworkInterface *comm = new ZmqNetworkInterface(false);
-  ConstantSpeculationTimeStrategy *st=new ConstantSpeculationTimeStrategy(specTime);
+  ConstantSpeculationTimeStrategy *st=new ConstantSpeculationTimeStrategy(simTimeStep,specTime);
   Integrator::initIntegratorOptimistic(comm,SECONDS,packetLostPeriod,initialTime,specTime,st);	
 }
 
@@ -89,7 +89,7 @@ void initIntegratorOptimisticIncreasing(time_metric simTimeStep,
 					TIME packetLostPeriod, TIME initialTime, TIME specTime)
 {
     ZmqNetworkInterface *comm = new ZmqNetworkInterface(false);
-    IncreasingSpeculationTimeStrategy *st=new IncreasingSpeculationTimeStrategy(specTime);
+    IncreasingSpeculationTimeStrategy *st=new IncreasingSpeculationTimeStrategy(simTimeStep,specTime);
     Integrator::initIntegratorOptimistic(comm,SECONDS,packetLostPeriod,initialTime,specTime,st);
 }
 

@@ -18,7 +18,7 @@
 #include "callback.h"
 #include "simtime.h"
 #include "zmqnetworkinterface.h"
-
+#include "speculationtimecalculationstrategy.h"
 
 using namespace std;
 using namespace sim_comm;
@@ -51,7 +51,8 @@ int main(int argc,char* argv[]){
   //Integrator::initIntegratorGracePeriod(comm,MILLISECONDS,2300000000,currentTime);
   //Integrator::initIntegratorNetworkDelaySupport(comm,MILLISECONDS,2300000000,currentTime);
   //Integrator::initIntegratorSpeculative(comm,MILLISECONDS,2300000000,currentTime,1000);
-  Integrator::initIntegratorOptimistic(comm,MILLISECONDS,2300000000,currentTime,300000);
+  IncreasingSpeculationTimeStrategy *st=new IncreasingSpeculationTimeStrategy(MILLISECONDS,60000);
+  Integrator::initIntegratorOptimistic(comm,MILLISECONDS,2300000000,currentTime,60000,st);
   //Integrator::initIntegratorNetworkDelaySupport(comm,MILLISECONDS,2000000000,0);
   Integrator::setTimeCallBack(cb);
   

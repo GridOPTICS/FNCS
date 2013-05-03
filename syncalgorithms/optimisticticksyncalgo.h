@@ -59,7 +59,7 @@ namespace sim_comm{
        */
       pid_t mypid,parentPid,childPid; 
       bool isChild,isParent;
-      
+      bool busywait;
     protected: 
     
       void createSpeculativeProcess();
