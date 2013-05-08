@@ -50,6 +50,7 @@ private:
     uint8_t *data;
     uint32_t size;
     TIME networkDeliverytime;
+    bool delayThroughComm;
 public:
     /** Explicit constructor. */
     Message(const string &from,
@@ -140,6 +141,14 @@ public:
     
     TIME getDeliveryPeriod(){
       return networkDeliverytime;
+    }
+
+    void setDelayThroughComm(const bool &val) {
+        this->delayThroughComm = val;
+    }
+
+    bool getDelayThroughComm() {
+        return this->delayThroughComm;
     }
 };
 

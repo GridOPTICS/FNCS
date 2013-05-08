@@ -171,8 +171,11 @@ void ZmqNetworkInterface::send(Message *message)
     if (iAmNetSim) {
         (void) s_sendmore(this->zmq_async, this->context, "ROUTE");
     }
-    else {
+    else if (message->getDelayThroughComm()) {
         (void) s_sendmore(this->zmq_async, this->context, "DELAY");
+    }
+    else {
+        (void) s_sendmore(this->zmq_async, this->context, "ROUTE");
     }
     if (dataSize > 0) {
         (void) s_sendmore(this->zmq_async, envelope, envelopeSize);

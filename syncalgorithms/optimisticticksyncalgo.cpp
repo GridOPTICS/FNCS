@@ -27,7 +27,6 @@
 #include "config.h"
 
 #include "optimisticticksyncalgo.h"
-#include "profiler.h"
 #include <signal.h>
 
 #include <stdlib.h>

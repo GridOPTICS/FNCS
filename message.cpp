@@ -65,6 +65,7 @@ Message::Message(
     this->size=dataSize;
     this->tag=tag;
     this->networkDeliverytime=Infinity;
+    this->delayThroughComm = true;
 #if DEBUG
     CERR << *this << endl;
 #endif
@@ -96,6 +97,7 @@ Message::Message(
     this->size=dataSize;
     this->tag=tag;
     this->networkDeliverytime=Infinity;
+    this->delayThroughComm = true;
 #if DEBUG
     CERR << *this << endl;
 #endif
@@ -157,6 +159,7 @@ void Message::serializeHeader(uint8_t*& buffToReturn,uint32_t& buffSize) const {
     const uint8_t* timeptr=NULL;
     const uint8_t* sizeptr=NULL;
     const uint8_t* netdelayptr=NULL;
+    const uint8_t* delayThroughCommPtr=NULL;
     
     /* attempt to guess how much space we'll need to serialize */
     buff.reserve(
@@ -206,6 +209,13 @@ void Message::serializeHeader(uint8_t*& buffToReturn,uint32_t& buffSize) const {
     buff.push_back(tag);
     buff.push_back(0);
 
+    /* delayThroughComm */
+    delayThroughCommPtr=reinterpret_cast<const uint8_t*>(&this->delayThroughComm);
+    for(int i=0, limit=sizeof(this->delayThroughComm); i<limit; i++) {
+        buff.push_back(delayThroughCommPtr[i]);
+    }
+    buff.push_back(0);
+
     buffToReturn=new uint8_t[buff.size()];
     copy(buff.begin(),buff.end(),buffToReturn);
     buffSize=buff.size();
@@ -221,6 +231,7 @@ void Message::deserializeHeader(uint8_t *buff, uint32_t buffSize) {
     uint8_t *timeptr=NULL;
     uint8_t *sizeptr=NULL;
     uint8_t *networkptr=NULL;
+    uint8_t *delayThroughCommPtr=NULL;
     
     /* from */
     for(; it<buffSize; it++) {
@@ -287,6 +298,17 @@ void Message::deserializeHeader(uint8_t *buff, uint32_t buffSize) {
     }
     ++it;
     
+    /* delayThroughComm */
+    delayThroughCommPtr=reinterpret_cast<uint8_t*>(&this->delayThroughComm);
+    for(int i=0, limit=sizeof(this->delayThroughComm); i<limit && it<buffSize; i++) {
+        delayThroughCommPtr[i]=buff[it++];
+    }
+    if (it >= buffSize) {
+        throw "TODO better exception for deserialize time";
+    }
+    ++it;
+    
+
     if (it != buffSize) {
         throw "TODO better exception for deserialize end";
     }
