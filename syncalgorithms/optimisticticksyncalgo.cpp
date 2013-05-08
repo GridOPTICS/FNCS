@@ -182,7 +182,6 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
           else{
 	    needToRespond=true;
 	  }
-	  canSpeculate=false;
 	  TIME mySpecNextTime;
 	 
 	  if(canSpeculate && (currentTime+specDifference) < this->specFailTime){ //test if it is worht speculating!
