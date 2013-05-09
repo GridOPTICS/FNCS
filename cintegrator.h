@@ -28,6 +28,9 @@ extern "C"{
   void InitMPI(int *arc,char ***argv);
   void finalizeMPI();
   void timeStepStart(TIME currenTime);
+  void registerOBject(char *name);
+  void sendMesg(char *msg,int size);
+  void receive(char **buff,int *size);
 
 #ifdef __cplusplus
 }

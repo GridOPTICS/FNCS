@@ -35,11 +35,14 @@
 #include "zmqnetworkinterface.h"
 #endif
 #include "integrator.h"
+#include "objectcomminterface.h"
 #include "callback.h"
 #include "speculationtimecalculationstrategy.h"
 
 using namespace sim_comm;
 
+ObjectCommInterface *com;
+std::string myName;
 
 void InitMPI(int *arc,char ***argv){
 
@@ -99,6 +102,34 @@ void initIntegratorNetworkDelay(time_metric simTimeStep, TIME packetLostPeriod, 
   //MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, false);
   ZmqNetworkInterface *comm = new ZmqNetworkInterface(false);
   Integrator::initIntegratorNetworkDelaySupport(comm,SECONDS,packetLostPeriod,initialTime);
+}
+
+void registerOBject(char* name)
+{
+  com=Integrator::getCommInterface(name);
+  myName= std::string(name);
+}
+
+void sendMesg(char* msg, int size)
+{
+  Message *msgobj=new Message(myName,string("SUBSTATION"),Integrator::getCurSimTime(),(uint8_t *)msg,size);
+  
+  com->send(msgobj);
+}
+
+void receive(char** buff, int* size)
+{
+  if(com->hasMoreMessages()){
+      Message *msg=com->getNextInboxMessage();
+      char* buff2=new char[msg->getSize()];
+      memcpy(buff2,msg->getData(),msg->getSize());
+      *buff=buff2;
+      *size=msg->getSize();
+      delete msg;
+  }
+  else{
+    buff=NULL;
+  }
 }
 
 
