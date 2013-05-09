@@ -139,7 +139,9 @@ am__libfncs_api_la_SOURCES_DIST = absnetworkinterface.cpp \
 	syncalgorithms/graceperiodspeculativesyncalgo.cpp \
 	syncalgorithms/graceperiodnetworkdelaysyncalgo.cpp \
 	syncalgorithms/optimisticticksyncalgo.cpp \
-	syncalgorithms/optimisticcommsyncalgo.cpp util/simtime.cpp
+	syncalgorithms/optimisticcommsyncalgo.cpp \
+	syncalgorithms/speculationtimecalculationstrategy.cpp \
+	util/simtime.cpp
 @HAVE_ZMQ_TRUE@am__objects_1 = zmqhelper.lo zmqnetworkinterface.lo
 am__dirstamp = $(am__leading_dot)dirstamp
 am_libfncs_api_la_OBJECTS = absnetworkinterface.lo cintegrator.lo \
@@ -154,7 +156,9 @@ am_libfncs_api_la_OBJECTS = absnetworkinterface.lo cintegrator.lo \
 	syncalgorithms/graceperiodspeculativesyncalgo.lo \
 	syncalgorithms/graceperiodnetworkdelaysyncalgo.lo \
 	syncalgorithms/optimisticticksyncalgo.lo \
-	syncalgorithms/optimisticcommsyncalgo.lo util/simtime.lo
+	syncalgorithms/optimisticcommsyncalgo.lo \
+	syncalgorithms/speculationtimecalculationstrategy.lo \
+	util/simtime.lo
 libfncs_api_la_OBJECTS = $(am_libfncs_api_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -249,8 +253,9 @@ am__include_HEADERS_DIST = absnetworkinterface.h cintegrator.h echo.h \
 	syncalgorithms/graceperiodspeculativesyncalgo.h \
 	syncalgorithms/graceperiodnetworkdelaysyncalgo.h \
 	syncalgorithms/optimisticticksyncalgo.h \
-	syncalgorithms/optimisticcommsyncalgo.h util/callback.h \
-	util/simtime.h util/csimtime.h
+	syncalgorithms/optimisticcommsyncalgo.h \
+	syncalgorithms/speculationtimecalculationstrategy.h \
+	util/callback.h util/simtime.h util/csimtime.h
 HEADERS = $(include_HEADERS) $(noinst_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) \
 	$(LISP)config.h.in
@@ -433,8 +438,9 @@ include_HEADERS = absnetworkinterface.h cintegrator.h echo.h \
 	syncalgorithms/graceperiodspeculativesyncalgo.h \
 	syncalgorithms/graceperiodnetworkdelaysyncalgo.h \
 	syncalgorithms/optimisticticksyncalgo.h \
-	syncalgorithms/optimisticcommsyncalgo.h util/callback.h \
-	util/simtime.h util/csimtime.h
+	syncalgorithms/optimisticcommsyncalgo.h \
+	syncalgorithms/speculationtimecalculationstrategy.h \
+	util/callback.h util/simtime.h util/csimtime.h
 noinst_HEADERS = 
 lib_LTLIBRARIES = libfncs_api.la
 EXTRA_DIST = README
@@ -456,7 +462,9 @@ libfncs_api_la_SOURCES = absnetworkinterface.cpp cintegrator.cpp \
 	syncalgorithms/graceperiodspeculativesyncalgo.cpp \
 	syncalgorithms/graceperiodnetworkdelaysyncalgo.cpp \
 	syncalgorithms/optimisticticksyncalgo.cpp \
-	syncalgorithms/optimisticcommsyncalgo.cpp util/simtime.cpp
+	syncalgorithms/optimisticcommsyncalgo.cpp \
+	syncalgorithms/speculationtimecalculationstrategy.cpp \
+	util/simtime.cpp
 tests_sanity_SOURCES = tests/sanity.cpp
 tests_messageTest_SOURCES = tests/messageTest.cpp
 tests_simmer_SOURCES = tests/simmer.cpp
@@ -589,6 +597,9 @@ syncalgorithms/optimisticticksyncalgo.lo:  \
 syncalgorithms/optimisticcommsyncalgo.lo:  \
 	syncalgorithms/$(am__dirstamp) \
 	syncalgorithms/$(DEPDIR)/$(am__dirstamp)
+syncalgorithms/speculationtimecalculationstrategy.lo:  \
+	syncalgorithms/$(am__dirstamp) \
+	syncalgorithms/$(DEPDIR)/$(am__dirstamp)
 util/$(am__dirstamp):
 	@$(MKDIR_P) util
 	@: > util/$(am__dirstamp)
@@ -718,6 +729,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/graceperiodspeculativesyncalgo.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/optimisticcommsyncalgo.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/optimisticticksyncalgo.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/speculationtimecalculationstrategy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/messageTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/sanity.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/simmer.Po@am__quote@
