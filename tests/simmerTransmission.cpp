@@ -56,6 +56,8 @@ int main(int argc,char* argv[]){
   //Integrator::initIntegratorNetworkDelaySupport(comm,MILLISECONDS,2000000000,0);
   Integrator::setTimeCallBack(cb);
   
+  ObjectCommInterface* myInterface=Integrator::getCommInterface(string("1"));
+  
   Integrator::finalizeRegistrations();
   
   TIME grantedTime;
@@ -63,7 +65,15 @@ int main(int argc,char* argv[]){
     Integrator::timeStepStart(currentTime);
      //execute calculations that will solve all our problems
      usleep(rand()%20);
-     //start the time sync
+     if(myInterface->hasMoreMessages()){
+     
+       Message *msg=myInterface->getNextInboxMessage();
+       const uint8_t *data=msg->getData();
+       double re,im;
+       memcpy(&re,data,sizeof(double));
+       memcpy(&im,&data[sizeof(double)],sizeof(double));
+       cout << "Received from gld " << re << " " << im << endl;
+    }
      grantedTime=Integrator::getNextTime(currentTime,currentTime+1);
      //assert(grantedTime==currentTime+1);
      currentTime=currentTime+1;
