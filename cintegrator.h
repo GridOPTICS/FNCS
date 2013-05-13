@@ -29,8 +29,8 @@ extern "C"{
   void finalizeMPI();
   void timeStepStart(TIME currenTime);
   void registerOBject(char *name);
-  void sendMesg(char *msg,int size,int networked);
-  void receive(char **buff,int *size);
+  void sendMesg(char *from,char *to,char *msg,int size,int networked);
+  void receive(char *from,char **buff,int *size);
 
 #ifdef __cplusplus
 }

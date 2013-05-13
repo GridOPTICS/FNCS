@@ -41,8 +41,8 @@
 
 using namespace sim_comm;
 
-ObjectCommInterface *com;
 std::string myName;
+std::map<std::string,ObjectCommInterface *> registeredInterfaces;
 
 void InitMPI(int *arc,char ***argv){
 
@@ -106,20 +106,29 @@ void initIntegratorNetworkDelay(time_metric simTimeStep, TIME packetLostPeriod, 
 
 void registerOBject(char* name)
 {
-  com=Integrator::getCommInterface(name);
+  ObjectCommInterface *com=Integrator::getCommInterface(name);
   myName= std::string(name);
+  registeredInterfaces.insert(pair<std::string,ObjectCommInterface*>(myName,com));
 }
 
-void sendMesg(char* msg, int size,int networked)
+void sendMesg(char *from,char *destination,char* msg, int size,int networked)
 {
-  Message *msgobj=new Message(myName,string("SUBSTATIONCOM"),Integrator::getCurSimTime(),(uint8_t *)msg,size);
+  string fromstr(from);
+  string tostr(destination);
+  ObjectCommInterface *com=registeredInterfaces[fromstr];
+  
+  Message *msgobj=new Message(fromstr,tostr,Integrator::getCurSimTime(),(uint8_t *)msg,size);
   bool networkedflag = networked > 0 ? true : false;
   msgobj->setDelayThroughComm(networkedflag);
   com->send(msgobj);
 }
 
-void receive(char** buff, int* size)
+void receive(char *from,char** buff, int* size)
 {
+  string fromstr(from);
+  
+  ObjectCommInterface *com=registeredInterfaces[fromstr];
+  
   if(com->hasMoreMessages()){
       Message *msg=com->getNextInboxMessage();
       char* buff2=new char[msg->getSize()];
