@@ -129,7 +129,7 @@ void receive(char** buff, int* size)
       delete msg;
   }
   else{
-    buff=NULL;
+    *buff=NULL;
   }
 }
 
