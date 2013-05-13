@@ -129,7 +129,7 @@ void receive(char *from,char** buff, int* size)
   
   ObjectCommInterface *com=registeredInterfaces[fromstr];
   
-  if(com->hasMoreMessages()){
+  if(com->hasMoreMessages()){ 
       Message *msg=com->getNextInboxMessage();
       char* buff2=new char[msg->getSize()];
       memcpy(buff2,msg->getData(),msg->getSize());
