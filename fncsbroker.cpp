@@ -63,6 +63,7 @@ vector<set<string> > finalized;
 vector<set<string> > barrier;
 vector<set<string> > finished;
 vector<string> netSimID;
+vector<size_t> netSimObjCount;
 void *zmq_ctx = NULL;
 void *broker = NULL;
 void *async_broker = NULL;
@@ -307,6 +308,7 @@ static int add_context()
     size_t size;
 
     netSimID.push_back(newNetSimID);
+    netSimObjCount.push_back(0);
     contexts.push_back(newConnections);
     size = contexts.size();
 
@@ -589,8 +591,9 @@ static void register_handler(
 {
     string name;
     (void) s_recv(broker, name);
-    /* don't register net sim objects */
+    /* don't register net sim objects, but keep track of how many */
     if (identity == netSimID[context]) {
+        netSimObjCount[context]++;
         return;
     }
     if (1 == obj_to_ID[context].count(name)) {
@@ -616,7 +619,10 @@ static void finalize_handler(
         for (set<string>::iterator it=finalized[context].begin();
                 it != finalized[context].end(); ++it) {
             (void) s_sendmore(broker, *it);
-            (void) s_send    (broker, obj_to_ID[context].size());
+            /* some objects aren't network enabled, so we send back only the
+             * number of network registered objects */
+            /*(void) s_send    (broker, obj_to_ID[context].size());*/
+            (void) s_send    (broker, netSimObjCount[context]);
         }
     }
 }

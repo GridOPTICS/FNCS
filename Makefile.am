@@ -91,6 +91,9 @@ tests_messageTest_SOURCES = tests/messageTest.cpp
 check_PROGRAMS += tests/simmer
 tests_simmer_SOURCES = tests/simmer.cpp
 
+check_PROGRAMS += tests/simmerTransmission
+tests_simmerTransmission_SOURCES = tests/simmerTransmission.cpp
+
 if HAVE_ZMQ
 bin_PROGRAMS += fncsbroker
 fncsbroker_SOURCES = fncsbroker.cpp

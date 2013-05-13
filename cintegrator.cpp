@@ -44,6 +44,23 @@ using namespace sim_comm;
 std::string myName;
 std::map<std::string,ObjectCommInterface *> registeredInterfaces;
 
+#define USE_MPI 0
+
+void fenix_initialize(int *arc,char ***argv)
+{
+#if USE_MPI
+  MPI_Init(arc,argv);
+#else
+#endif
+}
+
+void fenix_finalize(){
+#if USE_MPI
+  MPI_Finalize();
+#else
+#endif
+}
+
 void InitMPI(int *arc,char ***argv){
 
   MPI_Init(arc,argv);
@@ -104,7 +121,7 @@ void initIntegratorNetworkDelay(time_metric simTimeStep, TIME packetLostPeriod, 
   Integrator::initIntegratorNetworkDelaySupport(comm,simTimeStep,packetLostPeriod,initialTime);
 }
 
-void registerOBject(char* name)
+void registerObject(char* name)
 {
   ObjectCommInterface *com=Integrator::getCommInterface(name);
   myName= std::string(name);
@@ -116,6 +133,7 @@ void sendMesg(char *from,char *destination,char* msg, int size,int networked)
   string fromstr(from);
   string tostr(destination);
   ObjectCommInterface *com=registeredInterfaces[fromstr];
+  //msgobj->setDelayThroughComm(false);
   
   Message *msgobj=new Message(fromstr,tostr,Integrator::getCurSimTime(),(uint8_t *)msg,size);
   bool networkedflag = networked > 0 ? true : false;

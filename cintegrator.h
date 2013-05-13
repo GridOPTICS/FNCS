@@ -25,10 +25,12 @@ extern "C"{
   TIME getNextTime(TIME currentTime, TIME nextTime);
   void stopIntegrator();
   uint8_t isFinished();
+  void fenix_initialize(int *arc,char ***argv);
+  void fenix_finalize();
   void InitMPI(int *arc,char ***argv);
   void finalizeMPI();
   void timeStepStart(TIME currenTime);
-  void registerOBject(char *name);
+  void registerObject(char *name);
   void sendMesg(char *from,char *to,char *msg,int size,int networked);
   void receive(char *from,char **buff,int *size);
 

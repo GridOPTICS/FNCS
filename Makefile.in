@@ -54,7 +54,8 @@ build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = $(am__EXEEXT_1)
 check_PROGRAMS = tests/sanity$(EXEEXT) tests/messageTest$(EXEEXT) \
-	tests/simmer$(EXEEXT) $(am__EXEEXT_2)
+	tests/simmer$(EXEEXT) tests/simmerTransmission$(EXEEXT) \
+	$(am__EXEEXT_2)
 @HAVE_ZMQ_TRUE@am__append_1 = zmqhelper.h zmqnetworkinterface.h
 @HAVE_ZMQ_TRUE@am__append_2 = zmqhelper.cpp zmqnetworkinterface.cpp
 @HAVE_ZMQ_TRUE@am__append_3 = fncsbroker
@@ -189,6 +190,13 @@ tests_simmer_OBJECTS = $(am_tests_simmer_OBJECTS)
 tests_simmer_LDADD = $(LDADD)
 tests_simmer_DEPENDENCIES = libfncs_api.la $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
+am_tests_simmerTransmission_OBJECTS =  \
+	tests/simmerTransmission.$(OBJEXT)
+tests_simmerTransmission_OBJECTS =  \
+	$(am_tests_simmerTransmission_OBJECTS)
+tests_simmerTransmission_LDADD = $(LDADD)
+tests_simmerTransmission_DEPENDENCIES = libfncs_api.la \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am__tests_zimmer_SOURCES_DIST = tests/zimmer.cpp
 @HAVE_ZMQ_TRUE@am_tests_zimmer_OBJECTS = tests/zimmer.$(OBJEXT)
 tests_zimmer_OBJECTS = $(am_tests_zimmer_OBJECTS)
@@ -231,10 +239,12 @@ am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
 SOURCES = $(libfncs_api_la_SOURCES) $(fncsbroker_SOURCES) \
 	$(tests_messageTest_SOURCES) $(tests_sanity_SOURCES) \
-	$(tests_simmer_SOURCES) $(tests_zimmer_SOURCES)
+	$(tests_simmer_SOURCES) $(tests_simmerTransmission_SOURCES) \
+	$(tests_zimmer_SOURCES)
 DIST_SOURCES = $(am__libfncs_api_la_SOURCES_DIST) \
 	$(am__fncsbroker_SOURCES_DIST) $(tests_messageTest_SOURCES) \
 	$(tests_sanity_SOURCES) $(tests_simmer_SOURCES) \
+	$(tests_simmerTransmission_SOURCES) \
 	$(am__tests_zimmer_SOURCES_DIST)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
@@ -468,6 +478,7 @@ libfncs_api_la_SOURCES = absnetworkinterface.cpp cintegrator.cpp \
 tests_sanity_SOURCES = tests/sanity.cpp
 tests_messageTest_SOURCES = tests/messageTest.cpp
 tests_simmer_SOURCES = tests/simmer.cpp
+tests_simmerTransmission_SOURCES = tests/simmerTransmission.cpp
 @HAVE_ZMQ_TRUE@fncsbroker_SOURCES = fncsbroker.cpp
 @HAVE_ZMQ_TRUE@tests_zimmer_SOURCES = tests/zimmer.cpp
 all: config.h
@@ -691,6 +702,11 @@ tests/simmer.$(OBJEXT): tests/$(am__dirstamp) \
 tests/simmer$(EXEEXT): $(tests_simmer_OBJECTS) $(tests_simmer_DEPENDENCIES) $(EXTRA_tests_simmer_DEPENDENCIES) tests/$(am__dirstamp)
 	@rm -f tests/simmer$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(tests_simmer_OBJECTS) $(tests_simmer_LDADD) $(LIBS)
+tests/simmerTransmission.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
+tests/simmerTransmission$(EXEEXT): $(tests_simmerTransmission_OBJECTS) $(tests_simmerTransmission_DEPENDENCIES) $(EXTRA_tests_simmerTransmission_DEPENDENCIES) tests/$(am__dirstamp)
+	@rm -f tests/simmerTransmission$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(tests_simmerTransmission_OBJECTS) $(tests_simmerTransmission_LDADD) $(LIBS)
 tests/zimmer.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
 tests/zimmer$(EXEEXT): $(tests_zimmer_OBJECTS) $(tests_zimmer_DEPENDENCIES) $(EXTRA_tests_zimmer_DEPENDENCIES) tests/$(am__dirstamp)
@@ -733,6 +749,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/messageTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/sanity.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/simmer.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/simmerTransmission.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/zimmer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@util/$(DEPDIR)/simtime.Plo@am__quote@
 
