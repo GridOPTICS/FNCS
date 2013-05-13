@@ -69,14 +69,14 @@ uint8_t isFinished()
 				TIME packetLostPeriod, TIME initialTime){
    //MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, false);
    ZmqNetworkInterface *comm = new ZmqNetworkInterface(false);
-   Integrator::initIntegratorGracePeriod(comm,SECONDS,packetLostPeriod,initialTime);
+   Integrator::initIntegratorGracePeriod(comm,simTimeStep,packetLostPeriod,initialTime);
  }
  
 void initIntegratorSpeculative(enum time_metric simTimeStep, 
 				TIME packetLostPeriod, TIME initialTime, TIME specTime){
    //MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, false);
    ZmqNetworkInterface *comm = new ZmqNetworkInterface(false);
-   Integrator::initIntegratorSpeculative(comm,SECONDS,packetLostPeriod,initialTime,specTime);			 
+   Integrator::initIntegratorSpeculative(comm,simTimeStep,packetLostPeriod,initialTime,specTime);			 
 }
 
 void initIntegratorOptimisticConstant(time_metric simTimeStep,
@@ -85,7 +85,7 @@ void initIntegratorOptimisticConstant(time_metric simTimeStep,
   //MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, false);
   ZmqNetworkInterface *comm = new ZmqNetworkInterface(false);
   ConstantSpeculationTimeStrategy *st=new ConstantSpeculationTimeStrategy(simTimeStep,specTime);
-  Integrator::initIntegratorOptimistic(comm,SECONDS,packetLostPeriod,initialTime,specTime,st);	
+  Integrator::initIntegratorOptimistic(comm,simTimeStep,packetLostPeriod,initialTime,specTime,st);	
 }
 
 void initIntegratorOptimisticIncreasing(time_metric simTimeStep, 
@@ -93,7 +93,7 @@ void initIntegratorOptimisticIncreasing(time_metric simTimeStep,
 {
     ZmqNetworkInterface *comm = new ZmqNetworkInterface(false);
     IncreasingSpeculationTimeStrategy *st=new IncreasingSpeculationTimeStrategy(simTimeStep,specTime);
-    Integrator::initIntegratorOptimistic(comm,SECONDS,packetLostPeriod,initialTime,specTime,st);
+    Integrator::initIntegratorOptimistic(comm,simTimeStep,packetLostPeriod,initialTime,specTime,st);
 }
 
 
@@ -101,7 +101,7 @@ void initIntegratorNetworkDelay(time_metric simTimeStep, TIME packetLostPeriod, 
 {
   //MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, false);
   ZmqNetworkInterface *comm = new ZmqNetworkInterface(false);
-  Integrator::initIntegratorNetworkDelaySupport(comm,SECONDS,packetLostPeriod,initialTime);
+  Integrator::initIntegratorNetworkDelaySupport(comm,simTimeStep,packetLostPeriod,initialTime);
 }
 
 void registerOBject(char* name)
@@ -110,10 +110,11 @@ void registerOBject(char* name)
   myName= std::string(name);
 }
 
-void sendMesg(char* msg, int size)
+void sendMesg(char* msg, int size,int networked)
 {
-  Message *msgobj=new Message(myName,string("SUBSTATION"),Integrator::getCurSimTime(),(uint8_t *)msg,size);
-  
+  Message *msgobj=new Message(myName,string("SUBSTATIONCOM"),Integrator::getCurSimTime(),(uint8_t *)msg,size);
+  bool networkedflag = networked > 0 ? true : false;
+  msgobj->setDelayThroughComm(networkedflag);
   com->send(msgobj);
 }
 
