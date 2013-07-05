@@ -331,6 +331,20 @@ void ZmqNetworkInterface::barier()
 }
 
 
+void ZmqNetworkInterface::sleep()
+{
+    string ack;
+
+#if DEBUG
+    CERR << "ZmqNetworkInterface::sleep()" << endl;
+#endif
+
+    (void) s_send(this->zmq_req, this->context, "SLEEP");
+    (void) i_recv(ack);
+    assert(ack == "ACK");
+}
+
+
 AbsNetworkInterface* ZmqNetworkInterface::duplicateInterface()
 {
 #if DEBUG

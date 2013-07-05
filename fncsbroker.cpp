@@ -61,6 +61,7 @@ set<string> newConnections;
 vector<set<string> > contexts;
 vector<set<string> > finalized;
 vector<set<string> > barrier;
+vector<set<string> > asleep;
 vector<set<string> > finished;
 vector<string> netSimID;
 vector<size_t> netSimObjCount;
@@ -69,6 +70,7 @@ void *broker = NULL;
 void *async_broker = NULL;
 void *killer = NULL;
 int world_size = 0;
+vector<int> world_sizes;
 
 struct ReduceMinPairLess
 {
@@ -89,6 +91,7 @@ static void reduce_send_recv_handler(const string &identity, const int &context,
 static void register_handler(const string &identity, const int &context, const string &control);
 static void finalize_handler(const string &identity, const int &context, const string &control);
 static void barrier_handler(const string &identity, const int &context, const string &control);
+static void sleep_handler(const string &identity, const int &context, const string &control);
 static bool finished_handler(const string &identity, const int &context, const string &control);
 
 
@@ -251,6 +254,9 @@ int main(int argc, char **argv)
             else if ("BARRIER" == control) {
                 barrier_handler(identity, context, control);
             }
+            else if ("SLEEP" == control) {
+                sleep_handler(identity, context, control);
+            }
             else if ("DIE" == control) {
                 /* a simulation wants to terminate abrubtly */
                 graceful_death(EXIT_FAILURE);
@@ -310,6 +316,7 @@ static int add_context()
     netSimID.push_back(newNetSimID);
     netSimObjCount.push_back(0);
     contexts.push_back(newConnections);
+    world_sizes.push_back(world_size);
     size = contexts.size();
 
     obj_to_ID.resize(size);
@@ -318,6 +325,7 @@ static int add_context()
     reduce_recv.resize(size);
     finalized.resize(size);
     barrier.resize(size);
+    asleep.resize(size);
     finished.resize(size);
 
     return int(size-1);
@@ -525,7 +533,7 @@ static void reduce_min_time_handler(
     }
     (void) s_recv(broker, time);
     reduce_min_time[context][identity] = time;
-    if (reduce_min_time[context].size() == world_size) {
+    if (reduce_min_time[context].size() == world_sizes[context]) {
         ReducePair min = *min_element(reduce_min_time[context].begin(),
                 reduce_min_time[context].end(), ReduceMinPairLess());
         /* send result to all sims */
@@ -559,8 +567,8 @@ static void reduce_send_recv_handler(
     (void) s_recv(broker, recv);
     reduce_sent[context][identity] = sent;
     reduce_recv[context][identity] = recv;
-    if (reduce_sent[context].size() == world_size) {
-        assert(reduce_recv[context].size() == world_size);
+    if (reduce_sent[context].size() == world_sizes[context]) {
+        assert(reduce_recv[context].size() == world_sizes[context]);
         ReduceMap::const_iterator it;
         for (it=reduce_sent[context].begin();
                 it!=reduce_sent[context].end(); ++it) {
@@ -612,10 +620,10 @@ static void finalize_handler(
         const string &control)
 {
     finalized[context].insert(identity);
-    if (finalized[context].size() > world_size) {
+    if (finalized[context].size() > world_sizes[context]) {
         graceful_death(EXIT_FAILURE);
     }
-    else if (finalized[context].size() == world_size) {
+    else if (finalized[context].size() == world_sizes[context]) {
         for (set<string>::iterator it=finalized[context].begin();
                 it != finalized[context].end(); ++it) {
             (void) s_sendmore(broker, *it);
@@ -639,17 +647,50 @@ static void barrier_handler(
         graceful_death(EXIT_FAILURE);
     }
     barrier[context].insert(identity);
-    if (barrier[context].size() > world_size) {
+    if (barrier[context].size() > world_sizes[context]) {
         cerr << "barrier size > world size" << endl;
         graceful_death(EXIT_FAILURE);
     }
-    else if (barrier[context].size() == world_size) {
+    else if (barrier[context].size() == world_sizes[context]) {
         for (set<string>::iterator it=barrier[context].begin();
                 it != barrier[context].end(); ++it) {
             (void) s_sendmore(broker, *it);
             (void) s_send    (broker, "ACK");
         }
         barrier[context].clear();
+    }
+}
+
+
+static void sleep_handler(
+        const string &identity,
+        const int &context,
+        const string &control)
+{
+    if (1 == asleep[context].count(identity)) {
+        cerr << "error: sleep already initialized for sim '"
+            << identity << "'" << endl;
+        graceful_death(EXIT_FAILURE);
+    }
+    asleep[context].insert(identity);
+    world_sizes[context] -= 1;
+    if (world_sizes[context] <= 0) {
+        cerr << "error: world_sizes[context] <= 0" << endl;
+        graceful_death(EXIT_FAILURE);
+    }
+    if (asleep[context].size() > world_size-1) {
+        cerr << "error: sleep size > world size -1" << endl;
+        graceful_death(EXIT_FAILURE);
+    }
+    else if (asleep[context].size() == world_size-1) { /* -1 for netsim */
+        assert(world_sizes[context] == 1);
+        for (set<string>::iterator it=asleep[context].begin();
+                it != asleep[context].end(); ++it) {
+            (void) s_sendmore(broker, *it);
+            (void) s_send    (broker, "ACK");
+        }
+        asleep[context].clear();
+        world_sizes[context] = world_size;
     }
 }
 

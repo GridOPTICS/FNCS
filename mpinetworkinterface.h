@@ -120,6 +120,9 @@ public:
     /** @copydoc AbsNetworkInterface::barier()*/
     virtual void barier();
     
+    /** @copydoc AbsNetworkInterface::sleep()*/
+    virtual void sleep();
+    
     /** @copydoc AbsNetworkInterface::duplicateInterface()*/
     virtual AbsNetworkInterface* duplicateInterface();
     

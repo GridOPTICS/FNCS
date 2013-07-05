@@ -184,6 +184,11 @@ public:
     virtual void barier() =0;
     
     /**
+     * Sleep function.
+     */
+    virtual void sleep() =0;
+    
+    /**
      * Duplicates the current interfce, creates a new interface that
      * has the same connections as the previous.
      */

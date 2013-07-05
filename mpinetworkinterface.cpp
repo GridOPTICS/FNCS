@@ -162,6 +162,13 @@ void MpiNetworkInterface::barier()
 
 
 
+void MpiNetworkInterface::sleep()
+{
+    assert(0);
+}
+
+
+
 void MpiNetworkInterface::send(Message *message) {
 #if DEBUG
     CERR << "MpiNetworkInterface::send(Message*)" << endl;
