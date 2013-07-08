@@ -71,6 +71,7 @@ namespace sim_comm
   virtual ~SyncStateException() throw(){
   }
 };
+
   enum ALGOTYPE{
     ALGO_COMM_SIM = 0,
     ALGO_PESIMISTIC,

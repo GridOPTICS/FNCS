@@ -32,40 +32,42 @@
 
 namespace sim_comm{
   
-  GracePeriodNetworkDelaySyncAlgo::GracePeriodNetworkDelaySyncAlgo(AbsCommManager *interface) : AbsSyncAlgorithm(interface)
+  GracePeriodNetworkDelaySyncAlgo::GracePeriodNetworkDelaySyncAlgo(AbsCommManager *interface, time_metric connectedSims[], int &connectedSimsSize) : AbsSyncAlgorithm(interface)
   {
-      this->threadopen=false;
-      //this->busywaiting=false;
-      
+     min=SECONDS;
+     for(int i=0;i<connectedSimsSize;i++){
+       if(connectedSims[i]>min)
+	 min=connectedSims[i];
+     }
+     
+     if(min==UNKNOWN)
+       throw new SyncStateException(string("Connected Sims cannot have UNKNOWN time scale"));
+     
+     this->minResponseTime=convertToFrameworkTime(min,1);
   }
 
   GracePeriodNetworkDelaySyncAlgo::~GracePeriodNetworkDelaySyncAlgo()
   {
-    if(threadopen)
-      pthread_cancel(this->thread);
+  
   }
+  
+  void GracePeriodNetworkDelaySyncAlgo::timeStepStart(TIME currentTime)
+  {
+      if(currentTime < grantedTime)
+	return;
+      //call sleep to wake up other sims
+      this->interface->sleep();
+      this->interface->waitforAll();
+  }
+
 
   TIME GracePeriodNetworkDelaySyncAlgo::GetNextTime(TIME currentTime, TIME nextTime)
   {
-      if(threadopen){
-	#if DEBUG
-	      CERR << "Waiting for busy wait thread!" << endl;
-	#endif
-        TIME *retValue;
-	int error=pthread_join(this->thread,(void**)&retValue);
-	if(error!=0)
-	    throw SyncStateException(string("Pthread join operation failed!"));
-	if(retValue==0)
-	  return 0;
-	threadopen=false;
-	#if DEBUG
-	      CERR << "Busy wait thread is finished!" << endl;
-	#endif
-      }
-      
-      TIME nextEstTime;
+
+      TIME nextEstTime; //here this variable represents the sycnhronization time with the network simulator.
       TIME minnetworkdelay;
-      uint64_t bwaitCount=0;
+      TIME powerSyncTime;
+      
       if(nextTime < grantedTime)
 	return nextTime;
 
@@ -79,17 +81,22 @@ namespace sim_comm{
       
       do
       {
-	  if(busywait)
+	  if(busywait){
+	    this->interface->sleep(); //sleep until woken up
 	    this->interface->waitforAll();
+	  }
           uint64_t diff=interface->reduceTotalSendReceive();
           //network unstable, we need to wait!
           nextEstTime=currentTime+convertToFrameworkTime(Integrator::getCurSimMetric(),1); 
+	  //find next responseTime
+	  powerSyncTime=convertToMyTime(min,currentTime)+this->minResponseTime;
 	  minnetworkdelay=interface->reduceNetworkDelay();
 	    if(diff==0 && !needToRespond)
-	    { //network stable grant next time
-		nextEstTime=nextTime;
-		if(minnetworkdelay!=Infinity && nextEstTime < currentTime + minnetworkdelay)
-		  nextEstTime = currentTime + minnetworkdelay;
+	    { 
+	      //network stable grant min(next_time,responseTime) to power sims, and next_time to network simulator
+	      if(powerSyncTime < nextTime)
+		powerSyncTime = nextTime;
+	      nextEstTime=nextTime;
 	    }
 	    else{
 	      needToRespond=true; //set this condition so that when the simulator wakes up from busy wait it responds to messages
@@ -100,7 +107,8 @@ namespace sim_comm{
           //Calculate next min time step
           TIME myminNextTime=nextEstTime;
           TIME minNextTime=(TIME)interface->reduceMinTime(myminNextTime);
-
+	  TIME minPowerSyncTime=(TIME)interface->reduceMinTime(powerSyncTime);
+	  powerSyncTime=minPowerSyncTime; //we need to grant the simulator upto min power sync time;
           //min time is the estimated next time, so grant nextEstimated time
           if(minNextTime==myminNextTime)
               busywait=false;

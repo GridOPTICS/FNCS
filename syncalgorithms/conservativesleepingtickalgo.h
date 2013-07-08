@@ -29,29 +29,25 @@
 #ifndef GRACEPERIODNETWORKDELAYSYNCALGO_H
 #define GRACEPERIODNETWORKDELAYSYNCALGO_H
 
-#include <pthread.h>
 
 #include "abssyncalgorithm.h"
 
 namespace sim_comm{
-
+  
+  
   class GracePeriodNetworkDelaySyncAlgo : public sim_comm::AbsSyncAlgorithm
   {
     private:
-      pthread_t thread;
-      bool threadopen;
-     
-      TIME threadOpenTime;
-      TIME threadEndTime;
       //pthread_mutex_t threadstatus;
       //TIME avgBusyWait;
       TIME nextTime;
-    
-      
+      TIME minResponseTime;
+      time_metric min;
     public:
-      GracePeriodNetworkDelaySyncAlgo(AbsCommManager *interface);
+      GracePeriodNetworkDelaySyncAlgo(AbsCommManager *interface, time_metric connectedSims[], int &connectedSimsSize);
       virtual bool doDispatchNextEvent(TIME currentTime, TIME nextTime);
       virtual TIME GetNextTime(TIME currentTime, TIME nextTime);
+      virtual void timeStepStart(TIME currentTime);
       virtual ~GracePeriodNetworkDelaySyncAlgo();
   };
 
