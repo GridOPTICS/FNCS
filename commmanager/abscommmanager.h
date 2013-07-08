@@ -213,8 +213,10 @@ namespace sim_comm{
      */
      virtual AbsCommManager* duplicate() =0;
     
-   
-
+     /**
+      * Causes the calling simulator to sleep until all simulator go to sleep.
+      */
+     virtual void sleep();
     /**
      * Signals to others that we are finished.
      */

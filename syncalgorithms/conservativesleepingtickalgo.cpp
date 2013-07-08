@@ -27,12 +27,13 @@
 /* autoconf header */
 #include "config.h"
 
-#include "graceperiodnetworkdelaysyncalgo.h"
+#include "conservativesleepingtickalgo.h"
 #include <abscommmanager.h>
 
 namespace sim_comm{
-  
-  GracePeriodNetworkDelaySyncAlgo::GracePeriodNetworkDelaySyncAlgo(AbsCommManager *interface, time_metric connectedSims[], int &connectedSimsSize) : AbsSyncAlgorithm(interface)
+
+
+  ConservativeSleepingTickAlgo::ConservativeSleepingTickAlgo(AbsCommManager *interface, time_metric connectedSims[], int &connectedSimsSize) : AbsSyncAlgorithm(interface)
   {
      min=SECONDS;
      for(int i=0;i<connectedSimsSize;i++){
@@ -46,12 +47,12 @@ namespace sim_comm{
      this->minResponseTime=convertToFrameworkTime(min,1);
   }
 
-  GracePeriodNetworkDelaySyncAlgo::~GracePeriodNetworkDelaySyncAlgo()
+  ConservativeSleepingTickAlgo::~ConservativeSleepingTickAlgo()
   {
   
   }
   
-  void GracePeriodNetworkDelaySyncAlgo::timeStepStart(TIME currentTime)
+  void ConservativeSleepingTickAlgo::timeStepStart(TIME currentTime)
   {
       if(currentTime < grantedTime)
 	return;
@@ -61,7 +62,7 @@ namespace sim_comm{
   }
 
 
-  TIME GracePeriodNetworkDelaySyncAlgo::GetNextTime(TIME currentTime, TIME nextTime)
+  TIME ConservativeSleepingTickAlgo::GetNextTime(TIME currentTime, TIME nextTime)
   {
 
       TIME nextEstTime; //here this variable represents the sycnhronization time with the network simulator.
@@ -133,7 +134,7 @@ namespace sim_comm{
 #if DEBUG
 	      CERR << "Starting busy wait thread! my:" << myminNextTime << " others:" << minNextTime <<  endl;
 #endif
-		pthread_create(&this->thread,NULL,&GracePeriodNetworkDelaySyncAlgo::startThreadBusyWait,(void*)this);
+		pthread_create(&this->thread,NULL,&ConservativeSleepingTickAlgo::startThreadBusyWait,(void*)this);
 		busywait=false;
 	      }
 	      else{*/
@@ -145,11 +146,11 @@ namespace sim_comm{
       }while(busywait);
      
       
-      this->grantedTime=nextEstTime;
+      this->grantedTime=powerSyncTime;
       return nextEstTime;
   }
 
-  bool GracePeriodNetworkDelaySyncAlgo::doDispatchNextEvent(TIME currentTime, TIME nextTime)
+  bool ConservativeSleepingTickAlgo::doDispatchNextEvent(TIME currentTime, TIME nextTime)
   {
     TIME syncedTime=this->GetNextTime(currentTime,nextTime);
 

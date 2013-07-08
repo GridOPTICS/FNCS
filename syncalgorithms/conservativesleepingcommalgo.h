@@ -26,30 +26,25 @@
 */
 
 
-#ifndef GRACEPERIODNETWORKDELAYSYNCALGO_H
-#define GRACEPERIODNETWORKDELAYSYNCALGO_H
-
+#ifndef CONSERVATIVESLEEPINGCOMMALGO_H
+#define CONSERVATIVESLEEPINGCOMMALGO_H
 
 #include "abssyncalgorithm.h"
 
 namespace sim_comm{
   
-  
-  class ConservativeSleepingTickAlgo : public sim_comm::AbsSyncAlgorithm
-  {
-    private:
-      //pthread_mutex_t threadstatus;
-      //TIME avgBusyWait;
-      TIME nextTime;
-      TIME minResponseTime;
-      time_metric min;
-    public:
-      ConservativeSleepingTickAlgo(AbsCommManager *interface, time_metric connectedSims[], int &connectedSimsSize);
-      virtual bool doDispatchNextEvent(TIME currentTime, TIME nextTime);
-      virtual TIME GetNextTime(TIME currentTime, TIME nextTime);
-      virtual void timeStepStart(TIME currentTime);
-      virtual ~ConservativeSleepingTickAlgo();
-  };
+class ConservativeSleepingCommAlgo : public AbsSyncAlgorithm
+{
+  private:
+    TIME currentState;
+    bool updated;
+  public:
+    ConservativeSleepingCommAlgo(AbsCommManager *interface);
+    virtual ~ConservativeSleepingCommAlgo();
+    virtual TIME GetNextTime(TIME currentTime, TIME nextTime);
+    virtual bool doDispatchNextEvent(TIME currentTime, TIME nextTime);
+};
 
 }
-#endif // GRACEPERIODNETWORKDELAYSYNCALGO_H
+
+#endif // CONSERVATIVESLEEPINGCOMMALGO_H

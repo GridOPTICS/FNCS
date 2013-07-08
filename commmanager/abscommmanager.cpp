@@ -80,6 +80,12 @@ namespace sim_comm{
     delete this->currentInterface;
   }
   
+  void AbsCommManager::sleep()
+  {
+    this->currentInterface->sleep();
+  }
+
+  
   void AbsCommManager::waitforAll()
   {
   #if DEBUG
