@@ -30,7 +30,8 @@
 #include "absnetworkinterface.h"
 #include "communicationcommanager.h"
 #include "graceperiodcommmanager.h"
-#include "graceperiodnetworkdelaysyncalgo.h"
+#include "conservativesleepingcommalgo.h"
+#include "conservativesleepingtickalgo.h"
 #include "integrator.h"
 #include "objectcomminterface.h"
 #include "optimisticcommsyncalgo.h"
@@ -107,11 +108,13 @@ TIME Integrator::getPacketLostPeriod()
   return instance->packetLostPeriod;
 }
 
-void Integrator::initIntegratorNetworkDelaySupport(
+void Integrator::initIntegratorConservativeSleepingTick(
   AbsNetworkInterface* currentInterface, 
   time_metric simTimeStep, 
   TIME packetLostPeriod, 
-  TIME initialTime)
+  TIME initialTime,
+  time_metric connectedSimsMetric[],
+  int metricsSize)
 {
 
 #if DEBUG
@@ -122,7 +125,26 @@ void Integrator::initIntegratorNetworkDelaySupport(
         << "initialTime=" << initialTime << ")" << endl;
 #endif
     AbsCommManager *command=new GracePeriodCommManager(currentInterface);
-    AbsSyncAlgorithm *algo=new GracePeriodNetworkDelaySyncAlgo(command);
+    AbsSyncAlgorithm *algo=new ConservativeSleepingTickAlgo(command,connectedSimsMetric,metricsSize);
+    instance=new Integrator(command,algo,simTimeStep,packetLostPeriod);
+    instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
+}
+
+void Integrator::initIntegratorConservativeSleepingComm(
+	  AbsNetworkInterface* currentInterface,
+	  time_metric simTimeStep,
+	  TIME packetLostPeriod,
+	  TIME initialTime)
+{
+#if DEBUG
+    CERR << "Integrator::initIntegratorNetworkDelaySupport("
+        << "AbsCommInterface*,"
+        << "simTimeStep=" << simTimeStep << ","
+        << "packetlost=" << packetLostPeriod << ","
+        << "initialTime=" << initialTime << ")" << endl;
+#endif
+    AbsCommManager *command=new GracePeriodCommManager(currentInterface);
+    AbsSyncAlgorithm *algo=new ConservativeSleepingCommAlgo(command);
     instance=new Integrator(command,algo,simTimeStep,packetLostPeriod);
     instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
 }

@@ -208,11 +208,24 @@ public:
     /**
      * Initializes the integrator with network delay support
      */
-    static void initIntegratorNetworkDelaySupport(AbsNetworkInterface *currentInterface, 
-					time_metric simTimeStep, 
-					TIME packetLostPeriod,
-					TIME initialTime);    
-
+    static void initIntegratorConservativeSleepingTick(
+			    AbsNetworkInterface* currentInterface, 
+			    time_metric simTimeStep, 
+			    TIME packetLostPeriod, 
+			    TIME initialTime,
+			    time_metric connectedSimsMetric[],
+			    int metricsSize);
+    
+    
+/**
+     * Initializes the integrator with network delay support
+     */
+    static void initIntegratorConservativeSleepingComm(
+			    AbsNetworkInterface* currentInterface, 
+			    time_metric simTimeStep, 
+			    TIME packetLostPeriod, 
+			    TIME initialTime);
+    
     /**
      * Initializes the integrator with speculative threading support
      */

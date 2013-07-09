@@ -114,11 +114,12 @@ void initIntegratorOptimisticIncreasing(time_metric simTimeStep,
 }
 
 
-void initIntegratorNetworkDelay(time_metric simTimeStep, TIME packetLostPeriod, TIME initialTime)
+ void initIntegratorConservativeSleepingTick(enum time_metric simTimeStep, 
+				TIME packetLostPeriod, TIME initialTime,enum time_metric metrics[],int metricsSize)
 {
   //MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, false);
   ZmqNetworkInterface *comm = new ZmqNetworkInterface(false);
-  Integrator::initIntegratorNetworkDelaySupport(comm,simTimeStep,packetLostPeriod,initialTime);
+  Integrator::initIntegratorConservativeSleepingTick(comm,simTimeStep,packetLostPeriod,initialTime,metrics,metricsSize);
 }
 
 void registerObject(char* name)

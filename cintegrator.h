@@ -17,8 +17,8 @@ extern "C"{
 				TIME packetLostPeriod, TIME initialTime, TIME specTime);
   void initIntegratorOptimisticIncreasing(enum time_metric simTimeStep, 
 				TIME packetLostPeriod, TIME initialTime, TIME specTime);
-  void initIntegratorNetworkDelay(enum time_metric simTimeStep, 
-				TIME packetLostPeriod, TIME initialTime);
+  void initIntegratorConservativeSleepingTick(enum time_metric simTimeStep, 
+				TIME packetLostPeriod, TIME initialTime,enum time_metric metrics[],int metricsSize);
   void setOffset(TIME initialTime);
   void finalizeRegistrations();
   void setregistercallback(TIME (*callback)());
