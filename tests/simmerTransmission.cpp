@@ -55,7 +55,7 @@ int main(int argc,char* argv[]){
   //Integrator::initIntegratorOptimistic(comm,MILLISECONDS,2300000000,currentTime,60000,st);
   time_metric others[1];
   others[0]=SECONDS;
-  Integrator::initIntegratorConservativeSleepingTick(comm,MILLISECONDS,2000000000,0,others,1);
+  Integrator::initIntegratorConservativeSleepingTick(comm,MILLISECONDS,2000000000,currentTime,others,1);
   Integrator::setTimeCallBack(cb);
   
   ObjectCommInterface* myInterface=Integrator::getCommInterface(string("1"));

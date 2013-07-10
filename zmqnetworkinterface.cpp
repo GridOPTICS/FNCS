@@ -341,7 +341,12 @@ void ZmqNetworkInterface::sleep()
 
     (void) s_send(this->zmq_req, this->context, "SLEEP");
     (void) i_recv(ack);
-    assert(ack == "ACK");
+    //assert(ack == "ACK");
+    if(ack != "ACK"){
+      string msg("Message is not ack ");
+      msg += ack;
+      throw NetworkException(__FILE__,"sleep()",__LINE__,msg.c_str());
+    }
 }
 
 

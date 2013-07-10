@@ -45,6 +45,7 @@ namespace sim_comm{
        throw new SyncStateException(string("Connected Sims cannot have UNKNOWN time scale"));
      
      this->minResponseTime=convertToFrameworkTime(min,1);
+     this->powersimgrantedTime=0;
   }
 
   ConservativeSleepingTickAlgo::~ConservativeSleepingTickAlgo()
@@ -56,8 +57,11 @@ namespace sim_comm{
   {
       if(currentTime < grantedTime)
 	return;
+      
       //call sleep to wake up other sims
-      this->interface->sleep();
+      if(currentTime == powersimgrantedTime)
+	  this->interface->sleep();
+      
       this->interface->waitforAll();
   }
 
@@ -68,6 +72,7 @@ namespace sim_comm{
       TIME nextEstTime; //here this variable represents the sycnhronization time with the network simulator.
       TIME minnetworkdelay;
       TIME powerSyncTime;
+      TIME incCurrentTime = currentTime;
       
       if(nextTime < grantedTime)
 	return nextTime;
@@ -77,7 +82,7 @@ namespace sim_comm{
       //send all messages
       if(currentTime < grantedTime){ //we still have some granted time we need to barier at granted Time
 	    busywait=true;
-	    currentTime=grantedTime;
+	    incCurrentTime=currentTime=grantedTime;
       }
       
       do
@@ -90,19 +95,19 @@ namespace sim_comm{
           //network unstable, we need to wait!
           nextEstTime=currentTime+convertToFrameworkTime(Integrator::getCurSimMetric(),1); 
 	  //find next responseTime
-	  powerSyncTime=convertToMyTime(min,currentTime)+this->minResponseTime;
+	  
+	  powerSyncTime=convertToFrameworkTime(min,convertToMyTime(min,incCurrentTime))+this->minResponseTime;
 	  minnetworkdelay=interface->reduceNetworkDelay();
-	    if(diff==0 && !needToRespond)
-	    { 
-	      //network stable grant min(next_time,responseTime) to power sims, and next_time to network simulator
-	      if(powerSyncTime < nextTime)
-		powerSyncTime = nextTime;
-	      nextEstTime=nextTime;
-	    }
-	    else{
-	      needToRespond=true; //set this condition so that when the simulator wakes up from busy wait it responds to messages
-	    }
-
+	  if(diff==0 && !needToRespond)
+	  { 
+	    nextEstTime=nextTime;
+	    if(incCurrentTime > currentTime) //we were busy waiting so we cannot send a packet until next time
+		powerSyncTime=nextTime;
+	  }
+	  else{
+	    needToRespond=true; //set this condition so that when the simulator wakes up from busy wait it responds to messages
+	  }
+	  
 	 
 	  //this->maxBusyWaitTime=0;
           //Calculate next min time step
@@ -126,6 +131,7 @@ namespace sim_comm{
 	      //update the current Time!
 	      currentTime = convertToMyTime(Integrator::getCurSimMetric(),minNextTime);
 	      currentTime = convertToFrameworkTime(Integrator::getCurSimMetric(),currentTime);
+	      incCurrentTime = minNextTime;
 	     /* if(!threadopen && myminNextTime-interface->getMinNetworkDelay()<minNextTime){
 		this->threadopen=true;
 		this->threadOpenTime=currentTime;
@@ -145,8 +151,8 @@ namespace sim_comm{
 
       }while(busywait);
      
-      
-      this->grantedTime=powerSyncTime;
+      this->powersimgrantedTime=powerSyncTime;
+      this->grantedTime=nextEstTime;
       return nextEstTime;
   }
 

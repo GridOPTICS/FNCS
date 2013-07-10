@@ -143,7 +143,7 @@ void Integrator::initIntegratorConservativeSleepingComm(
         << "packetlost=" << packetLostPeriod << ","
         << "initialTime=" << initialTime << ")" << endl;
 #endif
-    AbsCommManager *command=new GracePeriodCommManager(currentInterface);
+    AbsCommManager *command=new CommunicationComManager(currentInterface);
     AbsSyncAlgorithm *algo=new ConservativeSleepingCommAlgo(command);
     instance=new Integrator(command,algo,simTimeStep,packetLostPeriod);
     instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
