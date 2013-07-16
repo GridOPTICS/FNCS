@@ -44,6 +44,7 @@ namespace sim_comm{
       TIME minResponseTime;
       time_metric min;
       TIME powersimgrantedTime;
+      uint64_t diff;
     public:
       ConservativeSleepingTickAlgo(AbsCommManager *interface, time_metric connectedSims[], int &connectedSimsSize);
       virtual bool doDispatchNextEvent(TIME currentTime, TIME nextTime);

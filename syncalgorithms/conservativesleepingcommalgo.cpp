@@ -34,7 +34,8 @@ namespace sim_comm{
 
 ConservativeSleepingCommAlgo::ConservativeSleepingCommAlgo(AbsCommManager* interface): AbsSyncAlgorithm(interface)
 {
-
+  this->powersimgrantedTime=0;
+  this->diff=0;
 }
 
 ConservativeSleepingCommAlgo::~ConservativeSleepingCommAlgo()
@@ -57,7 +58,7 @@ TIME ConservativeSleepingCommAlgo::GetNextTime(TIME currentTime, TIME nextTime)
 		     return grantedTime;
 		    
 
-		    uint64_t diff=interface->reduceTotalSendReceive();
+		    diff=interface->reduceTotalSendReceive();
 		    //assume network stable
 		   
 		    if(diff>0)
@@ -87,8 +88,8 @@ TIME ConservativeSleepingCommAlgo::GetNextTime(TIME currentTime, TIME nextTime)
 		    //We never wait for comm sim, instead we wait for oter sims
 		    TIME myminNextTime=Infinity;
 		    TIME minNextTime=(TIME)interface->reduceMinTime(myminNextTime);
-		    TIME powerSyncTime=Infinity;
-		    powerSyncTime=(TIME)interface->reduceMinTime(powerSyncTime); //useless op, network sim does not care about power sims
+		    if(diff==0 && this->powersimgrantedTime <= minNextTime)
+			this->powersimgrantedTime=(TIME)interface->reduceMinTime(Infinity); //useless op, network sim does not care about power sims
 		    //If min time is infinity then there is something with the comm!
 		    if(minNextTime==Infinity){
 #if DEBUG

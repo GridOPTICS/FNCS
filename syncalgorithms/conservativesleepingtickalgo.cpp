@@ -46,6 +46,7 @@ namespace sim_comm{
      
      this->minResponseTime=convertToFrameworkTime(min,1);
      this->powersimgrantedTime=0;
+     this->diff=0;
   }
 
   ConservativeSleepingTickAlgo::~ConservativeSleepingTickAlgo()
@@ -55,11 +56,14 @@ namespace sim_comm{
   
   void ConservativeSleepingTickAlgo::timeStepStart(TIME currentTime)
   {
+#ifdef PROFILE
+      syncStart();
+#endif
       if(currentTime < grantedTime)
 	return;
       
       //call sleep to wake up other sims
-      if(currentTime == powersimgrantedTime)
+      if(this->diff==0 && currentTime == powersimgrantedTime)
 	  this->interface->sleep();
       
       this->interface->waitforAll();
@@ -88,10 +92,11 @@ namespace sim_comm{
       do
       {
 	  if(busywait){
-	    this->interface->sleep(); //sleep until woken up
+	    if(this->diff==0)
+	      this->interface->sleep(); //sleep until woken up
 	    this->interface->waitforAll();
 	  }
-          uint64_t diff=interface->reduceTotalSendReceive();
+          this->diff=interface->reduceTotalSendReceive();
           //network unstable, we need to wait!
           nextEstTime=currentTime+convertToFrameworkTime(Integrator::getCurSimMetric(),1); 
 	  //find next responseTime
@@ -105,7 +110,10 @@ namespace sim_comm{
 		powerSyncTime=nextTime;
 	  }
 	  else{
-	    needToRespond=true; //set this condition so that when the simulator wakes up from busy wait it responds to messages
+	    if(needToRespond)
+	      powerSyncTime=nextEstTime;
+	    else
+	      needToRespond=true; //set this condition so that when the simulator wakes up from busy wait it responds to messages
 	  }
 	  
 	 
@@ -113,8 +121,9 @@ namespace sim_comm{
           //Calculate next min time step
           TIME myminNextTime=nextEstTime;
           TIME minNextTime=(TIME)interface->reduceMinTime(myminNextTime);
-	  TIME minPowerSyncTime=(TIME)interface->reduceMinTime(powerSyncTime);
-	  powerSyncTime=minPowerSyncTime; //we need to grant the simulator upto min power sync time;
+	  if(diff==0 && this->powersimgrantedTime <= minNextTime){
+	    this->powersimgrantedTime=(TIME)interface->reduceMinTime(powerSyncTime); //we need to grant the simulator upto min power sync time;
+	  }
           //min time is the estimated next time, so grant nextEstimated time
           if(minNextTime==myminNextTime)
               busywait=false;
@@ -151,8 +160,10 @@ namespace sim_comm{
 
       }while(busywait);
      
-      this->powersimgrantedTime=powerSyncTime;
       this->grantedTime=nextEstTime;
+#ifdef PROFILE
+      writeTime(currentTime);
+#endif
       return nextEstTime;
   }
 

@@ -37,7 +37,9 @@ class ConservativeSleepingCommAlgo : public AbsSyncAlgorithm
 {
   private:
     TIME currentState;
+    TIME powersimgrantedTime;
     bool updated;
+    uint64_t diff;
   public:
     ConservativeSleepingCommAlgo(AbsCommManager *interface);
     virtual ~ConservativeSleepingCommAlgo();

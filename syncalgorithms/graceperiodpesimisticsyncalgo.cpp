@@ -109,6 +109,9 @@ namespace sim_comm
      
       
       this->grantedTime=nextEstTime;
+#ifdef PROFILE
+      writeTime(currentTime);
+#endif
       return nextEstTime;
   }
 

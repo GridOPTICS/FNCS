@@ -77,6 +77,11 @@ int main(int argc,char* argv[]){
        cout << "Received from gld " << re << " " << im << endl;
     }
      grantedTime=Integrator::getNextTime(currentTime,currentTime+1);
+     
+     if((currentTime-2000000000)%1000==0){
+      cout << "Current Time:" << (currentTime-2000000000)/1000 << endl;
+       
+    }
      //assert(grantedTime==currentTime+1);
      currentTime=currentTime+1;
   }while(!Integrator::isFinished());

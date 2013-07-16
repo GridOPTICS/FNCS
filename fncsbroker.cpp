@@ -65,7 +65,7 @@ vector<set<string> > barrier;
 vector<set<string> > asleep;
 vector<set<string> > finished;
 vector<string> netSimID;
-vector<size_t> netSimObjCount;
+vector<uint64_t> netSimObjCount;
 void *zmq_ctx = NULL;
 void *broker = NULL;
 void *async_broker = NULL;
@@ -94,7 +94,7 @@ static void finalize_handler(const string &identity, const int &context, const s
 static void barrier_handler(const string &identity, const int &context, const string &control);
 static void sleep_handler(const string &identity, const int &context, const string &control);
 static bool finished_handler(const string &identity, const int &context, const string &control);
-
+static void barrier_checker(const int &context);
 
 /* handle signals */
 static int s_interrupted = 0;
@@ -662,6 +662,22 @@ static void barrier_handler(
     }
 }
 
+static void barrier_checker(
+    const int &context){
+
+    if(barrier[context].size()>0){ //some sims are in barier and a sim called sleep, we need to wake the barier
+	//cout << "Checking barier!" << endl;
+	if(world_sizes[context]>1 && barrier[context].size()==world_sizes[context]){
+	    cout << "Waking them up!" << endl;
+	    for (set<string>::iterator it=barrier[context].begin();
+                it != barrier[context].end(); ++it) {
+	      (void) s_sendmore(broker, *it);
+	      (void) s_send    (broker, "ACK");
+	    }
+	    barrier[context].clear();
+	}
+    }
+}
 
 static void sleep_handler(
         const string &identity,
@@ -675,6 +691,7 @@ static void sleep_handler(
     }
     asleep[context].insert(identity);
     world_sizes[context] -= 1;
+    barrier_checker(context);
     if (world_sizes[context] <= 0) {
         cerr << "error: world_sizes[context] <= 0" << endl;
         graceful_death(EXIT_FAILURE);

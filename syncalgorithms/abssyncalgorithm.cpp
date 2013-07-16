@@ -52,6 +52,9 @@ namespace sim_comm
   
   void AbsSyncAlgorithm::timeStepStart(TIME currentTime)
   {
+#ifdef PROFILE
+      syncStart();
+#endif
       if(currentTime < grantedTime)
 	return;
       
