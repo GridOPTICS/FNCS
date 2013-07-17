@@ -36,6 +36,9 @@ AC_LANG([C++])
 
 # We use the MPI compiler wrappers instead of the standard compilers.
 FNCS_WITH_MPI
+AS_IF([test "x$with_mpi" != xno], [with_mpi_val=1], [with_mpi_val=0])
+AM_CONDITIONAL([HAVE_MPI], [test "x$with_mpi" != xno])
+AC_DEFINE_UNQUOTED([HAVE_MPI], [$with_mpi_val], [define to 1 to use MPI])
 
 ###############################################################################
 # C++ compiler
@@ -46,10 +49,9 @@ AC_MSG_NOTICE
 
 # Checks for programs.
 FNCS_PROG_MPICXX
-AS_IF([test x$with_mpi_wrappers = xyes],
-    [FNCS_MPI_UNWRAP],
+AS_IF([test "x$with_mpi_wrappers" = xyes], [FNCS_MPI_UNWRAP],
     [FNCS_ARG_PARSE([with_mpi], [MPI_LIBS], [MPI_LDFLAGS], [MPI_CPPFLAGS])])
-FNCS_MPICXX_TEST_LINK
+AS_IF([test "x$with_mpi" != xno], [FNCS_MPICXX_TEST_LINK])
 
 # Checks for libraries.
 FNCS_CHECK_PACKAGE([zmq], [zmq.h], [zmq], [zmq_ctx_new])
@@ -102,8 +104,8 @@ AC_LANG_PUSH([C])
 
 # Checks for programs.
 FNCS_PROG_MPICC
-AS_IF([test x$with_mpi_wrappers = xyes], [FNCS_MPI_UNWRAP])
-FNCS_MPICC_TEST_LINK
+AS_IF([test "x$with_mpi_wrappers" = xyes], [FNCS_MPI_UNWRAP])
+AS_IF([test "x$with_mpi" != xno], [FNCS_MPICC_TEST_LINK])
 
 # Checks for libraries.
 
@@ -125,12 +127,12 @@ AC_MSG_NOTICE
 # this works around a bug where libtool sadly relies on matching compiler
 # names in order to determine features (Fortran only, I think)
 # libtool doesn't recognize MPI compiler names, nor should it
-AS_IF([test x$with_mpi_wrappers = xyes], [FNCS_MPI_UNWRAP_PUSH])
+AS_IF([test "x$with_mpi_wrappers" = xyes], [FNCS_MPI_UNWRAP_PUSH])
 AM_PROG_AR
 LT_INIT
 # and now that that's over, put the MPI compilers back
 # also, the above hack incorrectly sets the base compiler as the linker
-AS_IF([test x$with_mpi_wrappers = xyes],
+AS_IF([test "x$with_mpi_wrappers" = xyes],
     [FNCS_MPI_UNWRAP_POP
      compiler="$CC"
      LTCC="$CC"
@@ -143,7 +145,7 @@ AS_IF([test x$with_mpi_wrappers = xyes],
 ###############################################################################
 AC_ARG_VAR([MPIEXEC],
            [how to run parallel tests if built with MPI e.g. "mpiexec -np %NP%"])
-AS_IF([test "x$MPIEXEC" = x],
+AS_IF([test "x$MPIEXEC" = x && test "x$with_mpi" != xno],
     [AC_PATH_PROGS([MPIEXEC], [mpirun mpiexec])])
 AC_SUBST([MPIEXEC])
 

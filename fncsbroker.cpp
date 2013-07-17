@@ -95,6 +95,8 @@ static void barrier_handler(const string &identity, const int &context, const st
 static void sleep_handler(const string &identity, const int &context, const string &control);
 static bool finished_handler(const string &identity, const int &context, const string &control);
 static void barrier_checker(const int &context);
+static void reduce_min_time_checker(const int &context);
+static void reduce_send_recv_checker(const int &context);
 
 /* handle signals */
 static int s_interrupted = 0;
@@ -534,7 +536,18 @@ static void reduce_min_time_handler(
     }
     (void) s_recv(broker, time);
     reduce_min_time[context][identity] = time;
-    if (reduce_min_time[context].size() == world_sizes[context]) {
+    reduce_min_time_checker(context);
+}
+
+
+static void reduce_min_time_checker(
+        const int &context)
+{
+    if (reduce_min_time[context].size() > world_sizes[context]) {
+        cerr << "reduce_min_time size > world size" << endl;
+        graceful_death(EXIT_FAILURE);
+    }
+    else if (reduce_min_time[context].size() == world_sizes[context]) {
         ReducePair min = *min_element(reduce_min_time[context].begin(),
                 reduce_min_time[context].end(), ReduceMinPairLess());
         /* send result to all sims */
@@ -556,8 +569,7 @@ static void reduce_send_recv_handler(
 {
     unsigned long sent = 0;
     unsigned long recv = 0;
-    unsigned long m_sent = 0;
-    unsigned long m_recv = 0;
+
     if (1 == reduce_sent[context].count(identity)) {
         assert(1 == reduce_recv[context].count(identity));
         cerr << "sim with ID '" << identity
@@ -568,7 +580,21 @@ static void reduce_send_recv_handler(
     (void) s_recv(broker, recv);
     reduce_sent[context][identity] = sent;
     reduce_recv[context][identity] = recv;
-    if (reduce_sent[context].size() == world_sizes[context]) {
+    reduce_send_recv_checker(context);
+}
+
+
+static void reduce_send_recv_checker(
+        const int &context)
+{
+    unsigned long m_sent = 0;
+    unsigned long m_recv = 0;
+
+    if (reduce_sent[context].size() > world_sizes[context]) {
+        cerr << "reduce_sent size > world size" << endl;
+        graceful_death(EXIT_FAILURE);
+    }
+    else if (reduce_sent[context].size() == world_sizes[context]) {
         assert(reduce_recv[context].size() == world_sizes[context]);
         ReduceMap::const_iterator it;
         for (it=reduce_sent[context].begin();
@@ -614,7 +640,6 @@ static void register_handler(
 }
 
 
-
 static void finalize_handler(
         const string &identity,
         const int &context,
@@ -648,6 +673,13 @@ static void barrier_handler(
         graceful_death(EXIT_FAILURE);
     }
     barrier[context].insert(identity);
+    barrier_checker(context);
+}
+
+
+static void barrier_checker(
+        const int &context)
+{
     if (barrier[context].size() > world_sizes[context]) {
         cerr << "barrier size > world size" << endl;
         graceful_death(EXIT_FAILURE);
@@ -662,22 +694,6 @@ static void barrier_handler(
     }
 }
 
-static void barrier_checker(
-    const int &context){
-
-    if(barrier[context].size()>0){ //some sims are in barier and a sim called sleep, we need to wake the barier
-	//cout << "Checking barier!" << endl;
-	if(world_sizes[context]>1 && barrier[context].size()==world_sizes[context]){
-	    cout << "Waking them up!" << endl;
-	    for (set<string>::iterator it=barrier[context].begin();
-                it != barrier[context].end(); ++it) {
-	      (void) s_sendmore(broker, *it);
-	      (void) s_send    (broker, "ACK");
-	    }
-	    barrier[context].clear();
-	}
-    }
-}
 
 static void sleep_handler(
         const string &identity,
@@ -691,7 +707,12 @@ static void sleep_handler(
     }
     asleep[context].insert(identity);
     world_sizes[context] -= 1;
+    contexts[context].erase(identity);
+    // if some sims are in barrier and a sim called sleep,
+    // we need to wake the barrier
     barrier_checker(context);
+    reduce_min_time_checker(context);
+    reduce_send_recv_checker(context);
     if (world_sizes[context] <= 0) {
         cerr << "error: world_sizes[context] <= 0" << endl;
         graceful_death(EXIT_FAILURE);
@@ -706,6 +727,7 @@ static void sleep_handler(
                 it != asleep[context].end(); ++it) {
             (void) s_sendmore(broker, *it);
             (void) s_send    (broker, "ACK");
+            contexts[context].insert(*it);
         }
         asleep[context].clear();
         world_sizes[context] = world_size;

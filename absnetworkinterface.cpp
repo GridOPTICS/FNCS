@@ -45,7 +45,7 @@ using std::string;
 using std::vector;
 
 //#if DEBUG && DEBUG_TO_FILE
-Echo echo;
+//Echo echo;
 //#endif
 
 using namespace sim_comm;

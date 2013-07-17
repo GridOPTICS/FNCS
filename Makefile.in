@@ -54,12 +54,14 @@ build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = $(am__EXEEXT_1)
 check_PROGRAMS = tests/sanity$(EXEEXT) tests/messageTest$(EXEEXT) \
-	tests/simmer$(EXEEXT) tests/simmerTransmission$(EXEEXT) \
-	$(am__EXEEXT_2)
+	$(am__EXEEXT_2) $(am__EXEEXT_3)
 @HAVE_ZMQ_TRUE@am__append_1 = zmqhelper.h zmqnetworkinterface.h
-@HAVE_ZMQ_TRUE@am__append_2 = zmqhelper.cpp zmqnetworkinterface.cpp
-@HAVE_ZMQ_TRUE@am__append_3 = fncsbroker
-@HAVE_ZMQ_TRUE@am__append_4 = tests/zimmer
+@HAVE_MPI_TRUE@am__append_2 = mpinetworkinterface.h
+@HAVE_ZMQ_TRUE@am__append_3 = zmqhelper.cpp zmqnetworkinterface.cpp
+@HAVE_MPI_TRUE@am__append_4 = mpinetworkinterface.cpp
+@HAVE_MPI_TRUE@am__append_5 = tests/simmer
+@HAVE_ZMQ_TRUE@am__append_6 = fncsbroker
+@HAVE_ZMQ_TRUE@am__append_7 = tests/zimmer tests/simmerTransmission
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
@@ -130,8 +132,8 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libfncs_api_la_LIBADD =
 am__libfncs_api_la_SOURCES_DIST = absnetworkinterface.cpp \
 	cintegrator.cpp integrator.cpp message.cpp \
-	mpinetworkinterface.cpp objectcomminterface.cpp zmqhelper.cpp \
-	zmqnetworkinterface.cpp commmanager/abscommmanager.cpp \
+	objectcomminterface.cpp zmqhelper.cpp zmqnetworkinterface.cpp \
+	mpinetworkinterface.cpp commmanager/abscommmanager.cpp \
 	commmanager/communicationcommanager.cpp \
 	commmanager/graceperiodcommmanager.cpp \
 	syncalgorithms/abssyncalgorithm.cpp \
@@ -145,10 +147,11 @@ am__libfncs_api_la_SOURCES_DIST = absnetworkinterface.cpp \
 	syncalgorithms/speculationtimecalculationstrategy.cpp \
 	util/simtime.cpp
 @HAVE_ZMQ_TRUE@am__objects_1 = zmqhelper.lo zmqnetworkinterface.lo
+@HAVE_MPI_TRUE@am__objects_2 = mpinetworkinterface.lo
 am__dirstamp = $(am__leading_dot)dirstamp
 am_libfncs_api_la_OBJECTS = absnetworkinterface.lo cintegrator.lo \
-	integrator.lo message.lo mpinetworkinterface.lo \
-	objectcomminterface.lo $(am__objects_1) \
+	integrator.lo message.lo objectcomminterface.lo \
+	$(am__objects_1) $(am__objects_2) \
 	commmanager/abscommmanager.lo \
 	commmanager/communicationcommanager.lo \
 	commmanager/graceperiodcommmanager.lo \
@@ -168,7 +171,9 @@ am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
 @HAVE_ZMQ_TRUE@am__EXEEXT_1 = fncsbroker$(EXEEXT)
-@HAVE_ZMQ_TRUE@am__EXEEXT_2 = tests/zimmer$(EXEEXT)
+@HAVE_MPI_TRUE@am__EXEEXT_2 = tests/simmer$(EXEEXT)
+@HAVE_ZMQ_TRUE@am__EXEEXT_3 = tests/zimmer$(EXEEXT) \
+@HAVE_ZMQ_TRUE@	tests/simmerTransmission$(EXEEXT)
 PROGRAMS = $(bin_PROGRAMS)
 am__fncsbroker_SOURCES_DIST = fncsbroker.cpp
 @HAVE_ZMQ_TRUE@am_fncsbroker_OBJECTS = fncsbroker.$(OBJEXT)
@@ -187,13 +192,16 @@ tests_sanity_OBJECTS = $(am_tests_sanity_OBJECTS)
 tests_sanity_LDADD = $(LDADD)
 tests_sanity_DEPENDENCIES = libfncs_api.la $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
-am_tests_simmer_OBJECTS = tests/simmer.$(OBJEXT)
+am__tests_simmer_SOURCES_DIST = tests/simmer.cpp
+@HAVE_MPI_TRUE@am_tests_simmer_OBJECTS = tests/simmer.$(OBJEXT)
 tests_simmer_OBJECTS = $(am_tests_simmer_OBJECTS)
 tests_simmer_LDADD = $(LDADD)
 tests_simmer_DEPENDENCIES = libfncs_api.la $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
-am_tests_simmerTransmission_OBJECTS =  \
-	tests/simmerTransmission.$(OBJEXT)
+am__tests_simmerTransmission_SOURCES_DIST =  \
+	tests/simmerTransmission.cpp
+@HAVE_ZMQ_TRUE@am_tests_simmerTransmission_OBJECTS =  \
+@HAVE_ZMQ_TRUE@	tests/simmerTransmission.$(OBJEXT)
 tests_simmerTransmission_OBJECTS =  \
 	$(am_tests_simmerTransmission_OBJECTS)
 tests_simmerTransmission_LDADD = $(LDADD)
@@ -245,8 +253,8 @@ SOURCES = $(libfncs_api_la_SOURCES) $(fncsbroker_SOURCES) \
 	$(tests_zimmer_SOURCES)
 DIST_SOURCES = $(am__libfncs_api_la_SOURCES_DIST) \
 	$(am__fncsbroker_SOURCES_DIST) $(tests_messageTest_SOURCES) \
-	$(tests_sanity_SOURCES) $(tests_simmer_SOURCES) \
-	$(tests_simmerTransmission_SOURCES) \
+	$(tests_sanity_SOURCES) $(am__tests_simmer_SOURCES_DIST) \
+	$(am__tests_simmerTransmission_SOURCES_DIST) \
 	$(am__tests_zimmer_SOURCES_DIST)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
@@ -254,8 +262,8 @@ am__can_run_installinfo = \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
 am__include_HEADERS_DIST = absnetworkinterface.h cintegrator.h echo.h \
-	integrator.h message.h mpinetworkinterface.h \
-	objectcomminterface.h zmqhelper.h zmqnetworkinterface.h \
+	integrator.h message.h objectcomminterface.h zmqhelper.h \
+	zmqnetworkinterface.h mpinetworkinterface.h \
 	commmanager/abscommmanager.h \
 	commmanager/communicationcommanager.h \
 	commmanager/graceperiodcommmanager.h \
@@ -440,9 +448,8 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
 include_HEADERS = absnetworkinterface.h cintegrator.h echo.h \
-	integrator.h message.h mpinetworkinterface.h \
-	objectcomminterface.h $(am__append_1) \
-	commmanager/abscommmanager.h \
+	integrator.h message.h objectcomminterface.h $(am__append_1) \
+	$(am__append_2) commmanager/abscommmanager.h \
 	commmanager/communicationcommanager.h \
 	commmanager/graceperiodcommmanager.h \
 	syncalgorithms/abssyncalgorithm.h \
@@ -465,9 +472,8 @@ AM_CPPFLAGS = $(MPI_CPPFLAGS) $(ZMQ_CPPFLAGS) \
 AM_LDFLAGS = $(MPI_LDFLAGS) $(ZMQ_LDFLAGS)
 LDADD = libfncs_api.la $(MPI_LIBS) $(ZMQ_LIBS)
 libfncs_api_la_SOURCES = absnetworkinterface.cpp cintegrator.cpp \
-	integrator.cpp message.cpp mpinetworkinterface.cpp \
-	objectcomminterface.cpp $(am__append_2) \
-	commmanager/abscommmanager.cpp \
+	integrator.cpp message.cpp objectcomminterface.cpp \
+	$(am__append_3) $(am__append_4) commmanager/abscommmanager.cpp \
 	commmanager/communicationcommanager.cpp \
 	commmanager/graceperiodcommmanager.cpp \
 	syncalgorithms/abssyncalgorithm.cpp \
@@ -482,10 +488,10 @@ libfncs_api_la_SOURCES = absnetworkinterface.cpp cintegrator.cpp \
 	util/simtime.cpp
 tests_sanity_SOURCES = tests/sanity.cpp
 tests_messageTest_SOURCES = tests/messageTest.cpp
-tests_simmer_SOURCES = tests/simmer.cpp
-tests_simmerTransmission_SOURCES = tests/simmerTransmission.cpp
+@HAVE_MPI_TRUE@tests_simmer_SOURCES = tests/simmer.cpp
 @HAVE_ZMQ_TRUE@fncsbroker_SOURCES = fncsbroker.cpp
 @HAVE_ZMQ_TRUE@tests_zimmer_SOURCES = tests/zimmer.cpp
+@HAVE_ZMQ_TRUE@tests_simmerTransmission_SOURCES = tests/simmerTransmission.cpp
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 

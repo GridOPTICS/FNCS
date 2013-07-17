@@ -3,9 +3,10 @@
 #include <cstring>
 #include <cstdlib>
 
+#include "cintegrator.h"
 #include "integrator.h"
 #include "message.h"
-#include "mpinetworkinterface.h"
+//#include "mpinetworkinterface.h"
 #include "util/simtime.h"
 
 using namespace sim_comm;
@@ -23,15 +24,15 @@ int main(int argc, char **argv){
   uint8_t *serbuff=NULL;
   uint32_t size=0;
   uint8_t data[100];
-  MpiNetworkInterface *comm=NULL;
+  AbsNetworkInterface *comm=NULL;
   
   bzero(data,100);
   data[99]=50;
   data[50]=1;
   data[0]=99;
   
-  MPI_Init(&argc, &argv);
-  comm = new MpiNetworkInterface(MPI_COMM_WORLD, true);
+  fenix_initialize(&argc, &argv);
+  //comm = new MpiNetworkInterface(MPI_COMM_WORLD, true);
   CallBack<TIME,empty,empty,empty>* cb=CreateCallback(getCurTime);
 
   Integrator::initIntegratorGracePeriod(comm,SECONDS,5,10);

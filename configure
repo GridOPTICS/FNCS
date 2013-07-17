@@ -698,6 +698,8 @@ LDFLAGS
 CXXFLAGS
 CXX
 MPICXX
+HAVE_MPI_FALSE
+HAVE_MPI_TRUE
 MPI_CPPFLAGS
 MPI_LDFLAGS
 MPI_LIBS
@@ -3365,7 +3367,7 @@ MPI_CPPFLAGS=
 if test "${with_mpi+set}" = set; then :
   withval=$with_mpi;
 else
-  with_mpi=yes
+  with_mpi=no
 fi
 
 if test "x$with_mpi" = xyes; then :
@@ -3376,6 +3378,24 @@ fi
 
 
 
+
+if test "x$with_mpi" != xno; then :
+  with_mpi_val=1
+else
+  with_mpi_val=0
+fi
+ if test "x$with_mpi" != xno; then
+  HAVE_MPI_TRUE=
+  HAVE_MPI_FALSE='#'
+else
+  HAVE_MPI_TRUE='#'
+  HAVE_MPI_FALSE=
+fi
+
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_MPI $with_mpi_val
+_ACEOF
 
 
 ###############################################################################
@@ -4130,7 +4150,7 @@ fi
 
 
 
-if test x$with_mpi_wrappers = xyes; then :
+if test "x$with_mpi_wrappers" = xyes; then :
 
 # Find perl.
 # Extract the first word of "perl", so it can be a program name with args.
@@ -4554,6 +4574,7 @@ $as_echo "$as_me: WARNING: $arg of with_mpi not parsed" >&2;}
 fi
 done
 fi
+if test "x$with_mpi" != xno; then :
 
 ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
@@ -4637,6 +4658,7 @@ as_fn_error $? "could not link a C++ MPI program
 See \`config.log' for more details" "$LINENO" 5; }
 fi
 
+fi
 
 # Checks for libraries.
 ac_ext=cpp
@@ -6662,7 +6684,7 @@ fi
 
 
 
-if test x$with_mpi_wrappers = xyes; then :
+if test "x$with_mpi_wrappers" = xyes; then :
 
 # Find perl.
 # Extract the first word of "perl", so it can be a program name with args.
@@ -6958,6 +6980,7 @@ fi
 rm -f inside.pl
 
 fi
+if test "x$with_mpi" != xno; then :
 
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
@@ -7041,6 +7064,7 @@ as_fn_error $? "could not link a C MPI program
 See \`config.log' for more details" "$LINENO" 5; }
 fi
 
+fi
 
 # Checks for libraries.
 
@@ -7070,7 +7094,7 @@ $as_echo "$as_me: " >&6;}
 # this works around a bug where libtool sadly relies on matching compiler
 # names in order to determine features (Fortran only, I think)
 # libtool doesn't recognize MPI compiler names, nor should it
-if test x$with_mpi_wrappers = xyes; then :
+if test "x$with_mpi_wrappers" = xyes; then :
 
 fncs_mpi_unwrap_push_save_CC="$CC"
 fncs_mpi_unwrap_push_save_CXX="$CXX"
@@ -17634,7 +17658,7 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 # and now that that's over, put the MPI compilers back
 # also, the above hack incorrectly sets the base compiler as the linker
-if test x$with_mpi_wrappers = xyes; then :
+if test "x$with_mpi_wrappers" = xyes; then :
 
  CC="$fncs_mpi_unwrap_push_save_CC"
 CXX="$fncs_mpi_unwrap_push_save_CXX"
@@ -17652,7 +17676,7 @@ fi
 # Test suite setup
 ###############################################################################
 
-if test "x$MPIEXEC" = x; then :
+if test "x$MPIEXEC" = x && test "x$with_mpi" != xno; then :
   for ac_prog in mpirun mpiexec
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
@@ -17833,6 +17857,10 @@ fi
 
 if test -z "${MAINTAINER_MODE_TRUE}" && test -z "${MAINTAINER_MODE_FALSE}"; then
   as_fn_error $? "conditional \"MAINTAINER_MODE\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${HAVE_MPI_TRUE}" && test -z "${HAVE_MPI_FALSE}"; then
+  as_fn_error $? "conditional \"HAVE_MPI\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${AMDEP_TRUE}" && test -z "${AMDEP_FALSE}"; then

@@ -33,7 +33,6 @@
 #include "abscommmanager.h"
 #include "message.h"
 #include "callback.h"
-#include "profiler.h"
 
 using namespace std;
 

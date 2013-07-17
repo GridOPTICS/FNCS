@@ -30,7 +30,6 @@
 #define ABSSYNCALGORITHM_H
 
 #include "simtime.h"
-#include "profiler.h"
 
 #include <sstream>
 

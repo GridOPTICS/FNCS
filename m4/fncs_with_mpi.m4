@@ -15,7 +15,7 @@ AC_ARG_WITH([mpi],
     [AS_HELP_STRING([--with-mpi[[=ARG]]],
         [path to MPI; leave ARG blank to use MPI compiler wrappers in PATH])],
     [],
-    [with_mpi=yes])
+    [with_mpi=no])
 AS_IF([test "x$with_mpi" = xyes],
     [with_mpi_wrappers=yes],
     [with_mpi_wrappers=no])

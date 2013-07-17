@@ -26,11 +26,13 @@ include_HEADERS += cintegrator.h
 include_HEADERS += echo.h
 include_HEADERS += integrator.h
 include_HEADERS += message.h
-include_HEADERS += mpinetworkinterface.h
 include_HEADERS += objectcomminterface.h
 if HAVE_ZMQ
 include_HEADERS += zmqhelper.h
 include_HEADERS += zmqnetworkinterface.h
+endif
+if HAVE_MPI
+include_HEADERS += mpinetworkinterface.h
 endif
 
 include_HEADERS += commmanager/abscommmanager.h
@@ -61,11 +63,13 @@ libfncs_api_la_SOURCES += absnetworkinterface.cpp
 libfncs_api_la_SOURCES += cintegrator.cpp
 libfncs_api_la_SOURCES += integrator.cpp
 libfncs_api_la_SOURCES += message.cpp
-libfncs_api_la_SOURCES += mpinetworkinterface.cpp
 libfncs_api_la_SOURCES += objectcomminterface.cpp
 if HAVE_ZMQ
 libfncs_api_la_SOURCES += zmqhelper.cpp
 libfncs_api_la_SOURCES += zmqnetworkinterface.cpp
+endif
+if HAVE_MPI
+libfncs_api_la_SOURCES += mpinetworkinterface.cpp
 endif
 
 libfncs_api_la_SOURCES += commmanager/abscommmanager.cpp
@@ -90,11 +94,10 @@ tests_sanity_SOURCES = tests/sanity.cpp
 check_PROGRAMS += tests/messageTest
 tests_messageTest_SOURCES = tests/messageTest.cpp
 
+if HAVE_MPI
 check_PROGRAMS += tests/simmer
 tests_simmer_SOURCES = tests/simmer.cpp
-
-check_PROGRAMS += tests/simmerTransmission
-tests_simmerTransmission_SOURCES = tests/simmerTransmission.cpp
+endif
 
 if HAVE_ZMQ
 bin_PROGRAMS += fncsbroker
@@ -102,4 +105,7 @@ fncsbroker_SOURCES = fncsbroker.cpp
 
 check_PROGRAMS += tests/zimmer
 tests_zimmer_SOURCES = tests/zimmer.cpp
+
+check_PROGRAMS += tests/simmerTransmission
+tests_simmerTransmission_SOURCES = tests/simmerTransmission.cpp
 endif

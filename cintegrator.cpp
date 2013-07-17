@@ -30,7 +30,9 @@
 
 #include "cintegrator.h"
 
+#if HAVE_MPI
 #include "mpinetworkinterface.h"
+#endif
 #if HAVE_ZMQ
 #include "zmqnetworkinterface.h"
 #endif
@@ -44,31 +46,18 @@ using namespace sim_comm;
 std::string myName;
 std::map<std::string,ObjectCommInterface *> registeredInterfaces;
 
-#define USE_MPI 0
 
 void fenix_initialize(int *arc,char ***argv)
 {
-#if USE_MPI
+#if HAVE_MPI
   MPI_Init(arc,argv);
-#else
 #endif
 }
 
 void fenix_finalize(){
-#if USE_MPI
+#if HAVE_MPI
   MPI_Finalize();
-#else
 #endif
-}
-
-void InitMPI(int *arc,char ***argv){
-
-  MPI_Init(arc,argv);
-}
-
-void finalizeMPI(){
-  MPI_Finalize();
-  
 }
 
 void timeStepStart(TIME currentTime)

@@ -15,6 +15,9 @@
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 
+/* define to 1 to use MPI */
+#undef HAVE_MPI
+
 /* Define to 1 if you have the <stdint.h> header file, 0 if you don't */
 #undef HAVE_STDINT_H
 
