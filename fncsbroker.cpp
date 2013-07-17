@@ -684,7 +684,8 @@ static void barrier_checker(
         cerr << "barrier size > world size" << endl;
         graceful_death(EXIT_FAILURE);
     }
-    else if (barrier[context].size() == world_sizes[context]) {
+    else if (barrier[context].size() == world_sizes[context]
+            && world_sizes[context] > 1) {
         for (set<string>::iterator it=barrier[context].begin();
                 it != barrier[context].end(); ++it) {
             (void) s_sendmore(broker, *it);
@@ -711,8 +712,8 @@ static void sleep_handler(
     // if some sims are in barrier and a sim called sleep,
     // we need to wake the barrier
     barrier_checker(context);
-    reduce_min_time_checker(context);
-    reduce_send_recv_checker(context);
+    //reduce_min_time_checker(context);
+    //reduce_send_recv_checker(context);
     if (world_sizes[context] <= 0) {
         cerr << "error: world_sizes[context] <= 0" << endl;
         graceful_death(EXIT_FAILURE);
