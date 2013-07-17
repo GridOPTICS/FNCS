@@ -128,7 +128,7 @@ ZmqNetworkInterface::ZmqNetworkInterface(const ZmqNetworkInterface &that)
     ,   receivedMessages()
     ,   globalObjectCount(that.globalObjectCount)
 {
-    size_t globalObjectCountAgain;
+    uint64_t globalObjectCountAgain;
 
     init();
 
