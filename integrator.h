@@ -49,7 +49,7 @@
 #else
 #   define CERR echo
 #endif
-extern Echo echo;
+//extern Echo echo;
 
 using namespace std;
 

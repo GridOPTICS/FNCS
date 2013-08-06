@@ -27,9 +27,6 @@
  */
 #include "config.h"
 
-#define DEBUG 1
-#define DEBUG_TO_FILE 1
-
 #include <algorithm>
 #include <cassert>
 #include <csignal>

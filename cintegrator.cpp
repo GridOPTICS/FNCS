@@ -118,14 +118,14 @@ void registerObject(char* name)
   registeredInterfaces.insert(pair<std::string,ObjectCommInterface*>(myName,com));
 }
 
-void sendMesg(char *from,char *destination,char* msg, int size,int networked)
+void sendMesg(char *from,char *destination,char* msg, int size,int networked,TIME currentTime)
 {
   string fromstr(from);
   string tostr(destination);
   ObjectCommInterface *com=registeredInterfaces[fromstr];
   //msgobj->setDelayThroughComm(false);
   
-  Message *msgobj=new Message(fromstr,tostr,Integrator::getCurSimTime(),(uint8_t *)msg,size);
+  Message *msgobj=new Message(fromstr,tostr,currentTime,(uint8_t *)msg,size);
   bool networkedflag = networked > 0 ? true : false;
   msgobj->setDelayThroughComm(networkedflag);
   com->send(msgobj);
