@@ -30,9 +30,6 @@
 
 #include "cintegrator.h"
 
-#if HAVE_MPI
-#include "mpinetworkinterface.h"
-#endif
 #if HAVE_ZMQ
 #include "zmqnetworkinterface.h"
 #endif
@@ -49,15 +46,9 @@ std::map<std::string,ObjectCommInterface *> registeredInterfaces;
 
 void fenix_initialize(int *arc,char ***argv)
 {
-#if HAVE_MPI
-  MPI_Init(arc,argv);
-#endif
 }
 
 void fenix_finalize(){
-#if HAVE_MPI
-  MPI_Finalize();
-#endif
 }
 
 void timeStepStart(TIME currentTime)

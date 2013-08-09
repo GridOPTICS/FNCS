@@ -182,6 +182,7 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
 	    needToRespond=true;
 	  }
 	  TIME mySpecNextTime;
+	  //remove this!!!!
 	  canSpeculate=false;
 	 
 	  if(canSpeculate && (currentTime+specDifference) < this->specFailTime){ //test if it is worht speculating!
@@ -199,7 +200,9 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
 	  TIME specResult=testSpeculationState(specNextTime,currentTime);
 	  if(specResult > 0) //we are in child! We are granted up to specNextTime
 	      minNextTime=specNextTime;
-	  
+	  if(this->isParent && this->specFailTime!=Infinity){
+	    minNextTime=specFailTime; //grant upto spec fail time.
+	  }
 	  //normal conservative algorithm
           //min time is the estimated next time, so grant nextEstimated time
 	  if(minNextTime==0){ //a sim signal endded

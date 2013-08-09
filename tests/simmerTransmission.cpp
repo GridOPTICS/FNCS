@@ -38,11 +38,11 @@ int main(int argc,char* argv[]){
   //Integrator::initIntegratorGracePeriod(comm,MILLISECONDS,2300000000,currentTime);
   //Integrator::initIntegratorNetworkDelaySupport(comm,MILLISECONDS,2300000000,currentTime);
   //Integrator::initIntegratorSpeculative(comm,MILLISECONDS,2300000000,currentTime,1000);
-  //IncreasingSpeculationTimeStrategy *st=new IncreasingSpeculationTimeStrategy(MILLISECONDS,60000);
-  //Integrator::initIntegratorOptimistic(comm,MILLISECONDS,2300000000,currentTime,60000,st);
-  time_metric others[1];
-  others[0]=SECONDS;
-  Integrator::initIntegratorConservativeSleepingTick(comm,MILLISECONDS,2000000000,currentTime,others,1);
+  IncreasingSpeculationTimeStrategy *st=new IncreasingSpeculationTimeStrategy(MILLISECONDS,60000);
+  Integrator::initIntegratorOptimistic(comm,MILLISECONDS,2300000000,currentTime,60000,st);
+  //time_metric others[1];
+  //others[0]=SECONDS;
+  //Integrator::initIntegratorConservativeSleepingTick(comm,MILLISECONDS,2000000000,currentTime,others,1);
   Integrator::setTimeCallBack(cb);
   
   ObjectCommInterface* myInterface=Integrator::getCommInterface(string("1"));
@@ -63,14 +63,14 @@ int main(int argc,char* argv[]){
        memcpy(&im,&data[sizeof(double)],sizeof(double));
        cout << "Received from gld " << re << " " << im << endl;
     }
-     grantedTime=Integrator::getNextTime(currentTime,currentTime+1);
+     grantedTime=Integrator::getNextTime(currentTime,currentTime+10);
      
      if((currentTime-2000000000)%1000==0){
       cout << "Current Time:" << (currentTime-2000000000)/1000 << endl;
        
     }
      //assert(grantedTime==currentTime+1);
-     currentTime=currentTime+1;
+     currentTime=currentTime+10;
   }while(!Integrator::isFinished());
 
   return 0;
