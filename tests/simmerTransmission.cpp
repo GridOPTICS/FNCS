@@ -49,7 +49,6 @@ int main(int argc,char* argv[]){
   
   Integrator::finalizeRegistrations();
   
-  TIME grantedTime;
   do{
     Integrator::timeStepStart(currentTime);
      //execute calculations that will solve all our problems
@@ -63,14 +62,13 @@ int main(int argc,char* argv[]){
        memcpy(&im,&data[sizeof(double)],sizeof(double));
        cout << "Received from gld " << re << " " << im << endl;
     }
-     grantedTime=Integrator::getNextTime(currentTime,currentTime+10);
+     currentTime=Integrator::getNextTime(currentTime,currentTime+10);
      
      if((currentTime-2000000000)%1000==0){
       cout << "Current Time:" << (currentTime-2000000000)/1000 << endl;
        
     }
      //assert(grantedTime==currentTime+1);
-     currentTime=currentTime+10;
   }while(!Integrator::isFinished());
 
   return 0;
