@@ -37,8 +37,6 @@
 #include "simtime.h"
 #include "speculationtimecalculationstrategy.h"
 
-#define DEBUG 0
-#define DEBUG_TO_FILE 0
 #if DEBUG
 #   define PID (getpid())
 #   if DEBUG_TO_FILE
@@ -49,7 +47,8 @@
 #else
 #   define CERR echo
 #endif
-//extern Echo echo;
+
+extern Echo echo;
 
 using namespace std;
 

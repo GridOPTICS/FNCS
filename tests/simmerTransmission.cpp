@@ -62,7 +62,7 @@ int main(int argc,char* argv[]){
        memcpy(&im,&data[sizeof(double)],sizeof(double));
        cout << "Received from gld " << re << " " << im << endl;
     }
-     currentTime=Integrator::getNextTime(currentTime,currentTime+10);
+     currentTime=Integrator::getNextTime(currentTime,currentTime+100);
      
      if((currentTime-2000000000)%1000==0){
       cout << "Current Time:" << (currentTime-2000000000)/1000 << endl;

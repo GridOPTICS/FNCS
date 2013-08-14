@@ -109,6 +109,13 @@ namespace sim_comm
 	  return this->algotype;
 	}
 	
+	virtual TIME needsSync(TIME nextTime){
+	
+	      if(nextTime < grantedTime)
+		    return grantedTime;
+	      return nextTime;
+	}
+	
 	/**
 	 * Called when the simulator is starting a time step!
 	 */

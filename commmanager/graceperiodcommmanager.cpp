@@ -62,9 +62,7 @@ namespace sim_comm{
   
   void GracePeriodCommManager::sendAll()
   {
- #if DEBUG
-    CERR << "AbsCommInterface::sendAll()" << endl;
-#endif
+
     map<string,ObjectCommInterface*>::iterator it=this->interfaces.begin();
 
     for(; it!=this->interfaces.end(); it++) {
@@ -85,7 +83,9 @@ namespace sim_comm{
                             sendCount +=scount;
                     } 
                     else {
-                        
+#if DEBUG
+      CERR << "CommunicationComManager::sendAll(" << (char*)outmessges[i]->getData() << ") time:" << Integrator::getCurSimTime() << endl;
+#endif                 
                             sendCount += 1;
                         this->currentInterface->send(outmessges[i]);
                     }

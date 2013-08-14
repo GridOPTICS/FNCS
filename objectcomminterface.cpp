@@ -178,17 +178,12 @@ void ObjectCommInterface::newMessage(Message* given) {
 
 
 std::vector< Message* > ObjectCommInterface::getOutBox() {
-#if DEBUG
-    CERR << "ObjectCommInterface::getOutBox()" << endl;
-#endif
+
     return outbox;
 }
 
 
 void ObjectCommInterface::clear() {
-#if DEBUG
-    CERR << "ObjectCommInterface::clear()" << endl;
-#endif
     this->outbox.clear();
 }
 

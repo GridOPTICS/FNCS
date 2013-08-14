@@ -116,6 +116,9 @@ void OptimisticTickSyncAlgo::timeStepStart(TIME currentTime)
   if(currentTime < grantedTime){
     return;
   }
+#if DEBUG
+		   CERR << "Start sync time step " << currentTime <<  endl;
+#endif
   if(this->isChild){
     this->interface->waitforAll();
     uint64_t dokill=this->interface->reduceMinTime(killChildernFlag);
@@ -155,7 +158,9 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
       bool canSpeculate=false;
       bool needToRespond=false;
       //send all messages
-  
+#if DEBUG
+		   CERR << "Start sync " << currentTime << " " << nextTime << endl;
+#endif
       if(currentTime < grantedTime){ //we still have some granted time we need to barier at granted Time
 	    busywait=true;
 	    currentTime=grantedTime;

@@ -65,9 +65,6 @@ namespace sim_comm{
     
     void CommunicationComManager::sendAll()
     {
-#if DEBUG
-      CERR << "AbsCommInterface::sendAll()" << endl;
-#endif
       map<string,ObjectCommInterface*>::iterator it=this->interfaces.begin();
 
       for(; it!=this->interfaces.end(); it++) {
@@ -89,7 +86,9 @@ namespace sim_comm{
 			    // sendCount +=scount;
 		      } 
 		      else {
-			  
+#if DEBUG
+      CERR << "CommunicationComManager::sendAll(" << (char*)outmessges[i]->getData() << ") time:" << Integrator::getCurSimTime() << endl;
+#endif
 			    // sendCount += 1;
 			  this->currentInterface->send(outmessges[i]);
 		      }
@@ -107,17 +106,20 @@ namespace sim_comm{
 
     void CommunicationComManager::messageReceived(Message* message)
     {
-#if DEBUG
-      CERR << "CommunicationComManager::messageReceived(Message*)" << endl;
-#endif
+
       //Get Time frame to accept the messageReceived
       TIME currentTime=Integrator::getCurSimTime();
       TIME graceTime=currentTime- Integrator::getPacketLostPeriod();
       if(graceTime>currentTime){ //overflowed
 	graceTime=0;
       }
-
+#if DEBUG
+    CERR << "AbsCommManager::messageReceived(" << (char*)message->getData() << ") " << currentTime << endl;
+#endif
       if(message->getTime()<graceTime){ //old message drop
+#if DEBUG
+	CERR << (char*)message->getData() << " is old dropping" << endl;
+#endif
 	  delete message;
 	  return;
       }

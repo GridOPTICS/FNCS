@@ -97,17 +97,19 @@ namespace sim_comm{
 
   void AbsCommManager::messageReceived(Message *message)
   {
-#if DEBUG
-    CERR << "AbsCommManager::messageReceived(Message*)" << endl;
-#endif
     //Get Time frame to accept the messageReceived
     TIME currentTime=Integrator::getCurSimTime();
     TIME graceTime=currentTime- Integrator::getPacketLostPeriod();
     if(graceTime>currentTime){ //overflowed
 	graceTime=0;
     }
-
+#if DEBUG
+    CERR << "AbsCommManager::messageReceived(" << (char*)message->getData() << ") " << currentTime << endl;
+#endif
     if(message->getTime()<graceTime){ //old message!!
+#if DEBUG
+    CERR << "Old message dropping!" << endl;
+#endif
         delete message;
 	return;
     }

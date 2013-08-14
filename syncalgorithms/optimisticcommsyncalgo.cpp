@@ -44,7 +44,9 @@ namespace sim_comm{
     {
 		if(nextTime < grantedTime)
 		     return grantedTime;
-		    
+#if DEBUG
+		   CERR << "Start sync " << currentTime << " " << nextTime << endl;
+#endif
 		 /*if(this->isChild) //if a child comes here, algorithm is not working!
 		    throw SyncStateException("Child wants to sync but parent is still alive cannot happen!");*/
 		 
