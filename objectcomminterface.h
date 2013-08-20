@@ -110,6 +110,7 @@ public:
      * Register a callback that is called when the object receives a message.
      */
     void setMessageNotifier(CallBack<void,empty,empty,empty> *tonotify);
+  
 };
 
 
