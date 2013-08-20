@@ -287,6 +287,7 @@ uint64_t ZmqNetworkInterface::reduceTotalSendReceive(
 #endif
 
     if (m_sent < m_recv) {
+	//cout << "FAILING!!!!!!!!" << endl;
         (void) s_send(this->zmq_req, this->context, "DIE");
     }
 
@@ -488,10 +489,10 @@ void ZmqNetworkInterface::cleanup()
     int zmq_ctx_destroy_retval = 0;
 
 #if DEBUG
-    CERR << "ZmqNetworkInterface::~ZmqNetworkInterface()" << endl;
+    CERR << "ZmqNetworkInterface::cleanup()" << endl;
 #endif
 
-    makeProgress();
+    //makeProgress();
 
     zmq_close_retval = zmq_close(this->zmq_req);
     assert(0 == zmq_close_retval);

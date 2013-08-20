@@ -92,8 +92,10 @@ void Integrator::stopIntegrator(){
 #endif
 	    //instance->syncAlgo->GetNextTime(instance->getCurSimTime(),Infinity);
         instance->currentInterface->sendFinishedSignal();
-    }
 	delete instance;
+	instance=NULL;
+    }
+	
 }
 
 void Integrator::terminate()
@@ -101,7 +103,11 @@ void Integrator::terminate()
 #if DEBUG
     CERR << "Integrator::terminate()" << endl;
 #endif
-    delete instance;
+    if(instance!=NULL){
+      if(!isFinished())
+	instance->currentInterface->sendFinishedSignal();
+      delete instance;
+    }
 }
 
 
