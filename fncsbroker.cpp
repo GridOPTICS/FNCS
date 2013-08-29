@@ -53,7 +53,7 @@ typedef map<string,unsigned long> AllGatherMap;
 
 vector<map<string,string> > obj_to_ID;
 vector<ReduceMap> reduce_min_time;
-vector<AllGatherMap> all_gather_map;
+vector<AllGatherMap> all_gather;
 vector<ReduceMap> reduce_sent;
 vector<ReduceMap> reduce_recv;
 string newNetSimID;
@@ -330,7 +330,7 @@ static int add_context()
     reduce_min_time.resize(size);
     reduce_sent.resize(size);
     reduce_recv.resize(size);
-    all_gather_map.resize(size);
+    all_gather.resize(size);
     finalized.resize(size);
     barrier.resize(size);
     asleep.resize(size);
@@ -567,44 +567,46 @@ static void reduce_min_time_checker(
 }
 
 void all_gather_handler(
-  const string& identity, 
-  const int& context, 
-  const string& control)
+        const string& identity, 
+        const int& context, 
+        const string& control)
 {
-  unsigned long nextTime;
-  if(1 == all_gather_map[context].count(identity)){
+    unsigned long nextTime;
+    if(1 == all_gather[context].count(identity)){
         cerr << "sim with ID '" << identity
             << "' duplicate REDUCE_SEND_RECV" << endl;
         graceful_death(EXIT_FAILURE);
-  }
-  (void) s_recv(broker, nextTime);
-  all_gather_map[context][identity]=nextTime;
+    }
+    (void) s_recv(broker, nextTime);
+    all_gather[context][identity]=nextTime;
+    all_gather_checker(context);
 }
 
 void all_gather_checker(const int& context)
 {
-  if (reduce_sent[context].size() > world_sizes[context]) {
-        cerr << "reduce_sent size > world size" << endl;
+    if (all_gather[context].size() > world_sizes[context]) {
+        cerr << "all_gather size > world size" << endl;
         graceful_death(EXIT_FAILURE);
     }
-    else if (reduce_sent[context].size() == world_sizes[context]) {
-      uint8_t *toSend=new uint8_t[sizeof(uint64_t)*contexts[context].size()];
-      uint64_t *times=(uint64_t*)toSend;
-      AllGatherMap::const_iterator it;
-      int i=0;
-      for(it=all_gather_map[context].begin();
-	  it!=all_gather_map[context].end();
-	  ++it){
-	 times[i++]=it->second;
-      }
-      for (set<string>::iterator it=contexts[context].begin();
+    else if (all_gather[context].size() == world_sizes[context]) {
+        uint32_t buf_size = sizeof(uint64_t)*contexts[context].size();
+        uint8_t *toSend = new uint8_t[buf_size];
+        uint64_t *times = (uint64_t*)toSend;
+        AllGatherMap::const_iterator it;
+        int i=0;
+        for(it=all_gather[context].begin();
+                it!=all_gather[context].end();
+                ++it){
+            times[i++]=it->second;
+        }
+        for (set<string>::iterator it=contexts[context].begin();
                 it != contexts[context].end(); ++it) {
             (void) s_sendmore(broker, *it);
-	    (void) s_sendmore(broker, (uint32_t)contexts[context].size());
-            (void) s_send    (broker, toSend,(uint32_t)(sizeof(uint64_t)*contexts[context].size()));
+            (void) s_sendmore(broker, (uint32_t)contexts[context].size());
+            (void) s_send    (broker, toSend, buf_size);
         }
-      all_gather_map[context].clear();
-      delete[] toSend;
+        all_gather[context].clear();
+        delete[] toSend;
     }
 }
 
