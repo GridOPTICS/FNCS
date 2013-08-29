@@ -40,7 +40,9 @@
 #include "syncalgorithms/graceperiodpesimisticsyncalgo.h"
 #include "syncalgorithms/graceperiodspeculativesyncalgo.h"
 
+#ifdef DEBUG
 Echo echo;
+#endif
 
 namespace sim_comm {
 

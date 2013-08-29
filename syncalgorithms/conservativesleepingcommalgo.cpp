@@ -60,7 +60,8 @@ TIME ConservativeSleepingCommAlgo::GetNextTime(TIME currentTime, TIME nextTime)
 
 		    diff=interface->reduceTotalSendReceive();
 		    //assume network stable
-		   
+		    if(diff==0)
+		      this->interface->resetCounters();
 		    if(diff>0)
 		    { //network unstable 
 			TIME graceTime=Integrator::getCurSimTime()-Integrator::getPacketLostPeriod();

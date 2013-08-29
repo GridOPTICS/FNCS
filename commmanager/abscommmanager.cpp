@@ -80,9 +80,9 @@ namespace sim_comm{
     delete this->currentInterface;
   }
   
-  void AbsCommManager::sleep()
+  bool AbsCommManager::sleep()
   {
-    this->currentInterface->sleep();
+    return this->currentInterface->sleep();
   }
 
   
@@ -164,6 +164,8 @@ namespace sim_comm{
 	  throw ObjectInterfaceRegistrationException(__FILE__,__LINE__);
       }
   }
+  
+
   
   void AbsCommManager::startReceiver()
   {

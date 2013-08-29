@@ -40,6 +40,7 @@
 #include "absnetworkinterface.h"
 #include "message.h"
 
+
 namespace sim_comm{
   
   class ObjectCommInterface;
@@ -167,6 +168,14 @@ namespace sim_comm{
     virtual void stopReceiver();
 
     /**
+     * Resets the counters, should be called from
+     * syncalgorithms. Otherwise incosistent behavior 
+     * can be observed.
+     */
+    void resetCounters(){
+      this->sendCount=this->receiveCount=0;
+    }
+    /**
      * Called by the integrator to send all the messages.
      * subclasses should implement simulator specific sendalog
      */
@@ -216,7 +225,7 @@ namespace sim_comm{
      /**
       * Causes the calling simulator to sleep until all simulator go to sleep.
       */
-     virtual void sleep();
+     virtual bool sleep();
     /**
      * Signals to others that we are finished.
      */

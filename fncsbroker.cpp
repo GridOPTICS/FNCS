@@ -49,9 +49,11 @@ using namespace sim_comm;
 
 typedef map<string,unsigned long> ReduceMap;
 typedef pair<string,unsigned long> ReducePair;
+typedef map<string,unsigned long> AllGatherMap;
 
 vector<map<string,string> > obj_to_ID;
 vector<ReduceMap> reduce_min_time;
+vector<AllGatherMap> all_gather_map;
 vector<ReduceMap> reduce_sent;
 vector<ReduceMap> reduce_recv;
 string newNetSimID;
@@ -86,6 +88,7 @@ static void route_handler(const string &identity, const int &context, const stri
 static void delay_handler(const string &identity, const int &context, const string &control);
 static void reduce_min_time_handler(const string &identity, const int &context, const string &control);
 static void reduce_send_recv_handler(const string &identity, const int &context, const string &control);
+static void all_gather_handler(const string &identity,const int &context, const string &control);
 static void register_handler(const string &identity, const int &context, const string &control);
 static void finalize_handler(const string &identity, const int &context, const string &control);
 static void barrier_handler(const string &identity, const int &context, const string &control);
@@ -94,6 +97,7 @@ static bool finished_handler(const string &identity, const int &context, const s
 static void barrier_checker(const int &context);
 static void reduce_min_time_checker(const int &context);
 static void reduce_send_recv_checker(const int &context);
+static void all_gather_checker(const int &context);
 
 /* handle signals */
 static int s_interrupted = 0;
@@ -245,6 +249,9 @@ int main(int argc, char **argv)
             else if ("REDUCE_SEND_RECV" == control) {
                 reduce_send_recv_handler(identity, context, control);
             }
+            else if("ALL_GATHER_NEXT_TIME" == control){
+		all_gather_handler(identity, context, control);
+	    }
             else if ("REGISTER_OBJECT" == control) {
                 register_handler(identity, context, control);
             }
@@ -323,6 +330,7 @@ static int add_context()
     reduce_min_time.resize(size);
     reduce_sent.resize(size);
     reduce_recv.resize(size);
+    all_gather_map.resize(size);
     finalized.resize(size);
     barrier.resize(size);
     asleep.resize(size);
@@ -555,6 +563,48 @@ static void reduce_min_time_checker(
         }
         /* clear the map in preparation for next round */
         reduce_min_time[context].clear();
+    }
+}
+
+void all_gather_handler(
+  const string& identity, 
+  const int& context, 
+  const string& control)
+{
+  unsigned long nextTime;
+  if(1 == all_gather_map[context].count(identity)){
+        cerr << "sim with ID '" << identity
+            << "' duplicate REDUCE_SEND_RECV" << endl;
+        graceful_death(EXIT_FAILURE);
+  }
+  (void) s_recv(broker, nextTime);
+  all_gather_map[context][identity]=nextTime;
+}
+
+void all_gather_checker(const int& context)
+{
+  if (reduce_sent[context].size() > world_sizes[context]) {
+        cerr << "reduce_sent size > world size" << endl;
+        graceful_death(EXIT_FAILURE);
+    }
+    else if (reduce_sent[context].size() == world_sizes[context]) {
+      uint8_t *toSend=new uint8_t[sizeof(uint64_t)*contexts[context].size()];
+      uint64_t *times=(uint64_t*)toSend;
+      AllGatherMap::const_iterator it;
+      int i=0;
+      for(it=all_gather_map[context].begin();
+	  it!=all_gather_map[context].end();
+	  ++it){
+	 times[i++]=it->second;
+      }
+      for (set<string>::iterator it=contexts[context].begin();
+                it != contexts[context].end(); ++it) {
+            (void) s_sendmore(broker, *it);
+	    (void) s_sendmore(broker, (uint32_t)contexts[context].size());
+            (void) s_send    (broker, toSend,(uint32_t)(sizeof(uint64_t)*contexts[context].size()));
+        }
+      all_gather_map[context].clear();
+      delete[] toSend;
     }
 }
 

@@ -62,10 +62,7 @@ namespace sim_comm{
       if(currentTime < grantedTime)
 	return;
       
-      //call sleep to wake up other sims
-      if(this->diff==0 && currentTime == powersimgrantedTime)
-	  this->interface->sleep();
-      
+     
       this->interface->waitforAll();
   }
 
@@ -88,13 +85,22 @@ namespace sim_comm{
 	    busywait=true;
 	    incCurrentTime=currentTime=grantedTime;
       }
-      
+      //call sleep to wake up other sims
+      if(this->diff==0 && nextTime == powersimgrantedTime){
+	  this->interface->sleep();
+      }
       do
       {
 	  if(busywait){
-	    if(this->diff==0)
-	      this->interface->sleep(); //sleep until woken up
-	    this->interface->waitforAll();
+	    if(this->diff==0){
+	      bool result=this->interface->sleep(); //sleep until woken up
+	      incCurrentTime=powersimgrantedTime; //our currentTime is wake up time
+	      if(!needToRespond)
+		needToRespond=result;
+	    }
+	    else{
+	      this->interface->waitforAll();
+	    }
 	  }
           this->diff=interface->reduceTotalSendReceive();
           //network unstable, we need to wait!
@@ -103,11 +109,13 @@ namespace sim_comm{
 	  
 	  powerSyncTime=convertToFrameworkTime(min,convertToMyTime(min,incCurrentTime))+this->minResponseTime;
 	  minnetworkdelay=interface->reduceNetworkDelay();
+	  if(diff==0)
+	    this->interface->resetCounters();
 	  if(diff==0 && !needToRespond)
 	  { 
 	    nextEstTime=nextTime;
-	    if(incCurrentTime > currentTime) //we were busy waiting so we cannot send a packet until next time
-		powerSyncTime=nextTime;
+	    //we cannot send a packet until next time
+	    powerSyncTime=nextTime;
 	  }
 	  else{
 	    if(needToRespond)

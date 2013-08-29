@@ -262,6 +262,24 @@ uint64_t ZmqNetworkInterface::reduceMinTime(uint64_t myTime)
     return retval;
 }
 
+uint64_t* ZmqNetworkInterface::getNextTimes(uint64_t nextTime,uint32_t &worldSize)
+{
+#if DEBUG
+    CERR << "ZmqNetworkInterface::getNextTimes("
+        << nextTime << ")" << endl;
+#endif
+	makeProgress();
+	
+    (void) s_sendmore(this->zmq_req, this->context, "ALL_GATHER_NEXT_TIME");
+    (void) s_send(this->zmq_req, nextTime);
+    (void) i_recv(worldSize);
+    assert(worldSize < 1000);
+    uint64_t* toReturn=new uint64_t[worldSize];
+    uint8_t *buff=(uint8_t*)toReturn;
+    s_recv(this->zmq_req,buff,sizeof(uint64_t)*worldSize);
+    return toReturn;
+    
+}
 
 uint64_t ZmqNetworkInterface::reduceTotalSendReceive(
         uint64_t sent, uint64_t received)
@@ -332,7 +350,7 @@ void ZmqNetworkInterface::barier()
 }
 
 
-void ZmqNetworkInterface::sleep()
+bool ZmqNetworkInterface::sleep()
 {
     string ack;
 
@@ -348,6 +366,16 @@ void ZmqNetworkInterface::sleep()
       msg += ack;
       throw NetworkException(__FILE__,"sleep()",__LINE__,msg.c_str());
     }
+    
+    zmq_pollitem_t items[] = {
+            { this->zmq_async, 0, ZMQ_POLLIN, 0 },
+        };
+        int rc = zmq_poll(items, 1, 0);
+        assert(rc >= 0);
+        if (items[0].revents & ZMQ_POLLIN) {
+           return true;
+        }
+     return false;
 }
 
 

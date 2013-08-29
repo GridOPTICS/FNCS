@@ -44,8 +44,6 @@
 #   else
 #       define CERR (cerr << '[' << PID << "] ")
 #   endif
-#else
-#   define CERR echo
 #endif
 
 extern Echo echo;

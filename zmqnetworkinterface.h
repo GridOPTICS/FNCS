@@ -111,13 +111,16 @@ public:
     virtual void barier();
 
     /** @copydoc AbsNetworkInterface::sleep()*/
-    virtual void sleep();
+    virtual bool sleep();
 
     /** @copydoc AbsNetworkInterface::duplicateInterface()*/
     virtual AbsNetworkInterface* duplicateInterface();
 
     /** @copydoc AbsNetworkInterface::sendFinishedSignal()*/
     virtual void sendFinishedSignal();
+    
+    /** @copydoc AbsNetworkInterface::getNextTimes()*/
+    virtual uint64_t* getNextTimes(uint64_t nextTime,uint32_t &worldSize);
 };
 
 

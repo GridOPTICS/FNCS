@@ -186,7 +186,13 @@ public:
     /**
      * Sleep function.
      */
-    virtual void sleep() =0;
+    virtual bool sleep() =0;
+    
+    /**
+     * Used for gathering the next times of the
+     * simulators.
+     */
+    virtual uint64_t* getNextTimes(uint64_t nextTime,uint32_t &worldSize) =0;
     
     /**
      * Duplicates the current interfce, creates a new interface that
