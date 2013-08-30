@@ -35,18 +35,10 @@ namespace sim_comm{
 
   ConservativeSleepingTickAlgo::ConservativeSleepingTickAlgo(AbsCommManager *interface, time_metric connectedSims[], int &connectedSimsSize) : AbsSyncAlgorithm(interface)
   {
-     min=SECONDS;
-     for(int i=0;i<connectedSimsSize;i++){
-       if(connectedSims[i]>min)
-	 min=connectedSims[i];
-     }
-     
-     if(min==UNKNOWN)
-       throw new SyncStateException(string("Connected Sims cannot have UNKNOWN time scale"));
-     
-     this->minResponseTime=convertToFrameworkTime(min,1);
-     this->powersimgrantedTime=0;
+     this->othersimsSize=connectedSimsSize-1;
+     this->powersimgrantedTime=new TIME[connectedSimsSize-1];
      this->diff=0;
+     this->mightSleep=false;
   }
 
   ConservativeSleepingTickAlgo::~ConservativeSleepingTickAlgo()
@@ -72,8 +64,6 @@ namespace sim_comm{
 
       TIME nextEstTime; //here this variable represents the sycnhronization time with the network simulator.
       TIME minnetworkdelay;
-      TIME powerSyncTime;
-      TIME incCurrentTime = currentTime;
       
       if(nextTime < grantedTime)
 	return nextTime;
@@ -83,18 +73,23 @@ namespace sim_comm{
       //send all messages
       if(currentTime < grantedTime){ //we still have some granted time we need to barier at granted Time
 	    busywait=true;
-	    incCurrentTime=currentTime=grantedTime;
+	    currentTime=grantedTime;
       }
       //call sleep to wake up other sims
-      if(this->diff==0 && nextTime == powersimgrantedTime){
-	  this->interface->sleep();
+      if(mightSleep){
+	  for(int i=0;i<this->othersimsSize;i++)
+	    if(nextTime >= this->powersimgrantedTime[i]){ //might cause unnecessary sleeps
+	      this->interface->sleep();
+	      mightSleep=false;
+	    }
+	 
       }
       do
       {
 	  if(busywait){
 	    if(this->diff==0){
 	      bool result=this->interface->sleep(); //sleep until woken up
-	      incCurrentTime=powersimgrantedTime; //our currentTime is wake up time
+	      mightSleep=false;
 	      if(!needToRespond)
 		needToRespond=result;
 	    }
@@ -106,31 +101,32 @@ namespace sim_comm{
           //network unstable, we need to wait!
           nextEstTime=currentTime+convertToFrameworkTime(Integrator::getCurSimMetric(),1); 
 	  //find next responseTime
-	  
-	  powerSyncTime=convertToFrameworkTime(min,convertToMyTime(min,incCurrentTime))+this->minResponseTime;
 	  minnetworkdelay=interface->reduceNetworkDelay();
 	  if(diff==0)
 	    this->interface->resetCounters();
 	  if(diff==0 && !needToRespond)
 	  { 
 	    nextEstTime=nextTime;
-	    //we cannot send a packet until next time
-	    powerSyncTime=nextTime;
 	  }
 	  else{
-	    if(needToRespond)
-	      powerSyncTime=nextEstTime;
-	    else
-	      needToRespond=true; //set this condition so that when the simulator wakes up from busy wait it responds to messages
+	      needToRespond=true; //set this condition so that when the simulator wakes up from busy wait it responds to message
+	      if(mightSleep){
+		this->powersimgrantedTime[0]=0; //we need to wake up other sims
+	      }
 	  }
-	  
-	 
-	  //this->maxBusyWaitTime=0;
           //Calculate next min time step
           TIME myminNextTime=nextEstTime;
-          TIME minNextTime=(TIME)interface->reduceMinTime(myminNextTime);
-	  if(diff==0 && this->powersimgrantedTime <= minNextTime){
-	    this->powersimgrantedTime=(TIME)interface->reduceMinTime(powerSyncTime); //we need to grant the simulator upto min power sync time;
+          TIME minNextTime=(TIME)interface->reduceMinTime(myminNextTime); //we do this operation for the netsim
+	  if(!mightSleep && diff==0){ //this operation allows us to find how long the sims need to sleep
+		uint32_t worldSize;
+		TIME *nextTimes=this->interface->getNextTimes(myminNextTime,worldSize);
+		for(uint32_t i=0,j=0;i<worldSize;i++){
+		 if(nextTimes[i] == myminNextTime)
+		   continue;
+		 powersimgrantedTime[j++]=nextTimes[i];
+		}
+		delete[] nextTimes;
+		mightSleep=true;
 	  }
           //min time is the estimated next time, so grant nextEstimated time
           if(minNextTime==myminNextTime)
@@ -148,21 +144,8 @@ namespace sim_comm{
 	      //update the current Time!
 	      currentTime = convertToMyTime(Integrator::getCurSimMetric(),minNextTime);
 	      currentTime = convertToFrameworkTime(Integrator::getCurSimMetric(),currentTime);
-	      incCurrentTime = minNextTime;
-	     /* if(!threadopen && myminNextTime-interface->getMinNetworkDelay()<minNextTime){
-		this->threadopen=true;
-		this->threadOpenTime=currentTime;
-		this->threadEndTime=myminNextTime;
-		
-#if DEBUG
-	      CERR << "Starting busy wait thread! my:" << myminNextTime << " others:" << minNextTime <<  endl;
-#endif
-		pthread_create(&this->thread,NULL,&ConservativeSleepingTickAlgo::startThreadBusyWait,(void*)this);
-		busywait=false;
-	      }
-	      else{*/
-		busywait=true;
-	      //}
+	      
+	      busywait=true;
 	  }
 
 

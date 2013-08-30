@@ -577,6 +577,11 @@ void all_gather_handler(
             << "' duplicate REDUCE_SEND_RECV" << endl;
         graceful_death(EXIT_FAILURE);
     }
+    if(identity == netSimID[context]){
+        cerr << "sim with ID '" << identity
+            << "' is a netsim and cannot participate in get next times" << endl;
+        graceful_death(EXIT_FAILURE);
+    }
     (void) s_recv(broker, nextTime);
     all_gather[context][identity]=nextTime;
     all_gather_checker(context);
@@ -588,8 +593,8 @@ void all_gather_checker(const int& context)
         cerr << "all_gather size > world size" << endl;
         graceful_death(EXIT_FAILURE);
     }
-    else if (all_gather[context].size() == world_sizes[context]) {
-        uint32_t buf_size = sizeof(uint64_t)*contexts[context].size();
+    else if (all_gather[context].size() == world_sizes[context]-1) {
+        uint32_t buf_size = sizeof(uint64_t)*(world_sizes[context]-1);
         uint8_t *toSend = new uint8_t[buf_size];
         uint64_t *times = (uint64_t*)toSend;
         AllGatherMap::const_iterator it;
@@ -597,12 +602,16 @@ void all_gather_checker(const int& context)
         for(it=all_gather[context].begin();
                 it!=all_gather[context].end();
                 ++it){
+	    if(it->first == netSimID[context])
+	      continue;
             times[i++]=it->second;
         }
         for (set<string>::iterator it=contexts[context].begin();
                 it != contexts[context].end(); ++it) {
+	    if(*it == netSimID[context])
+	      continue;
             (void) s_sendmore(broker, *it);
-            (void) s_sendmore(broker, (uint32_t)contexts[context].size());
+            (void) s_sendmore(broker, (uint32_t)(contexts[context].size()-1));
             (void) s_send    (broker, toSend, buf_size);
         }
         all_gather[context].clear();
@@ -760,9 +769,11 @@ static void sleep_handler(
     contexts[context].erase(identity);
     // if some sims are in barrier and a sim called sleep,
     // we need to wake the barrier
-    barrier_checker(context);
-    //reduce_min_time_checker(context);
-    //reduce_send_recv_checker(context);
+    if(world_sizes[context]!=1){
+      barrier_checker(context);
+      reduce_min_time_checker(context);
+      reduce_send_recv_checker(context);
+    }
     if (world_sizes[context] <= 0) {
         cerr << "error: world_sizes[context] <= 0" << endl;
         graceful_death(EXIT_FAILURE);

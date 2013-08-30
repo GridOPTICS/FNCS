@@ -274,10 +274,10 @@ uint64_t* ZmqNetworkInterface::getNextTimes(uint64_t nextTime,uint32_t &worldSiz
     (void) s_send(this->zmq_req, nextTime);
     (void) i_recv(worldSize);
     assert(worldSize < 1000);
-    uint64_t* toReturn=new uint64_t[worldSize];
-    uint8_t *buff=(uint8_t*)toReturn;
+    //uint64_t* toReturn=new uint64_t[worldSize];
+    uint8_t *buff;
     s_recv(this->zmq_req,buff,sizeof(uint64_t)*worldSize);
-    return toReturn;
+    return reinterpret_cast<uint64_t*>(buff);
     
 }
 

@@ -89,8 +89,20 @@ TIME ConservativeSleepingCommAlgo::GetNextTime(TIME currentTime, TIME nextTime)
 		    //We never wait for comm sim, instead we wait for oter sims
 		    TIME myminNextTime=Infinity;
 		    TIME minNextTime=(TIME)interface->reduceMinTime(myminNextTime);
-		    if(diff==0 && this->powersimgrantedTime <= minNextTime)
-			this->powersimgrantedTime=(TIME)interface->reduceMinTime(Infinity); //useless op, network sim does not care about power sims
+		    /*if(diff==0 && this->powersimgrantedTime <= minNextTime){
+			uint32_t worldSize;
+			TIME *nextTimes=this->interface->getNextTimes(myminNextTime,worldSize);
+			this->powersimgrantedTime=Infinity;
+			TIME temp=Infinity;
+			for(uint32_t i=0;i<worldSize;i++){ //find the next second smallest time (we will use this for wake up)
+			  if(nextTimes[i] < temp){
+			    this->powersimgrantedTime=temp;
+			    temp=nextTimes[i];
+			  }
+			}
+			
+			delete[] nextTimes;
+		    }*/
 		    //If min time is infinity then there is something with the comm!
 		    if(minNextTime==Infinity){
 #if DEBUG

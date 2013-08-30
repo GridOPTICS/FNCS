@@ -41,10 +41,11 @@ namespace sim_comm{
       //pthread_mutex_t threadstatus;
       //TIME avgBusyWait;
       TIME nextTime;
-      TIME minResponseTime;
+      uint32_t othersimsSize;
       time_metric min;
-      TIME powersimgrantedTime;
+      TIME *powersimgrantedTime;
       uint64_t diff;
+      bool mightSleep;
     public:
       ConservativeSleepingTickAlgo(AbsCommManager *interface, time_metric connectedSims[], int &connectedSimsSize);
       virtual bool doDispatchNextEvent(TIME currentTime, TIME nextTime);

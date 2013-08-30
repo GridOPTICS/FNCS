@@ -242,5 +242,10 @@ namespace sim_comm{
       this->currentInterface->sendFinishedSignal();
   }
 
+  TIME* AbsCommManager::getNextTimes(TIME nextTime, uint32_t& size)
+  {
+      return this->currentInterface->getNextTimes(nextTime,size);
+  }
+
 }
 
