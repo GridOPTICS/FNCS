@@ -359,7 +359,7 @@ bool ZmqNetworkInterface::sleep()
 #endif
 
     (void) s_send(this->zmq_req, this->context, "SLEEP");
-    (void) i_recv(ack);
+    (void) s_recv(this->zmq_req, ack);
     //assert(ack == "ACK");
     if(ack != "ACK"){
       string msg("Message is not ack ");
