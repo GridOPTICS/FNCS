@@ -39,6 +39,7 @@
 #include <vector>
 #include <algorithm>
 #include <zmq.h>
+#include <limits.h>
 
 #include "integrator.h"
 #include "message.h"
@@ -595,27 +596,32 @@ void all_gather_checker(const int& context)
     }
     else if (all_gather[context].size() == world_sizes[context]-1) {
         uint32_t buf_size = sizeof(uint64_t)*(world_sizes[context]-1);
-        uint8_t *toSend = new uint8_t[buf_size];
-        uint64_t *times = (uint64_t*)toSend;
-        AllGatherMap::const_iterator it;
-        int i=0;
-        for(it=all_gather[context].begin();
-                it!=all_gather[context].end();
-                ++it){
-	    if(it->first == netSimID[context])
-	      continue;
-            times[i++]=it->second;
-        }
-        for (set<string>::iterator it=contexts[context].begin();
+       
+        vector<uint64_t> times;
+        AllGatherMap::const_iterator it1;
+        
+	for (set<string>::iterator it=contexts[context].begin();
                 it != contexts[context].end(); ++it) {
 	    if(*it == netSimID[context])
 	      continue;
+	    for(it1=all_gather[context].begin();
+                it1!=all_gather[context].end();
+                ++it1){
+		if(it1->first == netSimID[context]) //do not include network simulator next time
+		  continue;
+		if(*it == it1->first){ //do not include my next time
+		  continue;
+		}
+		times.push_back(it1->second);
+	    }
+       
             (void) s_sendmore(broker, *it);
-            (void) s_sendmore(broker, (uint32_t)(contexts[context].size()-1));
-            (void) s_send    (broker, toSend, buf_size);
+            (void) s_sendmore(broker, static_cast<uint32_t>(times.size()));
+            (void) s_send    (broker, reinterpret_cast<uint8_t*>(&times[0]), times.size()*sizeof(uint64_t));
+	    times.clear();
         }
         all_gather[context].clear();
-        delete[] toSend;
+  
     }
 }
 

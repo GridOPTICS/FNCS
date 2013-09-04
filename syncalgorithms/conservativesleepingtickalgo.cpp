@@ -110,7 +110,7 @@ namespace sim_comm{
 	  }
 	  else{
 	      needToRespond=true; //set this condition so that when the simulator wakes up from busy wait it responds to message
-	      if(mightSleep){
+	      if(mightSleep){ //there might a sleeping sim and there is new packet wake it up
 		this->powersimgrantedTime[0]=0; //we need to wake up other sims
 	      }
 	  }
@@ -121,7 +121,7 @@ namespace sim_comm{
 		uint32_t worldSize;
 		TIME *nextTimes=this->interface->getNextTimes(myminNextTime,worldSize);
 		for(uint32_t i=0,j=0;i<worldSize;i++){
-		 if(nextTimes[i] == myminNextTime)
+		 if(nextTimes[i] == Infinity)
 		   continue;
 		 powersimgrantedTime[j++]=nextTimes[i];
 		}
