@@ -38,14 +38,14 @@ namespace sim_comm {
 		    uint64_t diff=interface->reduceTotalSendReceive();
 		    //assume network stable
 		   
-		    if(diff>0)
+		   /* if(diff>0)
 		    { //network unstable 
 			TIME graceTime=Integrator::getCurSimTime()-Integrator::getPacketLostPeriod();
 			if(graceTime>Integrator::getCurSimTime()) //overflowed
 			    graceTime=0;
 			if(updated){
 			    if(this->currentState<graceTime){ //test if it has been graceperiod amount of time before we declare the packet as lost
-		    /* TODO packetLost doesn't take parameters?? */
+		     TODO packetLost doesn't take parameters?? 
 				this->interface->packetLost();
 				//rest currentState;
 				this->currentState=Integrator::getCurSimTime(); //restart counter
@@ -60,6 +60,9 @@ namespace sim_comm {
 		    else{
 		      this->currentState=Integrator::getCurSimTime();
 		      updated=false;
+		    }*/
+		    if(diff > 0){
+		      this->interface->packetLostCalculator(currentTime);
 		    }
 		    TIME minnetworkdelay=interface->reduceNetworkDelay();
 		    //We never wait for comm sim, instead we wait for oter sims

@@ -53,10 +53,9 @@ namespace sim_comm{
     return new GracePeriodCommManager(*this);
   }
 
-
-  
-  void GracePeriodCommManager::packetLost()
+  void GracePeriodCommManager::packetLostCalculator(TIME currentTime)
   {
+
       throw CommManagerOperationNotSupportedException("GracePeriodCommManager::packetLost");
   }
   

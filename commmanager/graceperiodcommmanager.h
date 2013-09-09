@@ -40,7 +40,7 @@ public:
       GracePeriodCommManager(AbsNetworkInterface *current);
       GracePeriodCommManager(GracePeriodCommManager& given);
       virtual ~GracePeriodCommManager();
-      virtual void packetLost();
+      virtual void packetLostCalculator(TIME currentTime);
       virtual void sendAll();
       virtual AbsCommManager* duplicate();
 };

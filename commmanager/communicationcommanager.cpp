@@ -57,11 +57,28 @@ namespace sim_comm{
 
     }
     
-    void CommunicationComManager::packetLost()
+    void CommunicationComManager::packetLostCalculator(TIME currentTime)
     {
-      //when packet is lost just increment the receive counter
-      this->receiveCount++;
+      TIME leastTime = currentTime - Integrator::getPacketLostPeriod();
+      if(leastTime > currentTime) //overflowed
+	  leastTime=0;
+      map<TIME,uint32_t>::iterator it=packets.begin();
+      vector<TIME> toremove;
+      for(;it!=packets.end();++it){
+	if(it->first < leastTime){
+	    
+	  this->receiveCount+=it->second;
+	  toremove.push_back(it->first);
+	}
+      }
+      for(int i=0;i<toremove.size();i++){
+      
+	  this->packets.erase(toremove[i]);
+      }
+      
     }
+
+    
     
     void CommunicationComManager::sendAll()
     {
@@ -81,8 +98,9 @@ namespace sim_comm{
 			 if(!val) //syncalgo signaled ignore!
 			   continue;
 		      }
-		      if (outmessges[i]->isBroadCast()) {
-			  int scount = this->currentInterface->broadcast(outmessges[i]);
+		      if (outmessges[i]->isBroadCast()) { //wiried????? 
+			  throw CommManagerOperationNotSupportedException("Broadcast is not support on commnetwork commanager");
+			  //int scount = this->currentInterface->broadcast(outmessges[i]);
 			    // sendCount +=scount;
 		      } 
 		      else {
@@ -90,7 +108,9 @@ namespace sim_comm{
       CERR << "CommunicationComManager::sendAll(" << (char*)outmessges[i]->getData() << ") time:" << Integrator::getCurSimTime() << endl;
 #endif
 			    // sendCount += 1;
-			  this->currentInterface->send(outmessges[i]);
+			  if(removeMessageTimeout(outmessges[i]->getTime()))
+			    this->currentInterface->send(outmessges[i]);
+			  
 		      }
 		  }
 		  catch(InterfaceErrorException e) {
@@ -129,6 +149,7 @@ namespace sim_comm{
       ObjectCommInterface *comm=getObjectInterface(message->getFrom());
       //handle bcast
       if(message->isBroadCast()){
+	addMessageTimeout(message->getTime(),true);
 	map<string,ObjectCommInterface*>::iterator it=this->interfaces.begin();
 	for(;it!=interfaces.end();++it){
 	  if(it->first.compare(message->getFrom())==0)
@@ -144,10 +165,40 @@ namespace sim_comm{
       //handle single message
       //let it throw an exception if the key is not found
 	  comm->newMessage(message);
+	  addMessageTimeout(message->getTime());
       }
     
      
     }
 
-  
+  void CommunicationComManager::addMessageTimeout(TIME msgTime, bool isbroadcast)
+  {
+      map<TIME,uint32_t>::iterator it=this->packets.find(msgTime);
+      if(it==packets.end()){
+      
+	packets.insert(pair<TIME,uint32_t>(msgTime,0));
+      }
+      
+      uint32_t val=packets[msgTime];
+      if(isbroadcast)
+	val+=this->interfaces.size()-1; //-1 is for node itself
+      else
+	val+=1;
+      packets[msgTime]=val;
+      
+  }
+
+  bool CommunicationComManager::removeMessageTimeout(TIME msgTime)
+  {
+    if(packets.find(msgTime)==packets.end())
+      return false; //message too old return false so it is not send!
+    uint32_t val=packets[msgTime];
+    if(val > 0)
+      packets[msgTime]=val - 1;
+    
+    if(packets[msgTime]==0)
+      packets.erase(msgTime);
+    return true;
+  }
+
 }

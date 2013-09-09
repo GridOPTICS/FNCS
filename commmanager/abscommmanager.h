@@ -185,7 +185,7 @@ namespace sim_comm{
      * Called by the sync algorithm to notify that a packetLostis lost.
      * Currently this method only works if given is an instance of commsimsync algo
      */
-    virtual void packetLost() =0;
+    virtual void packetLostCalculator(TIME currentTime) =0;
     
     
     virtual uint64_t reduceTotalSendReceive();

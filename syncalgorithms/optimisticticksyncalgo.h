@@ -66,11 +66,11 @@ namespace sim_comm{
       /**
        * Callback function registered with comm manager. 
        */
-      bool nodeSentMessage(Message *msg);
+      virtual bool nodeSentMessage(Message *msg);
       /**
        * Callback function registered with comm manager.
        */
-      bool nodeReceivedMessage(Message *msg);
+      virtual bool nodeReceivedMessage(Message *msg);
      
 
       /**

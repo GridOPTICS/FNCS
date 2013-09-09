@@ -37,7 +37,6 @@ namespace sim_comm {
 			virtual TIME GetNextTime(TIME currentTime,TIME nextTime);
 			/** @copydoc AbsSyncAlgorithm::doDispatchNextEvent(TIME currentTime, TIME nextTime) */
 			virtual bool doDispatchNextEvent(TIME currentTime,TIME nextTime);
-			
 	};
 
 } /* namespace sim_comm */

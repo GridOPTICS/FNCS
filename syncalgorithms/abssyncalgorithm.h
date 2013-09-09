@@ -89,6 +89,7 @@ namespace sim_comm
 	bool finished;
 	TIME grantedTime;
 	ALGOTYPE algotype;
+	
     public:
 	AbsSyncAlgorithm(AbsCommManager* currentInterface);
 	virtual ~AbsSyncAlgorithm();
@@ -124,6 +125,7 @@ namespace sim_comm
 	 * Called when the simulator is starting a time step!
 	 */
 	virtual void timeStepStart(TIME currentTime);
+
   };
   
 }

@@ -35,13 +35,16 @@ namespace sim_comm{
   
     class CommunicationComManager : public AbsCommManager
     {
-	     
+      private:
+	map<TIME,uint32_t> packets;
+	void addMessageTimeout(TIME msgTime,bool isbroadcast=false);
+	bool removeMessageTimeout(TIME msgTime);
       public:
 	CommunicationComManager(AbsNetworkInterface *interface);
 	CommunicationComManager(CommunicationComManager& given);
 	virtual AbsCommManager* duplicate();
 	virtual ~CommunicationComManager();
-	virtual void packetLost();
+	virtual void packetLostCalculator(TIME currentTime);
 	virtual void sendAll();
 	virtual void messageReceived(Message *message);
     };
