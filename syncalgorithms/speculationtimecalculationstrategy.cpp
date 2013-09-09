@@ -48,7 +48,9 @@ namespace sim_comm{
   }
   
   void IncreasingSpeculationTimeStrategy::speculationFailed(TIME currentTime,TIME nextTime){
-    this->initialTime=this->startup;
+    this->initialTime/=2;
+    if(this->initialTime==0)
+      this->initialTime=this->startup;
   }
   
   void IncreasingSpeculationTimeStrategy::speculationSuceeded(TIME currentTime,TIME nextTime){

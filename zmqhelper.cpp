@@ -3,10 +3,12 @@
 #include <assert.h> /* for assert */
 #include <stdlib.h> /* for size_t */
 #include <sys/time.h> /* for gettimeofday */
-
+#include <sys/types.h>
+#include <unistd.h>
 #include <string>
 
 #include <zmq.h>
+
 
 #include "zmqhelper.h"
 

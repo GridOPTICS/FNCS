@@ -42,7 +42,7 @@ void handleTerm(int signum){
   cout << "Received term!!" << endl;
   if(speculationTime!=nullptr)
     shmdt(speculationTime);
-  Integrator::terminate();
+  //Integrator::terminate();
   exit(0);
 }
 
@@ -188,7 +188,7 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
 	  }
 	  TIME mySpecNextTime;
 	  //remove this!!!!
-	  canSpeculate=false;
+	  //canSpeculate=false;
 	 
 	  if(canSpeculate && (currentTime+specDifference) < this->specFailTime){ //test if it is worht speculating!
 	     mySpecNextTime=currentTime+specDifference;
@@ -205,9 +205,9 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
 	  TIME specResult=testSpeculationState(specNextTime,currentTime);
 	  if(specResult > 0) //we are in child! We are granted up to specNextTime
 	      minNextTime=specNextTime;
-	  if(this->isParent && this->specFailTime!=Infinity){
-	    minNextTime=specFailTime; //grant upto spec fail time.
-	  }
+	 // if(this->isParent && this->specFailTime!=Infinity && minNextTime < specFailTime){
+	 //   minNextTime=specFailTime; //grant upto spec fail time.
+	 // }
 	  //normal conservative algorithm
           //min time is the estimated next time, so grant nextEstimated time
 	  if(minNextTime==0){ //a sim signal endded
@@ -280,7 +280,9 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
       this->isParent=true;
       this->parentPid=0;
       kill(this->childPid,SIGTERM);
-      wait(NULL);
+      usleep(100);
+      if(waitpid(this->childPid,NULL,WNOHANG)==0)
+	kill(this->childPid,SIGKILL);
       this->isChild=false;
       this->childPid=0;
       this->mypid=getpid();

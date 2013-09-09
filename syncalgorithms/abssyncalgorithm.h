@@ -31,6 +31,10 @@
 
 #include "simtime.h"
 
+#ifdef PROFILE
+#include "profiler.h"
+#endif
+
 #include <sstream>
 
 using namespace std;
