@@ -76,8 +76,8 @@ public:
     /** TODO */
     vector<Message*> getOutBox();
     
-    /** Returns the number of messages the ibject has for the current time */
-    int getInboxMessagesCount();
+    /*/** Returns the number of messages the ibject has for the current time */
+    //int getInboxMessagesCount();
 
     /** Returns true if object has more messages for the currentim time */
     bool hasMoreMessages();

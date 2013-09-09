@@ -59,7 +59,7 @@ void ObjectCommInterface::send(Message* given) {
 }
 
 
-int ObjectCommInterface::getInboxMessagesCount() {
+/*int ObjectCommInterface::getInboxMessagesCount() {
 #if DEBUG
     CERR << "ObjectCommInterface::getInboxMessagesCount()" << endl;
 #endif
@@ -81,7 +81,7 @@ int ObjectCommInterface::getInboxMessagesCount() {
     }
 
     return toReturn;
-}
+}*/
 
 
 std::vector< Message* > ObjectCommInterface::getAllInboxMessages() {
