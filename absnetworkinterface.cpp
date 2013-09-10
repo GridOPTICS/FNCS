@@ -118,3 +118,9 @@ void AbsNetworkInterface::sendFinishedSignal()
 {
 }
 
+void AbsNetworkInterface::setChildStatus(bool childStatus)
+{
+  this->isChild=childStatus;
+}
+
+

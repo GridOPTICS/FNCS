@@ -235,6 +235,11 @@ namespace sim_comm{
      * An all gather operation on the next times of the simulators.
      */
     virtual TIME* getNextTimes(TIME nextTime,uint32_t &size);
+    
+    /**
+     * Forward set child status to network interface.
+     */
+    void setChildStatus(bool childStatus);
   };
 
 }
