@@ -11,18 +11,26 @@
 
 
 #include "zmqhelper.h"
+#if DEBUG
+#include "integrator.h"
+#endif
 
 using namespace std;
 
 zmqx_sigfunc _zmqx_sigfunc=NULL;
-void *_zmqx_sigfunc_arg=NULL;
+void *_zmqx_sigfunc_socket=NULL;
+int   _zmqx_sigfunc_context=0;
+void *_zmqx_sigfunc_object=NULL;
 int _zmqx_interrupted=0;
+static int _zmqx_interrupted_in_process=0;
 
 
-void zmqx_register_handler(zmqx_sigfunc function, void *object)
+void zmqx_register_handler(zmqx_sigfunc function, void *socket, int context, void *object)
 {
     _zmqx_sigfunc = function;
-    _zmqx_sigfunc_arg = object;
+    _zmqx_sigfunc_socket = socket;
+    _zmqx_sigfunc_context = context;
+    _zmqx_sigfunc_object = object;
 }
 
 
@@ -45,9 +53,23 @@ void zmqx_catch_signals (void)
 
 void zmqx_interrupt_check()
 {
-    if (_zmqx_interrupted) {
-        if (_zmqx_sigfunc) {
-            _zmqx_sigfunc(_zmqx_sigfunc_arg);
+    /* check for interrupt but don't recheck if already processing interrupt */
+    if (_zmqx_interrupted && !_zmqx_interrupted_in_process) {
+#if DEBUG
+        CERR << "zmqx_interrupt_check interrupt detected" << endl;
+#endif
+        _zmqx_interrupted_in_process = 1;
+        if (_zmqx_sigfunc_socket != NULL && _zmqx_sigfunc_context >= 0) {
+#if DEBUG
+            CERR << "zmqx_interrupt_check sending DIE" << endl;
+#endif
+            zmqx_send(_zmqx_sigfunc_socket, _zmqx_sigfunc_context, "DIE");
+        }
+        if (_zmqx_sigfunc != NULL) {
+#if DEBUG
+            CERR << "zmqx_interrupt_check calling callback" << endl;
+#endif
+            _zmqx_sigfunc(_zmqx_sigfunc_object);
         }
     }
 }

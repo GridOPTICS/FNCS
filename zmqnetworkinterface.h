@@ -141,7 +141,8 @@ int ZmqNetworkInterface::i_recv(T &buf)
             { this->zmq_die,   0, ZMQ_POLLIN, 0 }
         };
         int rc = zmq_poll(items, 3, -1);
-        assert(rc >= 0);
+        zmqx_interrupt_check();
+        assert(rc >= 0 || (rc == -1 && errno == EINTR));
         if (items[0].revents & ZMQ_POLLIN) {
             size = zmqx_recv(this->zmq_req, buf);
 #if DEBUG

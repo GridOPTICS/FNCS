@@ -37,9 +37,6 @@ void ZmqNetworkInterface::init()
     CERR << "ZmqNetworkInterface::init()" << endl;
 #endif
 
-    zmqx_register_handler(cleanup_handler, this);
-    zmqx_catch_signals();
-
     this->ID = gen_id();
 #if DEBUG
     CERR << "ZmqNetworkInterface ID=" << this->ID << endl;
@@ -97,6 +94,9 @@ void ZmqNetworkInterface::init()
         perror("zmq_connect ZMQ_SUB");
     }
     assert(0 == zmq_connect_sub_retval);
+
+    zmqx_register_handler(cleanup_handler, this->zmq_req, this->context, this);
+    zmqx_catch_signals();
 
     /* send hello to broker */
     int ZERO = 0;

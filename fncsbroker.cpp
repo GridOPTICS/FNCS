@@ -197,7 +197,7 @@ int main(int argc, char **argv)
         graceful_death(EXIT_FAILURE);
     }
 
-    zmqx_register_handler(graceful_death_handler, NULL);
+    zmqx_register_handler(graceful_death_handler, NULL, 0, NULL);
     zmqx_catch_signals();
 
     while (1) {
