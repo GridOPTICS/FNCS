@@ -29,6 +29,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <climits>
 #include <csignal>
 #include <cstdlib>
 #include <cstring>
@@ -37,9 +38,8 @@
 #include <set>
 #include <string>
 #include <vector>
-#include <algorithm>
+
 #include <zmq.h>
-#include <limits.h>
 
 #include "integrator.h"
 #include "message.h"
@@ -100,20 +100,11 @@ static void reduce_min_time_checker(const int &context);
 static void reduce_send_recv_checker(const int &context);
 static void all_gather_checker(const int &context);
 
-/* handle signals */
-static int s_interrupted = 0;
-static void s_signal_handler(int signal_value)
+
+static void graceful_death_handler(void *arg)
 {
-    s_interrupted = 1;
-}
-static void s_catch_signals()
-{
-    struct sigaction action;
-    action.sa_handler = s_signal_handler;
-    action.sa_flags = 0;
-    sigemptyset(&action.sa_mask);
-    sigaction(SIGINT, &action, NULL);
-    sigaction(SIGTERM, &action, NULL);
+    assert(NULL == arg);
+    graceful_death(EXIT_FAILURE);
 }
 
 
@@ -121,6 +112,9 @@ int main(int argc, char **argv)
 {
     int retval;
     const int ONE = 1;
+
+    s_register_handler(graceful_death_handler, NULL);
+    s_catch_signals();
 
 #if DEBUG
 #   if DEBUG_TO_FILE
@@ -205,8 +199,6 @@ int main(int argc, char **argv)
         perror("zmq_bind(killer, \"tcp://*:5557\")");
         graceful_death(EXIT_FAILURE);
     }
-
-    s_catch_signals();
 
     while (1) {
         string identity; // simulation identifier

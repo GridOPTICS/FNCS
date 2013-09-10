@@ -17,6 +17,15 @@ using namespace std;
 using namespace sim_comm;
 
 
+static void cleanup_handler(void *object)
+{
+    ZmqNetworkInterface *interface = NULL;
+    interface = reinterpret_cast<ZmqNetworkInterface*>(object);
+    interface->cleanup();
+    exit(EXIT_FAILURE);
+}
+
+
 void ZmqNetworkInterface::init()
 {
     int zmq_connect_req_retval = 0;
@@ -27,6 +36,9 @@ void ZmqNetworkInterface::init()
 #if DEBUG
     CERR << "ZmqNetworkInterface::init()" << endl;
 #endif
+
+    s_register_handler(cleanup_handler, this);
+    s_catch_signals();
 
     this->ID = gen_id();
 #if DEBUG

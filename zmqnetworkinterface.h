@@ -63,7 +63,6 @@ protected:
     void init();
     void processAsyncMessage();
     void processSubMessage();
-    void cleanup();
     void makeProgress();
     template <typename T> int i_recv(T &buf);
     
@@ -121,6 +120,8 @@ public:
     
     /** @copydoc AbsNetworkInterface::getNextTimes()*/
     virtual uint64_t* getNextTimes(uint64_t nextTime,uint32_t &worldSize);
+
+    void cleanup();
 };
 
 
