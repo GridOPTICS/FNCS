@@ -80,7 +80,7 @@ protected:
     vector<string> myObjects;
     bool registrationsAreFinalized;
     CallBack<void,Message*,empty,empty> *messageCallBack;
-    
+    bool isChild;
 public:
     /**
      * Constructs.
@@ -209,6 +209,11 @@ public:
      * Clean up function
      */
     virtual void cleanup() = 0;
+    
+    /**
+     * Sets up the child parent status of this fenix instance.
+     */
+    void setChildStatus(bool childStatus);
 };
 
 } /* end namespace sim_comm */
