@@ -204,6 +204,11 @@ public:
      * Signals that we are finished.
      */
     virtual void sendFinishedSignal();
+    
+    /**
+     * Clean up function
+     */
+    virtual void cleanup() = 0;
 };
 
 } /* end namespace sim_comm */

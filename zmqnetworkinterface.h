@@ -121,7 +121,8 @@ public:
     /** @copydoc AbsNetworkInterface::getNextTimes()*/
     virtual uint64_t* getNextTimes(uint64_t nextTime,uint32_t &worldSize);
 
-    void cleanup();
+    /** @copydoc AbsNetworkInterface::cleanup()*/
+    virtual void cleanup();
 };
 
 

@@ -95,8 +95,7 @@ void ZmqNetworkInterface::init()
     }
     assert(0 == zmq_connect_sub_retval);
 
-    zmqx_register_handler(cleanup_handler, this->zmq_req, this->context, this);
-    zmqx_catch_signals();
+   
 
     /* send hello to broker */
     int ZERO = 0;
@@ -110,6 +109,10 @@ void ZmqNetworkInterface::init()
     /* get ack from broker */
     (void) i_recv(this->context);
     assert(this->context >= 0);
+    
+    zmqx_register_handler(cleanup_handler, this->zmq_req, this->context, this);
+    zmqx_catch_signals();
+    
 #if DEBUG
     CERR << this->ID << " context=" << this->context << endl;
 #endif

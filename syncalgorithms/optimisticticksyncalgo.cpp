@@ -39,17 +39,15 @@ namespace sim_comm{
 uint64_t* speculationTime;
 
 void handleTerm(int signum){
-  cout << "Received term!!" << endl;
+ 
   if(speculationTime!=nullptr)
     shmdt(speculationTime);
-  //Integrator::terminate();
-  exit(0);
+ 
 }
 
 OptimisticTickSyncAlgo::OptimisticTickSyncAlgo(AbsCommManager* interface, TIME specDifference,SpeculationTimeCalculationStrategy *strategy) : AbsSyncAlgorithm(interface)
 {
   
-  signal(SIGTERM,handleTerm); //gracefully kill sim!
   CallBack<bool,Message*,empty,empty> *syncAlgoCallBackSend=
     CreateObjCallback<OptimisticTickSyncAlgo*, bool (OptimisticTickSyncAlgo::*)(Message *),bool, Message*>(this,&OptimisticTickSyncAlgo::nodeSentMessage);
   CallBack<bool,Message*,empty,empty> *syncAlgoCallBackRev=
@@ -71,7 +69,8 @@ OptimisticTickSyncAlgo::OptimisticTickSyncAlgo(AbsCommManager* interface, TIME s
 
 OptimisticTickSyncAlgo::~OptimisticTickSyncAlgo()
 {
-
+ if(speculationTime!=nullptr)
+    shmdt(speculationTime);
 }
 
 bool OptimisticTickSyncAlgo::nodeReceivedMessage(Message* msg)
