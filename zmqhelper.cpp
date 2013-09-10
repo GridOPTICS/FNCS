@@ -14,16 +14,50 @@
 
 using namespace std;
 
-zmq_sigfunc s_zmq_sigfunc=NULL;
-void *s_zmq_sigfunc_arg=NULL;
-int s_interrupted=0;
+zmqx_sigfunc _zmqx_sigfunc=NULL;
+void *_zmqx_sigfunc_arg=NULL;
+int _zmqx_interrupted=0;
 
 
-int s_recv(void *socket, string &buf) {
+void zmqx_register_handler(zmqx_sigfunc function, void *object)
+{
+    _zmqx_sigfunc = function;
+    _zmqx_sigfunc_arg = object;
+}
+
+
+void zmqx_signal_handler (int signal_value)
+{
+    _zmqx_interrupted = 1;
+}
+
+
+void zmqx_catch_signals (void)
+{
+    struct sigaction action;
+    action.sa_handler = zmqx_signal_handler;
+    action.sa_flags = 0;
+    sigemptyset (&action.sa_mask);
+    sigaction (SIGINT, &action, NULL);
+    sigaction (SIGTERM, &action, NULL);
+}
+
+
+void zmqx_interrupt_check()
+{
+    if (_zmqx_interrupted) {
+        if (_zmqx_sigfunc) {
+            _zmqx_sigfunc(_zmqx_sigfunc_arg);
+        }
+    }
+}
+
+
+int zmqx_recv(void *socket, string &buf) {
     char buffer [256];
     int size = 0;
 
-    s_interrupt_check();
+    zmqx_interrupt_check();
     size = zmq_recv (socket, buffer, 255, 0);
     if (size >= 0) {
         if (size > 255) {
@@ -39,31 +73,31 @@ int s_recv(void *socket, string &buf) {
         assert(0);
     }
 
-    s_interrupt_check();
+    zmqx_interrupt_check();
     return size;
 }
 
 
-int s_recv(void *socket, uint8_t* &buf, uint32_t buf_size) {
+int zmqx_recv(void *socket, uint8_t* &buf, uint32_t buf_size) {
     int size;
 
-    s_interrupt_check();
+    zmqx_interrupt_check();
     buf = new uint8_t[buf_size];
     size = zmq_recv(socket, buf, buf_size, 0);
     assert((size >= 0 && size <= buf_size)
             || (size == -1 && errno == EINTR)
             );
 
-    s_interrupt_check();
+    zmqx_interrupt_check();
     return size;
 }
 
 
-int s_irecv(void *socket, string &buf) {
+int zmqx_irecv(void *socket, string &buf) {
     char buffer [256];
     int size = 0;
 
-    s_interrupt_check();
+    zmqx_interrupt_check();
     size = zmq_recv(socket, buffer, 255, ZMQ_DONTWAIT);
     if (size >= 0) {
         if (size > 255) {
@@ -80,99 +114,99 @@ int s_irecv(void *socket, string &buf) {
         assert(0);
     }
 
-    s_interrupt_check();
+    zmqx_interrupt_check();
     return size;
 }
 
 
-int s_send(void *socket, const string &s) {
+int zmqx_send(void *socket, const string &s) {
     int size;
 
-    s_interrupt_check();
+    zmqx_interrupt_check();
     size = zmq_send(socket, s.data(), s.size(), 0);
     assert(size == s.size()
             || (size == -1 && errno == EINTR)
             );
 
-    s_interrupt_check();
+    zmqx_interrupt_check();
     return size;
 }
 
 
-int s_send(void *socket, uint8_t *buf, uint32_t buf_size) {
+int zmqx_send(void *socket, uint8_t *buf, uint32_t buf_size) {
     int size;
 
-    s_interrupt_check();
+    zmqx_interrupt_check();
     size = zmq_send(socket, buf, buf_size, 0);
     assert((size >= 0 && size <= buf_size)
             || (size == -1 && errno == EINTR)
             );
 
-    s_interrupt_check();
+    zmqx_interrupt_check();
     return size;
 }
 
 
-int s_sendmore(void *socket, const string &s) {
+int zmqx_sendmore(void *socket, const string &s) {
     int size;
 
-    s_interrupt_check();
+    zmqx_interrupt_check();
     size = zmq_send(socket, s.data(), s.size(), ZMQ_SNDMORE);
     assert(size == s.size()
             || (size == -1 && errno == EINTR)
             );
 
-    s_interrupt_check();
+    zmqx_interrupt_check();
     return size;
 }
 
 
-int s_sendmore(void *socket, uint8_t *buf, uint32_t buf_size) {
+int zmqx_sendmore(void *socket, uint8_t *buf, uint32_t buf_size) {
     int size;
 
-    s_interrupt_check();
+    zmqx_interrupt_check();
     size = zmq_send(socket, buf, buf_size, ZMQ_SNDMORE);
     assert(size == buf_size
             || (size == -1 && errno == EINTR)
             );
 
-    s_interrupt_check();
+    zmqx_interrupt_check();
     return size;
 }
 
 
-int s_send(void *socket, int context, const string &command) {
+int zmqx_send(void *socket, int context, const string &command) {
     int totalSize = 0;
 
-    s_interrupt_check();
-    totalSize += s_sendmore(socket, context);
-    totalSize += s_send    (socket, command);
+    zmqx_interrupt_check();
+    totalSize += zmqx_sendmore(socket, context);
+    totalSize += zmqx_send    (socket, command);
 
-    s_interrupt_check();
+    zmqx_interrupt_check();
     return totalSize;
 }
 
 
-int s_sendmore(void *socket, int context, const string &command) {
+int zmqx_sendmore(void *socket, int context, const string &command) {
     int totalSize = 0;
 
-    s_interrupt_check();
-    totalSize += s_sendmore(socket, context);
-    totalSize += s_sendmore(socket, command);
+    zmqx_interrupt_check();
+    totalSize += zmqx_sendmore(socket, context);
+    totalSize += zmqx_sendmore(socket, command);
 
-    s_interrupt_check();
+    zmqx_interrupt_check();
     return totalSize;
 }
 
 
-unsigned long s_utime()
+unsigned long zmqx_utime()
 {
     struct timeval tv;
 
-    s_interrupt_check();
+    zmqx_interrupt_check();
     (void) gettimeofday(&tv, NULL);
 
-    s_interrupt_check();
+    zmqx_interrupt_check();
     return tv.tv_sec*1000000 + tv.tv_usec;
 }
 
@@ -180,7 +214,7 @@ unsigned long s_utime()
 #define randof(num)  (int) ((float) (num) * random () / (RAND_MAX + 1.0))
 string gen_id() {
     char identity [16];
-    srandom(s_utime());
+    srandom(zmqx_utime());
     sprintf (identity, "%05d-%04X-%04X", getpid(), randof (0x10000), randof (0x10000));
     return string(identity);
 }

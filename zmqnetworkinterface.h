@@ -143,7 +143,7 @@ int ZmqNetworkInterface::i_recv(T &buf)
         int rc = zmq_poll(items, 3, -1);
         assert(rc >= 0);
         if (items[0].revents & ZMQ_POLLIN) {
-            size = s_recv(this->zmq_req, buf);
+            size = zmqx_recv(this->zmq_req, buf);
 #if DEBUG
             CERR << "ZmqNetworkInterface:i_recv got '" << buf << "'" << endl;
 #endif

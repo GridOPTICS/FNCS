@@ -113,9 +113,6 @@ int main(int argc, char **argv)
     int retval;
     const int ONE = 1;
 
-    s_register_handler(graceful_death_handler, NULL);
-    s_catch_signals();
-
 #if DEBUG
 #   if DEBUG_TO_FILE
     ostringstream ferrName;
@@ -200,6 +197,9 @@ int main(int argc, char **argv)
         graceful_death(EXIT_FAILURE);
     }
 
+    zmqx_register_handler(graceful_death_handler, NULL);
+    zmqx_catch_signals();
+
     while (1) {
         string identity; // simulation identifier
         int context; // which group of sims?
@@ -210,18 +210,14 @@ int main(int argc, char **argv)
             { async_broker, 0, ZMQ_POLLIN, 0 },
         };
 
+        zmqx_interrupt_check();
         int rc = zmq_poll(items, 2, -1);
-        if (s_interrupted) {
-            graceful_death(EXIT_FAILURE);
-        }
-        else {
-            assert(rc >= 0);
-        }
+        zmqx_interrupt_check();
 
         if (items[0].revents & ZMQ_POLLIN) {
-            (void) s_recv(broker, identity);
-            (void) s_recv(broker, context);
-            (void) s_recv(broker, control);
+            (void) zmqx_recv(broker, identity);
+            (void) zmqx_recv(broker, context);
+            (void) zmqx_recv(broker, control);
 #if DEBUG
             CERR << "broker recv - identity '" << identity
                 << "' context '" << context
@@ -273,9 +269,9 @@ int main(int argc, char **argv)
             }
         }
         if (items[1].revents & ZMQ_POLLIN) {
-            (void) s_recv(async_broker, identity);
-            (void) s_recv(async_broker, context);
-            (void) s_recv(async_broker, control);
+            (void) zmqx_recv(async_broker, identity);
+            (void) zmqx_recv(async_broker, context);
+            (void) zmqx_recv(async_broker, control);
 #if DEBUG
             CERR << "async_broker recv - identity '" << identity
                 << "' context '" << context
@@ -345,7 +341,7 @@ static void graceful_death(int exit_code)
 
     /* send term message to all sims */
     if (killer) {
-        (void) s_send(killer, "DIE");
+        (void) zmqx_send(killer, "DIE");
     }
 
     /* clean up killer */
@@ -418,8 +414,8 @@ static void hello_handler(
         int contextID = add_context();
         for (set<string>::iterator it=newConnections.begin();
                 it != newConnections.end(); ++it) {
-            (void) s_sendmore(broker, *it);
-            (void) s_send(broker, contextID);
+            (void) zmqx_sendmore(broker, *it);
+            (void) zmqx_send(broker, contextID);
         }
         /* prep for next group of connections */
         newConnections.clear();
@@ -443,12 +439,12 @@ static void route_handler(
     uint32_t dataSize;
     Message *message;
 
-    envelopeSize = s_recv(async_broker, envelope, 256);
+    envelopeSize = zmqx_recv(async_broker, envelope, 256);
     message = new Message(envelope, envelopeSize);
     dataSize = message->getSize();
     if (dataSize > 0) {
         data = new uint8_t[dataSize];
-        (void) s_recv(async_broker, data, dataSize);
+        (void) zmqx_recv(async_broker, data, dataSize);
         message->setData(data, dataSize);
     }
 
@@ -459,14 +455,14 @@ static void route_handler(
     }
     string object_owner = obj_to_ID[context][message->getTo()];
 
-    (void) s_sendmore(async_broker, object_owner);
-    (void) s_sendmore(async_broker, "ROUTE");
+    (void) zmqx_sendmore(async_broker, object_owner);
+    (void) zmqx_sendmore(async_broker, "ROUTE");
     if (dataSize > 0) {
-        (void) s_sendmore(async_broker, envelope, envelopeSize);
-        (void) s_send    (async_broker, data, dataSize);
+        (void) zmqx_sendmore(async_broker, envelope, envelopeSize);
+        (void) zmqx_send    (async_broker, data, dataSize);
     }
     else {
-        (void) s_send    (async_broker, envelope, envelopeSize);
+        (void) zmqx_send    (async_broker, envelope, envelopeSize);
     }
 
     delete message;
@@ -489,7 +485,7 @@ static void delay_handler(
     uint32_t dataSize;
     Message *message;
 
-    envelopeSize = s_recv(async_broker, envelope, 256);
+    envelopeSize = zmqx_recv(async_broker, envelope, 256);
 #if DEBUG
     CERR << "envelopeSize=" << envelopeSize << endl;
 #endif
@@ -499,18 +495,18 @@ static void delay_handler(
 #endif
     dataSize = message->getSize();
     if (dataSize > 0) {
-        dataSize = s_recv(async_broker, data, dataSize);
+        dataSize = zmqx_recv(async_broker, data, dataSize);
         message->setData(data, dataSize);
     }
 
-    (void) s_sendmore(async_broker, netSimID[context]);
-    (void) s_sendmore(async_broker, "DELAY");
+    (void) zmqx_sendmore(async_broker, netSimID[context]);
+    (void) zmqx_sendmore(async_broker, "DELAY");
     if (dataSize > 0) {
-        (void) s_sendmore(async_broker, envelope, envelopeSize);
-        (void) s_send    (async_broker, data, dataSize);
+        (void) zmqx_sendmore(async_broker, envelope, envelopeSize);
+        (void) zmqx_send    (async_broker, data, dataSize);
     }
     else {
-        (void) s_send    (async_broker, envelope, envelopeSize);
+        (void) zmqx_send    (async_broker, envelope, envelopeSize);
     }
 
     delete message;
@@ -532,7 +528,7 @@ static void reduce_min_time_handler(
             << "' duplicate REDUCE_MIN_TIME" << endl;
         graceful_death(EXIT_FAILURE);
     }
-    (void) s_recv(broker, time);
+    (void) zmqx_recv(broker, time);
     reduce_min_time[context][identity] = time;
     reduce_min_time_checker(context);
 }
@@ -551,8 +547,8 @@ static void reduce_min_time_checker(
         /* send result to all sims */
         for (set<string>::iterator it=contexts[context].begin();
                 it != contexts[context].end(); ++it) {
-            (void) s_sendmore(broker, *it);
-            (void) s_send(broker, min.second);
+            (void) zmqx_sendmore(broker, *it);
+            (void) zmqx_send(broker, min.second);
         }
         /* clear the map in preparation for next round */
         reduce_min_time[context].clear();
@@ -575,7 +571,7 @@ void all_gather_handler(
             << "' is a netsim and cannot participate in get next times" << endl;
         graceful_death(EXIT_FAILURE);
     }
-    (void) s_recv(broker, nextTime);
+    (void) zmqx_recv(broker, nextTime);
     all_gather[context][identity]=nextTime;
     all_gather_checker(context);
 }
@@ -607,9 +603,9 @@ void all_gather_checker(const int& context)
 		times.push_back(it1->second);
 	    }
        
-            (void) s_sendmore(broker, *it);
-            (void) s_sendmore(broker, static_cast<uint32_t>(times.size()));
-            (void) s_send    (broker, reinterpret_cast<uint8_t*>(&times[0]), times.size()*sizeof(uint64_t));
+            (void) zmqx_sendmore(broker, *it);
+            (void) zmqx_sendmore(broker, static_cast<uint32_t>(times.size()));
+            (void) zmqx_send    (broker, reinterpret_cast<uint8_t*>(&times[0]), times.size()*sizeof(uint64_t));
 	    times.clear();
         }
         all_gather[context].clear();
@@ -632,8 +628,8 @@ static void reduce_send_recv_handler(
             << "' duplicate REDUCE_SEND_RECV" << endl;
         graceful_death(EXIT_FAILURE);
     }
-    (void) s_recv(broker, sent);
-    (void) s_recv(broker, recv);
+    (void) zmqx_recv(broker, sent);
+    (void) zmqx_recv(broker, recv);
     reduce_sent[context][identity] = sent;
     reduce_recv[context][identity] = recv;
     reduce_send_recv_checker(context);
@@ -664,9 +660,9 @@ static void reduce_send_recv_checker(
         /* send result to all sims */
         for (set<string>::iterator it=contexts[context].begin();
                 it != contexts[context].end(); ++it) {
-            (void) s_sendmore(broker, *it);
-            (void) s_sendmore(broker, m_sent);
-            (void) s_send    (broker, m_recv);
+            (void) zmqx_sendmore(broker, *it);
+            (void) zmqx_sendmore(broker, m_sent);
+            (void) zmqx_send    (broker, m_recv);
         }
         /* clear the map in preparation for next round */
         reduce_sent[context].clear();
@@ -681,7 +677,7 @@ static void register_handler(
         const string &control)
 {
     string name;
-    (void) s_recv(broker, name);
+    (void) zmqx_recv(broker, name);
     /* don't register net sim objects, but keep track of how many */
     if (identity == netSimID[context]) {
         netSimObjCount[context]++;
@@ -708,11 +704,11 @@ static void finalize_handler(
     else if (finalized[context].size() == world_sizes[context]) {
         for (set<string>::iterator it=finalized[context].begin();
                 it != finalized[context].end(); ++it) {
-            (void) s_sendmore(broker, *it);
+            (void) zmqx_sendmore(broker, *it);
             /* some objects aren't network enabled, so we send back only the
              * number of network registered objects */
-            /*(void) s_send    (broker, obj_to_ID[context].size());*/
-            (void) s_send    (broker, netSimObjCount[context]);
+            /*(void) zmqx_send    (broker, obj_to_ID[context].size());*/
+            (void) zmqx_send    (broker, netSimObjCount[context]);
         }
     }
 }
@@ -744,8 +740,8 @@ static void barrier_checker(
             && world_sizes[context] > 1) {
         for (set<string>::iterator it=barrier[context].begin();
                 it != barrier[context].end(); ++it) {
-            (void) s_sendmore(broker, *it);
-            (void) s_send    (broker, "ACK");
+            (void) zmqx_sendmore(broker, *it);
+            (void) zmqx_send    (broker, "ACK");
         }
         barrier[context].clear();
     }
@@ -784,8 +780,8 @@ static void sleep_handler(
         assert(world_sizes[context] == 1);
         for (set<string>::iterator it=asleep[context].begin();
                 it != asleep[context].end(); ++it) {
-            (void) s_sendmore(broker, *it);
-            (void) s_send    (broker, "ACK");
+            (void) zmqx_sendmore(broker, *it);
+            (void) zmqx_send    (broker, "ACK");
             contexts[context].insert(*it);
         }
         asleep[context].clear();
@@ -815,7 +811,7 @@ static bool finished_handler(
     else if (finished[context].size() == world_size) {
         return true;
     }
-    (void) s_send(killer, "FINISHED");
+    (void) zmqx_send(killer, "FINISHED");
 
     return false;
 }

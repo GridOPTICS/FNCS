@@ -37,8 +37,8 @@ void ZmqNetworkInterface::init()
     CERR << "ZmqNetworkInterface::init()" << endl;
 #endif
 
-    s_register_handler(cleanup_handler, this);
-    s_catch_signals();
+    zmqx_register_handler(cleanup_handler, this);
+    zmqx_catch_signals();
 
     this->ID = gen_id();
 #if DEBUG
@@ -101,10 +101,10 @@ void ZmqNetworkInterface::init()
     /* send hello to broker */
     int ZERO = 0;
     if (this->iAmNetSim) {
-        (void) s_send(this->zmq_req, ZERO, "HELLO_NETSIM");
+        (void) zmqx_send(this->zmq_req, ZERO, "HELLO_NETSIM");
     }
     else {
-        (void) s_send(this->zmq_req, ZERO, "HELLO");
+        (void) zmqx_send(this->zmq_req, ZERO, "HELLO");
     }
 
     /* get ack from broker */
@@ -146,10 +146,10 @@ ZmqNetworkInterface::ZmqNetworkInterface(const ZmqNetworkInterface &that)
 
     for (vector<string>::const_iterator it=myObjects.begin();
             it!=myObjects.end(); ++it) {
-        (void) s_send(this->zmq_req, this->context, "REGISTER_OBJECT", *it);
+        (void) zmqx_send(this->zmq_req, this->context, "REGISTER_OBJECT", *it);
     }
 
-    (void) s_send(this->zmq_req, this->context, "FINALIZE_REGISTRATIONS");
+    (void) zmqx_send(this->zmq_req, this->context, "FINALIZE_REGISTRATIONS");
     (void) i_recv(globalObjectCountAgain);
 
     assert(globalObjectCountAgain == this->globalObjectCount);
@@ -181,20 +181,20 @@ void ZmqNetworkInterface::send(Message *message)
     CERR << "envelopeSize=" << envelopeSize << endl;
 #endif
     if (iAmNetSim) {
-        (void) s_sendmore(this->zmq_async, this->context, "ROUTE");
+        (void) zmqx_sendmore(this->zmq_async, this->context, "ROUTE");
     }
     else if (message->getDelayThroughComm()) {
-        (void) s_sendmore(this->zmq_async, this->context, "DELAY");
+        (void) zmqx_sendmore(this->zmq_async, this->context, "DELAY");
     }
     else {
-        (void) s_sendmore(this->zmq_async, this->context, "ROUTE");
+        (void) zmqx_sendmore(this->zmq_async, this->context, "ROUTE");
     }
     if (dataSize > 0) {
-        (void) s_sendmore(this->zmq_async, envelope, envelopeSize);
-        (void) s_send    (this->zmq_async, const_cast<uint8_t*>(data), dataSize);
+        (void) zmqx_sendmore(this->zmq_async, envelope, envelopeSize);
+        (void) zmqx_send    (this->zmq_async, const_cast<uint8_t*>(data), dataSize);
     }
     else {
-        (void) s_send    (this->zmq_async, envelope, envelopeSize);
+        (void) zmqx_send    (this->zmq_async, envelope, envelopeSize);
     }
 
     delete [] envelope;
@@ -263,8 +263,8 @@ uint64_t ZmqNetworkInterface::reduceMinTime(uint64_t myTime)
 #endif
     makeProgress();
 
-    (void) s_sendmore(this->zmq_req, this->context, "REDUCE_MIN_TIME");
-    (void) s_send(this->zmq_req, _myTime);
+    (void) zmqx_sendmore(this->zmq_req, this->context, "REDUCE_MIN_TIME");
+    (void) zmqx_send(this->zmq_req, _myTime);
     (void) i_recv(retval);
 
 #if DEBUG
@@ -282,13 +282,13 @@ uint64_t* ZmqNetworkInterface::getNextTimes(uint64_t nextTime,uint32_t &worldSiz
 #endif
 	makeProgress();
 	
-    (void) s_sendmore(this->zmq_req, this->context, "ALL_GATHER_NEXT_TIME");
-    (void) s_send(this->zmq_req, nextTime);
+    (void) zmqx_sendmore(this->zmq_req, this->context, "ALL_GATHER_NEXT_TIME");
+    (void) zmqx_send(this->zmq_req, nextTime);
     (void) i_recv(worldSize);
     assert(worldSize < 1000);
     //uint64_t* toReturn=new uint64_t[worldSize];
     uint8_t *buff;
-    s_recv(this->zmq_req,buff,sizeof(uint64_t)*worldSize);
+    zmqx_recv(this->zmq_req,buff,sizeof(uint64_t)*worldSize);
     return reinterpret_cast<uint64_t*>(buff);
     
 }
@@ -305,9 +305,9 @@ uint64_t ZmqNetworkInterface::reduceTotalSendReceive(
 #endif
     makeProgress();
 
-    (void) s_sendmore(this->zmq_req, this->context, "REDUCE_SEND_RECV");
-    (void) s_sendmore(this->zmq_req, sent);
-    (void) s_send    (this->zmq_req, received);
+    (void) zmqx_sendmore(this->zmq_req, this->context, "REDUCE_SEND_RECV");
+    (void) zmqx_sendmore(this->zmq_req, sent);
+    (void) zmqx_send    (this->zmq_req, received);
     (void) i_recv(m_sent);
     (void) i_recv(m_recv);
 
@@ -318,7 +318,7 @@ uint64_t ZmqNetworkInterface::reduceTotalSendReceive(
 
     if (m_sent < m_recv) {
 	//cout << "FAILING!!!!!!!!" << endl;
-        (void) s_send(this->zmq_req, this->context, "DIE");
+        (void) zmqx_send(this->zmq_req, this->context, "DIE");
     }
 
     return static_cast<uint64_t>(m_sent - m_recv);
@@ -332,7 +332,7 @@ void ZmqNetworkInterface::registerObject(string name)
 #endif
     AbsNetworkInterface::registerObject(name);
 
-    (void) s_send(this->zmq_req, this->context, "REGISTER_OBJECT", name);
+    (void) zmqx_send(this->zmq_req, this->context, "REGISTER_OBJECT", name);
 }
 
 
@@ -343,7 +343,7 @@ void ZmqNetworkInterface::finalizeRegistrations()
 #endif
     AbsNetworkInterface::finalizeRegistrations();
 
-    (void) s_send(this->zmq_req, this->context, "FINALIZE_REGISTRATIONS");
+    (void) zmqx_send(this->zmq_req, this->context, "FINALIZE_REGISTRATIONS");
     (void) i_recv(this->globalObjectCount);
 }
 
@@ -356,7 +356,7 @@ void ZmqNetworkInterface::barier()
     CERR << "ZmqNetworkInterface::barier()" << endl;
 #endif
 
-    (void) s_send(this->zmq_req, this->context, "BARRIER");
+    (void) zmqx_send(this->zmq_req, this->context, "BARRIER");
     (void) i_recv(ack);
     assert(ack == "ACK");
 }
@@ -370,8 +370,8 @@ bool ZmqNetworkInterface::sleep()
     CERR << "ZmqNetworkInterface::sleep()" << endl;
 #endif
 
-    (void) s_send(this->zmq_req, this->context, "SLEEP");
-    (void) s_recv(this->zmq_req, ack);
+    (void) zmqx_send(this->zmq_req, this->context, "SLEEP");
+    (void) zmqx_recv(this->zmq_req, ack);
     //assert(ack == "ACK");
     if(ack != "ACK"){
       string msg("Message is not ack ");
@@ -409,14 +409,14 @@ void ZmqNetworkInterface::processAsyncMessage()
     uint32_t dataSize;
     Message *message;
 
-    (void) s_recv(this->zmq_async, control);
+    (void) zmqx_recv(this->zmq_async, control);
     if (iAmNetSim) {
         if ("DELAY" != control) {
 #if DEBUG
             CERR << "net sim invalid control message '"
                 << control << "'" << endl;
 #endif
-            (void) s_send(this->zmq_req, this->context, "DIE");
+            (void) zmqx_send(this->zmq_req, this->context, "DIE");
         }
     }
     else {
@@ -425,15 +425,15 @@ void ZmqNetworkInterface::processAsyncMessage()
             CERR << "gen sim invalid control message '"
                 << control << "'" << endl;
 #endif
-		(void) s_send(this->zmq_req, this->context, "DIE");
+		(void) zmqx_send(this->zmq_req, this->context, "DIE");
         }
     }
-    envelopeSize = s_recv(this->zmq_async, envelope, 256);
+    envelopeSize = zmqx_recv(this->zmq_async, envelope, 256);
     message = new Message(envelope,envelopeSize);
     dataSize = message->getSize();
     if (dataSize > 0) {
         data = new uint8_t[dataSize];
-        (void) s_recv(this->zmq_async, data, dataSize);
+        (void) zmqx_recv(this->zmq_async, data, dataSize);
         message->setData(data,dataSize);
     }
 
@@ -452,7 +452,7 @@ void ZmqNetworkInterface::processSubMessage()
 {
     string control;
 
-    (void) s_recv(this->zmq_die, control);
+    (void) zmqx_recv(this->zmq_die, control);
     if ("DIE" == control) {
 #if DEBUG
         CERR << "DIE received from SUB" << endl;
@@ -466,7 +466,7 @@ void ZmqNetworkInterface::processSubMessage()
         CERR << "FINISHED received from SUB" << endl;
 #endif
         /* an application terminated cleanly, so do we */
-        (void) s_send(this->zmq_req, this->context, "FINISHED");
+        (void) zmqx_send(this->zmq_req, this->context, "FINISHED");
         cleanup();
         exit(EXIT_SUCCESS);
     }
@@ -474,7 +474,7 @@ void ZmqNetworkInterface::processSubMessage()
 #if DEBUG
         CERR << "'" << control << "' received from SUB" << endl;
 #endif
-	(void) s_send(this->zmq_req, "DIE");
+	(void) zmqx_send(this->zmq_req, "DIE");
         cleanup();
         exit(EXIT_FAILURE);
     }
@@ -519,7 +519,7 @@ void ZmqNetworkInterface::makeProgress()
 
 void ZmqNetworkInterface::sendFinishedSignal()
 {
-    (void) s_send(this->zmq_req, this->context, "FINISHED");
+    (void) zmqx_send(this->zmq_req, this->context, "FINISHED");
 }
 
 
