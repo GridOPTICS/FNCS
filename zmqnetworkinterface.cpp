@@ -98,12 +98,14 @@ void ZmqNetworkInterface::init()
    
 
     /* send hello to broker */
+    /* send parent context as part of hello when this ::init() is called as
+     * part of copy constructor */
     int ZERO = 0;
     if (this->iAmNetSim) {
-        (void) zmqx_send(this->zmq_req, ZERO, "HELLO_NETSIM");
+        (void) zmqx_send(this->zmq_req, ZERO, "HELLO_NETSIM", this->context);
     }
     else {
-        (void) zmqx_send(this->zmq_req, ZERO, "HELLO");
+        (void) zmqx_send(this->zmq_req, ZERO, "HELLO", this->context);
     }
 
     /* get ack from broker */
@@ -125,6 +127,7 @@ ZmqNetworkInterface::ZmqNetworkInterface(bool iAmNetSim)
     ,   zmq_req(NULL)
     ,   zmq_async(NULL)
     ,   ID()
+    ,   context(-1)
     ,   iAmNetSim(iAmNetSim)
     ,   receivedMessages()
     ,   globalObjectCount(0)
@@ -138,6 +141,7 @@ ZmqNetworkInterface::ZmqNetworkInterface(const ZmqNetworkInterface &that)
     ,   zmq_ctx(NULL)
     ,   zmq_req(NULL)
     ,   zmq_async(NULL)
+    ,   context(that.context)
     ,   ID()
     ,   iAmNetSim(that.iAmNetSim)
     ,   receivedMessages()
@@ -472,6 +476,21 @@ void ZmqNetworkInterface::processSubMessage()
         (void) zmqx_send(this->zmq_req, this->context, "FINISHED");
         cleanup();
         exit(EXIT_SUCCESS);
+    }
+    else if ("DIE_CHILD" == control) {
+        /* if I'm child, I die */
+        bool IAmChild = true; /* FIXME */
+        if (IAmChild) {
+            unsigned long time = 0; /* FIXME */
+            (void) zmqx_send(this->zmq_req, this->context, "REDUCE_FAIL_TIME", time);
+            cleanup();
+            exit(EXIT_FAILURE);
+        }
+    }
+    else if ("SPECULATION_FAILED" == control) {
+        unsigned long time;
+        (void) zmqx_recv(this->zmq_die, time);
+        /* FIXME: do something with time */
     }
     else {
 #if DEBUG

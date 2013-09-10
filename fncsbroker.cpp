@@ -57,13 +57,17 @@ vector<ReduceMap> reduce_min_time;
 vector<AllGatherMap> all_gather;
 vector<ReduceMap> reduce_sent;
 vector<ReduceMap> reduce_recv;
+vector<ReduceMap> reduce_fail_time;
 string newNetSimID;
 set<string> newConnections;
+set<int> newParents;
 vector<set<string> > contexts;
+vector<set<int> > parent_contexts;
 vector<set<string> > finalized;
 vector<set<string> > barrier;
 vector<set<string> > asleep;
 vector<set<string> > finished;
+vector<char> valid_contexts;
 vector<string> netSimID;
 vector<uint64_t> netSimObjCount;
 void *zmq_ctx = NULL;
@@ -94,11 +98,14 @@ static void register_handler(const string &identity, const int &context, const s
 static void finalize_handler(const string &identity, const int &context, const string &control);
 static void barrier_handler(const string &identity, const int &context, const string &control);
 static void sleep_handler(const string &identity, const int &context, const string &control);
+static void speculation_failed_handler(const string &identity, const int &context, const string &control);
+static void reduce_fail_time_handler(const string &identity, const int &context, const string &control);
 static bool finished_handler(const string &identity, const int &context, const string &control);
 static void barrier_checker(const int &context);
 static void reduce_min_time_checker(const int &context);
 static void reduce_send_recv_checker(const int &context);
 static void all_gather_checker(const int &context);
+static void reduce_fail_time_checker(const int &context);
 
 
 static void graceful_death_handler(void *arg)
@@ -235,12 +242,15 @@ int main(int argc, char **argv)
             else if ("REDUCE_MIN_TIME" == control) {
                 reduce_min_time_handler(identity, context, control);
             }
+            else if ("REDUCE_FAIL_TIME" == control) {
+                reduce_fail_time_handler(identity, context, control);
+            }
             else if ("REDUCE_SEND_RECV" == control) {
                 reduce_send_recv_handler(identity, context, control);
             }
             else if("ALL_GATHER_NEXT_TIME" == control){
-		all_gather_handler(identity, context, control);
-	    }
+                all_gather_handler(identity, context, control);
+            }
             else if ("REGISTER_OBJECT" == control) {
                 register_handler(identity, context, control);
             }
@@ -252,6 +262,9 @@ int main(int argc, char **argv)
             }
             else if ("SLEEP" == control) {
                 sleep_handler(identity, context, control);
+            }
+            else if ("SPECULATION_FAILED" == control) {
+                speculation_failed_handler(identity, context, control);
             }
             else if ("DIE" == control) {
                 /* a simulation wants to terminate abrubtly */
@@ -312,13 +325,16 @@ static int add_context()
     netSimID.push_back(newNetSimID);
     netSimObjCount.push_back(0);
     contexts.push_back(newConnections);
+    parent_contexts.push_back(newParents);
     world_sizes.push_back(world_size);
+    valid_contexts.push_back(true);
     size = contexts.size();
 
     obj_to_ID.resize(size);
     reduce_min_time.resize(size);
     reduce_sent.resize(size);
     reduce_recv.resize(size);
+    reduce_fail_time.resize(size);
     all_gather.resize(size);
     finalized.resize(size);
     barrier.resize(size);
@@ -397,7 +413,17 @@ static void hello_handler(
         const int &context,
         const string &control)
 {
+    int parent;
+
+
+    (void) zmqx_recv(broker, parent);
     newConnections.insert(identity);
+    newParents.insert(parent);
+#if DEBUG
+    CERR << "hello handler identity '" << identity
+        << "' parent '" << parent
+        << "'" << endl;
+#endif
     if ("HELLO_NETSIM" == control) {
         if (newNetSimID.empty()) {
             newNetSimID = identity;
@@ -417,8 +443,12 @@ static void hello_handler(
             (void) zmqx_sendmore(broker, *it);
             (void) zmqx_send(broker, contextID);
         }
+        /* sanity check -- all children should have same parent context ID */
+        assert(newParents.size() == 1);
+
         /* prep for next group of connections */
         newConnections.clear();
+        newParents.clear();
         newNetSimID.clear();
     }
 }
@@ -584,32 +614,32 @@ void all_gather_checker(const int& context)
     }
     else if (all_gather[context].size() == world_sizes[context]-1) {
         uint32_t buf_size = sizeof(uint64_t)*(world_sizes[context]-1);
-       
+
         vector<uint64_t> times;
         AllGatherMap::const_iterator it1;
-        
-	for (set<string>::iterator it=contexts[context].begin();
+
+        for (set<string>::iterator it=contexts[context].begin();
                 it != contexts[context].end(); ++it) {
-	    if(*it == netSimID[context])
-	      continue;
-	    for(it1=all_gather[context].begin();
-                it1!=all_gather[context].end();
-                ++it1){
-		if(it1->first == netSimID[context]) //do not include network simulator next time
-		  continue;
-		if(*it == it1->first){ //do not include my next time
-		  continue;
-		}
-		times.push_back(it1->second);
-	    }
-       
+            if(*it == netSimID[context])
+                continue;
+            for(it1=all_gather[context].begin();
+                    it1!=all_gather[context].end();
+                    ++it1){
+                if(it1->first == netSimID[context]) //do not include network simulator next time
+                    continue;
+                if(*it == it1->first){ //do not include my next time
+                    continue;
+                }
+                times.push_back(it1->second);
+            }
+
             (void) zmqx_sendmore(broker, *it);
             (void) zmqx_sendmore(broker, static_cast<uint32_t>(times.size()));
             (void) zmqx_send    (broker, reinterpret_cast<uint8_t*>(&times[0]), times.size()*sizeof(uint64_t));
-	    times.clear();
+            times.clear();
         }
         all_gather[context].clear();
-  
+
     }
 }
 
@@ -789,6 +819,51 @@ static void sleep_handler(
     }
 }
 
+
+static void speculation_failed_handler(
+        const string &identity,
+        const int &context,
+        const string &control)
+{
+    (void) zmqx_send(killer, "DIE_CHILD");
+}
+
+
+static void reduce_fail_time_handler(
+        const string &identity,
+        const int &context,
+        const string &control)
+{
+    unsigned long time;
+    if (1 == reduce_fail_time[context].count(identity)) {
+        cerr << "sim with ID '" << identity
+            << "' duplicate REDUCE_FAIL_TIME" << endl;
+        graceful_death(EXIT_FAILURE);
+    }
+    (void) zmqx_recv(broker, time);
+    reduce_fail_time[context][identity] = time;
+    reduce_fail_time_checker(context);
+}
+
+static void reduce_fail_time_checker(
+        const int &context)
+{
+    if (reduce_fail_time[context].size() > world_sizes[context]) {
+        cerr << "reduce_fail_time size > world size" << endl;
+        graceful_death(EXIT_FAILURE);
+    }
+    else if (reduce_fail_time[context].size() == world_sizes[context]) {
+        ReducePair min = *min_element(reduce_fail_time[context].begin(),
+                reduce_fail_time[context].end(), ReduceMinPairLess());
+        /* mark context as invalid */
+        valid_contexts[context] = false;
+        /* send result to all sims' parents */
+        (void) zmqx_send(killer, "SPECULATION_FAILED");
+        (void) zmqx_send(killer, min.second);
+        /* clear the map in preparation for next round */
+        reduce_fail_time[context].clear();
+    }
+}
 
 static bool finished_handler(
         const string &identity,

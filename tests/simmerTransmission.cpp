@@ -31,6 +31,7 @@ int main(int argc,char* argv[]){
   int ierr = 0;
   int comm_rank = 0;
   int comm_size = 0;
+  ostringstream ost;
 
   currentTime=2000000000;
   ZmqNetworkInterface *comm=new ZmqNetworkInterface(false);
@@ -45,7 +46,8 @@ int main(int argc,char* argv[]){
   //Integrator::initIntegratorConservativeSleepingTick(comm,MILLISECONDS,2000000000,currentTime,others,1);
   Integrator::setTimeCallBack(cb);
   
-  ObjectCommInterface* myInterface=Integrator::getCommInterface(string("1"));
+  ost << getpid();
+  ObjectCommInterface* myInterface=Integrator::getCommInterface(ost.str());
   
   Integrator::finalizeRegistrations();
   
