@@ -80,13 +80,16 @@ protected:
     vector<string> myObjects;
     bool registrationsAreFinalized;
     CallBack<void,Message*,empty,empty> *messageCallBack;
-    bool isChild;
 public:
     /**
      * Constructs.
      */
     AbsNetworkInterface();
 
+    /**
+     * Child classes should provide a copy constructor
+     * for creating a new context (from the existing context)
+     */
     AbsNetworkInterface(const AbsNetworkInterface &that);
     /**
      * Destroys.
@@ -211,9 +214,16 @@ public:
     virtual void cleanup() = 0;
     
     /**
-     * Sets up the child parent status of this fenix instance.
+     * Send notification to other processes in the
+     * context, the failed signal.
      */
-    void setChildStatus(bool childStatus);
+    virtual void sendFailed() =0;
+    
+    /**
+     * Send notification to other processes in the context
+     * a succeed signal.
+     */
+    virtual void sendSuceed() =0;
 };
 
 } /* end namespace sim_comm */

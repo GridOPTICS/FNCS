@@ -479,18 +479,25 @@ void ZmqNetworkInterface::processSubMessage()
     }
     else if ("DIE_CHILD" == control) {
         /* if I'm child, I die */
-        bool IAmChild = true; /* FIXME */
+        bool IAmChild = Integrator::isChild();
         if (IAmChild) {
-            unsigned long time = 0; /* FIXME */
+            unsigned long time = Integrator::getCurSimTime();
             (void) zmqx_send(this->zmq_req, this->context, "REDUCE_FAIL_TIME", time);
             cleanup();
-            exit(EXIT_FAILURE);
-        }
+            exit(EXIT_SUCCESS);
+        } 
     }
-    else if ("SPECULATION_FAILED" == control) {
+    else if ("CHILD_DIED" == control) {
         unsigned long time;
         (void) zmqx_recv(this->zmq_die, time);
-        /* FIXME: do something with time */
+        Integrator::childDied(time);
+    }
+    else if("DIE_PARENT" == control){
+      bool IAmParent = !Integrator::isChild();
+      if(IAmParent){
+	cleanup();
+	exit(EXIT_SUCCESS);
+      }
     }
     else {
 #if DEBUG
@@ -537,6 +544,17 @@ void ZmqNetworkInterface::makeProgress()
         }
     }
 }
+
+void ZmqNetworkInterface::sendFailed()
+{
+
+}
+
+void ZmqNetworkInterface::sendSuceed()
+{
+
+}
+
 
 
 void ZmqNetworkInterface::sendFinishedSignal()

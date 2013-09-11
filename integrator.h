@@ -293,6 +293,17 @@ public:
     static void terminate();
     
     /**
+     * Returns true only if the curreny synchronization
+     * algorithm has forked a new child process.
+     */
+    static bool isChild();
+    
+    /**
+     * Used by network interface to notify
+     * Sync algorithms about the death of a child process; so sad!
+     */
+    static void childDied(TIME dieTime);
+    /**
      * TODO
      */
     ~Integrator();

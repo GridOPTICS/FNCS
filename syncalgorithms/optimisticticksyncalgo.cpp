@@ -45,6 +45,13 @@ void handleTerm(int signum){
  
 }
 
+void OptimisticTickSyncAlgo::childDied(TIME dieTime)
+{
+  wait(NULL);
+  this->specFailTime=dieTime;
+}
+
+
 OptimisticTickSyncAlgo::OptimisticTickSyncAlgo(AbsCommManager* interface, TIME specDifference,SpeculationTimeCalculationStrategy *strategy) : AbsSyncAlgorithm(interface)
 {
   

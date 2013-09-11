@@ -123,6 +123,12 @@ public:
 
     /** @copydoc AbsNetworkInterface::cleanup()*/
     virtual void cleanup();
+    
+    /** @copydoc AbsNetworkInterface::sendFailed()*/
+    virtual void sendFailed();
+    
+    /** @copydoc AbsNetworkInterface::sendSuceed()*/
+    virtual void sendSuceed();
 };
 
 

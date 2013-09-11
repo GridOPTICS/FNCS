@@ -54,6 +54,7 @@ using namespace sim_comm;
 AbsNetworkInterface::AbsNetworkInterface()
     :   myObjects()
     ,   registrationsAreFinalized(false)
+  
 {
 #if DEBUG && DEBUG_TO_FILE
     ostringstream ferrName;
@@ -75,6 +76,7 @@ AbsNetworkInterface::AbsNetworkInterface(const AbsNetworkInterface& that)
   this->myObjects=that.myObjects;
   this->messageCallBack=that.messageCallBack;
   this->registrationsAreFinalized=that.registrationsAreFinalized;
+ 
 }
 
 
@@ -118,9 +120,5 @@ void AbsNetworkInterface::sendFinishedSignal()
 {
 }
 
-void AbsNetworkInterface::setChildStatus(bool childStatus)
-{
-  this->isChild=childStatus;
-}
 
 

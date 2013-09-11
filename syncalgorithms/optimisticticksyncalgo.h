@@ -117,6 +117,10 @@ namespace sim_comm{
       virtual bool doDispatchNextEvent(TIME currentTime, TIME nextTime);
       /** @copydoc AbsSyncAlgorithm::timeStepStart(TIME currentTime) */
       virtual void timeStepStart(TIME currentTime);
+      /** @copydoc AbsSyncAlgorithm::forkedNewChild() */
+      virtual bool forkedNewChild(){return this->isChild;}
+      /** @copydoc AbsSyncAlgorithm::childDied(TIME dieTime) */
+      virtual void childDied(TIME dieTime);
   };
 
 }

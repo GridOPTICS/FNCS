@@ -65,6 +65,7 @@ vector<set<string> > contexts;
 vector<set<int> > parent_contexts;
 vector<set<string> > finalized;
 vector<set<string> > barrier;
+vector<set<string> > succed;
 vector<set<string> > asleep;
 vector<set<string> > finished;
 vector<char> valid_contexts;
@@ -97,8 +98,9 @@ static void all_gather_handler(const string &identity,const int &context, const 
 static void register_handler(const string &identity, const int &context, const string &control);
 static void finalize_handler(const string &identity, const int &context, const string &control);
 static void barrier_handler(const string &identity, const int &context, const string &control);
+static void succeed_handler(const string &identity, const int &context, const string &control);
 static void sleep_handler(const string &identity, const int &context, const string &control);
-static void speculation_failed_handler(const string &identity, const int &context, const string &control);
+static void child_failed_handler(const string &identity, const int &context, const string &control);
 static void reduce_fail_time_handler(const string &identity, const int &context, const string &control);
 static bool finished_handler(const string &identity, const int &context, const string &control);
 static void barrier_checker(const int &context);
@@ -106,7 +108,7 @@ static void reduce_min_time_checker(const int &context);
 static void reduce_send_recv_checker(const int &context);
 static void all_gather_checker(const int &context);
 static void reduce_fail_time_checker(const int &context);
-
+static void succeed_checker(const int &context);
 
 static void graceful_death_handler(void *arg)
 {
@@ -263,8 +265,8 @@ int main(int argc, char **argv)
             else if ("SLEEP" == control) {
                 sleep_handler(identity, context, control);
             }
-            else if ("SPECULATION_FAILED" == control) {
-                speculation_failed_handler(identity, context, control);
+            else if ("CHILD_FAILED" == control) {
+                child_failed_handler(identity, context, control);
             }
             else if ("DIE" == control) {
                 /* a simulation wants to terminate abrubtly */
@@ -338,6 +340,7 @@ static int add_context()
     all_gather.resize(size);
     finalized.resize(size);
     barrier.resize(size);
+    succed.resize(size);
     asleep.resize(size);
     finished.resize(size);
 
@@ -743,6 +746,34 @@ static void finalize_handler(
     }
 }
 
+static void succeed_handler(
+		     const string& identity, 
+		     const int& context, 
+		     const string& control)
+{
+  if (1 == succed[context].count(identity)) {
+        cerr << "succed already initialized for sim '"
+            << identity << "'" << endl;
+        graceful_death(EXIT_FAILURE);
+    }
+    succed[context].insert(identity);
+    succeed_checker(context);
+}
+
+static void succeed_checker(
+        const int &context)
+{
+    if (succed[context].size() > world_sizes[context]) {
+        cerr << "succed size > world size" << endl;
+        graceful_death(EXIT_FAILURE);
+    }
+    else if (succed[context].size() == world_sizes[context]
+	  && world_sizes[context] > 1){
+      succed[context].clear();
+      (void) zmqx_send(killer, "DIE_PARENT");
+      //TODO: MARK PARENT CONTEXT INVALID
+    }
+}
 
 static void barrier_handler(
         const string &identity,
@@ -820,7 +851,7 @@ static void sleep_handler(
 }
 
 
-static void speculation_failed_handler(
+static void child_failed_handler(
         const string &identity,
         const int &context,
         const string &control)
@@ -858,7 +889,7 @@ static void reduce_fail_time_checker(
         /* mark context as invalid */
         valid_contexts[context] = false;
         /* send result to all sims' parents */
-        (void) zmqx_send(killer, "SPECULATION_FAILED");
+        (void) zmqx_send(killer, "CHILD_DIED");
         (void) zmqx_send(killer, min.second);
         /* clear the map in preparation for next round */
         reduce_fail_time[context].clear();

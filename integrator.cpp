@@ -385,6 +385,16 @@ TIME Integrator::getAdjustedOffset()
   return convertToMyTime(instance->simTimeMetric,instance->offset);
 }
 
+bool Integrator::isChild()
+{
+  return instance->syncAlgo->forkedNewChild();
+}
+
+void Integrator::childDied(TIME dieTime)
+{
+
+  instance->syncAlgo->childDied(dieTime);
+}
 
 
 

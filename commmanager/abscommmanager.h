@@ -236,10 +236,6 @@ namespace sim_comm{
      */
     virtual TIME* getNextTimes(TIME nextTime,uint32_t &size);
     
-    /**
-     * Forward set child status to network interface.
-     */
-    void setChildStatus(bool childStatus);
   };
 
 }

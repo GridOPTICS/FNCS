@@ -247,10 +247,6 @@ namespace sim_comm{
       return this->currentInterface->getNextTimes(nextTime,size);
   }
   
-  void AbsCommManager::setChildStatus(bool childStatus)
-  {
-      this->currentInterface->setChildStatus(childStatus);
-  }
 
 
 }

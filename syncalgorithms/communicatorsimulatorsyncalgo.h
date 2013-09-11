@@ -37,6 +37,16 @@ namespace sim_comm {
 			virtual TIME GetNextTime(TIME currentTime,TIME nextTime);
 			/** @copydoc AbsSyncAlgorithm::doDispatchNextEvent(TIME currentTime, TIME nextTime) */
 			virtual bool doDispatchNextEvent(TIME currentTime,TIME nextTime);
+			/**
+			 * Always returns false as this algorithm never forks.
+			 */
+			virtual bool forkedNewChild(){ return false;}
+			/**
+			 * Operation not supported by this algorithm
+			 */
+			virtual void childDied(TIME dieTime){
+			  throw SyncStateException("Operation not supported");
+			}
 	};
 
 } /* namespace sim_comm */

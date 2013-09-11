@@ -126,6 +126,18 @@ namespace sim_comm
 	 */
 	virtual void timeStepStart(TIME currentTime);
 
+	/**
+	 * Returns true if the synchronization
+	 * algorithm and has forked a new child!
+	 */
+	virtual bool forkedNewChild() =0;
+	
+	/**
+	 * Used to notify the sync algorithm
+	 * when its child process dies.
+	 */
+	virtual void childDied(TIME dieTime) =0;
+	
   };
   
 }
