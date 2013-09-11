@@ -180,26 +180,6 @@ void Integrator::initIntegratorGracePeriod(
     instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
 }
 
-void Integrator::initIntegratorSpeculative(
-        AbsNetworkInterface *currentInterface,
-        time_metric simTimeStep,
-	TIME packetLostPeriod,
-        TIME initialTime,
-	TIME specDifference) {
- #if DEBUG
-    CERR << "Integrator::initIntegratorSpeculative("
-        << "AbsCommInterface*,"
-        << "simTimeStep=" << simTimeStep << ","
-        << "packetlost=" << packetLostPeriod << ","
-        << "initialTime=" << specDifference << ")" << endl;
-#endif
-    AbsCommManager *command=new GracePeriodCommManager(currentInterface);
-    TIME specDifferentFramework=convertToFrameworkTime(simTimeStep,specDifference);
-    AbsSyncAlgorithm *algo=new GracePeriodSpeculativeSyncAlgo(command,specDifferentFramework);
-    instance=new Integrator(command,algo,simTimeStep,packetLostPeriod);
-    instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
-}
-
 void Integrator::initIntegratorOptimistic(
 	AbsNetworkInterface* currentInterface,
 	time_metric simTimeStep,

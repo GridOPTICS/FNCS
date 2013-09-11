@@ -224,16 +224,6 @@ public:
 			    TIME initialTime);
     
     /**
-     * Initializes the integrator with speculative threading support
-     */
-    static void initIntegratorSpeculative(
-        AbsNetworkInterface *currentInterface,
-        time_metric simTimeStep,
-	TIME packetLostPeriod,
-        TIME initialTime,
-	TIME specDifference);
-    
-    /**
      * Initializes the integrator with optimistic sync algorithm
      */
     static void initIntegratorOptimistic(
