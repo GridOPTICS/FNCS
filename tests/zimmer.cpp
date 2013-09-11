@@ -108,7 +108,8 @@ static void generic_simulator()
     Echo echo(getFilename("GenSim"));
 
     //Integrator::initIntegratorGracePeriod(comm,SECONDS,5,0);
-    Integrator::initIntegratorSpeculative(comm,SECONDS,5,0,1);
+    IncreasingSpeculationTimeStrategy *st=new IncreasingSpeculationTimeStrategy(MILLISECONDS,60000);
+    Integrator::initIntegratorOptimistic(comm,MILLISECONDS,2300000000,time_current,60000,st);
     Integrator::setTimeCallBack(cb);
     Integrator::getCommInterface("simObject1");
     Integrator::getCommInterface("simObject2");
@@ -150,7 +151,8 @@ static void generic_simulator2()
     Echo echo(getFilename("GenSim2"));
 
     //Integrator::initIntegratorGracePeriod(comm,SECONDS,5,0);
-    Integrator::initIntegratorSpeculative(comm,SECONDS,5,0,1);
+    IncreasingSpeculationTimeStrategy *st=new IncreasingSpeculationTimeStrategy(MILLISECONDS,60000);
+    Integrator::initIntegratorOptimistic(comm,MILLISECONDS,2300000000,time_current,60000,st);
     Integrator::setTimeCallBack(cb);
     Integrator::getCommInterface("simObject11");
     Integrator::getCommInterface("simObject22");

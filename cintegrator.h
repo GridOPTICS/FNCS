@@ -11,8 +11,6 @@ extern "C"{
    */
   void initIntegratorGracePeriod(enum time_metric simTimeStep, 
 				TIME packetLostPeriod, TIME initialTime);
-  void initIntegratorSpeculative(enum time_metric simTimeStep, 
-				TIME packetLostPeriod, TIME initialTime, TIME specTime);
   void initIntegratorOptimisticConstant(enum time_metric simTimeStep, 
 				TIME packetLostPeriod, TIME initialTime, TIME specTime);
   void initIntegratorOptimisticIncreasing(enum time_metric simTimeStep, 

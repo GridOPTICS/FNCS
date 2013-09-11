@@ -69,13 +69,6 @@ uint8_t isFinished()
    Integrator::initIntegratorGracePeriod(comm,simTimeStep,packetLostPeriod,initialTime);
  }
  
-void initIntegratorSpeculative(enum time_metric simTimeStep, 
-				TIME packetLostPeriod, TIME initialTime, TIME specTime){
-   //MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, false);
-   ZmqNetworkInterface *comm = new ZmqNetworkInterface(false);
-   Integrator::initIntegratorSpeculative(comm,simTimeStep,packetLostPeriod,initialTime,specTime);			 
-}
-
 void initIntegratorOptimisticConstant(time_metric simTimeStep,
 				      TIME packetLostPeriod, TIME initialTime, TIME specTime)
 {
