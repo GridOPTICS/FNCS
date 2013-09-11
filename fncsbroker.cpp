@@ -277,6 +277,9 @@ int main(int argc, char **argv)
                     break;
                 }
             }
+            else if ("CHILD_SUCCESS" == control) {
+	      succeed_handler(identity,context,control);
+	    }
             else {
                 cerr << "unrecognized control header '"
                     << control << "'" << endl;

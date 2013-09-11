@@ -488,9 +488,12 @@ void ZmqNetworkInterface::processSubMessage()
         } 
     }
     else if ("CHILD_DIED" == control) {
+      bool IAmParent = !Integrator::isChild();
+      if(IAmParent){
         unsigned long time;
         (void) zmqx_recv(this->zmq_die, time);
         Integrator::childDied(time);
+      }
     }
     else if("DIE_PARENT" == control){
       bool IAmParent = !Integrator::isChild();
@@ -547,12 +550,15 @@ void ZmqNetworkInterface::makeProgress()
 
 void ZmqNetworkInterface::sendFailed()
 {
-
+  //this will start the process for grafully killing all the sims at this->context
+  (void) zmqx_send(this->zmq_req, this->context, "CHILD_FAILED");
+  string bogus;
+  while(i_recv(bogus) > 0); //at this point we just wait the DIE child signal
 }
 
 void ZmqNetworkInterface::sendSuceed()
 {
-
+  (void) zmqx_send(this->zmq_req, this->context, "CHILD_SUCCESS");
 }
 
 

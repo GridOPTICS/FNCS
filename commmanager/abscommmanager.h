@@ -236,6 +236,17 @@ namespace sim_comm{
      */
     virtual TIME* getNextTimes(TIME nextTime,uint32_t &size);
     
+    /**
+     * Send notification to other processes in the
+     * context, the failed signal.
+     */
+    virtual void sendFailed(){ this->currentInterface->sendFailed(); }
+    
+    /**
+     * Send notification to other processes in the context
+     * a succeed signal.
+     */
+    virtual void sendSuceed(){ this->currentInterface->sendSuceed(); }
   };
 
 }

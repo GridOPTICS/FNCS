@@ -49,9 +49,7 @@ namespace sim_comm{
   class OptimisticTickSyncAlgo : public AbsSyncAlgorithm
   {
     private:
-      TIME killChildernFlag;
       TIME specFailTime;
-      key_t specTimeKey;
       TIME specDifference;
       SpeculationTimeCalculationStrategy *st;
       /**
@@ -82,20 +80,6 @@ namespace sim_comm{
        */
       virtual TIME testSpeculationState(TIME specNextTime, TIME currentTime);
       
-      /**
-       * Allows speculative children to communicate when speculation has failed!
-       */
-      void writeSpeculationFailureTime(TIME given);
-      /**
-       * Creates shared memory for speculative children write the fail time.
-       */
-      void createSpeculationTimeShm();
-      /**
-       * Returns the failed spec time to kids!
-       */
-      TIME getSpeculationFailureTime();
-      
-      
       bool hasChild(){
 	return this->childPid>0? true:false;
       }
@@ -105,8 +89,9 @@ namespace sim_comm{
        * Sets the flags and kills the parent process.
        */
       void becomeParent();
+      
       void gotChild(pid_t childpid);
-      void terminateChild();
+     
       void childTerminated();
     public:
       OptimisticTickSyncAlgo(AbsCommManager* interface, TIME specDifference,SpeculationTimeCalculationStrategy *strategy);
