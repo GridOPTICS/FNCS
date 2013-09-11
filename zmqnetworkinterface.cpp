@@ -482,8 +482,9 @@ void ZmqNetworkInterface::processSubMessage()
         bool IAmChild = Integrator::isChild();
         if (IAmChild) {
             unsigned long time = Integrator::getCurSimTime();
-            (void) zmqx_send(this->zmq_req, this->context, "REDUCE_FAIL_TIME", time);
+	    (void) zmqx_send(this->zmq_req, this->context, "REDUCE_FAIL_TIME", time);
             cleanup();
+	    cout << "Child exiting " <<endl;
             exit(EXIT_SUCCESS);
         } 
     }
