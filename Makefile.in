@@ -459,9 +459,19 @@ include_HEADERS = absnetworkinterface.h cintegrator.h echo.h \
 	syncalgorithms/speculationtimecalculationstrategy.h \
 	util/callback.h util/simtime.h util/csimtime.h
 noinst_HEADERS = 
+#AM_CPPFLAGS += -I$(top_srcdir)/contrib/jsoncpp 
 lib_LTLIBRARIES = libfncs_api.la
 EXTRA_DIST = README
 AM_CXXFLAGS = 
+
+#include_HEADERS += contrib/jsoncpp/autolink.h
+#include_HEADERS += contrib/jsoncpp/config.h
+#include_HEADERS += contrib/jsoncpp/features.h
+#include_HEADERS += contrib/jsoncpp/forwards.h
+#include_HEADERS += contrib/jsoncpp/json.h
+#include_HEADERS += contrib/jsoncpp/reader.h
+#include_HEADERS += contrib/jsoncpp/value.h
+#include_HEADERS += contrib/jsoncpp/write.h
 AM_CPPFLAGS = $(MPI_CPPFLAGS) $(ZMQ_CPPFLAGS) \
 	-I$(top_srcdir)/commmanager -I$(top_srcdir)/syncalgorithms \
 	-I$(top_srcdir)/util
