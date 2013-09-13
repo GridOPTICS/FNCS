@@ -58,13 +58,15 @@ private:
     bool iAmNetSim;
     list<Message*> receivedMessages;
     uint64_t globalObjectCount;
+    bool heartbeat;
 
 protected:
-    void init();
-    void processAsyncMessage();
+    void init(bool sendHello);
+    bool processAsyncMessage();
     void processSubMessage();
     void makeProgress();
-    template <typename T> int i_recv(T &buf);
+    template <typename T> int i_recv(T &buf, long timeout=-1);
+    void waitForHeartbeat();
     
 public:
     /**
@@ -133,7 +135,7 @@ public:
 
 
 template <typename T>
-int ZmqNetworkInterface::i_recv(T &buf)
+int ZmqNetworkInterface::i_recv(T &buf, long timeout)
 {
     bool done;
     int size;
@@ -147,7 +149,7 @@ int ZmqNetworkInterface::i_recv(T &buf)
             { this->zmq_async, 0, ZMQ_POLLIN, 0 },
             { this->zmq_die,   0, ZMQ_POLLIN, 0 }
         };
-        int rc = zmq_poll(items, 3, -1);
+        int rc = zmq_poll(items, 3, timeout);
         zmqx_interrupt_check();
         assert(rc >= 0 || (rc == -1 && errno == EINTR));
         if (items[0].revents & ZMQ_POLLIN) {
@@ -155,10 +157,10 @@ int ZmqNetworkInterface::i_recv(T &buf)
 #if DEBUG
             CERR << "ZmqNetworkInterface:i_recv got '" << buf << "'" << endl;
 #endif
-	    done = true;
+            done = true;
         }
         if (items[1].revents & ZMQ_POLLIN) {
-            processAsyncMessage();
+            done = processAsyncMessage();
         }
         if (items[2].revents & ZMQ_POLLIN) {
             processSubMessage();
