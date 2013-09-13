@@ -174,6 +174,9 @@ int zmqx_sendmore(void *socket, const string &s) {
 
     zmqx_interrupt_check();
     size = zmq_send(socket, s.data(), s.size(), ZMQ_SNDMORE);
+    if(size<0){
+      perror(s.c_str());
+    }
     assert(size == s.size()
             || (size == -1 && errno == EINTR)
             );

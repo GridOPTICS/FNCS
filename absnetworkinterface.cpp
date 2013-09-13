@@ -71,7 +71,7 @@ AbsNetworkInterface::~AbsNetworkInterface() {
 }
 
 
-AbsNetworkInterface::AbsNetworkInterface(const AbsNetworkInterface& that)
+AbsNetworkInterface::AbsNetworkInterface(AbsNetworkInterface& that)
 {
   this->myObjects=that.myObjects;
   this->messageCallBack=that.messageCallBack;

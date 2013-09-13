@@ -37,9 +37,6 @@ void ZmqNetworkInterface::init(bool sendHello)
     CERR << "ZmqNetworkInterface::init()" << endl;
 #endif
 
-    if (sendHello) {
-        this->ID = gen_id();
-    }
 
 #if DEBUG
     CERR << "ZmqNetworkInterface ID=" << this->ID << endl;
@@ -133,24 +130,25 @@ ZmqNetworkInterface::ZmqNetworkInterface(bool iAmNetSim)
     ,   zmq_ctx(NULL)
     ,   zmq_req(NULL)
     ,   zmq_async(NULL)
-    ,   ID()
+    ,   ID(gen_id())
     ,   context(-1)
     ,   iAmNetSim(iAmNetSim)
     ,   receivedMessages()
     ,   globalObjectCount(0)
     ,   heartbeat(false)
 {
+    
     init(true);
 }
 
 
-ZmqNetworkInterface::ZmqNetworkInterface(const ZmqNetworkInterface &that)
+ZmqNetworkInterface::ZmqNetworkInterface(ZmqNetworkInterface &that)
     :   AbsNetworkInterface(that)
     ,   zmq_ctx(NULL)
     ,   zmq_req(NULL)
     ,   zmq_async(NULL)
     ,   context(that.context)
-    ,   ID()
+    ,   ID(that.ID)
     ,   iAmNetSim(that.iAmNetSim)
     ,   receivedMessages()
     ,   globalObjectCount(that.globalObjectCount)
@@ -158,6 +156,10 @@ ZmqNetworkInterface::ZmqNetworkInterface(const ZmqNetworkInterface &that)
 {
     uint64_t globalObjectCountAgain;
 
+    if(Integrator::isChild()){
+    	this->ID=gen_id();
+    }
+    
     init(Integrator::isChild());
 
     for (vector<string>::const_iterator it=myObjects.begin();

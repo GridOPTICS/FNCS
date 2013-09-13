@@ -90,7 +90,7 @@ public:
      * Child classes should provide a copy constructor
      * for creating a new context (from the existing context)
      */
-    AbsNetworkInterface(const AbsNetworkInterface &that);
+    AbsNetworkInterface(AbsNetworkInterface &that);
     /**
      * Destroys.
      */

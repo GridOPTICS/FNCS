@@ -77,7 +77,7 @@ public:
     /**
      * Copy constructs.
      */
-    ZmqNetworkInterface(const ZmqNetworkInterface &that);
+    ZmqNetworkInterface(ZmqNetworkInterface &that);
 
     /**
      * Destroys.

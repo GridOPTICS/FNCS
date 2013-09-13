@@ -578,6 +578,7 @@ static void reduce_min_time_handler(
 static void reduce_min_time_checker(
         const int &context)
 {
+    cout << "GIRDIM!!!" << endl;
     if (reduce_min_time[context].size() > world_sizes[context]) {
         cerr << "reduce_min_time size > world size" << endl;
         graceful_death(EXIT_FAILURE);
@@ -594,6 +595,7 @@ static void reduce_min_time_checker(
         /* clear the map in preparation for next round */
         reduce_min_time[context].clear();
     }
+    cout << "Ciktim" << endl;
 }
 
 void all_gather_handler(
