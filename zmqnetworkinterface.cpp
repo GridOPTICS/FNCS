@@ -160,6 +160,8 @@ ZmqNetworkInterface::ZmqNetworkInterface(ZmqNetworkInterface &that)
 
     if(Integrator::isChild()){
     	this->ID=gen_id();
+    }else{
+      throw NETWORK_EXCEPTION("Operation only supported in child process");
     }
     
     init(Integrator::isChild());
