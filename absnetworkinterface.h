@@ -80,15 +80,22 @@ protected:
     vector<string> myObjects;
     bool registrationsAreFinalized;
     CallBack<void,Message*,empty,empty> *messageCallBack;
+    bool supportsFork;
 public:
     /**
      * Constructs.
      */
-    AbsNetworkInterface();
+    AbsNetworkInterface(bool canFork=false);
 
     /**
+     * Copy constructor is used for duplicating the interface
+     * after a fork operation by the sync algorith.
      * Child classes should provide a copy constructor
      * for creating a new context (from the existing context)
+     * Throws expcetion if network interface does not support forking.
+     * THrows exception if used with a sync algorithm that does not support forking.
+     * Fork operation should only be used from a sync algorithm to spawn
+     * new instaces of the simulator.
      */
     AbsNetworkInterface(AbsNetworkInterface &that);
     /**
@@ -209,11 +216,6 @@ public:
     virtual void sendFinishedSignal();
     
     /**
-     * Clean up function
-     */
-    virtual void cleanup() = 0;
-    
-    /**
      * Send notification to other processes in the
      * context, the failed signal.
      */
@@ -224,6 +226,17 @@ public:
      * a succeed signal.
      */
     virtual void sendSuceed() =0;
+    
+    /**
+     * Returns true if the network interface supports fork
+     */
+    virtual bool canFork(){ return this->supportsFork; }
+    
+    /**
+     * Should be called before a fork operation
+     * to prepare the network interface for a fork.
+     * */
+    virtual void prepareFork() =0;
 };
 
 } /* end namespace sim_comm */

@@ -45,7 +45,8 @@ void OptimisticTickSyncAlgo::childDied(TIME dieTime)
 
 OptimisticTickSyncAlgo::OptimisticTickSyncAlgo(AbsCommManager* interface, TIME specDifference,SpeculationTimeCalculationStrategy *strategy) : AbsSyncAlgorithm(interface)
 {
-  
+  if(!interface->interfaceSupportsForking())
+    throw SyncStateException("Optimistic Algorithm can only be used with networkinterfaces that support forking!");
   CallBack<bool,Message*,empty,empty> *syncAlgoCallBackSend=
     CreateObjCallback<OptimisticTickSyncAlgo*, bool (OptimisticTickSyncAlgo::*)(Message *),bool, Message*>(this,&OptimisticTickSyncAlgo::nodeSentMessage);
   CallBack<bool,Message*,empty,empty> *syncAlgoCallBackRev=

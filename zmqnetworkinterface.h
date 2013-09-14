@@ -59,7 +59,8 @@ private:
     list<Message*> receivedMessages;
     uint64_t globalObjectCount;
     bool heartbeat;
-
+    bool cleaned;
+    
 protected:
     void init(bool sendHello);
     bool processAsyncMessage();
@@ -67,7 +68,6 @@ protected:
     void makeProgress();
     template <typename T> int i_recv(T &buf, long timeout=-1);
     void waitForHeartbeat();
-    
 public:
     /**
      * Constructs.
@@ -122,15 +122,20 @@ public:
     
     /** @copydoc AbsNetworkInterface::getNextTimes()*/
     virtual uint64_t* getNextTimes(uint64_t nextTime,uint32_t &worldSize);
-
-    /** @copydoc AbsNetworkInterface::cleanup()*/
-    virtual void cleanup();
     
     /** @copydoc AbsNetworkInterface::sendFailed()*/
     virtual void sendFailed();
     
     /** @copydoc AbsNetworkInterface::sendSuceed()*/
     virtual void sendSuceed();
+    
+    /** @copydoc AbsNetworkInterface::prepareFork()*/
+    virtual void prepareFork();
+    
+    /**
+     * Used for cleaning up ZmqSockets on a term signal
+     */
+    void cleanup();
 };
 
 

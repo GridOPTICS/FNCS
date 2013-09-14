@@ -126,7 +126,7 @@ void ZmqNetworkInterface::init(bool sendHello)
 
 
 ZmqNetworkInterface::ZmqNetworkInterface(bool iAmNetSim)
-    :   AbsNetworkInterface()
+    :   AbsNetworkInterface(true)
     ,   zmq_ctx(NULL)
     ,   zmq_req(NULL)
     ,   zmq_async(NULL)
@@ -136,6 +136,7 @@ ZmqNetworkInterface::ZmqNetworkInterface(bool iAmNetSim)
     ,   receivedMessages()
     ,   globalObjectCount(0)
     ,   heartbeat(false)
+    ,	cleaned(false)
 {
     
     init(true);
@@ -153,6 +154,7 @@ ZmqNetworkInterface::ZmqNetworkInterface(ZmqNetworkInterface &that)
     ,   receivedMessages()
     ,   globalObjectCount(that.globalObjectCount)
     ,   heartbeat(false)
+    ,	cleaned(false)
 {
     uint64_t globalObjectCountAgain;
 
@@ -176,6 +178,7 @@ ZmqNetworkInterface::ZmqNetworkInterface(ZmqNetworkInterface &that)
 
 ZmqNetworkInterface::~ZmqNetworkInterface()
 {
+  if(!cleaned)
     cleanup();
 }
 
@@ -614,6 +617,8 @@ void ZmqNetworkInterface::cleanup()
 
     zmq_ctx_destroy_retval = zmq_ctx_destroy(this->zmq_ctx);
     assert(0 == zmq_ctx_destroy_retval);
+    
+    cleaned=true;
 }
 
 
@@ -625,4 +630,10 @@ void ZmqNetworkInterface::waitForHeartbeat()
         (void) i_recv(ignore, 1000); // timeout in milliseconds
     }
 }
+
+void ZmqNetworkInterface::prepareFork()
+{
+  //we do anything, for now!
+}
+
 
