@@ -80,11 +80,13 @@ protected:
     vector<string> myObjects;
     bool registrationsAreFinalized;
     CallBack<void,Message*,empty,empty> *messageCallBack;
+    bool canFork;
+    virtual void notifyFork() = 0;
 public:
     /**
      * Constructs.
      */
-    AbsNetworkInterface();
+    AbsNetworkInterface(bool forkCapable=false);
 
     /**
      * Child classes should provide a copy constructor
@@ -224,6 +226,18 @@ public:
      * a succeed signal.
      */
     virtual void sendSuceed() =0;
+    
+    /**
+     * Returns true if this instance of networkinterface 
+     * works with forks.
+     */
+    bool supportsFork(){ return this->canFork; }
+    
+    /**
+     * Prepares the networkinterface for fork.
+     * Throws expcetion if interface does not support forking.
+     */
+    void prepareFork();
 };
 
 } /* end namespace sim_comm */

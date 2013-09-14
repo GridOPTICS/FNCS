@@ -106,6 +106,8 @@ namespace sim_comm{
       virtual bool forkedNewChild(){return this->isChild;}
       /** @copydoc AbsSyncAlgorithm::childDied(TIME dieTime) */
       virtual void childDied(TIME dieTime);
+      /** @copydoc AbsSyncAlgorithm::usesFork()*/
+      virtual bool usesFork() { return true; }
   };
 
 }

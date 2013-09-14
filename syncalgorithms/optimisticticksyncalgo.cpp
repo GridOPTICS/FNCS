@@ -45,6 +45,8 @@ void OptimisticTickSyncAlgo::childDied(TIME dieTime)
 
 OptimisticTickSyncAlgo::OptimisticTickSyncAlgo(AbsCommManager* interface, TIME specDifference,SpeculationTimeCalculationStrategy *strategy) : AbsSyncAlgorithm(interface)
 {
+  if(!this->interface->supportsFork())
+    throw SyncStateException(string("Optimistic algo can only be used if the underlying network itnerface supports fork!"));
   
   CallBack<bool,Message*,empty,empty> *syncAlgoCallBackSend=
     CreateObjCallback<OptimisticTickSyncAlgo*, bool (OptimisticTickSyncAlgo::*)(Message *),bool, Message*>(this,&OptimisticTickSyncAlgo::nodeSentMessage);
@@ -281,7 +283,7 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
   TIME OptimisticTickSyncAlgo::testSpeculationState(TIME specNextTime,TIME currentTime)
   {
     if(!hasChild() && specNextTime!=0){
-	
+	interface->prepareFork();
 	this->createSpeculativeProcess();
 	this->specFailTime=Infinity;
 	if(this->isChild){ //createSpeculativeProcess will modify this flag!

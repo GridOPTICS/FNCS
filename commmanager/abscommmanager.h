@@ -247,6 +247,17 @@ namespace sim_comm{
      * a succeed signal.
      */
     virtual void sendSuceed(){ this->currentInterface->sendSuceed(); }
+    
+    /**
+     * Returns true of current networkInterface supports fork operation
+     */
+    bool supportsFork() { return this->currentInterface->supportsFork(); }
+    
+    /**
+     * Executes steps in the underlying network interface to prepare for 
+     * fork operation.
+     */
+    virtual void prepareFork();
   };
 
 }

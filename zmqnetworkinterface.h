@@ -65,7 +65,7 @@ protected:
     void processSubMessage();
     void makeProgress();
     template <typename T> int i_recv(T &buf);
-    
+    virtual void notifyFork();
 public:
     /**
      * Constructs.
@@ -129,6 +129,8 @@ public:
     
     /** @copydoc AbsNetworkInterface::sendSuceed()*/
     virtual void sendSuceed();
+    
+    
 };
 
 

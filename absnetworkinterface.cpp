@@ -51,9 +51,10 @@ using std::vector;
 using namespace sim_comm;
 
 
-AbsNetworkInterface::AbsNetworkInterface()
+AbsNetworkInterface::AbsNetworkInterface(bool forkCapable)
     :   myObjects()
     ,   registrationsAreFinalized(false)
+    ,	canFork(forkCapable)
   
 {
 #if DEBUG && DEBUG_TO_FILE
@@ -120,5 +121,11 @@ void AbsNetworkInterface::sendFinishedSignal()
 {
 }
 
+void AbsNetworkInterface::prepareFork()
+{
+  if(!this->canFork)
+    NETWORK_EXCEPTION("This instance of network interface does not supprot forking!");
+  this->notifyFork();
+}
 
 

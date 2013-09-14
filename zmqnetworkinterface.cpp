@@ -122,7 +122,7 @@ void ZmqNetworkInterface::init()
 
 
 ZmqNetworkInterface::ZmqNetworkInterface(bool iAmNetSim)
-    :   AbsNetworkInterface()
+    :   AbsNetworkInterface(true)
     ,   zmq_ctx(NULL)
     ,   zmq_req(NULL)
     ,   zmq_async(NULL)
@@ -593,3 +593,9 @@ void ZmqNetworkInterface::cleanup()
     zmq_ctx_destroy_retval = zmq_ctx_destroy(this->zmq_ctx);
     assert(0 == zmq_ctx_destroy_retval);
 }
+
+void ZmqNetworkInterface::notifyFork()
+{
+
+}
+

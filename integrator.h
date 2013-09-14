@@ -293,6 +293,13 @@ public:
      * Sync algorithms about the death of a child process; so sad!
      */
     static void childDied(TIME dieTime);
+    
+    /**
+     * Returns true if current sync algo can fork
+     * a new isntance of the simulator.
+     */
+    
+    static bool canFork();
     /**
      * TODO
      */

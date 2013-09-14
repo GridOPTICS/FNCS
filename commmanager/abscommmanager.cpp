@@ -248,6 +248,10 @@ namespace sim_comm{
   }
   
 
+  void AbsCommManager::prepareFork()
+  {
+    this->currentInterface->prepareFork();
+  }
 
 }
 

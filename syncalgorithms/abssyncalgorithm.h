@@ -138,6 +138,12 @@ namespace sim_comm
 	 */
 	virtual void childDied(TIME dieTime) =0;
 	
+	/**
+	 * Returns true if sync algorithm
+	 * will use fork to speed up co-sims
+	 */
+	virtual bool usesFork(){ return false; }
+	
   };
   
 }
