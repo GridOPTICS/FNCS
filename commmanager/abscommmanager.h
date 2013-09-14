@@ -247,17 +247,6 @@ namespace sim_comm{
      * a succeed signal.
      */
     virtual void sendSuceed(){ this->currentInterface->sendSuceed(); }
-    
-    /**
-     * Send notification to the network interface that we are going to fork
-     */
-     virtual void prepareFork(){ this->currentInterface->prepareFork();}
-     
-     /**
-      * Returns true if commmanger is used with
-      * a networkInterface that supports forking
-      */
-     virtual bool interfaceSupportsForking(){ this->currentInterface->canFork(); }
   };
 
 }

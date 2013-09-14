@@ -26,7 +26,7 @@ static void cleanup_handler(void *object)
 }
 
 
-void ZmqNetworkInterface::init(bool sendHello)
+void ZmqNetworkInterface::init()
 {
     int zmq_connect_req_retval = 0;
     int zmq_connect_sub_retval = 0;
@@ -37,11 +37,10 @@ void ZmqNetworkInterface::init(bool sendHello)
     CERR << "ZmqNetworkInterface::init()" << endl;
 #endif
 
-
+    this->ID = gen_id();
 #if DEBUG
     CERR << "ZmqNetworkInterface ID=" << this->ID << endl;
 #endif
-
     /* create zmq context */
     this->zmq_ctx = zmq_ctx_new();
     assert(this->zmq_ctx);
@@ -96,29 +95,26 @@ void ZmqNetworkInterface::init(bool sendHello)
     }
     assert(0 == zmq_connect_sub_retval);
 
-    if (sendHello) {
-        /* send hello to broker */
-        /* send parent context as part of hello when this ::init() is called as
-         * part of copy constructor */
-        int ZERO = 0;
-        if (this->iAmNetSim) {
-            (void) zmqx_send(this->zmq_req, ZERO, "HELLO_NETSIM", this->context);
-        }
-        else {
-            (void) zmqx_send(this->zmq_req, ZERO, "HELLO", this->context);
-        }
+   
 
-        /* get ack from broker */
-        (void) i_recv(this->context);
-        assert(this->context >= 0);
-
-        zmqx_register_handler(cleanup_handler, this->zmq_req, this->context, this);
-        zmqx_catch_signals();
+    /* send hello to broker */
+    /* send parent context as part of hello when this ::init() is called as
+     * part of copy constructor */
+    int ZERO = 0;
+    if (this->iAmNetSim) {
+        (void) zmqx_send(this->zmq_req, ZERO, "HELLO_NETSIM", this->context);
     }
     else {
-        waitForHeartbeat();
+        (void) zmqx_send(this->zmq_req, ZERO, "HELLO", this->context);
     }
 
+    /* get ack from broker */
+    (void) i_recv(this->context);
+    assert(this->context >= 0);
+    
+    zmqx_register_handler(cleanup_handler, this->zmq_req, this->context, this);
+    zmqx_catch_signals();
+    
 #if DEBUG
     CERR << this->ID << " context=" << this->context << endl;
 #endif
@@ -126,45 +122,34 @@ void ZmqNetworkInterface::init(bool sendHello)
 
 
 ZmqNetworkInterface::ZmqNetworkInterface(bool iAmNetSim)
-    :   AbsNetworkInterface(true)
+    :   AbsNetworkInterface()
     ,   zmq_ctx(NULL)
     ,   zmq_req(NULL)
     ,   zmq_async(NULL)
-    ,   ID(gen_id())
+    ,   ID()
     ,   context(-1)
     ,   iAmNetSim(iAmNetSim)
     ,   receivedMessages()
     ,   globalObjectCount(0)
-    ,   heartbeat(false)
-    ,	cleaned(false)
 {
-    
-    init(true);
+    init();
 }
 
 
-ZmqNetworkInterface::ZmqNetworkInterface(ZmqNetworkInterface &that)
+ZmqNetworkInterface::ZmqNetworkInterface(const ZmqNetworkInterface &that)
     :   AbsNetworkInterface(that)
     ,   zmq_ctx(NULL)
     ,   zmq_req(NULL)
     ,   zmq_async(NULL)
     ,   context(that.context)
-    ,   ID(that.ID)
+    ,   ID()
     ,   iAmNetSim(that.iAmNetSim)
     ,   receivedMessages()
     ,   globalObjectCount(that.globalObjectCount)
-    ,   heartbeat(false)
-    ,	cleaned(false)
 {
     uint64_t globalObjectCountAgain;
 
-    if(Integrator::isChild()){
-    	this->ID=gen_id();
-    }else{
-      throw NETWORK_EXCEPTION("Operation only supported in child process");
-    }
-    
-    init(Integrator::isChild());
+    init();
 
     for (vector<string>::const_iterator it=myObjects.begin();
             it!=myObjects.end(); ++it) {
@@ -180,7 +165,6 @@ ZmqNetworkInterface::ZmqNetworkInterface(ZmqNetworkInterface &that)
 
 ZmqNetworkInterface::~ZmqNetworkInterface()
 {
-  if(!cleaned)
     cleanup();
 }
 
@@ -423,7 +407,7 @@ AbsNetworkInterface* ZmqNetworkInterface::duplicateInterface()
 }
 
 
-bool ZmqNetworkInterface::processAsyncMessage()
+void ZmqNetworkInterface::processAsyncMessage()
 {
     string control;
     uint8_t *envelope;
@@ -432,14 +416,7 @@ bool ZmqNetworkInterface::processAsyncMessage()
     uint32_t dataSize;
     Message *message;
 
-
     (void) zmqx_recv(this->zmq_async, control);
-
-    if ("HEARTBEAT" == control) {
-        heartbeat = true;
-        return true;
-    }
-
     if (iAmNetSim) {
         if ("DELAY" != control) {
 #if DEBUG
@@ -475,8 +452,6 @@ bool ZmqNetworkInterface::processAsyncMessage()
     }
 
     delete [] envelope;
-
-    return false;
 }
 
 
@@ -604,8 +579,6 @@ void ZmqNetworkInterface::cleanup()
     CERR << "ZmqNetworkInterface::cleanup()" << endl;
 #endif
 
-    heartbeat = false;
-
     //makeProgress();
 
     zmq_close_retval = zmq_close(this->zmq_req);
@@ -619,23 +592,4 @@ void ZmqNetworkInterface::cleanup()
 
     zmq_ctx_destroy_retval = zmq_ctx_destroy(this->zmq_ctx);
     assert(0 == zmq_ctx_destroy_retval);
-    
-    cleaned=true;
 }
-
-
-void ZmqNetworkInterface::waitForHeartbeat()
-{
-    while (!heartbeat) {
-        char ignore;
-        (void) zmqx_send(this->zmq_req, this->context, "HEARTBEAT");
-        (void) i_recv(ignore, 1000); // timeout in milliseconds
-    }
-}
-
-void ZmqNetworkInterface::prepareFork()
-{
-  //we do anything, for now!
-}
-
-

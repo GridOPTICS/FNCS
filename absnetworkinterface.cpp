@@ -51,10 +51,9 @@ using std::vector;
 using namespace sim_comm;
 
 
-AbsNetworkInterface::AbsNetworkInterface(bool canFork)
+AbsNetworkInterface::AbsNetworkInterface()
     :   myObjects()
     ,   registrationsAreFinalized(false)
-    ,	supportsFork(canFork)
   
 {
 #if DEBUG && DEBUG_TO_FILE
@@ -72,11 +71,8 @@ AbsNetworkInterface::~AbsNetworkInterface() {
 }
 
 
-AbsNetworkInterface::AbsNetworkInterface(AbsNetworkInterface& that)
+AbsNetworkInterface::AbsNetworkInterface(const AbsNetworkInterface& that)
 {
-  if(!this->supportsFork || !Integrator::syncAlgoCanFork())
-    throw NetworkException("absnetworkinterface.cpp","CopyConstructor",78,"Network interface or sync algorithm does not support forking!");
-  this->supportsFork=that.supportsFork;
   this->myObjects=that.myObjects;
   this->messageCallBack=that.messageCallBack;
   this->registrationsAreFinalized=that.registrationsAreFinalized;

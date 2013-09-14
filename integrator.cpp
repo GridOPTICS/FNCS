@@ -376,16 +376,6 @@ void Integrator::childDied(TIME dieTime)
   instance->syncAlgo->childDied(dieTime);
 }
 
-bool Integrator::syncAlgoCanFork()
-{
-  return instance->syncAlgo->canFork();
-}
-
-bool Integrator::networkInterfaceSupportsForking()
-{
-  return instance->currentInterface->interfaceSupportsForking();
-}
-
 
 
 } /* end namespace sim_comm */

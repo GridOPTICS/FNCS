@@ -53,9 +53,6 @@ namespace sim_comm{
   
   AbsCommManager::AbsCommManager(AbsCommManager& given)
   {
-    if(!Integrator::syncAlgoCanFork()){
-      throw CommManagerOperationNotSupportedException(string("Copy commmanager can only be used with fork capable sync alrogithm"));
-    }
     this->allowRegistrations=given.allowRegistrations;
     this->interfaces=given.interfaces;
     this->sendCount=given.sendCount;

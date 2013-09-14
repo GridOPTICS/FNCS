@@ -293,19 +293,6 @@ public:
      * Sync algorithms about the death of a child process; so sad!
      */
     static void childDied(TIME dieTime);
-    
-    /**
-     * Allows simulator query whether the configured
-     * sync algo can use fork().
-     */
-    static bool syncAlgoCanFork();
-    
-    /**
-     * Returns true if the configured network interface
-     * supports forking!
-     */
-    static bool networkInterfaceSupportsForking();
-    
     /**
      * TODO
      */

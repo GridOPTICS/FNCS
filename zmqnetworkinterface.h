@@ -58,16 +58,14 @@ private:
     bool iAmNetSim;
     list<Message*> receivedMessages;
     uint64_t globalObjectCount;
-    bool heartbeat;
-    bool cleaned;
-    
+
 protected:
-    void init(bool sendHello);
-    bool processAsyncMessage();
+    void init();
+    void processAsyncMessage();
     void processSubMessage();
     void makeProgress();
-    template <typename T> int i_recv(T &buf, long timeout=-1);
-    void waitForHeartbeat();
+    template <typename T> int i_recv(T &buf);
+    
 public:
     /**
      * Constructs.
@@ -77,7 +75,7 @@ public:
     /**
      * Copy constructs.
      */
-    ZmqNetworkInterface(ZmqNetworkInterface &that);
+    ZmqNetworkInterface(const ZmqNetworkInterface &that);
 
     /**
      * Destroys.
@@ -122,25 +120,20 @@ public:
     
     /** @copydoc AbsNetworkInterface::getNextTimes()*/
     virtual uint64_t* getNextTimes(uint64_t nextTime,uint32_t &worldSize);
+
+    /** @copydoc AbsNetworkInterface::cleanup()*/
+    virtual void cleanup();
     
     /** @copydoc AbsNetworkInterface::sendFailed()*/
     virtual void sendFailed();
     
     /** @copydoc AbsNetworkInterface::sendSuceed()*/
     virtual void sendSuceed();
-    
-    /** @copydoc AbsNetworkInterface::prepareFork()*/
-    virtual void prepareFork();
-    
-    /**
-     * Used for cleaning up ZmqSockets on a term signal
-     */
-    void cleanup();
 };
 
 
 template <typename T>
-int ZmqNetworkInterface::i_recv(T &buf, long timeout)
+int ZmqNetworkInterface::i_recv(T &buf)
 {
     bool done;
     int size;
@@ -154,7 +147,7 @@ int ZmqNetworkInterface::i_recv(T &buf, long timeout)
             { this->zmq_async, 0, ZMQ_POLLIN, 0 },
             { this->zmq_die,   0, ZMQ_POLLIN, 0 }
         };
-        int rc = zmq_poll(items, 3, timeout);
+        int rc = zmq_poll(items, 3, -1);
         zmqx_interrupt_check();
         assert(rc >= 0 || (rc == -1 && errno == EINTR));
         if (items[0].revents & ZMQ_POLLIN) {
@@ -162,10 +155,10 @@ int ZmqNetworkInterface::i_recv(T &buf, long timeout)
 #if DEBUG
             CERR << "ZmqNetworkInterface:i_recv got '" << buf << "'" << endl;
 #endif
-            done = true;
+	    done = true;
         }
         if (items[1].revents & ZMQ_POLLIN) {
-            done = processAsyncMessage();
+            processAsyncMessage();
         }
         if (items[2].revents & ZMQ_POLLIN) {
             processSubMessage();

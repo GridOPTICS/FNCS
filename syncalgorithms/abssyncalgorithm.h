@@ -130,19 +130,13 @@ namespace sim_comm
 	 * Returns true if the synchronization
 	 * algorithm and has forked a new child!
 	 */
-	virtual bool forkedNewChild(){ return false; }
+	virtual bool forkedNewChild() =0;
 	
 	/**
 	 * Used to notify the sync algorithm
 	 * when its child process dies.
 	 */
 	virtual void childDied(TIME dieTime) =0;
-	
-	/**
-	 * Used for querying whether the sync algorithm can use
-	 * for to create new instances of the simulator.
-	 */
-	virtual bool canFork(){ return false; }
 	
   };
   

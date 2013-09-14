@@ -103,7 +103,6 @@ static void sleep_handler(const string &identity, const int &context, const stri
 static void child_failed_handler(const string &identity, const int &context, const string &control);
 static void reduce_fail_time_handler(const string &identity, const int &context, const string &control);
 static bool finished_handler(const string &identity, const int &context, const string &control);
-static bool heartbeat_handler(const string &identity, const int &context, const string &control);
 static void barrier_checker(const int &context);
 static void reduce_min_time_checker(const int &context);
 static void reduce_send_recv_checker(const int &context);
@@ -272,10 +271,6 @@ int main(int argc, char **argv)
             else if ("DIE" == control) {
                 /* a simulation wants to terminate abrubtly */
                 graceful_death(EXIT_FAILURE);
-            }
-            else if ("HEARTBEAT" == control) {
-                /* a simulation wants to ping until getting a response */
-                heartbeat_handler(identity, context, control);
             }
             else if ("FINISHED" == control) {
                 if (finished_handler(identity, context, control)) {
@@ -578,7 +573,6 @@ static void reduce_min_time_handler(
 static void reduce_min_time_checker(
         const int &context)
 {
-    cout << "GIRDIM!!!" << endl;
     if (reduce_min_time[context].size() > world_sizes[context]) {
         cerr << "reduce_min_time size > world size" << endl;
         graceful_death(EXIT_FAILURE);
@@ -595,7 +589,6 @@ static void reduce_min_time_checker(
         /* clear the map in preparation for next round */
         reduce_min_time[context].clear();
     }
-    cout << "Ciktim" << endl;
 }
 
 void all_gather_handler(
@@ -931,18 +924,3 @@ static bool finished_handler(
 
     return false;
 }
-
-
-static bool heartbeat_handler(
-        const string &identity,
-        const int &context,
-        const string &control)
-{
-#if DEBUG
-        CERR << "received HEARTBEAT from '" << identity
-            << "'" << endl;
-#endif
-        (void) zmqx_sendmore(async_broker, identity);
-        (void) zmqx_send    (async_broker, "HEARTBEAT");
-}
-
