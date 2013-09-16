@@ -1,0 +1,29 @@
+dnl run "autom4te -l m4sh fenix_script.m4sh > fenix_script"
+AS_INIT
+
+# all env/script vars should go here
+# edit as needed
+WGET=/usr/bin/wget
+TARBALL_DIR="tarballs"
+ZEROMQ_TARBALL_NAME="zeromq-3.2.3.tar.gz"
+ZEROMQ_TARBALL_URL="http://download.zeromq.org/$ZEROMQ_TARBALL_NAME"
+
+AS_ECHO_N(["Checking for wget utility... "])
+AS_IF([$WGET --version &> /dev/null],
+    [AS_ECHO(["$WGET"])],
+    [AS_ECHO(["'$WGET --version' returned error code"])])
+
+
+AS_ECHO_N(["Checking for '$TARBALL_DIR' directory... "])
+AS_IF([! test -d "$TARBALL_DIR"],
+    [AS_ECHO(["'$TARBALL_DIR' directory not found, creating"])
+     AS_MKDIR_P([$TARBALL_DIR])],
+    [AS_ECHO(["found"])])
+
+AS_ECHO_N(["Checking for zmq tarball... "])
+AS_IF([test -f "$TARBALL_DIR/$ZEROMQ_TARBALL_NAME"],
+    [AS_ECHO(["$TARBALL_DIR/$ZEROMQ_TARBALL_NAME"])],
+    [AS_ECHO(["not found, downloading"])
+     pushd $TARBALL_DIR
+     wget $ZEROMQ_TARBALL_URL || exit
+     popd])
