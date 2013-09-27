@@ -1,0 +1,11 @@
+{
+        "interface" : "zmq",
+        "simulator_type" : "communication_network",
+        "synchronization_algorithm" : {
+                 "optimistic" : {
+			"speculation_calculation_stragegy" : "constant" 
+                 }
+        },
+        "simulator_time_metric" : "seconds",
+        "packet_loss_period" : 1000000000
+}

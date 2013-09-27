@@ -1,0 +1,7 @@
+{
+        "interface" : "zmq",
+        "simulator_type" : "power_grid",
+        "synchronization_algorithm" : "conservative",
+        "simulator_time_metric" : "milliseconds",
+        "packet_loss_period" : 1000000000
+}
