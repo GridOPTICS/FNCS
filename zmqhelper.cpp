@@ -1,10 +1,31 @@
+#ifdef _WIN32
+#pragma once
+#pragma warning(disable: 4996) // warning C4996: 'std::_Copy_impl': Function call with parameters that may be unsafe 
+#endif
+
 #include "config.h"
 
 #include <assert.h> /* for assert */
 #include <stdlib.h> /* for size_t */
-#include <sys/time.h> /* for gettimeofday */
-#include <sys/types.h>
-#include <unistd.h>
+//Chaomei added
+#include <stdio.h>
+
+//Chaomei added 9/20-
+#if defined(_MSC_VER) || defined(_MSC_EXTENSIONS)
+  #define DELTA_EPOCH_IN_MICROSECS  11644473600000000Ui64
+#else
+  #define DELTA_EPOCH_IN_MICROSECS  11644473600000000ULL
+#endif
+
+#if defined(UNIX)
+  #include <sys/time.h> /* for gettimeofday */
+  #include <sys/types.h>
+  #include <unistd.h>
+#else
+  #include <process.h>
+  #include <time.h>
+#endif
+
 #include <string>
 
 #include <zmq.h>
