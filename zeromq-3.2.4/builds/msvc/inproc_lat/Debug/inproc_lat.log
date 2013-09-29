@@ -1,0 +1,22 @@
+﻿Build started 9/23/2013 4:13:40 PM.
+     1>Project "C:\fenix_win\zeromq-3.2.4\builds\msvc\inproc_lat\inproc_lat.vcxproj" on node 2 (build target(s)).
+     1>InitializeBuildStatus:
+         Creating "Debug\inproc_lat.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt ..\..\..\perf\inproc_lat.cpp
+         inproc_lat.cpp
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(990,5): warning MSB8012: TargetPath(C:\fenix_win\zeromq-3.2.4\builds\msvc\Debug\inproc_lat.exe) does not match the Linker's OutputFile property value (C:\fenix_win\zeromq-3.2.4\bin\inproc_lat.exe). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
+       Link:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"../../../bin/inproc_lat.exe" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\inproc_lat.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\fenix_win\zeromq-3.2.4\builds\msvc\Debug\inproc_lat.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\fenix_win\zeromq-3.2.4\builds\msvc\Debug\inproc_lat.lib" /MACHINE:X86 Debug\inproc_lat.obj
+         "C:\fenix_win\zeromq-3.2.4\builds\msvc\Debug\libzmq.lib"
+         inproc_lat.vcxproj -> C:\fenix_win\zeromq-3.2.4\builds\msvc\Debug\inproc_lat.exe
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"../../../bin/inproc_lat.exe;#1" /manifest Debug\inproc_lat.exe.intermediate.manifest
+       FinalizeBuildStatus:
+         Deleting file "Debug\inproc_lat.unsuccessfulbuild".
+         Touching "Debug\inproc_lat.lastbuildstate".
+     1>Done Building Project "C:\fenix_win\zeromq-3.2.4\builds\msvc\inproc_lat\inproc_lat.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:01.87

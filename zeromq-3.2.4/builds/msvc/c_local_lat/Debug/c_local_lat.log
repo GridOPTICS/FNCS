@@ -1,0 +1,22 @@
+﻿Build started 9/23/2013 4:13:39 PM.
+     1>Project "C:\fenix_win\zeromq-3.2.4\builds\msvc\c_local_lat\c_local_lat.vcxproj" on node 5 (build target(s)).
+     1>InitializeBuildStatus:
+         Creating "Debug\local_lat.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I../../../bindings/c /ZI /nologo /W3 /WX- /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt ..\..\..\perf\local_lat.cpp
+         local_lat.cpp
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(990,5): warning MSB8012: TargetPath(C:\fenix_win\zeromq-3.2.4\builds\msvc\Debug\local_lat.exe) does not match the Linker's OutputFile property value (C:\fenix_win\zeromq-3.2.4\bin\local_lat.exe). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
+       Link:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"../../../bin/local_lat.exe" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\local_lat.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\fenix_win\zeromq-3.2.4\builds\msvc\Debug\local_lat.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\fenix_win\zeromq-3.2.4\builds\msvc\Debug\local_lat.lib" /MACHINE:X86 Debug\local_lat.obj
+         "C:\fenix_win\zeromq-3.2.4\builds\msvc\Debug\libzmq.lib"
+         c_local_lat.vcxproj -> C:\fenix_win\zeromq-3.2.4\builds\msvc\Debug\local_lat.exe
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"../../../bin/local_lat.exe;#1" /manifest Debug\local_lat.exe.intermediate.manifest
+       FinalizeBuildStatus:
+         Deleting file "Debug\local_lat.unsuccessfulbuild".
+         Touching "Debug\local_lat.lastbuildstate".
+     1>Done Building Project "C:\fenix_win\zeromq-3.2.4\builds\msvc\c_local_lat\c_local_lat.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:01.99
