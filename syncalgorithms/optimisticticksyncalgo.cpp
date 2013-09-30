@@ -24,6 +24,8 @@
     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+#ifndef _WIN32
+
 #include "config.h"
 
 #include "optimisticticksyncalgo.h"
@@ -312,3 +314,4 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
   
 
 }
+#endif

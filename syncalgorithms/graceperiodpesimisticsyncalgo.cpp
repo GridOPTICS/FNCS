@@ -66,11 +66,11 @@ namespace sim_comm
       do
       {
 	  if(busywait)
-	    this->interface->waitforAll();
-          uint64_t diff=interface->reduceTotalSendReceive();
+	    this->interface_->waitforAll();
+          uint64_t diff=interface_->reduceTotalSendReceive();
           //network unstable, we need to wait!
           nextEstTime=currentTime+convertToFrameworkTime(Integrator::getCurSimMetric(),1); 
-	  TIME minnetworkdelay=interface->reduceNetworkDelay();
+	  TIME minnetworkdelay=interface_->reduceNetworkDelay();
           if(diff==0 && !needToRespond)
           { //network stable grant next time
               nextEstTime=nextTime;
@@ -81,7 +81,7 @@ namespace sim_comm
 
           //Calculate next min time step
           TIME myminNextTime=nextEstTime;
-          TIME minNextTime=(TIME)interface->reduceMinTime(myminNextTime);
+          TIME minNextTime=(TIME)interface_->reduceMinTime(myminNextTime);
 
           //min time is the estimated next time, so grant nextEstimated time
           if(minNextTime==myminNextTime)

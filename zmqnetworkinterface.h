@@ -27,8 +27,11 @@
 #ifndef ZMQNETWORKINTERFACE_H_
 #define ZMQNETWORKINTERFACE_H_
 
-#include <errno.h>
+#ifndef WIN32 
 #include <unistd.h>
+#endif
+
+#include <errno.h>
 
 #include <zmq.h>
 

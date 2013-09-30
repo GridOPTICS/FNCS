@@ -35,7 +35,7 @@ namespace sim_comm {
 		     return grantedTime;
 		    
 
-		    uint64_t diff=interface->reduceTotalSendReceive();
+		    uint64_t diff=interface_->reduceTotalSendReceive();
 		    //assume network stable
 		   
 		   /* if(diff>0)
@@ -62,12 +62,12 @@ namespace sim_comm {
 		      updated=false;
 		    }*/
 		    if(diff > 0){
-		      this->interface->packetLostCalculator(currentTime);
+		      this->interface_->packetLostCalculator(currentTime);
 		    }
-		    TIME minnetworkdelay=interface->reduceNetworkDelay();
+		    TIME minnetworkdelay=interface_->reduceNetworkDelay();
 		    //We never wait for comm sim, instead we wait for oter sims
 		    TIME myminNextTime=Infinity;
-		    TIME minNextTime=(TIME)interface->reduceMinTime(myminNextTime);
+		    TIME minNextTime=(TIME)interface_->reduceMinTime(myminNextTime);
 		    
 		    //If min time is infinity then there is something with the comm!
 		    if(minNextTime==Infinity){

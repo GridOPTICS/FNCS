@@ -71,7 +71,7 @@ namespace sim_comm{
 	  toremove.push_back(it->first);
 	}
       }
-      for(int i=0;i<toremove.size();i++){
+      for(unsigned int i=0;i<toremove.size();i++){
       
 	  this->packets.erase(toremove[i]);
       }
@@ -90,7 +90,7 @@ namespace sim_comm{
 	  //if(in->getInboxMessagesCount()>0) {
 
 	      vector<Message*>  outmessges=in->getOutBox();
-	      for(int i=0; i<outmessges.size(); i++) {
+	      for(unsigned int i=0; i<outmessges.size(); i++) {
 		  try {
 		      outmessges[i]->setDeliveryTime(Integrator::getCurSimTime());
 		      if(this->syncAlgoCallBackSend){

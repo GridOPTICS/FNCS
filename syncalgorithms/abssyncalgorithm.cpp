@@ -40,7 +40,7 @@ namespace sim_comm
   
   AbsSyncAlgorithm::AbsSyncAlgorithm(AbsCommManager* currentInterface)
   {
-    this->interface=currentInterface;
+    this->interface_=currentInterface;
     this->finished=false;
     this->grantedTime=0;
   }
@@ -58,7 +58,7 @@ namespace sim_comm
       if(currentTime < grantedTime)
 	return;
       
-      this->interface->waitforAll();
+      this->interface_->waitforAll();
   }
 
 

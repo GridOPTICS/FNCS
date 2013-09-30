@@ -19,9 +19,9 @@ using namespace sim_comm;
 
 static void cleanup_handler(void *object)
 {
-    ZmqNetworkInterface *interface = NULL;
-    interface = reinterpret_cast<ZmqNetworkInterface*>(object);
-    interface->cleanup();
+    ZmqNetworkInterface *interface_ = NULL;
+    interface_ = reinterpret_cast<ZmqNetworkInterface*>(object);
+    interface_->cleanup();
     exit(EXIT_FAILURE);
 }
 
@@ -113,7 +113,10 @@ void ZmqNetworkInterface::init()
     assert(this->context >= 0);
     
     zmqx_register_handler(cleanup_handler, this->zmq_req, this->context, this);
+	//Chaomei 
+#ifndef _WIN32
     zmqx_catch_signals();
+#endif
     
 #if DEBUG
     CERR << this->ID << " context=" << this->context << endl;
@@ -481,7 +484,8 @@ void ZmqNetworkInterface::processSubMessage()
         /* if I'm child, I die */
         bool IAmChild = Integrator::isChild();
         if (IAmChild) {
-            unsigned long time = Integrator::getCurSimTime();
+			//Chaomei changed from unsigned int
+            uint64_t time = Integrator::getCurSimTime();
 	    (void) zmqx_send(this->zmq_req, this->context, "REDUCE_FAIL_TIME", time);
             cleanup();
 	    cout << "Child exiting " <<endl;

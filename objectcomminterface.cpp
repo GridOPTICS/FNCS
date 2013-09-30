@@ -97,7 +97,7 @@ std::vector< Message* > ObjectCommInterface::getAllInboxMessages() {
 
     vector<int> locs;
 
-    for(int i=0; i<inbox.size(); i++) {
+    for(unsigned int i=0; i<inbox.size(); i++) {
 
         Message *msg=inbox[i];
         if(msg->getTime()<=currentTime && msg->getTime()>=graceTime) {
@@ -106,7 +106,7 @@ std::vector< Message* > ObjectCommInterface::getAllInboxMessages() {
         }
     }
 
-    for(int i=0; i<locs.size(); i++) {
+    for(unsigned int i=0; i<locs.size(); i++) {
 
         inbox.erase(inbox.begin()+locs[i]);
     }
@@ -126,7 +126,7 @@ bool ObjectCommInterface::hasMoreMessages() {
 	      graceTime=0;
 	 }
         //this->msgs.clear();
-        for(int i=0; i<inbox.size(); i++) {
+        for(unsigned int i=0; i<inbox.size(); i++) {
 
             Message *msg=inbox[i];
             if(msg->getTime()<=currentTime && msg->getTime()>=graceTime) {
@@ -144,7 +144,7 @@ bool ObjectCommInterface::hasMoreMessages() {
           ++this->it;
 	  if(this->it==this->msgs.end()) { //no more messages to return
 	    uint32_t shift=0;
-            for(int i=0; i<msgs.size(); i++) {
+            for(unsigned int i=0; i<msgs.size(); i++) {
 
                inbox.erase(inbox.begin()+(msgs[i]-shift));
 		shift++;

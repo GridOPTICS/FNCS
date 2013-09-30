@@ -28,9 +28,16 @@
 #define ABSNETWORKINTERFACE_H_
 
 #include <stdint.h>
-#include <sys/types.h>
-#include <unistd.h>
 
+//Chaomei 9/29/2013
+#ifndef WIN32 
+#include <unistd.h>
+#include <sys/types.h>
+#else
+#include <process.h>
+#endif
+
+#include <stdio.h>
 #include <exception>
 #include <map>
 #include <sstream>
@@ -58,7 +65,16 @@ public:
             int line,
             const char *description) throw () {
         ostringstream s;
-        s << "[" << getpid() << "] " << file << ":" << line << ":" << func
+
+		int pid;
+//Chaomei - 9/19/2013
+#if defined(WIN32) && !defined(UNIX)
+		pid = _getpid();
+#elif defined(UNIX) && !defined(WIN32)
+		pid = getpid();
+#endif
+  
+        s << "[" <<pid << "] " << file << ":" << line << ":" << func
             << ": Exception `" << description << "'" << endl;
         this->message = s.str();
     }
@@ -70,10 +86,13 @@ private:
     string message;
 };
 
+#ifdef _WIN32
+#define __func__ __FUNCTION__
+#endif
+
 /* for brevity */
 #define NETWORK_EXCEPTION(DESC) \
     throw NetworkException(__FILE__,__func__,__LINE__,(DESC))
-
 
 class AbsNetworkInterface {
 protected:

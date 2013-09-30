@@ -58,10 +58,10 @@ TIME ConservativeSleepingCommAlgo::GetNextTime(TIME currentTime, TIME nextTime)
 		     return grantedTime;
 		    
 
-		    diff=interface->reduceTotalSendReceive();
+		    diff=interface_->reduceTotalSendReceive();
 		    //assume network stable
 		    if(diff==0)
-		      this->interface->resetCounters();
+		      this->interface_->resetCounters();
 		    /*if(diff>0)
 		    { //network unstable 
 			TIME graceTime=Integrator::getCurSimTime()-Integrator::getPacketLostPeriod();
@@ -86,11 +86,11 @@ TIME ConservativeSleepingCommAlgo::GetNextTime(TIME currentTime, TIME nextTime)
 		      updated=false;
 		    }*/
 		    if(diff > 0)
-		      this->interface->packetLostCalculator(currentTime);
-		    TIME minnetworkdelay=interface->reduceNetworkDelay();
+		      this->interface_->packetLostCalculator(currentTime);
+		    TIME minnetworkdelay=interface_->reduceNetworkDelay();
 		    //We never wait for comm sim, instead we wait for oter sims
 		    TIME myminNextTime=Infinity;
-		    TIME minNextTime=(TIME)interface->reduceMinTime(myminNextTime);
+		    TIME minNextTime=(TIME)interface_->reduceMinTime(myminNextTime);
 		    /*if(diff==0 && this->powersimgrantedTime <= minNextTime){
 			uint32_t worldSize;
 			TIME *nextTimes=this->interface->getNextTimes(myminNextTime,worldSize);

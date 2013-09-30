@@ -25,6 +25,7 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef _WIN32
 
 #ifndef GRACEPERIODSPECULATIVESYNCALGO_H
 #define GRACEPERIODSPECULATIVESYNCALGO_H
@@ -38,6 +39,10 @@ using namespace std;
 
 namespace sim_comm{
  
+#ifdef _WIN
+	typedef pid_t int
+#endif
+
 class GracePeriodSpeculativeSyncAlgo : public AbsSyncAlgorithm
 {
   protected:
@@ -76,3 +81,4 @@ class GracePeriodSpeculativeSyncAlgo : public AbsSyncAlgorithm
 }
 
 #endif // GRACEPERIODSPECULATIVESYNCALGO_H
+#endif

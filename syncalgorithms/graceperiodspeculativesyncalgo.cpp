@@ -24,15 +24,20 @@
     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+#ifndef WIN32
+
 #include "config.h"
 
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
 #include <cerrno>
+#include <signal.h>
+
+#ifdef UNIX
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <signal.h>
+#endif
 
 #include "graceperiodspeculativesyncalgo.h"
 #include "communicationcommanager.h"
@@ -298,3 +303,4 @@ TIME   GracePeriodSpeculativeSyncAlgo::GetNextTime(TIME currentTime, TIME nextTi
   }
 
 }
+#endif

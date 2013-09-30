@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>C:\fenix_win\zeromq-3.2.4\include;C:\fenix_win\selim_framework;C:\fenix_win\selim_framework\syncalgorithms;C:\fenix_win\selim_framework\contrib\jsoncpp;C:\fenix_win\selim_framework\commmanager;C:\fenix_win\selim_framework\util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <AdditionalLibraryDirectories>C:\fenix_win\selim_framework\zeromq-3.2.4\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>C:\fenix_win\zeromq-3.2.4\builds\msvc\Debug\libzmq.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="absnetworkinterface.cpp" />
+    <ClCompile Include="cintegrator.cpp" />
+    <ClCompile Include="commmanager\abscommmanager.cpp" />
+    <ClCompile Include="commmanager\communicationcommanager.cpp" />
+    <ClCompile Include="commmanager\graceperiodcommmanager.cpp" />
+    <ClCompile Include="contrib\jsoncpp\src\json_reader.cpp" />
+    <ClCompile Include="contrib\jsoncpp\src\json_value.cpp" />
+    <ClCompile Include="contrib\jsoncpp\src\json_writer.cpp" />
+    <ClCompile Include="fncsbroker.cpp" />
+    <ClCompile Include="integrator.cpp" />
+    <ClCompile Include="message.cpp" />
+    <ClCompile Include="mpinetworkinterface.cpp" />
+    <ClCompile Include="objectcomminterface.cpp" />
+    <ClCompile Include="syncalgorithms\abssyncalgorithm.cpp" />
+    <ClCompile Include="syncalgorithms\communicatorsimulatorsyncalgo.cpp" />
+    <ClCompile Include="syncalgorithms\conservativesleepingcommalgo.cpp" />
+    <ClCompile Include="syncalgorithms\conservativesleepingtickalgo.cpp" />
+    <ClCompile Include="syncalgorithms\graceperiodpesimisticsyncalgo.cpp" />
+    <ClCompile Include="syncalgorithms\graceperiodspeculativesyncalgo.cpp" />
+    <ClCompile Include="syncalgorithms\optimisticcommsyncalgo.cpp" />
+    <ClCompile Include="syncalgorithms\optimisticticksyncalgo.cpp" />
+    <ClCompile Include="syncalgorithms\speculationtimecalculationstrategy.cpp" />
+    <ClCompile Include="util\simtime.cpp" />
+    <ClCompile Include="zmqhelper.cpp" />
+    <ClCompile Include="zmqnetworkinterface.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="absnetworkinterface.h" />
+    <ClInclude Include="cintegrator.h" />
+    <ClInclude Include="commmanager\abscommmanager.h" />
+    <ClInclude Include="commmanager\communicationcommanager.h" />
+    <ClInclude Include="commmanager\graceperiodcommmanager.h" />
+    <ClInclude Include="contrib\jsoncpp\include\autolink.h" />
+    <ClInclude Include="contrib\jsoncpp\include\config.h" />
+    <ClInclude Include="contrib\jsoncpp\include\features.h" />
+    <ClInclude Include="contrib\jsoncpp\include\forwards.h" />
+    <ClInclude Include="contrib\jsoncpp\include\json.h" />
+    <ClInclude Include="contrib\jsoncpp\include\reader.h" />
+    <ClInclude Include="contrib\jsoncpp\include\value.h" />
+    <ClInclude Include="contrib\jsoncpp\include\writer.h" />
+    <ClInclude Include="contrib\jsoncpp\src\json_batchallocator.h" />
+    <ClInclude Include="echo.h" />
+    <ClInclude Include="integrator.h" />
+    <ClInclude Include="message.h" />
+    <ClInclude Include="mpinetworkinterface.h" />
+    <ClInclude Include="objectcomminterface.h" />
+    <ClInclude Include="syncalgorithms\abssyncalgorithm.h" />
+    <ClInclude Include="syncalgorithms\communicatorsimulatorsyncalgo.h" />
+    <ClInclude Include="syncalgorithms\conservativesleepingcommalgo.h" />
+    <ClInclude Include="syncalgorithms\conservativesleepingtickalgo.h" />
+    <ClInclude Include="syncalgorithms\graceperiodpesimisticsyncalgo.h" />
+    <ClInclude Include="syncalgorithms\graceperiodspeculativesyncalgo.h" />
+    <ClInclude Include="syncalgorithms\optimisticcommsyncalgo.h" />
+    <ClInclude Include="syncalgorithms\optimisticticksyncalgo.h" />
+    <ClInclude Include="syncalgorithms\speculationtimecalculationstrategy.h" />
+    <ClInclude Include="util\callback.h" />
+    <ClInclude Include="util\csimtime.h" />
+    <ClInclude Include="util\simtime.h" />
+    <ClInclude Include="zmqhelper.h" />
+    <ClInclude Include="zmqnetworkinterface.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="config.h" />
+    <None Include="contrib\jsoncpp\src\json_internalarray.inl" />
+    <None Include="contrib\jsoncpp\src\json_internalmap.inl" />
+    <None Include="contrib\jsoncpp\src\json_valueiterator.inl" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

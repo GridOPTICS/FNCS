@@ -24,6 +24,12 @@
     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+//Chaomei
+#ifdef _WIN32
+#pragma once
+#pragma warning(disable: 4996) 
+#endif
+
 #include "config.h"
 
 #include <cassert>

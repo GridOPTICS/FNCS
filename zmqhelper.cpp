@@ -60,7 +60,8 @@ void zmqx_signal_handler (int signal_value)
     _zmqx_interrupted = 1;
 }
 
-
+//Chaomei
+#ifndef _WIN32
 void zmqx_catch_signals (void)
 {
     struct sigaction action;
@@ -70,7 +71,7 @@ void zmqx_catch_signals (void)
     sigaction (SIGINT, &action, NULL);
     sigaction (SIGTERM, &action, NULL);
 }
-
+#endif
 
 void zmqx_interrupt_check()
 {
@@ -122,7 +123,8 @@ int zmqx_recv(void *socket, string &buf) {
 
 
 int zmqx_recv(void *socket, uint8_t* &buf, uint32_t buf_size) {
-    int size;
+	//Chaomei changed to uint32_t
+    uint32_t size;
 
     zmqx_interrupt_check();
     buf = new uint8_t[buf_size];
@@ -177,7 +179,8 @@ int zmqx_send(void *socket, const string &s) {
 
 
 int zmqx_send(void *socket, uint8_t *buf, uint32_t buf_size) {
-    int size;
+	//Chaomei changed from int
+    uint32_t size;
 
     zmqx_interrupt_check();
     size = zmq_send(socket, buf, buf_size, 0);
@@ -241,6 +244,46 @@ int zmqx_sendmore(void *socket, int context, const string &command) {
     return totalSize;
 }
 
+struct timezone 
+{
+  int  tz_minuteswest; /* minutes W of Greenwich */
+  int  tz_dsttime;     /* type of dst correction */
+};
+ 
+int gettimeofday(struct timeval *tv, struct timezone *tz)
+{
+  FILETIME ft;
+  unsigned __int64 tmpres = 0;
+  static int tzflag;
+ 
+  if (NULL != tv)
+  {
+    GetSystemTimeAsFileTime(&ft);
+ 
+    tmpres |= ft.dwHighDateTime;
+    tmpres <<= 32;
+    tmpres |= ft.dwLowDateTime;
+ 
+    /*converting file time to unix epoch*/
+    tmpres -= DELTA_EPOCH_IN_MICROSECS; 
+    tmpres /= 10;  /*convert into microseconds*/
+    tv->tv_sec = (long)(tmpres / 1000000UL);
+    tv->tv_usec = (long)(tmpres % 1000000UL);
+  }
+ 
+  if (NULL != tz)
+  {
+    if (!tzflag)
+    {
+      _tzset();
+      tzflag++;
+    }
+    tz->tz_minuteswest = _timezone / 60;
+    tz->tz_dsttime = _daylight;
+  }
+ 
+  return 0;
+} 
 
 unsigned long zmqx_utime()
 {
@@ -253,11 +296,24 @@ unsigned long zmqx_utime()
     return tv.tv_sec*1000000 + tv.tv_usec;
 }
 
+//Chaomei
+#if defined(WIN32) && !defined(UNIX)
+  #define randof(num)  (int) ((float) (num) * rand () / (RAND_MAX + 1.0))
+#elif defined(UNIX) && !defined(WIN32)
+  #define randof(num)  (int) ((float) (num) * random () / (RAND_MAX + 1.0))
+#endif
 
-#define randof(num)  (int) ((float) (num) * random () / (RAND_MAX + 1.0))
 string gen_id() {
     char identity [16];
-    srandom(zmqx_utime());
+	int pid;
+#if defined(WIN32) && !defined(UNIX)
+	srand(zmqx_utime());
+	pid = _getpid();
+#elif defined(UNIX) && !defined(WIN32)
+	srandom(zmqx_utime());
+	pid = getpid();
+#endif
+  
     sprintf (identity, "%05d-%04X-%04X", getpid(), randof (0x10000), randof (0x10000));
     return string(identity);
 }
