@@ -55,6 +55,7 @@ include_HEADERS += util/csimtime.h
 AM_CPPFLAGS += -I$(top_srcdir)/commmanager
 AM_CPPFLAGS += -I$(top_srcdir)/syncalgorithms
 AM_CPPFLAGS += -I$(top_srcdir)/util
+AM_CPPFLAGS += -I$(top_srcdir)/contrib/jsoncpp/dist
 
 lib_LTLIBRARIES += libfncs_api.la
 libfncs_api_la_SOURCES =
@@ -74,6 +75,8 @@ endif
 libfncs_api_la_SOURCES += commmanager/abscommmanager.cpp
 libfncs_api_la_SOURCES += commmanager/communicationcommanager.cpp
 libfncs_api_la_SOURCES += commmanager/graceperiodcommmanager.cpp
+
+libfncs_api_la_SOURCES += contrib/jsoncpp/dist/jsoncpp.cpp
 
 libfncs_api_la_SOURCES += syncalgorithms/abssyncalgorithm.cpp
 libfncs_api_la_SOURCES += syncalgorithms/communicatorsimulatorsyncalgo.cpp
