@@ -55,7 +55,7 @@ namespace sim_comm{
 	return;
       
      
-      this->interface_->waitforAll();
+      this->interface->waitforAll();
   }
 
 
@@ -77,9 +77,9 @@ namespace sim_comm{
       }
       //call sleep to wake up other sims
       if(mightSleep){
-	  for(unsigned int i=0;i<this->othersimsSize;i++)
+	  for(int i=0;i<this->othersimsSize;i++)
 	    if(nextTime >= this->powersimgrantedTime[i]){ //might cause unnecessary sleeps
-	      this->interface_->sleep();
+	      this->interface->sleep();
 	      mightSleep=false;
 	    }
 	 
@@ -88,22 +88,22 @@ namespace sim_comm{
       {
 	  if(busywait){
 	    if(this->diff==0){
-	      bool result=this->interface_->sleep(); //sleep until woken up
+	      bool result=this->interface->sleep(); //sleep until woken up
 	      mightSleep=false;
 	      if(!needToRespond)
 		needToRespond=result;
 	    }
 	    else{
-	      this->interface_->waitforAll();
+	      this->interface->waitforAll();
 	    }
 	  }
-          this->diff=interface_->reduceTotalSendReceive();
+          this->diff=interface->reduceTotalSendReceive();
           //network unstable, we need to wait!
           nextEstTime=currentTime+convertToFrameworkTime(Integrator::getCurSimMetric(),1); 
 	  //find next responseTime
-	  minnetworkdelay=interface_->reduceNetworkDelay();
+	  minnetworkdelay=interface->reduceNetworkDelay();
 	  if(diff==0)
-	    this->interface_->resetCounters();
+	    this->interface->resetCounters();
 	  if(diff==0 && !needToRespond)
 	  { 
 	    nextEstTime=nextTime;
@@ -116,10 +116,10 @@ namespace sim_comm{
 	  }
           //Calculate next min time step
           TIME myminNextTime=nextEstTime;
-          TIME minNextTime=(TIME)interface_->reduceMinTime(myminNextTime); //we do this operation for the netsim
+          TIME minNextTime=(TIME)interface->reduceMinTime(myminNextTime); //we do this operation for the netsim
 	  if(!mightSleep && diff==0){ //this operation allows us to find how long the sims need to sleep
 		uint32_t worldSize;
-		TIME *nextTimes=this->interface_->getNextTimes(myminNextTime,worldSize);
+		TIME *nextTimes=this->interface->getNextTimes(myminNextTime,worldSize);
 		for(uint32_t i=0,j=0;i<worldSize;i++){
 		 if(nextTimes[i] == Infinity)
 		   continue;

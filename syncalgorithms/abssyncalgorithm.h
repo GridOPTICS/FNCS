@@ -85,7 +85,7 @@ namespace sim_comm
   class AbsSyncAlgorithm
   {
     protected:
-	AbsCommManager* interface_;
+	AbsCommManager* interface;
 	bool finished;
 	TIME grantedTime;
 	ALGOTYPE algotype;

@@ -150,20 +150,20 @@ void Integrator::parseConfig(
   file >> root;
   std::cout << root;
 
-  const Json::Value interface_ = root["interface"];
+  const Json::Value interface = root["interface"];
   const Json::Value simulator_type = root["simulator_type"];
   const Json::Value synchronization_algorithm = root["synchronization_algorithm"];
   const Json::Value simulator_time_metric = root["simulator_time_metric"];
   const Json::Value packet_loss_period = root["packet_loss_period"];
     
-  if (interface_.isNull())
+  if (interface.isNull())
   {
     cout << "Error: No interface (either mpi or zmq)  in Json file" << endl;
     exit (1);
   }
   else
   {
-    if (interface_.asString() == "zmq") 
+    if (interface.asString() == "zmq") 
     {
       if (simulator_type.asString() == "power_grid") { 
         comm = new ZmqNetworkInterface(false);
@@ -174,7 +174,7 @@ void Integrator::parseConfig(
         cout << "interface is ZMQ, with a network simulator" << endl;
       }
     }
-    else if (interface_.asString() == "mpi") 
+    else if (interface.asString() == "mpi") 
       //MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, true);
       cout << "interface is MPI" << endl;
   }
@@ -182,7 +182,7 @@ void Integrator::parseConfig(
   if (packet_loss_period.isNull()) 
     plp = 5000000000;
   else
-    plp = (TIME) packet_loss_period.asDouble();
+    plp = packet_loss_period.asDouble();
 
   #if DEBUG
     CERR << "packet loss period = " << plp << endl;
@@ -244,7 +244,7 @@ void Integrator::parseConfig(
         if (synchronization_algorithm["optimistic"]["spec_time"].isNull())
           specTime = 30000000000;
         else
-          specTime = (TIME) synchronization_algorithm["optimistic"]["spec_time"].asDouble(); 
+          specTime = synchronization_algorithm["optimistic"]["spec_time"].asDouble(); 
 
         #if DEBUG
           CERR << "specTime = " << specTime << endl;
@@ -409,12 +409,8 @@ void Integrator::initIntegratorOptimistic(
 #endif
     AbsCommManager *command=new GracePeriodCommManager(currentInterface);
     TIME specDifferentFramework=convertToFrameworkTime(simTimeStep,specDifference);
-//Chaomei
-#ifndef _WIN32
-	AbsSyncAlgorithm *algo=new OptimisticTickSyncAlgo(command,specDifferentFramework,strategy);
+    AbsSyncAlgorithm *algo=new OptimisticTickSyncAlgo(command,specDifferentFramework,strategy);
     instance=new Integrator(command,algo,simTimeStep,packetLostPeriod);
-#endif
-
     instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
 }
 
@@ -434,11 +430,8 @@ void Integrator::initIntegratorOptimisticComm(
 #endif
     AbsCommManager *command=new CommunicationComManager(currentInterface);
     TIME specDifferentFramework=convertToFrameworkTime(simTimeStep,specDifference);
-	//Chaomei
-#ifndef _WIN32
     AbsSyncAlgorithm *algo=new OptimisticCommSyncAlgo(command,specDifferentFramework,strategy);
     instance=new Integrator(command,algo,simTimeStep,packetLostPeriod);
-#endif
     instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
 }
 

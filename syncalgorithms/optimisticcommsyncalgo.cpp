@@ -25,7 +25,7 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _WIN32
+
 #include "optimisticcommsyncalgo.h"
 
 namespace sim_comm{
@@ -106,5 +106,4 @@ namespace sim_comm{
 
 
 }
-#endif
 

@@ -75,9 +75,8 @@ void *zmq_ctx = NULL;
 void *broker = NULL;
 void *async_broker = NULL;
 void *killer = NULL;
-//Chaomei changed from int
-unsigned int world_size = 0;
-vector<unsigned int> world_sizes;
+int world_size = 0;
+vector<int> world_sizes;
 
 struct ReduceMinPairLess
 {
@@ -208,14 +207,11 @@ int main(int argc, char **argv)
     }
 
     zmqx_register_handler(graceful_death_handler, NULL, 0, NULL);
-	//chaomei
-#ifndef _WIN32
     zmqx_catch_signals();
-#endif
 
     while (1) {
         string identity; // simulation identifier
-        uint32_t context; // which group of sims?
+        int context; // which group of sims?
         string control; // control field
 
         zmq_pollitem_t items[] = {
@@ -443,7 +439,6 @@ static void hello_handler(
             graceful_death(EXIT_FAILURE);
         }
     }
-	
     if (newConnections.size() > world_size) {
         graceful_death(EXIT_FAILURE);
     }
@@ -578,7 +573,7 @@ static void reduce_min_time_handler(
 static void reduce_min_time_checker(
         const int &context)
 {
-    if (reduce_min_time[context].size() > (unsigned int) world_sizes[context]) {
+    if (reduce_min_time[context].size() > world_sizes[context]) {
         cerr << "reduce_min_time size > world size" << endl;
         graceful_death(EXIT_FAILURE);
     }
@@ -619,7 +614,7 @@ void all_gather_handler(
 
 void all_gather_checker(const int& context)
 {
-    if (all_gather[context].size() > (unsigned int) world_sizes[context]) {
+    if (all_gather[context].size() > world_sizes[context]) {
         cerr << "all_gather size > world size" << endl;
         graceful_death(EXIT_FAILURE);
     }

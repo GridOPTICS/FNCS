@@ -1,7 +1,0 @@
-{
-        "interface" : "zmq",
-        "simulator_type" : "communication_network",
-        "synchronization_algorithm" : "conservative",
-        "simulator_time_metric" : "milliseconds",
-        "packet_loss_period" : 1000000000
-}

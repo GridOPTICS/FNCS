@@ -35,10 +35,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
-
-#ifdef UNIX
 #include <unistd.h>
-#endif
 
 #include "absnetworkinterface.h"
 #include "message.h"

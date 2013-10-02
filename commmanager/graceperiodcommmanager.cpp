@@ -70,7 +70,7 @@ namespace sim_comm{
         //if(in->getInboxMessagesCount()>0) {
 
             vector<Message*>  outmessges=in->getOutBox();
-            for(unsigned int i=0; i<outmessges.size(); i++) {
+            for(int i=0; i<outmessges.size(); i++) {
                 try {
 		     if(this->syncAlgoCallBackSend){
 			 bool val=(*(this->syncAlgoCallBackSend))(outmessges[i]);
@@ -78,7 +78,7 @@ namespace sim_comm{
 			   continue;
 		    }
                     if (outmessges[i]->isBroadCast()) {
-                        uint64_t scount = this->currentInterface->broadcast(outmessges[i])-1;
+                        int scount = this->currentInterface->broadcast(outmessges[i])-1;
                             sendCount +=scount;
                     } 
                     else {

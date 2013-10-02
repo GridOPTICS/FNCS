@@ -29,10 +29,10 @@
 #include <cassert>
 
 #include "cintegrator.h"
-//Chaomei not sure !
-//#if HAVE_ZMQ
+
+#if HAVE_ZMQ
 #include "zmqnetworkinterface.h"
-//#endif
+#endif
 #include "integrator.h"
 #include "objectcomminterface.h"
 #include "callback.h"

@@ -2,18 +2,15 @@
 #define _ZMQHELPER_H_
 
 #include <stdint.h> /* for uint8_t, uint32_t */
+#include <sys/time.h> /* for gettimeofday */
 
 #include <cassert> /* for assert */
 #include <cstdlib> /* for size_t */
 #include <csignal> /* for sigaction */
 #include <string>
 
-#ifndef _WIN32
-#include <sys/time.h> /* for gettimeofday */
-#endif
-
 #include <zmq.h>
-//#include <signal.h>
+
 using namespace std;
 
 // Signal handling

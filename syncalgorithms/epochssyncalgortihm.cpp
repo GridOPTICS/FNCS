@@ -57,9 +57,9 @@ namespace sim_comm{
       }
       do{
 	 if(busywait){
-	    this->interface_->waitforAll();
+	    this->interface->waitforAll();
 	  }
-          uint64_t diff=interface_->reduceTotalSendReceive();
+          uint64_t diff=interface->reduceTotalSendReceive();
           //network unstable, we need to wait!
           nextEstTime=currentTime+this->nextSyncTime; 
 	  myMinNextTime=currentTime+convertToFrameworkTime(Integrator::getCurSimMetric(),1);
@@ -70,7 +70,7 @@ namespace sim_comm{
           else{
 	    needToRespond=true; //set this condition so that when the simulator wakes up from busy wait it responds to messages
 	  }
-	  TIME minNextTime=(TIME)interface_->reduceMinTime(nextEstTime);
+	  TIME minNextTime=(TIME)interface->reduceMinTime(nextEstTime);
 	  
           //min time is the estimated next time, so grant nextEstimated time
           if(minNextTime>myMinNextTime)

@@ -188,17 +188,6 @@ public:
     static TIME getCurSimTime();
 
     /**
-     * parse the configuration JSON file
-     */
-    static void parseConfig(string jsonFile, TIME currentTime);
-    
-    /**
-     * Initializes the integrator
-     */ 
-    static void initIntegrator(string jsonFile,
-                               TIME currentTime);
-
-    /**
      * Initializes the integrator for a tick-based simulator
      */
     static void initIntegratorGracePeriod(AbsNetworkInterface *currentInterface, 
