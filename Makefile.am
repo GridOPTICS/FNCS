@@ -52,19 +52,9 @@ include_HEADERS += util/callback.h
 include_HEADERS += util/simtime.h
 include_HEADERS += util/csimtime.h
 
-include_HEADERS  += contrib/jsoncpp/include/autolink.h
-include_HEADERS  += contrib/jsoncpp/include/config.h
-include_HEADERS  += contrib/jsoncpp/include/features.h
-include_HEADERS  += contrib/jsoncpp/include/forwards.h
-include_HEADERS  += contrib/jsoncpp/include/json.h
-include_HEADERS  += contrib/jsoncpp/include/reader.h
-include_HEADERS  += contrib/jsoncpp/include/value.h
-include_HEADERS  += contrib/jsoncpp/include/writer.h
-
 AM_CPPFLAGS += -I$(top_srcdir)/commmanager
 AM_CPPFLAGS += -I$(top_srcdir)/syncalgorithms
 AM_CPPFLAGS += -I$(top_srcdir)/util
-AM_CPPFLAGS += -I$(top_srcdir)/contrib/jsoncpp
 
 lib_LTLIBRARIES += libfncs_api.la
 libfncs_api_la_SOURCES =
@@ -96,14 +86,6 @@ libfncs_api_la_SOURCES += syncalgorithms/speculationtimecalculationstrategy.cpp
 
 libfncs_api_la_SOURCES += util/simtime.cpp
 
-libfncs_api_la_SOURCES += contrib/jsoncpp/src/json_reader.cpp
-libfncs_api_la_SOURCES += contrib/jsoncpp/src/json_writer.cpp
-libfncs_api_la_SOURCES += contrib/jsoncpp/src/json_value.cpp
-libfncs_api_la_SOURCES += contrib/jsoncpp/src/json_batchallocator.h
-libfncs_api_la_SOURCES += contrib/jsoncpp/src/json_internalarray.inl
-libfncs_api_la_SOURCES += contrib/jsoncpp/src/json_internalmap.inl
-libfncs_api_la_SOURCES += contrib/jsoncpp/src/json_valueiterator.inl
-
 check_PROGRAMS += tests/sanity
 tests_sanity_SOURCES = tests/sanity.cpp
 
@@ -125,4 +107,3 @@ tests_zimmer_SOURCES = tests/zimmer.cpp
 check_PROGRAMS += tests/simmerTransmission
 tests_simmerTransmission_SOURCES = tests/simmerTransmission.cpp
 endif
-
