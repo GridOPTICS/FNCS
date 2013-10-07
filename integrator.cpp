@@ -231,10 +231,9 @@ void Integrator::parseConfig(string jsonFile, TIME currentTime)
             } 
             else if(synchronization_algorithm.asString().compare("active_set_conservative") == 0)  
             {
-                time_metric others[1];
-                others[0] = SECONDS;
+   		//TODO: this won't work!!
 
-                Integrator::initIntegratorConservativeSleepingTick(comm, tm, plp, currentTime, others, 1);  
+                Integrator::initIntegratorConservativeSleepingTick(comm, tm, plp, currentTime, 2);  
                 cout << "*** call initIntegratorConservativeSleepingTick" << endl;
 
             }
@@ -339,8 +338,7 @@ void Integrator::initIntegratorConservativeSleepingTick(
   time_metric simTimeStep, 
   TIME packetLostPeriod, 
   TIME initialTime,
-  time_metric connectedSimsMetric[],
-  int metricsSize)
+  int numberofPowerSims)
 {
 
 #if DEBUG
@@ -351,7 +349,7 @@ void Integrator::initIntegratorConservativeSleepingTick(
         << "initialTime=" << initialTime << ")" << endl;
 #endif
     AbsCommManager *command=new GracePeriodCommManager(currentInterface);
-    AbsSyncAlgorithm *algo=new ConservativeSleepingTickAlgo(command,connectedSimsMetric,metricsSize);
+    AbsSyncAlgorithm *algo=new ConservativeSleepingTickAlgo(command,numberofPowerSims);
     instance=new Integrator(command,algo,simTimeStep,packetLostPeriod);
     instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
 }

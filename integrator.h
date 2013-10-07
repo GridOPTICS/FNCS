@@ -221,8 +221,7 @@ public:
 			    time_metric simTimeStep, 
 			    TIME packetLostPeriod, 
 			    TIME initialTime,
-			    time_metric connectedSimsMetric[],
-			    int metricsSize);
+			    int numberofPowerSims);
     
     
 /**

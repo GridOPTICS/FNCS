@@ -33,10 +33,10 @@
 namespace sim_comm{
 
 
-  ConservativeSleepingTickAlgo::ConservativeSleepingTickAlgo(AbsCommManager *interface, time_metric connectedSims[], int &connectedSimsSize) : AbsSyncAlgorithm(interface)
+  ConservativeSleepingTickAlgo::ConservativeSleepingTickAlgo(AbsCommManager *interface, int &numberofPowerSims) : AbsSyncAlgorithm(interface)
   {
-     this->othersimsSize=connectedSimsSize-1;
-     this->powersimgrantedTime=new TIME[connectedSimsSize-1];
+     this->othersimsSize=numberofPowerSims-1;
+     this->powersimgrantedTime=new TIME[numberofPowerSims-1];
      this->diff=0;
      this->mightSleep=false;
   }
