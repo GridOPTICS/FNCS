@@ -68,9 +68,6 @@ class GracePeriodSpeculativeSyncAlgo : public AbsSyncAlgorithm
     virtual void timeStepStart(TIME currentTime);
     virtual bool forkedNewChild(){return this->isChild;}
    
-    virtual void childDied(TIME dieTime){
-      
-    }
 };
 
 }

@@ -57,7 +57,11 @@ namespace sim_comm
 #endif
       if(currentTime < grantedTime)
 	return;
-      
+#if DEBUG_WITH_PROFILE
+      CERR <<  "Start sync time step " << currentTime << " " << getCurTimeInMs() << endl;
+#elif DEBUG
+      CERR << "Start sync time step " << currentTime <<  endl;
+#endif
       this->interface->waitforAll();
   }
 

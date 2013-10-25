@@ -55,20 +55,16 @@ AbsNetworkInterface::AbsNetworkInterface(bool forkCapable)
     :   myObjects()
     ,   registrationsAreFinalized(false)
     ,	canFork(forkCapable)
+    ,	killOnTerm(true)
   
 {
-#if DEBUG && DEBUG_TO_FILE
-    ostringstream ferrName;
-    ferrName << "tracer." << PID << ".log";
-    echo.open(ferrName.str().c_str());
-#endif
+  
 }
 
 
 AbsNetworkInterface::~AbsNetworkInterface() {
-#if DEBUG && DEBUG_TO_FILE
-    echo.close();
-#endif
+
+  
 }
 
 
@@ -77,7 +73,17 @@ AbsNetworkInterface::AbsNetworkInterface(const AbsNetworkInterface& that)
   this->myObjects=that.myObjects;
   this->messageCallBack=that.messageCallBack;
   this->registrationsAreFinalized=that.registrationsAreFinalized;
+  this->canFork=that.canFork;
+  this->killOnTerm=that.killOnTerm;
  
+}
+
+void AbsNetworkInterface::setKillOnTerm(bool state)
+{
+  this->killOnTerm=state;
+#if DEBUG
+  CERR << "AbsNetworkInterface::setKillOnTerm(" << this->killOnTerm << ")" << endl;
+#endif
 }
 
 

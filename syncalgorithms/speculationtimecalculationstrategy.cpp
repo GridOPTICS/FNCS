@@ -33,29 +33,47 @@ namespace sim_comm{
   SpeculationTimeCalculationStrategy::SpeculationTimeCalculationStrategy(time_metric metric,TIME initialspecTime)
   {
     this->initialTime=convertToFrameworkTime(metric,initialspecTime);
+    this->speculationTime=0;
    
   }
+  
+  void SpeculationTimeCalculationStrategy::startSpeculation(TIME currentTime)
+  {
+    this->speculationTime=currentTime;
+  }
+
 
 
   ConstantSpeculationTimeStrategy::ConstantSpeculationTimeStrategy(time_metric metric,TIME initialspecTime) : SpeculationTimeCalculationStrategy(metric,initialspecTime)
   {
 
   }
+  
+  void ConstantSpeculationTimeStrategy::speculationFailed(TIME failTime)
+  {
+
+  }
+  
+  void ConstantSpeculationTimeStrategy::speculationSuceeded(TIME currentTime)
+  {
+
+  }
+
 
   IncreasingSpeculationTimeStrategy::IncreasingSpeculationTimeStrategy(time_metric metric,TIME initialspecTime): SpeculationTimeCalculationStrategy(metric,initialspecTime)
   {
       this->startup=this->initialTime;
   }
   
-  void IncreasingSpeculationTimeStrategy::speculationFailed(TIME currentTime,TIME nextTime){
-    this->initialTime/=2;
-    if(this->initialTime==0)
-      this->initialTime=this->startup;
+  void IncreasingSpeculationTimeStrategy::speculationFailed(TIME failTime)
+  {
+   
+    this->initialTime=failTime - speculationTime;
   }
   
-  void IncreasingSpeculationTimeStrategy::speculationSuceeded(TIME currentTime,TIME nextTime){
-    this->initialTime*=2;
+  void IncreasingSpeculationTimeStrategy::speculationSuceeded(TIME currentTime){
     
+      this->initialTime+= currentTime - speculationTime;
   }
   
 }

@@ -60,6 +60,8 @@ vector<ReduceMap> reduce_recv;
 vector<ReduceMap> reduce_fail_time;
 string newNetSimID;
 set<string> newConnections;
+vector<map<string,string> > reinitMap;
+map<string,string> childIniMap;
 set<int> newParents;
 vector<set<string> > contexts;
 vector<set<int> > parent_contexts;
@@ -68,7 +70,7 @@ vector<set<string> > barrier;
 vector<set<string> > succed;
 vector<set<string> > asleep;
 vector<set<string> > finished;
-vector<char> valid_contexts;
+vector<bool> valid_contexts;
 vector<string> netSimID;
 vector<uint64_t> netSimObjCount;
 void *zmq_ctx = NULL;
@@ -77,6 +79,7 @@ void *async_broker = NULL;
 void *killer = NULL;
 int world_size = 0;
 vector<int> world_sizes;
+vector<bool> child_init_complete;
 
 struct ReduceMinPairLess
 {
@@ -109,6 +112,11 @@ static void reduce_send_recv_checker(const int &context);
 static void all_gather_checker(const int &context);
 static void reduce_fail_time_checker(const int &context);
 static void succeed_checker(const int &context);
+static bool isValid(int context);
+static void parent_reinit_handler(const string &identity, const int &context, const string &control);
+static void parent_reinit_checker(const int &context);
+static void child_init_handler(const string &identity, const int &context, const string &control);
+static void child_init_checker(const int &parent_context);
 
 static void graceful_death_handler(void *arg)
 {
@@ -124,9 +132,7 @@ int main(int argc, char **argv)
 
 #if DEBUG
 #   if DEBUG_TO_FILE
-    ostringstream ferrName;
-    ferrName << "tracer." << PID << ".log";
-    echo.open(ferrName.str().c_str());
+    Debug::setEcho("broker");
 #   endif
 #endif
     
@@ -206,8 +212,9 @@ int main(int argc, char **argv)
         graceful_death(EXIT_FAILURE);
     }
 
-    zmqx_register_handler(graceful_death_handler, NULL, 0, NULL);
+    zmqx_register_handler(graceful_death_handler, 0, NULL);
     zmqx_catch_signals();
+
 
     while (1) {
         string identity; // simulation identifier
@@ -238,7 +245,7 @@ int main(int argc, char **argv)
                 cerr << "broker received invalid context" << endl;
                 graceful_death(EXIT_FAILURE);
             }
-            if ("HELLO" == control || "HELLO_NETSIM" == control) {
+            else if ("HELLO" == control || "HELLO_NETSIM" == control) {
                 hello_handler(identity, context, control);
             }
             else if ("REDUCE_MIN_TIME" == control) {
@@ -280,6 +287,12 @@ int main(int argc, char **argv)
             else if ("CHILD_SUCCESS" == control) {
 	      succeed_handler(identity,context,control);
 	    }
+	    else if ("PARENT_REINIT" == control){
+		parent_reinit_handler(identity,context,control);
+	    }
+	    else if ("CHILD_INIT" == control || "CHILD_INIT_NETSIM" == control){
+		child_init_handler(identity,context,control);
+	    }
             else {
                 cerr << "unrecognized control header '"
                     << control << "'" << endl;
@@ -303,7 +316,10 @@ int main(int argc, char **argv)
 #endif
                 graceful_death(EXIT_FAILURE);
             }
-            if ("ROUTE" == control) {
+            if ("IGNORE" == control){
+
+	    }
+            else if ("ROUTE" == control) {
                 route_handler(identity, context, control);
             }
             else if ("DELAY" == control) {
@@ -322,6 +338,210 @@ int main(int argc, char **argv)
     graceful_death(EXIT_SUCCESS);
 }
 
+/**
+ * A child is trying to reconnect.
+ * The child blocks, until all childern connect.
+ * 
+ */
+void child_init_handler(const string& identity, const int& context, const string& control)
+{
+#ifdef DEBUG
+     CERR  << "Got child re-init " << identity << endl;
+#endif
+     if(childIniMap.size() > world_size){
+       cerr << "Child inits greater than world size!" << endl;
+       graceful_death(0);
+     }
+     
+     int parent;
+     (void) zmqx_recv(broker,parent);
+    
+     newParents.insert(parent);
+     
+     string oldId;
+     (void) zmqx_recv(broker,oldId);
+     if(control == "CHILD_INIT_NETSIM")
+       newNetSimID = identity;
+     
+     if(childIniMap.count(oldId) > 0){
+       cerr << "This pair is already in reinit map:" << oldId << " " << identity << endl;
+       graceful_death(0);
+     }
+#ifdef DEBUG
+	CERR << "New child pair parentId " << oldId << " newId " << identity << ", parent context " <<  parent << endl;
+#endif
+     childIniMap.insert(pair<string,string>(oldId,identity));
+     child_init_checker(parent);
+       
+}
+
+/**
+ * Child init checker, if all childern is connected we create new context and add
+ * object from the current conext to the new one.
+ */
+static void child_init_checker(const int &parent_context){
+  
+    if(childIniMap.size() !=world_size) //not all parents started
+      return;
+    
+#ifdef DEBUG
+      CERR << "All childern have connected, starting context addition!" << endl;
+#endif
+      //safety checks
+      assert(valid_contexts[parent_context]); //parent context should be valid, otherwise we are a parent!
+      assert(newConnections.size()==0); //the new connections set is only used in hello.
+      assert(newParents.size()==1); //we should have only one parent!
+      assert(!newNetSimID.empty()); //we should have a netsimid, netsim shoud have send a child_init_netsim
+      
+      //add to contexts!
+      map<string, string>::iterator it=childIniMap.begin();
+      
+      for(;it!=childIniMap.end();++it){
+	newConnections.insert(it->second);
+      }
+      
+      //add context.
+      int newContext=add_context();
+      
+      //set the network number of objects
+      netSimObjCount[newContext]=netSimObjCount[parent_context];
+      
+      //new context gets parent objects; 
+      //this is an O(n) operation, we can do better.
+      obj_to_ID[newContext]=obj_to_ID[parent_context];
+      it=obj_to_ID[newContext].begin();
+      map<string,string>::iterator it2;
+      for(;it!=obj_to_ID[newContext].end();++it){
+	it2=childIniMap.find(it->second);
+	if(it2==childIniMap.end()){
+	  cerr << it->second << " is not a parent identity!" << endl;
+	  graceful_death(0);
+	}
+	it->second=it2->second;
+      }
+      assert(contexts[newContext].size()==world_size);
+      
+      set<string>::iterator it3=contexts[newContext].begin();
+      for(;it3!=contexts[newContext].end();++it3){
+#ifdef DEBUG
+	    CERR << "Sending new context to " << *it3 << endl;
+#endif
+	    (void) zmqx_sendmore(broker, *it3);
+            (void) zmqx_send(broker, newContext);
+      }
+      
+      childIniMap.clear();
+      newConnections.clear();
+      newParents.clear();
+      newNetSimID.clear();
+#ifdef DEBUG
+      CERR << "Child context initialized!" << endl;
+#endif
+      child_init_complete[parent_context]=true;
+      parent_reinit_checker(parent_context);
+}
+
+/**
+ * A parent is trying to re_connect. We check if parent context is valid. if so we check
+ * if parent's child context is valid. The child might have died while the parent is 
+ * trying to reconnect.
+ */
+static void parent_reinit_handler(const string& identity, const int& context, const string& control)
+{
+#ifdef DEBUG
+     CERR  << "Got parent re-init " << identity << endl;
+#endif
+
+     if(reinitMap[context].size() > world_size){
+       cerr << "Re-inits exceeded world_size!" << endl;
+       graceful_death(0);
+     }
+     
+     string oldId;
+     (void) zmqx_recv(broker,oldId);
+     
+     if(reinitMap[context].count(oldId) > 0){
+       cerr << "This pair is already in reinit map:" << oldId << " " << identity << endl;
+       graceful_death(0);
+     }
+     
+     reinitMap[context].insert(pair<string,string>(oldId,identity));
+     parent_reinit_checker(context);   
+}
+
+void parent_reinit_checker(const int& context)
+{
+  
+  if(!child_init_complete[context] || reinitMap[context].size() !=world_size) //not all parents started
+    return;
+  
+#ifdef DEBUG
+   CERR << "in context " << context << " all parents sent the re-init message " << child_init_complete[context] << " " << reinitMap[context].size()<< endl;
+#endif  
+  map<string,string>::iterator it=reinitMap[context].begin();
+  //before we do anything, check if context is valid!
+   if(!valid_contexts[context]){
+#ifdef DEBUG
+	CERR << "context " << context << "is not valid" << endl;
+#endif
+     for(;it!=reinitMap[context].end();++it){
+      (void) zmqx_sendmore(broker,it->second);
+      (void) zmqx_send(broker,"NOT_VALID");
+     }
+     child_init_complete[context]=false;
+     reinitMap[context].clear();
+     return;
+   }
+#ifdef DEBUG
+	CERR << "context " << context << "is valid, entering context replace." << endl;
+#endif
+   
+  //first we need to replace the old conexts ids with the new context ids
+  contexts[context].clear();
+
+   for(;it!=reinitMap[context].end();++it){
+     contexts[context].insert(string(it->second));
+   }
+  string oldNetSimId=netSimID[context];
+  map<string,string>::iterator netSim=reinitMap[context].find(oldNetSimId);
+  if(netSim==reinitMap[context].end()){
+    cerr << "No netsim id in re-init map?" << endl;
+    graceful_death(0);
+    return;
+  }
+  //start replace operation
+#ifdef DEBUG
+	CERR << "context " << context << ": starting replace operation." << endl;
+#endif    
+  netSimID[context]=netSim->second;
+  
+  //we copy obj_to_ID so childern can use it in future
+  
+  map<string, string>::iterator objIdIt=obj_to_ID[context].begin();
+  for(;objIdIt!=obj_to_ID[context].end();++objIdIt){
+    it=reinitMap[context].find(objIdIt->second);
+    if(it==reinitMap[context].end()){
+      cerr << "OldId" << objIdIt->second << " has no new id mapping!" << endl;
+      graceful_death(0);
+    }
+    assert(objIdIt->second==it->first);
+    objIdIt->second=it->second;
+  }
+#ifdef DEBUG
+	CERR << "re-init complete" << endl;
+#endif    
+  it=reinitMap[context].begin();
+  for(;it!=reinitMap[context].end();++it){
+#if DEBUG
+      CERR << "Sending vald to " << it->second << endl;
+#endif
+    (void) zmqx_sendmore(broker,it->second);
+    (void) zmqx_send(broker,"VALID");
+  }
+  reinitMap[context].clear();
+  child_init_complete[context]=false;
+}
+
 
 static int add_context()
 {
@@ -333,6 +553,7 @@ static int add_context()
     parent_contexts.push_back(newParents);
     world_sizes.push_back(world_size);
     valid_contexts.push_back(true);
+    child_init_complete.push_back(false);
     size = contexts.size();
 
     obj_to_ID.resize(size);
@@ -346,7 +567,8 @@ static int add_context()
     succed.resize(size);
     asleep.resize(size);
     finished.resize(size);
-
+    reinitMap.resize(size);
+    
     return int(size-1);
 }
 
@@ -403,7 +625,7 @@ static void graceful_death(int exit_code)
     }
 
 #if DEBUG && DEBUG_TO_FILE
-    echo.close();
+    Debug::closeEcho();
 #endif
 
     exit(exit_code);
@@ -552,6 +774,16 @@ static void delay_handler(
     }
 }
 
+static bool isValid(int context){
+
+     if(valid_contexts.size()>0 && !valid_contexts[context]){
+#if DEBUG
+	CERR << "broker received a message form an invalid context " << context << endl;
+#endif
+	return false;
+    }
+    return true;
+}
 
 static void reduce_min_time_handler(
         const string &identity,
@@ -565,6 +797,11 @@ static void reduce_min_time_handler(
         graceful_death(EXIT_FAILURE);
     }
     (void) zmqx_recv(broker, time);
+    
+    //check if context is valid
+    if(!isValid(context))
+      return;
+    
     reduce_min_time[context][identity] = time;
     reduce_min_time_checker(context);
 }
@@ -608,6 +845,11 @@ void all_gather_handler(
         graceful_death(EXIT_FAILURE);
     }
     (void) zmqx_recv(broker, nextTime);
+    
+    //check if context is valid, if not ignore.
+    if(!isValid(context))
+      return;
+    
     all_gather[context][identity]=nextTime;
     all_gather_checker(context);
 }
@@ -666,6 +908,11 @@ static void reduce_send_recv_handler(
     }
     (void) zmqx_recv(broker, sent);
     (void) zmqx_recv(broker, recv);
+    
+    //check is context is valid, if not ignore!!
+    if(!isValid(context))
+      return;
+    
     reduce_sent[context][identity] = sent;
     reduce_recv[context][identity] = recv;
     reduce_send_recv_checker(context);
@@ -759,6 +1006,11 @@ static void succeed_handler(
             << identity << "'" << endl;
         graceful_death(EXIT_FAILURE);
     }
+    
+    //check is context is valid, if not ignore!!
+    if(!isValid(context))
+      return;
+    
     succed[context].insert(identity);
     succeed_checker(context);
 }
@@ -773,8 +1025,13 @@ static void succeed_checker(
     else if (succed[context].size() == world_sizes[context]
 	  && world_sizes[context] > 1){
       succed[context].clear();
-      (void) zmqx_send(killer, "DIE_PARENT");
-      //TODO: MARK PARENT CONTEXT INVALID
+      (void) zmqx_sendmore(killer, "DIE_PARENT");
+      set<int> pcontexts=parent_contexts[context];
+      set<int>::iterator it=pcontexts.begin();
+      (void) zmqx_send(killer,*it);
+      for(;it!=pcontexts.end();++it){
+	valid_contexts[*it]=false;
+      }
     }
 }
 
@@ -788,6 +1045,11 @@ static void barrier_handler(
             << identity << "'" << endl;
         graceful_death(EXIT_FAILURE);
     }
+    
+    //check is context is valid, if not ignore!!
+    if(!isValid(context))
+      return;
+    
     barrier[context].insert(identity);
     barrier_checker(context);
 }
@@ -804,8 +1066,14 @@ static void barrier_checker(
             && world_sizes[context] > 1) {
         for (set<string>::iterator it=barrier[context].begin();
                 it != barrier[context].end(); ++it) {
-            (void) zmqx_sendmore(broker, *it);
-            (void) zmqx_send    (broker, "ACK");
+            int retVal=zmqx_sendmore(broker, *it);
+            retVal=zmqx_send    (broker, "ACK");
+	    if(retVal < 0){
+#if DEBUG
+	      CERR << "Send failed, marking context " << context << " as invalid" << endl;
+#endif
+	      //valid_contexts[context]=false;
+	    }
         }
         barrier[context].clear();
     }
@@ -875,6 +1143,11 @@ static void reduce_fail_time_handler(
         graceful_death(EXIT_FAILURE);
     }
     (void) zmqx_recv(broker, time);
+    
+    //check is context is valid, if not ignore!!
+    if(!isValid(context))
+      return;
+    
     reduce_fail_time[context][identity] = time;
     reduce_fail_time_checker(context);
 }

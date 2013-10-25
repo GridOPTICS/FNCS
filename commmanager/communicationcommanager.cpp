@@ -68,6 +68,9 @@ namespace sim_comm{
 	if(it->first < leastTime){
 	    
 	  this->receiveCount+=it->second;
+#ifdef DEBUG
+	  CERR << "LOST A PACKET currentTime " << currentTime << " packetTime " << it->first << endl; 
+#endif
 	  toremove.push_back(it->first);
 	}
       }
@@ -93,11 +96,6 @@ namespace sim_comm{
 	      for(int i=0; i<outmessges.size(); i++) {
 		  try {
 		      outmessges[i]->setDeliveryTime(Integrator::getCurSimTime());
-		      if(this->syncAlgoCallBackSend){
-			 bool val=(*(this->syncAlgoCallBackSend))(outmessges[i]);
-			 if(!val) //syncalgo signaled ignore!
-			   continue;
-		      }
 		      if (outmessges[i]->isBroadCast()) { //wiried????? 
 			  throw CommManagerOperationNotSupportedException("Broadcast is not support on commnetwork commanager");
 			  //int scount = this->currentInterface->broadcast(outmessges[i]);

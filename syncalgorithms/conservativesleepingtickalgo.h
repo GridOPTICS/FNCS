@@ -47,7 +47,7 @@ namespace sim_comm{
       uint64_t diff;
       bool mightSleep;
     public:
-      ConservativeSleepingTickAlgo(AbsCommManager *interface, int &numberofPowerSims);
+      ConservativeSleepingTickAlgo(AbsCommManager *interface, int &numberOfPowerSims);
       virtual bool doDispatchNextEvent(TIME currentTime, TIME nextTime);
       virtual TIME GetNextTime(TIME currentTime, TIME nextTime);
       virtual void timeStepStart(TIME currentTime);
@@ -56,12 +56,7 @@ namespace sim_comm{
        * Always returns false as this algorithm never forks!
        */
       virtual bool forkedNewChild(){ return false;}
-      /**
-	* Operation not supported by this algorithm
-	*/
-      virtual void childDied(TIME dieTime){
-	throw SyncStateException("Operation not supported");
-      }
+     
   };
 
 }

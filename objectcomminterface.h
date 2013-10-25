@@ -59,12 +59,19 @@ private:
     vector<int>::iterator it;
 
     CallBack<void,empty,empty,empty> *notifyMessage;
+    CallBack<bool,Message*,empty,empty> *syncAlgoCallBackSend; 
+    
     /** Constructor. */
     ObjectCommInterface(string objectName);
 
-   
 
 public:
+    /**
+     * This sets the callback to sync algorithm that is called when an object calls
+     * send().
+     */
+    void setSyncAlgoCallBack(CallBack<bool,Message*,empty,empty> *syncAlgoCallBackSend);
+    
      /** Clears the outbox of the system */
     void clear();
 

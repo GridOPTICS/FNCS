@@ -21,12 +21,11 @@ using namespace std;
 
 typedef void (*zmqx_sigfunc)(void*);
 extern zmqx_sigfunc _zmqx_sigfunc;
-extern void *_zmqx_sigfunc_socket;
 extern int   _zmqx_sigfunc_context;
 extern void *_zmqx_sigfunc_object;
 extern int _zmqx_interrupted;
 
-void zmqx_register_handler(zmqx_sigfunc function, void *socket, int context, void *object);
+void zmqx_register_handler(zmqx_sigfunc function, int context, void *object);
 
 void zmqx_signal_handler (int signal_value);
 
@@ -101,6 +100,7 @@ int zmqx_sendmore(void *socket, const T &what)
 
     zmqx_interrupt_check();
     size = zmq_send(socket, &what, sizeof(T), ZMQ_SNDMORE);
+ 
     assert(size == sizeof(T)
             || (size == -1 && errno == EINTR)
           );

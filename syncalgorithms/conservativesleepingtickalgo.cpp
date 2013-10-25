@@ -33,12 +33,15 @@
 namespace sim_comm{
 
 
-  ConservativeSleepingTickAlgo::ConservativeSleepingTickAlgo(AbsCommManager *interface, int &numberofPowerSims) : AbsSyncAlgorithm(interface)
+  ConservativeSleepingTickAlgo::ConservativeSleepingTickAlgo(AbsCommManager *interface, int &numberOfPowerSims) : AbsSyncAlgorithm(interface)
   {
-     this->othersimsSize=numberofPowerSims-1;
-     this->powersimgrantedTime=new TIME[numberofPowerSims-1];
+     this->othersimsSize=numberOfPowerSims-1;
+     this->powersimgrantedTime=new TIME[numberOfPowerSims-1];
      this->diff=0;
      this->mightSleep=false;
+#ifdef DEBUG_WITH_PROFILE
+     setElsapedTimer();
+#endif
   }
 
   ConservativeSleepingTickAlgo::~ConservativeSleepingTickAlgo()
@@ -53,7 +56,12 @@ namespace sim_comm{
 #endif
       if(currentTime < grantedTime)
 	return;
-      
+
+#if DEBUG_WITH_PROFILE
+      CERR <<  "Start sync time step " << currentTime << " " << getCurTimeInMs() << endl;
+#elif DEBUG
+      CERR << "Start sync time step " << currentTime <<  endl;
+#endif
      
       this->interface->waitforAll();
   }
@@ -68,8 +76,9 @@ namespace sim_comm{
       if(nextTime < grantedTime)
 	return nextTime;
 
-      bool busywait=false;
       bool needToRespond=false;
+      busywait=false;
+      
       //send all messages
       if(currentTime < grantedTime){ //we still have some granted time we need to barier at granted Time
 	    busywait=true;
@@ -152,6 +161,9 @@ namespace sim_comm{
       }while(busywait);
      
       this->grantedTime=nextEstTime;
+#ifdef DEBUG_WITH_PROFILE
+      CERR << "Sync finished at time step " << getCurTimeInMs() << endl;
+#endif
 #ifdef PROFILE
       writeTime(currentTime);
 #endif

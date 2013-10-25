@@ -31,6 +31,7 @@
 
 #include "simtime.h"
 
+
 namespace sim_comm{
   /**
    * Abstract class defining operations for 
@@ -40,10 +41,12 @@ class SpeculationTimeCalculationStrategy
 {
   protected:
     TIME initialTime;
+    TIME speculationTime;
   public:
     SpeculationTimeCalculationStrategy(time_metric metric, TIME initialspecTime);
-    virtual void speculationFailed(TIME currentTime,TIME nextTime) = 0;
-    virtual void speculationSuceeded(TIME currentTime,TIME nextTime) =0;
+    virtual void speculationFailed(TIME failTime) = 0;
+    virtual void speculationSuceeded(TIME currentTime) =0;
+    virtual void startSpeculation(TIME currentTime);
     inline TIME getSpecTime(){
       return this->initialTime;
     }
@@ -56,8 +59,8 @@ class ConstantSpeculationTimeStrategy : public SpeculationTimeCalculationStrateg
 {
   public:
     ConstantSpeculationTimeStrategy(time_metric metric, TIME initialspecTime);
-    virtual void speculationFailed(TIME currentTime,TIME nextTime){};
-    virtual void speculationSuceeded(TIME currentTime,TIME nextTime){};
+    virtual void speculationFailed(TIME failTime);
+    virtual void speculationSuceeded(TIME currentTime);
 };
 
 /**
@@ -71,8 +74,8 @@ class IncreasingSpeculationTimeStrategy : public SpeculationTimeCalculationStrat
     TIME startup;
   public:
     IncreasingSpeculationTimeStrategy(time_metric metric, TIME initialspecTime);
-    virtual void speculationFailed(TIME currentTime,TIME nextTime);
-    virtual void speculationSuceeded(TIME currentTime,TIME nextTime);
+    virtual void speculationFailed(TIME failTime);
+    virtual void speculationSuceeded(TIME currentTime);
 };
 
 }

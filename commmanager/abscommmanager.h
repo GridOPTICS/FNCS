@@ -258,6 +258,30 @@ namespace sim_comm{
      * fork operation.
      */
     virtual void prepareFork();
+    
+    /**
+     * This method returns the callback to the sync algorithm,
+     * when a node needs to send message this callback is called.
+     */
+    virtual CallBack<bool,Message*,empty,empty>* getSendMesgCallback(){
+      return this->syncAlgoCallBackSend;
+    }
+    
+    /**
+     * This method causes the calling thread to wait until
+     * a signal is received.
+     */
+    virtual void block(){
+    
+      this->currentInterface->block();
+    }
+    
+    /**
+     * set the behavior of interface on term signal
+     * True - terminates the whole simulation
+     * False - terminates only the current process.
+     */
+    void doKillOnTerm(bool state=true) { this->currentInterface->setKillOnTerm(state); }
   };
 
 }

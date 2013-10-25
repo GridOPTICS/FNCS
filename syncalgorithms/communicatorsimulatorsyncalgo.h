@@ -41,12 +41,7 @@ namespace sim_comm {
 			 * Always returns false as this algorithm never forks.
 			 */
 			virtual bool forkedNewChild(){ return false;}
-			/**
-			 * Operation not supported by this algorithm
-			 */
-			virtual void childDied(TIME dieTime){
-			  throw SyncStateException("Operation not supported");
-			}
+			
 	};
 
 } /* namespace sim_comm */

@@ -30,6 +30,7 @@
 #include "absnetworkinterface.h"
 #include "communicationcommanager.h"
 #include "graceperiodcommmanager.h"
+#include "zmqnetworkinterface.h"
 #include "conservativesleepingcommalgo.h"
 #include "conservativesleepingtickalgo.h"
 #include "integrator.h"
@@ -41,16 +42,36 @@
 #include "syncalgorithms/graceperiodspeculativesyncalgo.h"
 #include "json/json.h"
 
-#if HAVE_ZMQ
-#include "zmqnetworkinterface.h"
-#endif
-#if HAVE_MPI
-#include "mpinetworkinterface.h"
-#endif
+Echo* Debug::instance=NULL;
 
-#ifdef DEBUG
-Echo echo;
-#endif
+Echo* Debug::getEcho()
+{
+  if(instance==NULL)
+    throw "Debug system initialization error!!";
+  return instance;
+}
+
+void Debug::setEcho(string& prefix)
+{
+  ostringstream os;
+  os << prefix << "_" << getpid() << ".txt";
+  instance=new Echo(os.str());
+}
+
+void Debug::setEcho(const char* prefix)
+{
+  ostringstream os;
+  os << prefix << "_" << getpid() << ".txt";
+  instance=new Echo(os.str());
+}
+
+void Debug::closeEcho()
+{
+  instance->close();
+  delete instance;
+}
+
+
 
 namespace sim_comm {
 
@@ -63,6 +84,7 @@ Integrator::Integrator(
         AbsSyncAlgorithm *algo,
         time_metric simTimeStep,
 	TIME packetLostPeriod) {
+
 #if DEBUG
     CERR << "Integrator::Integrator("
         << "AbsCommInterface*,"
@@ -100,10 +122,13 @@ void Integrator::stopIntegrator(){
 #if DEBUG
 	    CERR << "Signaling finish to other sims" << endl;
 #endif
+#if DEBUG_TO_FILE
+	 Debug::closeEcho();
+#endif
 	    //instance->syncAlgo->GetNextTime(instance->getCurSimTime(),Infinity);
         instance->currentInterface->sendFinishedSignal();
 	delete instance;
-	instance=NULL;
+	instance=nullptr;
     }
 	
 }
@@ -113,10 +138,12 @@ void Integrator::terminate()
 #if DEBUG
     CERR << "Integrator::terminate()" << endl;
 #endif
-    if(instance!=NULL){
-      if(!isFinished())
-	instance->currentInterface->sendFinishedSignal();
+#if DEBUG_TO_FILE
+    Debug::closeEcho();
+#endif
+    if(instance!=nullptr){
       delete instance;
+      instance = nullptr;
     }
 }
 
@@ -126,8 +153,7 @@ TIME Integrator::getPacketLostPeriod()
   return instance->packetLostPeriod;
 }
 
-
-void Integrator::parseConfig(string jsonFile, TIME currentTime)
+void Integrator::parseConfig(string jsonFile, TIME initialTime)
 {
 
     TIME plp;
@@ -146,7 +172,7 @@ void Integrator::parseConfig(string jsonFile, TIME currentTime)
     const Json::Value synchronization_algorithm = root["synchronization_algorithm"];
     const Json::Value simulator_time_metric = root["simulator_time_metric"];
     const Json::Value packet_loss_period = root["packet_loss_period"];
-
+    
     if (interface.isNull())
     {
         cout << "Error: No interface (either mpi or zmq)  in Json file" << endl;
@@ -184,7 +210,7 @@ void Integrator::parseConfig(string jsonFile, TIME currentTime)
     if (packet_loss_period.isNull()) 
         plp = 5000000000;
     else
-        plp = packet_loss_period.asDouble();
+        plp = packet_loss_period.asInt64();
 
 #if DEBUG
     CERR << "packet loss period = " << plp << endl;
@@ -226,14 +252,19 @@ void Integrator::parseConfig(string jsonFile, TIME currentTime)
         {
             if (synchronization_algorithm.asString().compare("conservative") == 0) 
             {
-                Integrator::initIntegratorGracePeriod(comm, tm, plp, currentTime);
+                Integrator::initIntegratorGracePeriod(comm, tm, plp, initialTime);
                 cout << "*** call initIntegratorGracePeriod" << endl;
             } 
             else if(synchronization_algorithm.asString().compare("active_set_conservative") == 0)  
             {
-   		//TODO: this won't work!!
-
-                Integrator::initIntegratorConservativeSleepingTick(comm, tm, plp, currentTime, 2);  
+   		
+		if(synchronization_algorithm["conservative"]["number_of_power_simulators"].isNull()){
+		  cout << "Number of power grid simulators is not defined!" << endl;
+		  exit(1);
+		}
+		
+		 int num=synchronization_algorithm["conservative"]["number_of_power_simulators"].asInt();
+                Integrator::initIntegratorConservativeSleepingTick(comm,tm,plp,initialTime,num);
                 cout << "*** call initIntegratorConservativeSleepingTick" << endl;
 
             }
@@ -245,7 +276,7 @@ void Integrator::parseConfig(string jsonFile, TIME currentTime)
                 if (synchronization_algorithm["optimistic"]["spec_time"].isNull())
                     specTime = 30000000000;
                 else
-                    specTime = synchronization_algorithm["optimistic"]["spec_time"].asDouble(); 
+                    specTime = synchronization_algorithm["optimistic"]["spec_time"].asInt64(); 
 
 #if DEBUG
                 CERR << "specTime = " << specTime << endl;
@@ -255,14 +286,14 @@ void Integrator::parseConfig(string jsonFile, TIME currentTime)
                 {
 
                     ConstantSpeculationTimeStrategy *st = new ConstantSpeculationTimeStrategy(tm, specTime);
-                    Integrator::initIntegratorOptimistic(comm, tm, plp,currentTime,specTime,st);
+                    Integrator::initIntegratorOptimistic(comm, tm, plp,initialTime,specTime,st);
                     cout << "*** call constant speculartion time stregy" << endl;  
 
                 }
                 else if (synchronization_algorithm["optimistic"]["speculation_calculation_stragegy"].asString() == "dynamic_increasing")
                 {
                     IncreasingSpeculationTimeStrategy *st=new IncreasingSpeculationTimeStrategy(tm, specTime);
-                    Integrator::initIntegratorOptimistic(comm, tm, plp, currentTime, specTime, st);
+                    Integrator::initIntegratorOptimistic(comm, tm, plp, initialTime, specTime, st);
                     cout << "*** call dynamical increasing and initIntegratorOptimistic" << endl;
 
                 }  
@@ -282,13 +313,13 @@ void Integrator::parseConfig(string jsonFile, TIME currentTime)
         {
             if (synchronization_algorithm.asString().compare("conservative") == 0) 
             {
-                Integrator::initIntegratorCommunicationSim(comm, tm, plp, currentTime);
+                Integrator::initIntegratorCommunicationSim(comm, tm, plp, initialTime);
                 cout << "*** call initIntegratorCommunicationSim" << endl;
             }
             else if(synchronization_algorithm.asString().compare("active_set_conservative") == 0)
             {
 
-                Integrator::initIntegratorConservativeSleepingComm(comm, tm, plp, currentTime);
+                Integrator::initIntegratorConservativeSleepingComm(comm, tm, plp, initialTime);
                 cout << "*** call initIntegratorConservativeSleepingComm" << endl; 
 
             }
@@ -307,14 +338,14 @@ void Integrator::parseConfig(string jsonFile, TIME currentTime)
                 {
 
                     ConstantSpeculationTimeStrategy *st = new ConstantSpeculationTimeStrategy(tm,specTime);
-                    Integrator::initIntegratorOptimisticComm(comm, tm, plp, currentTime, specTime, st);
+                    Integrator::initIntegratorOptimisticComm(comm, tm, plp, initialTime, specTime, st);
                     cout << "*** call constant increasing and initIntegratorOptimisticComm " << endl;
 
                 }
                 else if (synchronization_algorithm["optimistic"]["speculation_calculation_stragegy"].asString() == "dynamic_increasing")
                 {
                     IncreasingSpeculationTimeStrategy *st=new IncreasingSpeculationTimeStrategy(tm,specTime);
-                    Integrator::initIntegratorOptimisticComm(comm, tm, plp, currentTime, specTime, st);
+                    Integrator::initIntegratorOptimisticComm(comm, tm, plp, initialTime, specTime, st);
                     cout << "*** call dynamic increasing and initIntegratorOptimisticComm" << endl;
 
                 }
@@ -325,22 +356,13 @@ void Integrator::parseConfig(string jsonFile, TIME currentTime)
 
 }
 
-void Integrator::initIntegrator(
-  string jsonFile,
-  TIME currentTime)
-{
-   parseConfig(jsonFile, currentTime);
-}
-
-
 void Integrator::initIntegratorConservativeSleepingTick(
   AbsNetworkInterface* currentInterface, 
   time_metric simTimeStep, 
   TIME packetLostPeriod, 
   TIME initialTime,
-  int numberofPowerSims)
+  int numofpowersims)
 {
-
 #if DEBUG
     CERR << "Integrator::initIntegratorNetworkDelaySupport("
         << "AbsCommInterface*,"
@@ -349,7 +371,7 @@ void Integrator::initIntegratorConservativeSleepingTick(
         << "initialTime=" << initialTime << ")" << endl;
 #endif
     AbsCommManager *command=new GracePeriodCommManager(currentInterface);
-    AbsSyncAlgorithm *algo=new ConservativeSleepingTickAlgo(command,numberofPowerSims);
+    AbsSyncAlgorithm *algo=new ConservativeSleepingTickAlgo(command,numofpowersims);
     instance=new Integrator(command,algo,simTimeStep,packetLostPeriod);
     instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
 }
@@ -380,7 +402,6 @@ void Integrator::initIntegratorGracePeriod(
   TIME packetLostPeriod, 
   TIME initialTime)
 {
-
 #if DEBUG
     CERR << "Integrator::initIntegratorGracePeriod("
         << "AbsCommInterface*,"
@@ -401,6 +422,7 @@ void Integrator::initIntegratorOptimistic(
 	TIME initialTime, 
 	TIME specDifference,
 	SpeculationTimeCalculationStrategy *strategy){
+
 #if DEBUG
     CERR << "Integrator::initIntegratorOptimistic("
         << "AbsCommInterface*,"
@@ -584,16 +606,11 @@ bool Integrator::isChild()
   return instance->syncAlgo->forkedNewChild();
 }
 
-void Integrator::childDied(TIME dieTime)
-{
-
-  instance->syncAlgo->childDied(dieTime);
-}
-
 bool Integrator::canFork()
 {
   return instance->currentInterface->supportsFork() && instance->syncAlgo->usesFork();
 }
+
 
 
 } /* end namespace sim_comm */

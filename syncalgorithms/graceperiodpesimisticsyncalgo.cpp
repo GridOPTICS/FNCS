@@ -58,8 +58,9 @@ namespace sim_comm
       if(nextTime < grantedTime)
 	return nextTime;
 
-      bool busywait=false;
+    
       bool needToRespond=false;
+      busywait=false;
       //send all messages
       
       //nextEstTime=currentTime;

@@ -35,6 +35,10 @@
 #include "profiler.h"
 #endif
 
+#ifdef DEBUG_WITH_PROFILE
+#include "profiler.h"
+#endif
+
 #include <sstream>
 
 using namespace std;
@@ -89,7 +93,7 @@ namespace sim_comm
 	bool finished;
 	TIME grantedTime;
 	ALGOTYPE algotype;
-	
+	bool busywait;
     public:
 	AbsSyncAlgorithm(AbsCommManager* currentInterface);
 	virtual ~AbsSyncAlgorithm();
@@ -132,11 +136,6 @@ namespace sim_comm
 	 */
 	virtual bool forkedNewChild() =0;
 	
-	/**
-	 * Used to notify the sync algorithm
-	 * when its child process dies.
-	 */
-	virtual void childDied(TIME dieTime) =0;
 	
 	/**
 	 * Returns true if sync algorithm

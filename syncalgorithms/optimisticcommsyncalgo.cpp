@@ -47,46 +47,31 @@ namespace sim_comm{
 #if DEBUG
 		   CERR << "Start sync " << currentTime << " " << nextTime << endl;
 #endif
+		if(currentTime > this->specFailTime){ //we passed beyond spec. failure time. We can speculatie again.
+			this->specFailTime=Infinity;
+		}
+		
 		 /*if(this->isChild) //if a child comes here, algorithm is not working!
 		    throw SyncStateException("Child wants to sync but parent is still alive cannot happen!");*/
 		 
 		    uint64_t diff=interface->reduceTotalSendReceive();
-		    //assume network stable
-		     
-		   /* if(diff>0)
-		    { //network unstable 
-			
-			TIME graceTime=Integrator::getCurSimTime()-Integrator::getPacketLostPeriod();
-			if(graceTime>Integrator::getCurSimTime()) //overflowed
-			    graceTime=0;
-			if(updated){
-			    if(this->currentState<graceTime){ //test if it has been graceperiod amount of time before we declare the packet as lost
-		     TODO packetLost doesn't take parameters?? 
-				this->interface->packetLost();
-				//rest currentState;
-				this->currentState=Integrator::getCurSimTime(); //restart counter
-				updated=false;
-			    }
-			}
-			else{
-			  this->currentState=Integrator::getCurSimTime(); //restart counter
-			  updated=true;
-			}
-		    }
-		    else{
-		      this->currentState=Integrator::getCurSimTime();
-		      updated=false;
-		    }*/
+
 		    if(diff > 0)
 		      this->interface->packetLostCalculator(currentTime);
 		    TIME mySpecNextTime=Infinity; //never wait for comm simm!!! We hope that if network busy some other sim prevents speculations
 		   
 		    TIME minnetworkdelay=interface->reduceNetworkDelay();
 		    //We never wait for comm sim, instead we wait for oter sims
-		    TIME myminNextTime=Infinity;
-		    TIME specNextTime=(TIME)interface->reduceMinTime(mySpecNextTime);
-		    TIME minNextTime=(TIME)interface->reduceMinTime(myminNextTime);
-		    
+		    TIME specNextTime=0;
+		    TIME minNextTime=(TIME)interface->reduceMinTime(Infinity);
+#ifdef DEBUG
+	  CERR << "Consensus on message-diff " << diff << endl;
+#endif
+		    if(diff == 0 && !hasChild())
+		    	specNextTime =(TIME)interface->reduceMinTime(mySpecNextTime);
+#ifdef DEBUG
+	  CERR << "Consensus " << minNextTime << " spec: " << specNextTime << endl;
+#endif
 		    //speculation stuff!!
 		    TIME specResult=testSpeculationState(specNextTime,currentTime);
 		    if(specResult > 0) //we are in child! We are granted up to specNextTime
@@ -101,6 +86,7 @@ namespace sim_comm{
 			  return Infinity;
 		     }
 		    this->grantedTime=minNextTime;
+		   
 		    return minNextTime;    
     }
 

@@ -49,12 +49,7 @@ class EpochsSyncalgortihm : public AbsSyncAlgorithm
        * Always returns false as this algorithm never forks!
        */
      virtual bool forkedNewChild(){ return false;}
-     /**
-      * Operation not supported by this algorithm
-      */
-    virtual void childDied(TIME dieTime){
-      throw SyncStateException("Operation not supported");
-    }
+    
 };
 
 }

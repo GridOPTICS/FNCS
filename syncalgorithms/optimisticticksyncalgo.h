@@ -32,24 +32,34 @@
 #include "abssyncalgorithm.h"
 #include "speculationtimecalculationstrategy.h"
 #include "graceperiodspeculativesyncalgo.h"
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <sys/types.h>
 #include <unistd.h>
 #include <vector>
 
+#ifdef DEBUG_WITH_PROFILE
+#include "profiler.h"
+#endif
+
+
 using namespace std;
+
+
 
 namespace sim_comm{
 
+  void regSpecFailed(int signal);
+  void regSpecSucceed(int signal);
   /**
    * Optimistic sync algorithm for power simulators.
    * 
    */
+  //TODO: marked for refactoring, process management functionality can be realized in comm manager!
   class OptimisticTickSyncAlgo : public AbsSyncAlgorithm
   {
+    //TODO: bad smell everyone can call the signal handler
+    friend void regSpecFailed(int signal);
+    friend void regSpecSucceed(int signal);
     private:
-      TIME specFailTime;
+      
       TIME specDifference;
       SpeculationTimeCalculationStrategy *st;
       /**
@@ -57,10 +67,26 @@ namespace sim_comm{
        */
       pid_t mypid,parentPid,childPid; 
       bool isChild,isParent;
-      bool busywait;
+      
+      key_t shmkey;
+      TIME *failTime;
+      int shmid;
+      
+      void createTimeShm();
+      void attachTimeShm();
+      void detachTimeShm();
+      void childDied();
+      void parentDie();
+      
+      static void handleSpecFailed();
+      static void handleSpecSuccess();
+      static bool specFailed,specSuccess;
+      
     protected: 
-    
+      
+      TIME specFailTime;
       void createSpeculativeProcess();
+      
       /**
        * Callback function registered with comm manager. 
        */
@@ -104,12 +130,12 @@ namespace sim_comm{
       virtual void timeStepStart(TIME currentTime);
       /** @copydoc AbsSyncAlgorithm::forkedNewChild() */
       virtual bool forkedNewChild(){return this->isChild;}
-      /** @copydoc AbsSyncAlgorithm::childDied(TIME dieTime) */
-      virtual void childDied(TIME dieTime);
+     
       /** @copydoc AbsSyncAlgorithm::usesFork()*/
       virtual bool usesFork() { return true; }
   };
 
 }
+
 
 #endif // OPTIMISTICTICKSYNCALGO_H

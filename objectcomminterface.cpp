@@ -39,6 +39,15 @@ ObjectCommInterface::ObjectCommInterface(string objectName) {
 #endif
     this->attachedObjectName=objectName;
     this->notifyMessage=nullptr;
+    this->syncAlgoCallBackSend=nullptr;
+}
+
+void ObjectCommInterface::setSyncAlgoCallBack(sim_comm::CallBack< bool, Message*, empty, empty >* syncAlgoCallBackSend)
+{
+#ifdef DEBUG
+    CERR << "ObjectCommInterface::setSyncAlgoCallBack(" << syncAlgoCallBackSend << ")" << endl;
+#endif
+  this->syncAlgoCallBackSend=syncAlgoCallBackSend;
 }
 
 
@@ -51,10 +60,14 @@ ObjectCommInterface::~ObjectCommInterface() {
 }
 
 
-void ObjectCommInterface::send(Message* given) {
+void ObjectCommInterface::send(Message* given){
 #if DEBUG
     CERR << "ObjectCommInterface::send(Message*)" << endl;
 #endif
+    if(syncAlgoCallBackSend!=nullptr && 
+      !(*(this->syncAlgoCallBackSend))(given)){
+      return;
+    }
     this->outbox.push_back(given);
 }
 

@@ -55,12 +55,14 @@ private:
     void *zmq_die;
     string ID;
     int context;
-    bool iAmNetSim;
+    bool iAmNetSim,cleaned;
     list<Message*> receivedMessages;
     uint64_t globalObjectCount;
 
 protected:
     void init();
+    void parent_reinit();
+    void child_reinit();
     void processAsyncMessage();
     void processSubMessage();
     void makeProgress();
@@ -130,6 +132,8 @@ public:
     /** @copydoc AbsNetworkInterface::sendSuceed()*/
     virtual void sendSuceed();
     
+    /** @copydoc AbsNetworkInterface::block()*/
+    virtual void block();
     
 };
 
@@ -151,6 +155,7 @@ int ZmqNetworkInterface::i_recv(T &buf)
         };
         int rc = zmq_poll(items, 3, -1);
         zmqx_interrupt_check();
+	
         assert(rc >= 0 || (rc == -1 && errno == EINTR));
         if (items[0].revents & ZMQ_POLLIN) {
             size = zmqx_recv(this->zmq_req, buf);

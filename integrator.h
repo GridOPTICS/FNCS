@@ -38,15 +38,24 @@
 #include "speculationtimecalculationstrategy.h"
 
 #if DEBUG
+#include <unistd.h>
 #   define PID (getpid())
 #   if DEBUG_TO_FILE
-#       define CERR (echo << '[' << PID << "] ")
+#       define CERR (*Debug::getEcho() << '[' << PID << "] ")
 #   else
 #       define CERR (cerr << '[' << PID << "] ")
 #   endif
 #endif
 
-extern Echo echo;
+class Debug{
+  private: 
+    static Echo *instance;
+  public:
+    static void setEcho(string &prefix);
+    static void setEcho(const char *prefix);
+    static Echo* getEcho();
+    static void closeEcho();
+};
 
 using namespace std;
 
@@ -97,7 +106,7 @@ private:
     bool stopped;
    
     static Integrator* instance;
-
+    static void parseConfig(string jsonFile, TIME initialTime);
     /**
      * Constructor.
      */
@@ -188,17 +197,6 @@ public:
     static TIME getCurSimTime();
 
     /**
-     * parse the configuration JSON file
-     */
-    static void parseConfig(string jsonFile, TIME currentTime);
-    
-    /**
-     * Initializes the integrator
-     */ 
-    static void initIntegrator(string jsonFile,
-                               TIME currentTime);
-
-    /**
      * Initializes the integrator for a tick-based simulator
      */
     static void initIntegratorGracePeriod(AbsNetworkInterface *currentInterface, 
@@ -221,7 +219,7 @@ public:
 			    time_metric simTimeStep, 
 			    TIME packetLostPeriod, 
 			    TIME initialTime,
-			    int numberofPowerSims);
+			    int numberofpowersims);
     
     
 /**
@@ -272,7 +270,9 @@ public:
      */
     static bool isFinished();
 
-    
+    /**
+     * Sets the offset timestep.
+     */
     static void setOffset(TIME otime);
     
     /**
@@ -298,11 +298,7 @@ public:
      */
     static bool isChild();
     
-    /**
-     * Used by network interface to notify
-     * Sync algorithms about the death of a child process; so sad!
-     */
-    static void childDied(TIME dieTime);
+
     
     /**
      * Returns true if current sync algo can fork

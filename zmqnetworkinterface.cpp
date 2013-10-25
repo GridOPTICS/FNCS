@@ -13,6 +13,10 @@
 #include "zmqhelper.h"
 #include "zmqnetworkinterface.h"
 
+#ifdef DEBUG_WITH_PROFILE
+#include "profiler.h"
+#endif
+
 using namespace std;
 using namespace sim_comm;
 
@@ -21,12 +25,17 @@ static void cleanup_handler(void *object)
 {
     ZmqNetworkInterface *interface = NULL;
     interface = reinterpret_cast<ZmqNetworkInterface*>(object);
-    interface->cleanup();
+    if(interface->doKillOnTerm()){
+#if DEBUG
+      CERR << "Sending finished signal" << endl;
+#endif
+      interface->sendFinishedSignal(); 
+    }
+    interface->cleanup(); 
     exit(EXIT_FAILURE);
 }
 
-
-void ZmqNetworkInterface::init()
+void ZmqNetworkInterface::child_reinit()
 {
     int zmq_connect_req_retval = 0;
     int zmq_connect_sub_retval = 0;
@@ -34,14 +43,104 @@ void ZmqNetworkInterface::init()
     int zmq_setsockopt_retval = 0;
 
 #if DEBUG
-    CERR << "ZmqNetworkInterface::init()" << endl;
+    CERR << "ZmqNetworkInterface::parent_reinit()" << endl;
 #endif
-
+   
+    string oldId=this->ID;
     this->ID = gen_id();
 #if DEBUG
-    CERR << "ZmqNetworkInterface ID=" << this->ID << endl;
+    CERR << "Child init ZmqNetworkInterface ID=" << this->ID << " parent Id:" << oldId << endl;
 #endif
-    /* create zmq context */
+    
+        this->zmq_ctx = zmq_ctx_new();
+    assert(this->zmq_ctx);
+
+    /* create and connect zmq socket for req/res to broker */
+    this->zmq_req = zmq_socket(this->zmq_ctx, ZMQ_DEALER);
+    assert(this->zmq_req);
+    zmq_setsockopt_id_retval = zmq_setsockopt(
+            this->zmq_req, ZMQ_IDENTITY, this->ID.data(), this->ID.size());
+    if (0 != zmq_setsockopt_id_retval) {
+        perror("zmq_setsockopt ZMQ_IDENTITY");
+    }
+    assert(0 == zmq_setsockopt_id_retval);
+    zmq_connect_req_retval = zmq_connect(this->zmq_req, "tcp://localhost:5555");
+ 
+    assert(0 == zmq_connect_req_retval);
+
+    /* create and connect zmq socket for req/res to async broker */
+    this->zmq_async = zmq_socket(this->zmq_ctx, ZMQ_DEALER);
+    assert(this->zmq_async);
+    zmq_setsockopt_id_retval = zmq_setsockopt(
+            this->zmq_async, ZMQ_IDENTITY, this->ID.data(), this->ID.size());
+    if (0 != zmq_setsockopt_id_retval) {
+        perror("zmq_setsockopt ZMQ_IDENTITY");
+    }
+    assert(0 == zmq_setsockopt_id_retval);
+    zmq_connect_req_retval = zmq_connect(this->zmq_async, "tcp://localhost:5556");
+    assert(0 == zmq_connect_req_retval);
+
+    /* create and connect zmq socket for kill signal */
+    this->zmq_die = zmq_socket(this->zmq_ctx, ZMQ_SUB);
+    assert(this->zmq_die);
+    zmq_setsockopt_retval = zmq_setsockopt(this->zmq_die, ZMQ_SUBSCRIBE, "", 0);
+    if (0 != zmq_setsockopt_retval) {
+        perror("zmq_setsockopt ZMQ_SUBSCRIBE");
+    }
+    assert(0 == zmq_setsockopt_retval);
+    zmq_setsockopt_id_retval = zmq_setsockopt(
+            this->zmq_die, ZMQ_IDENTITY, this->ID.data(), this->ID.size());
+    if (0 != zmq_setsockopt_id_retval) {
+        perror("zmq_setsockopt ZMQ_IDENTITY");
+    }
+    assert(0 == zmq_setsockopt_id_retval);
+    zmq_connect_sub_retval = zmq_connect(this->zmq_die, "tcp://localhost:5557");
+    if (0 != zmq_connect_sub_retval) {
+        perror("zmq_connect ZMQ_SUB");
+    }
+    assert(0 == zmq_connect_sub_retval);
+    
+    if(iAmNetSim)
+      (void) zmqx_sendmore(this->zmq_req,0,"CHILD_INIT_NETSIM",this->context);
+    else
+      (void) zmqx_sendmore(this->zmq_req,0,"CHILD_INIT",this->context);
+    (void) zmqx_send(this->zmq_req,oldId);
+    
+    /* get ack from broker */
+    (void) i_recv(this->context);
+    assert(this->context >= 0);
+  
+
+	
+    //force connection!!
+    (void) zmqx_send(this->zmq_async,this->context,string("IGNORE"));
+    
+    zmqx_register_handler(cleanup_handler, this->context, this);
+    zmqx_catch_signals();
+    
+#if DEBUG
+    CERR << this->ID << " context=" << this->context << endl;
+#endif  
+}
+
+
+void ZmqNetworkInterface::parent_reinit()
+{
+    int zmq_connect_req_retval = 0;
+    int zmq_connect_sub_retval = 0;
+    int zmq_setsockopt_id_retval = 0;
+    int zmq_setsockopt_retval = 0;
+
+#if DEBUG
+    CERR << "ZmqNetworkInterface::parent_reinit()" << endl;
+#endif
+    //we need to send hello, so we need a new ID
+    string oldId=this->ID;
+    this->ID = gen_id();
+#if DEBUG
+    CERR << "Reinit ZmqNetworkInterface ID=" << this->ID << " oldId:" << oldId << endl;
+#endif
+
     this->zmq_ctx = zmq_ctx_new();
     assert(this->zmq_ctx);
 
@@ -55,9 +154,7 @@ void ZmqNetworkInterface::init()
     }
     assert(0 == zmq_setsockopt_id_retval);
     zmq_connect_req_retval = zmq_connect(this->zmq_req, "tcp://localhost:5555");
-    if (0 != zmq_connect_req_retval) {
-        perror("zmq_connect ZMQ_DEALER");
-    }
+ 
     assert(0 == zmq_connect_req_retval);
 
     /* create and connect zmq socket for req/res to async broker */
@@ -70,9 +167,6 @@ void ZmqNetworkInterface::init()
     }
     assert(0 == zmq_setsockopt_id_retval);
     zmq_connect_req_retval = zmq_connect(this->zmq_async, "tcp://localhost:5556");
-    if (0 != zmq_connect_req_retval) {
-        perror("zmq_connect ZMQ_DEALER");
-    }
     assert(0 == zmq_connect_req_retval);
 
     /* create and connect zmq socket for kill signal */
@@ -95,24 +189,120 @@ void ZmqNetworkInterface::init()
     }
     assert(0 == zmq_connect_sub_retval);
 
-   
+    (void) zmqx_sendmore(this->zmq_req,this->context,string("PARENT_REINIT"));
+    (void) zmqx_send(this->zmq_req,oldId);
+    string contextResult;
+    while(zmqx_recv(this->zmq_req,contextResult)<0);
+    if(contextResult == "NOT_VALID"){
+#ifdef DEBUG
+      CERR << "I'm parent, my context is not valid, so I exit" << endl;
+#endif
+      exit(EXIT_SUCCESS);
+    }
+#ifdef DEBUG
+      CERR << "I'm parent, my context is valid" << endl;
+#endif
+    (void) zmqx_send(this->zmq_async,this->context,string("IGNORE"));
+    
+    zmqx_register_handler(cleanup_handler, this->context, this);
+    zmqx_catch_signals();
+    
+#if DEBUG
+    CERR << this->ID << " context=" << this->context << endl;
+#endif
+}
 
+
+void ZmqNetworkInterface::init()
+{
+    int zmq_connect_req_retval = 0;
+    int zmq_connect_sub_retval = 0;
+    int zmq_setsockopt_id_retval = 0;
+    int zmq_setsockopt_retval = 0;
+
+#if DEBUG
+    CERR << "ZmqNetworkInterface::init()" << endl;
+#endif
+    //we need to send hello, so we need a new ID
+    this->ID = gen_id();
+#if DEBUG
+    CERR << "ZmqNetworkInterface ID=" << this->ID << endl;
+#endif
+    /* create zmq context */
+    this->zmq_ctx = zmq_ctx_new();
+    assert(this->zmq_ctx);
+
+    /* create and connect zmq socket for req/res to broker */
+    this->zmq_req = zmq_socket(this->zmq_ctx, ZMQ_DEALER);
+    assert(this->zmq_req);
+    zmq_setsockopt_id_retval = zmq_setsockopt(
+            this->zmq_req, ZMQ_IDENTITY, this->ID.data(), this->ID.size());
+    if (0 != zmq_setsockopt_id_retval) {
+        perror("zmq_setsockopt ZMQ_IDENTITY");
+    }
+    assert(0 == zmq_setsockopt_id_retval);
+    zmq_connect_req_retval = zmq_connect(this->zmq_req, "tcp://localhost:5555");
+    if (0 != zmq_connect_req_retval) {
+        perror("zmq_connect ZMQ_DEALER 1");
+    }
+    assert(0 == zmq_connect_req_retval);
+
+    /* create and connect zmq socket for req/res to async broker */
+    this->zmq_async = zmq_socket(this->zmq_ctx, ZMQ_DEALER);
+    assert(this->zmq_async);
+    zmq_setsockopt_id_retval = zmq_setsockopt(
+            this->zmq_async, ZMQ_IDENTITY, this->ID.data(), this->ID.size());
+    if (0 != zmq_setsockopt_id_retval) {
+        perror("zmq_setsockopt ZMQ_IDENTITY");
+    }
+    assert(0 == zmq_setsockopt_id_retval);
+    zmq_connect_req_retval = zmq_connect(this->zmq_async, "tcp://localhost:5556");
+    if (0 != zmq_connect_req_retval) {
+        perror("zmq_connect ZMQ_DEALER 2");
+    }
+    assert(0 == zmq_connect_req_retval);
+
+    /* create and connect zmq socket for kill signal */
+    this->zmq_die = zmq_socket(this->zmq_ctx, ZMQ_SUB);
+    assert(this->zmq_die);
+    zmq_setsockopt_retval = zmq_setsockopt(this->zmq_die, ZMQ_SUBSCRIBE, "", 0);
+    if (0 != zmq_setsockopt_retval) {
+        perror("zmq_setsockopt ZMQ_SUBSCRIBE");
+    }
+    assert(0 == zmq_setsockopt_retval);
+    zmq_setsockopt_id_retval = zmq_setsockopt(
+            this->zmq_die, ZMQ_IDENTITY, this->ID.data(), this->ID.size());
+    if (0 != zmq_setsockopt_id_retval) {
+        perror("zmq_setsockopt ZMQ_IDENTITY");
+    }
+    assert(0 == zmq_setsockopt_id_retval);
+    zmq_connect_sub_retval = zmq_connect(this->zmq_die, "tcp://localhost:5557");
+    if (0 != zmq_connect_sub_retval) {
+        perror("zmq_connect ZMQ_SUB");
+    }
+    assert(0 == zmq_connect_sub_retval);
+    
     /* send hello to broker */
     /* send parent context as part of hello when this ::init() is called as
-     * part of copy constructor */
+    * part of copy constructor */
     int ZERO = 0;
     if (this->iAmNetSim) {
-        (void) zmqx_send(this->zmq_req, ZERO, "HELLO_NETSIM", this->context);
+	(void) zmqx_send(this->zmq_req, ZERO, "HELLO_NETSIM", this->context);
     }
     else {
-        (void) zmqx_send(this->zmq_req, ZERO, "HELLO", this->context);
+	(void) zmqx_send(this->zmq_req, ZERO, "HELLO", this->context);
     }
 
     /* get ack from broker */
     (void) i_recv(this->context);
     assert(this->context >= 0);
+  
+
+	
+    //force connection!!
+    (void) zmqx_send(this->zmq_async,this->context,string("IGNORE"));
     
-    zmqx_register_handler(cleanup_handler, this->zmq_req, this->context, this);
+    zmqx_register_handler(cleanup_handler, this->context, this);
     zmqx_catch_signals();
     
 #if DEBUG
@@ -132,7 +322,11 @@ ZmqNetworkInterface::ZmqNetworkInterface(bool iAmNetSim)
     ,   receivedMessages()
     ,   globalObjectCount(0)
 {
+#if DEBUG_TO_FILE
+  Debug::setEcho("trace");
+#endif
     init();
+    cleaned=false;
 }
 
 
@@ -142,24 +336,29 @@ ZmqNetworkInterface::ZmqNetworkInterface(const ZmqNetworkInterface &that)
     ,   zmq_req(NULL)
     ,   zmq_async(NULL)
     ,   context(that.context)
-    ,   ID()
+    ,   ID(that.ID)
     ,   iAmNetSim(that.iAmNetSim)
     ,   receivedMessages()
     ,   globalObjectCount(that.globalObjectCount)
 {
     uint64_t globalObjectCountAgain;
 
-    init();
 
-    for (vector<string>::const_iterator it=myObjects.begin();
-            it!=myObjects.end(); ++it) {
-        (void) zmqx_send(this->zmq_req, this->context, "REGISTER_OBJECT", *it);
+    if(Integrator::isChild()){
+#if DEBUG_TO_FILE
+      Debug::setEcho("trace");
+#endif
+      usleep(20);
+      child_reinit();
+      cleaned=false;
     }
-
-    (void) zmqx_send(this->zmq_req, this->context, "FINALIZE_REGISTRATIONS");
-    (void) i_recv(globalObjectCountAgain);
-
-    assert(globalObjectCountAgain == this->globalObjectCount);
+    else{
+      usleep(80);
+      parent_reinit();
+      cleaned=false;
+    }
+    
+    
 }
 
 
@@ -365,6 +564,10 @@ void ZmqNetworkInterface::barier()
 
     (void) zmqx_send(this->zmq_req, this->context, "BARRIER");
     (void) i_recv(ack);
+#if DEBUG
+    if( ack != "ACK")
+      CERR << "Didn't get ack!!!" << ack << endl;
+#endif
     assert(ack == "ACK");
 }
 
@@ -475,13 +678,27 @@ void ZmqNetworkInterface::processSubMessage()
         /* an application terminated cleanly, so do we */
         (void) zmqx_send(this->zmq_req, this->context, "FINISHED");
         cleanup();
+	//TODO: bad smell receivedFinished stopIntegrator!
+	Integrator::terminate();
         exit(EXIT_SUCCESS);
     }
     else if ("DIE_CHILD" == control) {
         /* if I'm child, I die */
+#if DEBUG_WITH_PROFILE
+	    CERR << "GOT DIE CHILD from SUB " << getCurTimeInMs() << endl;
+#elif DEBUG
+	    CERR << "GOT DIE CHILD from SUB" << endl;
+#endif    
         bool IAmChild = Integrator::isChild();
         if (IAmChild) {
             unsigned long time = Integrator::getCurSimTime();
+            if(iAmNetSim)
+            	time=Infinity;
+#if DEBUG_WITH_PROFILE
+        CERR << "GOT DIE CHILD from SUB, sending my current time " << Integrator::getCurSimTime() << " " << getCurTimeInMs() << endl;
+#elif DEBUG
+	    CERR << "GOT DIE CHILD from SUB, sending my current time " << Integrator::getCurSimTime() << endl;
+#endif
 	    (void) zmqx_send(this->zmq_req, this->context, "REDUCE_FAIL_TIME", time);
             cleanup();
 	    cout << "Child exiting " <<endl;
@@ -493,14 +710,23 @@ void ZmqNetworkInterface::processSubMessage()
       if(IAmParent){
         unsigned long time;
         (void) zmqx_recv(this->zmq_die, time);
-        Integrator::childDied(time);
       }
     }
     else if("DIE_PARENT" == control){
+#if DEBUG
+      CERR << "GOT DIE PARENT from SUB" << endl;
+#endif    
       bool IAmParent = !Integrator::isChild();
-      if(IAmParent){
-	cleanup();
-	exit(EXIT_SUCCESS);
+      int pcontext;
+      (void) zmqx_recv(this->zmq_die,pcontext);
+      
+      if(IAmParent && this->context==pcontext){
+#if DEBUG
+	CERR << "GOT DIE PARENT from SUB in my context, calling cleanup" << endl;
+#endif
+		cleanup();
+		cout << "Parent exiting!" << endl;
+		exit(EXIT_SUCCESS);
       }
     }
     else {
@@ -575,12 +801,12 @@ void ZmqNetworkInterface::cleanup()
     int zmq_close_retval = 0;
     int zmq_ctx_destroy_retval = 0;
 
+   
 #if DEBUG
     CERR << "ZmqNetworkInterface::cleanup()" << endl;
 #endif
 
     //makeProgress();
-
     zmq_close_retval = zmq_close(this->zmq_req);
     assert(0 == zmq_close_retval);
 
@@ -592,10 +818,20 @@ void ZmqNetworkInterface::cleanup()
 
     zmq_ctx_destroy_retval = zmq_ctx_destroy(this->zmq_ctx);
     assert(0 == zmq_ctx_destroy_retval);
+    
+    cleaned=true;
+    
+#if DEBUG
+    CERR << "finished clean up" << endl;
+#endif
 }
 
 void ZmqNetworkInterface::notifyFork()
 {
-
+  this->cleanup();
 }
 
+void ZmqNetworkInterface::block(){
+  string bogus;
+  while(i_recv(bogus) > 0); //at this point we just wait the DIE child signal
+}

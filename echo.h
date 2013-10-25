@@ -25,6 +25,7 @@ class Echo
                       ios_base::openmode mode=ios_base::out)
             : os(filename, mode) { }
 
+	
         void open(const string &filename,
                   ios_base::openmode mode=ios_base::out) {
             this->os.open(filename.c_str(), mode);
@@ -42,7 +43,7 @@ class Echo
         Echo& operator<< (bool val) {
             if (this->os.is_open()) {
                 this->os << val;
-                cout << val;
+                //cout << val;
             }
             return *this;
         }
@@ -50,7 +51,7 @@ class Echo
         Echo& operator<< (short val) {
             if (this->os.is_open()) {
                 this->os << val;
-                cout << val;
+                //cout << val;
             }
             return *this;
         }
@@ -58,7 +59,7 @@ class Echo
         Echo& operator<< (unsigned short val) {
             if (this->os.is_open()) {
                 this->os << val;
-                cout << val;
+               // cout << val;
             }
             return *this;
         }
@@ -66,7 +67,7 @@ class Echo
         Echo& operator<< (int val) {
             if (this->os.is_open()) {
                 this->os << val;
-                cout << val;
+                //cout << val;
             }
             return *this;
         }
@@ -74,7 +75,7 @@ class Echo
         Echo& operator<< (unsigned int val) {
             if (this->os.is_open()) {
                 this->os << val;
-                cout << val;
+                //cout << val;
             }
             return *this;
         }
@@ -82,7 +83,7 @@ class Echo
         Echo& operator<< (long val) {
             if (this->os.is_open()) {
                 this->os << val;
-                cout << val;
+                //cout << val;
             }
             return *this;
         }
@@ -90,7 +91,7 @@ class Echo
         Echo& operator<< (unsigned long val) {
             if (this->os.is_open()) {
                 this->os << val;
-                cout << val;
+                //cout << val;
             }
             return *this;
         }
@@ -98,7 +99,7 @@ class Echo
         Echo& operator<< (long long val) {
             if (this->os.is_open()) {
                 this->os << val;
-                cout << val;
+               //cout << val;
             }
             return *this;
         }
@@ -106,7 +107,7 @@ class Echo
         Echo& operator<< (unsigned long long val) {
             if (this->os.is_open()) {
                 this->os << val;
-                cout << val;
+                //cout << val;
             }
             return *this;
         }
@@ -114,7 +115,7 @@ class Echo
         Echo& operator<< (float val) {
             if (this->os.is_open()) {
                 this->os << val;
-                cout << val;
+                //cout << val;
             }
             return *this;
         }
@@ -122,7 +123,7 @@ class Echo
         Echo& operator<< (double val) {
             if (this->os.is_open()) {
                 this->os << val;
-                cout << val;
+                //cout << val;
             }
             return *this;
         }
@@ -130,7 +131,7 @@ class Echo
         Echo& operator<< (long double val) {
             if (this->os.is_open()) {
                 this->os << val;
-                cout << val;
+                //cout << val;
             }
             return *this;
         }
@@ -138,7 +139,7 @@ class Echo
         Echo& operator<< (void* val) {
             if (this->os.is_open()) {
                 this->os << val;
-                cout << val;
+                //cout << val;
             }
             return *this;
         }
@@ -146,7 +147,7 @@ class Echo
         Echo& operator<< (streambuf* val) {
             if (this->os.is_open()) {
                 this->os << val;
-                cout << val;
+                //cout << val;
             }
             return *this;
         }
@@ -154,7 +155,7 @@ class Echo
         Echo& operator<< (ostream& (*pf)(ostream&)) {
             if (this->os.is_open()) {
                 pf(this->os);
-                pf(cout);
+                //pf(cout);
             }
             return *this;
         }
@@ -162,7 +163,7 @@ class Echo
         Echo& operator<< (ios& (*pf)(ios&)) {
             if (this->os.is_open()) {
                 pf(this->os);
-                pf(cout);
+                //pf(cout);
             }
             return *this;
         }
@@ -170,7 +171,7 @@ class Echo
         Echo& operator<< (ios_base& (*pf)(ios_base&)) {
             if (this->os.is_open()) {
                 pf(this->os);
-                pf(cout);
+                //pf(cout);
             }
             return *this;
         }
@@ -178,7 +179,7 @@ class Echo
         Echo& operator<< (char val) {
             if (this->os.is_open()) {
                 this->os << val;
-                cout << val;
+                //cout << val;
             }
             return *this;
         }
@@ -186,7 +187,7 @@ class Echo
         Echo& operator<< (signed char val) {
             if (this->os.is_open()) {
                 this->os << val;
-                cout << val;
+                //cout << val;
             }
             return *this;
         }
@@ -194,7 +195,7 @@ class Echo
         Echo& operator<< (unsigned char val) {
             if (this->os.is_open()) {
                 this->os << val;
-                cout << val;
+                //cout << val;
             }
             return *this;
         }
@@ -202,7 +203,7 @@ class Echo
         Echo& operator<< (const char* val) {
             if (this->os.is_open()) {
                 this->os << val;
-                cout << val;
+                //cout << val;
             }
             return *this;
         }
@@ -210,7 +211,7 @@ class Echo
         Echo& operator<< (const signed char* val) {
             if (this->os.is_open()) {
                 this->os << val;
-                cout << val;
+                //cout << val;
             }
             return *this;
         }
@@ -218,7 +219,7 @@ class Echo
         Echo& operator<< (const unsigned char* val) {
             if (this->os.is_open()) {
                 this->os << val;
-                cout << val;
+                //cout << val;
             }
             return *this;
         }
@@ -227,7 +228,7 @@ class Echo
         Echo& operator<< (const T &val) {
             if (this->os.is_open()) {
                 this->os << val;
-                cout << val;
+                //cout << val;
             }
             return *this;
         }

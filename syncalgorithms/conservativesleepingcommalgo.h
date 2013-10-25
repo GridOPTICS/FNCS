@@ -49,12 +49,7 @@ class ConservativeSleepingCommAlgo : public AbsSyncAlgorithm
      * Always returns false as this algorithm does not support forking!
      */
    virtual bool forkedNewChild(){ return false;}
-   /**
-			 * Operation not supported by this algorithm
-			 */
-			virtual void childDied(TIME dieTime){
-			  throw SyncStateException("Operation not supported");
-			}
+  
 };
 
 }

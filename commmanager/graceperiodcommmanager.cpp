@@ -72,18 +72,18 @@ namespace sim_comm{
             vector<Message*>  outmessges=in->getOutBox();
             for(int i=0; i<outmessges.size(); i++) {
                 try {
-		     if(this->syncAlgoCallBackSend){
+		     /*if(this->syncAlgoCallBackSend){
 			 bool val=(*(this->syncAlgoCallBackSend))(outmessges[i]);
 			 if(!val) //syncalgo signaled ignore!
 			   continue;
-		    }
+		    }*/
                     if (outmessges[i]->isBroadCast()) {
                         int scount = this->currentInterface->broadcast(outmessges[i])-1;
                             sendCount +=scount;
                     } 
                     else {
 #if DEBUG
-      CERR << "CommunicationComManager::sendAll(" << (char*)outmessges[i]->getData() << ") time:" << Integrator::getCurSimTime() << endl;
+      CERR << "GracePeriodCommManager::sendAll(" << (char*)outmessges[i]->getData() << ") time:" << Integrator::getCurSimTime() << endl;
 #endif                 
                             sendCount += 1;
                         this->currentInterface->send(outmessges[i]);

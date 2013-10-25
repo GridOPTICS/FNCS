@@ -88,11 +88,11 @@ void initIntegratorOptimisticIncreasing(time_metric simTimeStep,
 
 
  void initIntegratorConservativeSleepingTick(enum time_metric simTimeStep, 
-				TIME packetLostPeriod, TIME initialTime,enum time_metric metrics[],int numberofPowerSims)
+				TIME packetLostPeriod, TIME initialTime,int numberofpowersims)
 {
   //MpiNetworkInterface *comm = new MpiNetworkInterface(MPI_COMM_WORLD, false);
   ZmqNetworkInterface *comm = new ZmqNetworkInterface(false);
-  Integrator::initIntegratorConservativeSleepingTick(comm,simTimeStep,packetLostPeriod,initialTime,numberofPowerSims);
+  Integrator::initIntegratorConservativeSleepingTick(comm,simTimeStep,packetLostPeriod,initialTime,numberofpowersims);
 }
 
 void registerObject(char* name)

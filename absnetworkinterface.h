@@ -80,7 +80,7 @@ protected:
     vector<string> myObjects;
     bool registrationsAreFinalized;
     CallBack<void,Message*,empty,empty> *messageCallBack;
-    bool canFork;
+    bool canFork,killOnTerm;
     virtual void notifyFork() = 0;
 public:
     /**
@@ -238,6 +238,25 @@ public:
      * Throws expcetion if interface does not support forking.
      */
     void prepareFork();
+    
+    /**
+     * Blocks the execution, used by sync algorithms
+     * to block execution until a signal is received
+     */
+    virtual void block() =0;
+    
+    /**
+     * Defines the behavior on term signal
+     * True - kill all simulators, the interface instance will terminate all others
+     * False - only the current instance is terminated.
+     */
+    void setKillOnTerm(bool state=true);
+    
+    /**
+     * Returns true if the interface is set to kill the co-simulation on term
+     * False if it only terminates the current process.
+     */
+    bool doKillOnTerm() { return this->killOnTerm; }
 };
 
 } /* end namespace sim_comm */

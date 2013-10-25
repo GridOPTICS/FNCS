@@ -64,6 +64,9 @@ namespace sim_comm{
     this->currentInterface=given.currentInterface->duplicateInterface();
     CallBack<void,Message*,empty,empty> *msgCallback=CreateObjCallback<AbsCommManager *, void (AbsCommManager::*)(Message*), void,Message*>(this, &AbsCommManager::messageReceived);
     this->currentInterface->setMessageCallBack(msgCallback);
+#if DEBUG
+    CERR << "Duplicated commmanager, send_count:" << sendCount << " receive_count: " << receiveCount << endl;
+#endif
   }
 
   
@@ -159,6 +162,7 @@ namespace sim_comm{
 	  }
 	  this->interfaces.insert(pair<string,ObjectCommInterface*>(objectName,given));
 	  this->currentInterface->registerObject(objectName);
+	  given->setSyncAlgoCallBack(this->syncAlgoCallBackSend);
       }
       else {
 	  throw ObjectInterfaceRegistrationException(__FILE__,__LINE__);

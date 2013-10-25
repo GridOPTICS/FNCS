@@ -29,6 +29,8 @@
 #ifndef OPTIMISTICCOMMSYNCALGO_H
 #define OPTIMISTICCOMMSYNCALGO_H
 
+#include <stdlib.h>
+
 #include "graceperiodspeculativesyncalgo.h"
 #include "optimisticticksyncalgo.h"
 
