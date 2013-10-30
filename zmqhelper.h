@@ -37,6 +37,8 @@ int zmqx_recv(void *socket, string &buf);
 
 int zmqx_recv(void *socket, uint8_t* &buf, uint32_t buf_size);
 
+int zmqx_poll(zmq_pollitem_t *socks,uint32_t buff_size);
+
 template <typename T>
 int zmqx_recv(void *socket, T &buf)
 {
@@ -80,12 +82,15 @@ int zmqx_send(void *socket, const T &what)
     int size;
 
     zmqx_interrupt_check();
-    size = zmq_send(socket, &what, sizeof(T), 0);
-    assert(size == sizeof(T)
-            || (size == -1 && errno == EINTR)
-          );
+    do{
+      size = zmq_send(socket, &what, sizeof(T), 0);
+      assert(size == sizeof(T)
+	      || (size == -1 && errno == EINTR)
+	    );
 
-    zmqx_interrupt_check();
+      zmqx_interrupt_check();
+      //if we are here we ignored the signal.
+    }while(size <0);
     return size;
 }
 
@@ -99,13 +104,16 @@ int zmqx_sendmore(void *socket, const T &what)
     int size;
 
     zmqx_interrupt_check();
-    size = zmq_send(socket, &what, sizeof(T), ZMQ_SNDMORE);
+    do{
+      size = zmq_send(socket, &what, sizeof(T), ZMQ_SNDMORE);
  
-    assert(size == sizeof(T)
-            || (size == -1 && errno == EINTR)
-          );
+      assert(size == sizeof(T)
+	      || (size == -1 && errno == EINTR)
+	    );
 
-    zmqx_interrupt_check();
+      zmqx_interrupt_check();
+      //if we loop again then we received a signal that we ignore.
+    }while(size < 0);
     return size;
 }
 

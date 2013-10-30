@@ -40,7 +40,7 @@ namespace sim_comm{
 class SpeculationTimeCalculationStrategy
 {
   protected:
-    TIME initialTime;
+    TIME specDiff;
     TIME speculationTime;
   public:
     SpeculationTimeCalculationStrategy(time_metric metric, TIME initialspecTime);
@@ -48,8 +48,11 @@ class SpeculationTimeCalculationStrategy
     virtual void speculationSuceeded(TIME currentTime) =0;
     virtual void startSpeculation(TIME currentTime);
     inline TIME getSpecTime(){
-      return this->initialTime;
+      return this->specDiff;
     }
+    virtual TIME getNextSpecTime(TIME currentTime);
+    virtual bool worthSpeculation(TIME currentTime, TIME specFailTime) =0;
+    virtual ~SpeculationTimeCalculationStrategy();
 };
 
 /**
@@ -61,6 +64,8 @@ class ConstantSpeculationTimeStrategy : public SpeculationTimeCalculationStrateg
     ConstantSpeculationTimeStrategy(time_metric metric, TIME initialspecTime);
     virtual void speculationFailed(TIME failTime);
     virtual void speculationSuceeded(TIME currentTime);
+    virtual ~ConstantSpeculationTimeStrategy();
+    virtual bool worthSpeculation(TIME currentTime, TIME specFailTime);
 };
 
 /**
@@ -70,12 +75,23 @@ class ConstantSpeculationTimeStrategy : public SpeculationTimeCalculationStrateg
  */
 class IncreasingSpeculationTimeStrategy : public SpeculationTimeCalculationStrategy
 {
-  private:
-    TIME startup;
   public:
     IncreasingSpeculationTimeStrategy(time_metric metric, TIME initialspecTime);
     virtual void speculationFailed(TIME failTime);
     virtual void speculationSuceeded(TIME currentTime);
+    virtual ~IncreasingSpeculationTimeStrategy();
+    virtual bool worthSpeculation(TIME currentTime, TIME specFailTime);
+};
+
+class InfinitySpeculationTimeStrategy : public SpeculationTimeCalculationStrategy
+{
+	public:
+		InfinitySpeculationTimeStrategy(time_metric metric);
+	    virtual void speculationFailed(TIME failTime) { }
+	    virtual void speculationSuceeded(TIME currentTime) { }
+	    virtual ~InfinitySpeculationTimeStrategy();
+	    virtual bool worthSpeculation(TIME currentTime, TIME specFailTime);
+	    virtual TIME getNextSpecTime(TIME currentTime);
 };
 
 }

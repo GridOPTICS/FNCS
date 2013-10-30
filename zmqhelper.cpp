@@ -139,13 +139,15 @@ int zmqx_send(void *socket, const string &s) {
     int size;
 
     zmqx_interrupt_check();
-    size = zmq_send(socket, s.data(), s.size(), 0);
- 
-    assert(size == s.size()
-            || (size == -1 && errno == EINTR)
-            );
+    do{
+      size = zmq_send(socket, s.data(), s.size(), 0);
+  
+      assert(size == s.size()
+	      || (size == -1 && errno == EINTR)
+	      );
 
-    zmqx_interrupt_check();
+      zmqx_interrupt_check();
+    }while(size < 0);
     return size;
 }
 
@@ -169,12 +171,15 @@ int zmqx_sendmore(void *socket, const string &s) {
     int size;
 
     zmqx_interrupt_check();
-    size = zmq_send(socket, s.data(), s.size(), ZMQ_SNDMORE);
-    assert(size == s.size()
-            || (size == -1 && errno == EINTR)
-            );
+    do{
+      size = zmq_send(socket, s.data(), s.size(), ZMQ_SNDMORE);
+      assert(size == s.size()
+	      || (size == -1 && errno == EINTR)
+	      );
 
-    zmqx_interrupt_check();
+      zmqx_interrupt_check();
+      //if we are here then we ignored the signal.
+    }while(size < 0);
     return size;
 }
 
@@ -217,6 +222,19 @@ int zmqx_sendmore(void *socket, int context, const string &command) {
     zmqx_interrupt_check();
     return totalSize;
 }
+
+int zmqx_poll(zmq_pollitem_t* socks, uint32_t buff_size)
+{
+
+   zmqx_interrupt_check();
+   int rc = zmq_poll(socks, buff_size, 0);
+   assert(rc >= 0
+            || (rc == -1 && errno == EINTR)
+            );
+   zmqx_interrupt_check();
+   return rc;
+}
+
 
 
 unsigned long zmqx_utime()

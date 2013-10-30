@@ -32,7 +32,7 @@ namespace sim_comm{
   
   SpeculationTimeCalculationStrategy::SpeculationTimeCalculationStrategy(time_metric metric,TIME initialspecTime)
   {
-    this->initialTime=convertToFrameworkTime(metric,initialspecTime);
+    this->specDiff=convertToFrameworkTime(metric,initialspecTime);
     this->speculationTime=0;
    
   }
@@ -43,6 +43,9 @@ namespace sim_comm{
   }
 
 
+  TIME SpeculationTimeCalculationStrategy::getNextSpecTime(TIME currentTime){
+	  return currentTime + specDiff;
+  }
 
   ConstantSpeculationTimeStrategy::ConstantSpeculationTimeStrategy(time_metric metric,TIME initialspecTime) : SpeculationTimeCalculationStrategy(metric,initialspecTime)
   {
@@ -59,21 +62,47 @@ namespace sim_comm{
 
   }
 
+  bool ConstantSpeculationTimeStrategy::worthSpeculation(TIME currentTime,TIME specFailTime){
+	  return currentTime + specDiff < specFailTime ? true : false;
+  }
 
   IncreasingSpeculationTimeStrategy::IncreasingSpeculationTimeStrategy(time_metric metric,TIME initialspecTime): SpeculationTimeCalculationStrategy(metric,initialspecTime)
   {
-      this->startup=this->initialTime;
+
   }
   
   void IncreasingSpeculationTimeStrategy::speculationFailed(TIME failTime)
   {
    
-    this->initialTime=failTime - speculationTime;
+    this->specDiff=failTime - speculationTime;
   }
   
   void IncreasingSpeculationTimeStrategy::speculationSuceeded(TIME currentTime){
     
-      this->initialTime+= currentTime - speculationTime;
+      this->specDiff+= currentTime - speculationTime;
   }
   
+  bool IncreasingSpeculationTimeStrategy::worthSpeculation(TIME currentTime,TIME specFailTime){
+	  return currentTime + specDiff < specFailTime ? true : false;
+  }
+
+  InfinitySpeculationTimeStrategy::InfinitySpeculationTimeStrategy(time_metric metric)
+  	  : SpeculationTimeCalculationStrategy(metric, Infinity)
+  {
+
+  }
+
+  bool InfinitySpeculationTimeStrategy::worthSpeculation(TIME currentTime, TIME specFailTime){
+	  return true;
+  }
+
+  TIME InfinitySpeculationTimeStrategy::getNextSpecTime(TIME currentTime){
+	  return Infinity;
+  }
+
+  IncreasingSpeculationTimeStrategy::~IncreasingSpeculationTimeStrategy(){ }
+  ConstantSpeculationTimeStrategy::~ConstantSpeculationTimeStrategy() { }
+  SpeculationTimeCalculationStrategy::~SpeculationTimeCalculationStrategy() { }
+  InfinitySpeculationTimeStrategy::~InfinitySpeculationTimeStrategy(){ }
+
 }

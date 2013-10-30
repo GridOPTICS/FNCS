@@ -35,6 +35,10 @@
 #include <unistd.h>
 #include <vector>
 
+#define ACTION_FAILED 0
+#define ACTION_SUCCESS 1
+#define ACTION_UNDEFINED 2
+
 #ifdef DEBUG_WITH_PROFILE
 #include "profiler.h"
 #endif
@@ -42,12 +46,9 @@
 
 using namespace std;
 
-
-
 namespace sim_comm{
 
-  void regSpecFailed(int signal);
-  void regSpecSucceed(int signal);
+  
   /**
    * Optimistic sync algorithm for power simulators.
    * 
@@ -55,12 +56,8 @@ namespace sim_comm{
   //TODO: marked for refactoring, process management functionality can be realized in comm manager!
   class OptimisticTickSyncAlgo : public AbsSyncAlgorithm
   {
-    //TODO: bad smell everyone can call the signal handler
-    friend void regSpecFailed(int signal);
-    friend void regSpecSucceed(int signal);
     private:
       
-      TIME specDifference;
       SpeculationTimeCalculationStrategy *st;
       /**
        * @TODO I assume 3 processes!
@@ -68,19 +65,20 @@ namespace sim_comm{
       pid_t mypid,parentPid,childPid; 
       bool isChild,isParent;
       
-      key_t shmkey;
-      TIME *failTime;
-      int shmid;
-      
+
+      struct shmitems{
+		  TIME failTime;
+		  uint16_t action;
+      };
+      shmitems *comm;
+      int shmiditems;
+      key_t shmkeyitems;
+
       void createTimeShm();
       void attachTimeShm();
       void detachTimeShm();
       void childDied();
       void parentDie();
-      
-      static void handleSpecFailed();
-      static void handleSpecSuccess();
-      static bool specFailed,specSuccess;
       
     protected: 
       

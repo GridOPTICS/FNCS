@@ -348,12 +348,12 @@ ZmqNetworkInterface::ZmqNetworkInterface(const ZmqNetworkInterface &that)
 #if DEBUG_TO_FILE
       Debug::setEcho("trace");
 #endif
-      usleep(20);
+      //usleep(20);
       child_reinit();
       cleaned=false;
     }
     else{
-      usleep(80);
+      usleep(20);
       parent_reinit();
       cleaned=false;
     }
@@ -762,8 +762,8 @@ void ZmqNetworkInterface::makeProgress()
             { this->zmq_async, 0, ZMQ_POLLIN, 0 },
             { this->zmq_die,   0, ZMQ_POLLIN, 0 }
         };
-        int rc = zmq_poll(items, 2, 0);
-        assert(rc >= 0);
+        (void) zmqx_poll(items, 2);
+        
         if (items[0].revents & ZMQ_POLLIN) {
             processAsyncMessage();
             done = false; /* we had a message */

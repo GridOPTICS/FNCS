@@ -38,36 +38,6 @@
 
 namespace sim_comm{
 
-void regSpecFailed(int signal)
-{
-  OptimisticTickSyncAlgo::handleSpecFailed();
-}
-
-void OptimisticTickSyncAlgo::handleSpecFailed()
-{
-#if DEBUG
-  CERR << "HAndling signal fail" << endl;
-#endif
-  OptimisticTickSyncAlgo::specFailed=true;
-}
-
-void regSpecSucceed(int signal)
-{
-  OptimisticTickSyncAlgo::handleSpecSuccess();
-}
-
-void OptimisticTickSyncAlgo::handleSpecSuccess()
-{
-#if DEBUG
-  CERR << "Handling signal success" << endl;
-#endif
-  OptimisticTickSyncAlgo::specSuccess=true;
-}
-
-
-bool OptimisticTickSyncAlgo::specFailed=false;
-bool OptimisticTickSyncAlgo::specSuccess=false;
-
 void OptimisticTickSyncAlgo::parentDie()
 {
 #if DEBUG
@@ -82,16 +52,15 @@ void OptimisticTickSyncAlgo::parentDie()
 void OptimisticTickSyncAlgo::childDied()
 {
   assert(childPid>0);
-  attachTimeShm();
-  specFailTime=*(this->failTime);
+  
+  specFailTime=comm->failTime;
   detachTimeShm();
   kill(childPid,SIGKILL);
   wait(nullptr);
   childTerminated();
   st->speculationFailed(specFailTime);
-  specDifference=st->getSpecTime();
-  //reset died flag!
-  specFailed=false;
+  
+  
 #ifdef DEBUG_WITH_PROFILE
   CERR << "Received signal that my child is dead " << specFailTime << " new specDiff " << st->getSpecTime() << " " << getCurTimeInMs() << endl;
 #elif DEBUG
@@ -113,7 +82,6 @@ OptimisticTickSyncAlgo::OptimisticTickSyncAlgo(AbsCommManager* interface, TIME s
 
   this->interface->setSyncAlgoCallBacks(syncAlgoCallBackSend,syncAlgoCallBackRev);
   this->specFailTime=Infinity;
-  this->specDifference=specDifference;
   this->mypid=getpid();
   this->parentPid=0;
   this->childPid=0;
@@ -126,15 +94,13 @@ OptimisticTickSyncAlgo::OptimisticTickSyncAlgo(AbsCommManager* interface, TIME s
   setElsapedTimer();
 #endif
   //setup shared memory
-  this->shmkey=-1;
-  this->shmid=-1;
-  this->failTime=NULL;
+  this->shmkeyitems=-1;
+  this->shmiditems=-1;
+  comm=nullptr;
+
   //create shared memory segment
   this->createTimeShm();
-  //setup specfailure signal handler
-  specFailed=false;
-  signal(SIGUSR1,regSpecFailed);
-  signal(SIGUSR2,regSpecSucceed);
+
   
   //disable kill on term, so term signal terminates only the current process.
   this->interface->doKillOnTerm(false);
@@ -142,9 +108,12 @@ OptimisticTickSyncAlgo::OptimisticTickSyncAlgo(AbsCommManager* interface, TIME s
 
 OptimisticTickSyncAlgo::~OptimisticTickSyncAlgo()
 {
-    if(this->shmid>=0){
-      shmctl(this->shmid,IPC_RMID,0);
+    if(this->shmiditems>=0){
+      shmctl(this->shmiditems,IPC_RMID,0);
     }
+
+    if(this->st!=nullptr)
+      delete st;
 }
 
 bool OptimisticTickSyncAlgo::nodeReceivedMessage(Message* msg)
@@ -156,7 +125,7 @@ bool OptimisticTickSyncAlgo::nodeReceivedMessage(Message* msg)
 #elif DEBUG
     CERR << "I'm child with pid:" << this->mypid << " signaling parent " << getppid() << " to kill me!!!" << Integrator::getCurSimTime() << endl;
 #endif
-    (void) kill(parentPid,SIGUSR1); //notify parent about speculaiton failure.
+    comm->action=ACTION_FAILED;
     detachTimeShm();
     
     return false;
@@ -180,7 +149,7 @@ if(this->isChild){
 #ifdef PROFILE
     specfailed();
 #endif
-    (void) kill(parentPid,SIGUSR1);
+    comm->action=ACTION_FAILED;
     detachTimeShm();
     this->interface->block();
     return false;
@@ -199,8 +168,8 @@ void OptimisticTickSyncAlgo::timeStepStart(TIME currentTime)
     syncStart();
 #endif
   if(currentTime < grantedTime){
-    if(this->isChild && failTime!=NULL)
-      *failTime=currentTime;
+    if(this->isChild && comm!=NULL)
+      comm->failTime=currentTime;
     return;
   }
 #if DEBUG_WITH_PROFILE
@@ -212,21 +181,22 @@ void OptimisticTickSyncAlgo::timeStepStart(TIME currentTime)
     //speculation worked so we kill the parent
     this->interface->waitforAll();
     pid_t tempparId=this->parentPid;
+    
+    //detach from shm so parent can clean it.
+    detachTimeShm();
+    //try to send a kill signal
+    comm->action=ACTION_SUCCESS;
     becomeParent();
     this->specFailTime=Infinity;
 #if DEBUG
     CERR << "I'm child my pid:" << this->mypid << "; killing parent " << tempparId << endl;
 #endif
-    //detach from shm so parent can clean it.
-    detachTimeShm();
-    //try to send a kill signal
-    (void) kill(tempparId,SIGUSR2);
     cout << "Success" << endl;
     //create new shared memory
     createTimeShm();
     
     st->speculationSuceeded(currentTime);
-    specDifference=st->getSpecTime();
+    
    
   }
   else{
@@ -316,8 +286,9 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
 		  //we have simulator that needs to respond. So we need to signal others
 		  //not to speculate at all.
 		  TIME mySpecNextTime;
-		  if(canSpeculate && currentTime+specDifference < this->specFailTime){ //test if it is worht speculating!
-			 mySpecNextTime=currentTime+specDifference;
+		  
+		  if(canSpeculate && st->worthSpeculation(currentTime,specFailTime)){ //test if it is worht speculating!
+			 mySpecNextTime=st->getNextSpecTime(currentTime);
 		  }
 		  else{
 			mySpecNextTime=0;
@@ -325,9 +296,9 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
     	  specNextTime=(TIME)interface->reduceMinTime(mySpecNextTime);
       }
 #ifdef DEBUG
-	  CERR << "Consensus " << minNextTime << " spec: " << specNextTime << " diff:"<< specDifference << endl;
-#endif
+	  CERR << "Consensus " << minNextTime << " spec: " << specNextTime << " diff:"<< st->getSpecTime() << endl;
 	  assert(specNextTime==0 || specNextTime > currentTime);
+#endif
 	  //speculation stuff
 	  TIME specResult=testSpeculationState(specNextTime,currentTime);
 	  if(specResult > 0) //we are in child! We are granted up to specNextTime
@@ -354,9 +325,7 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
 	this->grantedTime=minNextTime;
 	
       }while(busywait);
-#ifdef DEBUG_WITH_PROFILE
-      CERR << "Sync finished at time step " << getCurTimeInMs() << endl;
-#endif
+
 #ifdef PROFILE
     writeTime(currentTimeParam);
 #endif
@@ -447,40 +416,39 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
 #ifdef DEBUG
 	  CERR << this->mypid << ": I'm child, current time" << currentTime << " run until no sync " << specNextTime << endl;
 #endif
-	  //usleep(100);
+	 
 #ifdef PROFILE
 	  speced();
 #endif
 	  return specNextTime;
 	}else{
 	  //TODO MEMORY LEAK!
+	  attachTimeShm();
 	  AbsCommManager *copy=interface->duplicate();
 	  st->startSpeculation(currentTime);
 	  Integrator::setCommManager(copy);
 	  this->interface=copy;
+	  
 #ifdef DEBUG
 	  CERR << this->mypid << ": I'm parent, current time" << currentTime << " re-init complete" <<endl;
 #endif
+	  return 0;
 	}
-    } else if(hasChild()){
-	uint64_t action;
-	if(specFailed){
-	    action=interface->reduceMinTime(0);
-	    assert(action==0); //if we report fail, everyone should agree on fail.
+    } 
+    if(hasChild()){
+	uint64_t actionDef=comm->action;
+	actionDef=interface->reduceMinTime(0);
+	switch(actionDef){
+	  case ACTION_FAILED:
 	    childDied();
-	}
-	else if(specSuccess){
-	    action=interface->reduceMinTime(1);
-	    assert(action==1); //if we report success, everyone should report success;.
+	    break;
+	  case ACTION_SUCCESS:
 	    parentDie();
+	    break;
+	  default:
+	    break;
 	}
-	else{
-	    action=interface->reduceMinTime(Infinity);
-	    if(action==0)
-	      childDied();
-	    if(action==1)
-	      parentDie();
-	}
+	
     }
     
     return 0;
@@ -488,33 +456,36 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
   
   void OptimisticTickSyncAlgo::attachTimeShm()
   {
-     if(this->failTime==nullptr){
-       this->failTime=(TIME *)shmat(this->shmid,nullptr,0);
-       if(failTime<0)
-	 throw SyncStateException("Attach to shared memory failed!");
+     if(this->comm==nullptr){
+       this->comm=(shmitems *)shmat(this->shmiditems,nullptr,0);
+       if(comm<0)
+    	   throw SyncStateException("Attach to shared memory failed!");
+       comm->action=ACTION_UNDEFINED;
      }
-      
   }
+  
   void OptimisticTickSyncAlgo::createTimeShm()
   {
    if(this->isChild){
        throw SyncStateException("Child cannot create shared memory, it is already created!");
    }else{
-      if(this->failTime!=nullptr)
-	throw SyncStateException("Fail time shared memory is already created?");
-      this->shmkey=(key_t)getpid();
-      this->shmid=shmget(this->shmkey,sizeof(TIME),IPC_CREAT|0666);
-      if(shmid<0)
-	throw SyncStateException("Error creating shared memory!");
+      if(this->comm!=nullptr)
+    	  	 throw SyncStateException("Fail time shared memory is already created?");
+      this->shmkeyitems=(key_t)getpid();
+      this->shmiditems=shmget(this->shmkeyitems,sizeof(shmitems),IPC_CREAT|0666);
+      if(shmiditems<0)
+    	  	  throw SyncStateException("Error creating shared memory!");
    }
   }
+
   void OptimisticTickSyncAlgo::detachTimeShm()
   {
-    if(this->failTime!=nullptr){
-      if(shmdt(this->failTime)<0)
-	throw SyncStateException("Shared memory detach failed");
-      this->failTime=nullptr;
+    if(this->comm!=nullptr){
+      if(shmdt(this->comm)<0)
+    	  	  throw SyncStateException("Shared memory detach failed");
+      this->comm=nullptr;
     }
   }
+
 
 }

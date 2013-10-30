@@ -52,7 +52,8 @@ typedef map<string,unsigned long> ReduceMap;
 typedef pair<string,unsigned long> ReducePair;
 typedef map<string,unsigned long> AllGatherMap;
 
-vector<map<string,string> > obj_to_ID;
+map<string,int>  obj_to_ID;
+vector<map<int,string> > logicalID_to_realID;
 vector<ReduceMap> reduce_min_time;
 vector<AllGatherMap> all_gather;
 vector<ReduceMap> reduce_sent;
@@ -393,33 +394,25 @@ static void child_init_checker(const int &parent_context){
       assert(newParents.size()==1); //we should have only one parent!
       assert(!newNetSimID.empty()); //we should have a netsimid, netsim shoud have send a child_init_netsim
       
-      //add to contexts!
-      map<string, string>::iterator it=childIniMap.begin();
-      
-      for(;it!=childIniMap.end();++it){
-	newConnections.insert(it->second);
-      }
-      
       //add context.
       int newContext=add_context();
       
-      //set the network number of objects
-      netSimObjCount[newContext]=netSimObjCount[parent_context];
-      
-      //new context gets parent objects; 
-      //this is an O(n) operation, we can do better.
-      obj_to_ID[newContext]=obj_to_ID[parent_context];
-      it=obj_to_ID[newContext].begin();
-      map<string,string>::iterator it2;
-      for(;it!=obj_to_ID[newContext].end();++it){
-	it2=childIniMap.find(it->second);
-	if(it2==childIniMap.end()){
-	  cerr << it->second << " is not a parent identity!" << endl;
-	  graceful_death(0);
-	}
-	it->second=it2->second;
+      //add to contexts!
+      map<string,string>::iterator it=childIniMap.begin();
+      for(;it!=childIniMap.end();it++){
+	contexts[newContext].insert(it->second);
       }
-      assert(contexts[newContext].size()==world_size);
+   
+      logicalID_to_realID[newContext]=logicalID_to_realID[parent_context];
+      for(int i=0;i<logicalID_to_realID[newContext].size();i++){
+	map<string,string>::iterator it=childIniMap.find(logicalID_to_realID[newContext][i]);
+	if(it==childIniMap.end()){
+	  cerr << "Cannot find parent id in logical id map" << endl;
+	  graceful_death(EXIT_FAILURE);
+	}
+	logicalID_to_realID[newContext][i]=it->second;
+      }
+   
       
       set<string>::iterator it3=contexts[newContext].begin();
       for(;it3!=contexts[newContext].end();++it3){
@@ -516,17 +509,15 @@ void parent_reinit_checker(const int& context)
   netSimID[context]=netSim->second;
   
   //we copy obj_to_ID so childern can use it in future
-  
-  map<string, string>::iterator objIdIt=obj_to_ID[context].begin();
-  for(;objIdIt!=obj_to_ID[context].end();++objIdIt){
-    it=reinitMap[context].find(objIdIt->second);
-    if(it==reinitMap[context].end()){
-      cerr << "OldId" << objIdIt->second << " has no new id mapping!" << endl;
-      graceful_death(0);
-    }
-    assert(objIdIt->second==it->first);
-    objIdIt->second=it->second;
+  for(int i=0;i<logicalID_to_realID[context].size();i++){
+	map<string,string>::iterator it=reinitMap[context].find(logicalID_to_realID[context][i]);
+	if(it==reinitMap[context].end()){
+	  cerr << "Cannot find old parent id in logical id map" << endl;
+	  graceful_death(EXIT_FAILURE);
+	}
+	logicalID_to_realID[context][i]=it->second;
   }
+
 #ifdef DEBUG
 	CERR << "re-init complete" << endl;
 #endif    
@@ -556,7 +547,6 @@ static int add_context()
     child_init_complete.push_back(false);
     size = contexts.size();
 
-    obj_to_ID.resize(size);
     reduce_min_time.resize(size);
     reduce_sent.resize(size);
     reduce_recv.resize(size);
@@ -568,7 +558,7 @@ static int add_context()
     asleep.resize(size);
     finished.resize(size);
     reinitMap.resize(size);
-    
+    logicalID_to_realID.resize(size);
     return int(size-1);
 }
 
@@ -666,6 +656,7 @@ static void hello_handler(
     }
     else if (newConnections.size() == world_size) {
         int contextID = add_context();
+	
         for (set<string>::iterator it=newConnections.begin();
                 it != newConnections.end(); ++it) {
             (void) zmqx_sendmore(broker, *it);
@@ -673,6 +664,17 @@ static void hello_handler(
         }
         /* sanity check -- all children should have same parent context ID */
         assert(newParents.size() == 1);
+	
+	set<int>::iterator it=newParents.begin();
+	
+	if(*it==-1){ //initial registration, we build the logicalID_to_realID map.
+	  int count=0;
+	  for (set<string>::iterator it2=newConnections.begin();
+                it2 != newConnections.end(); ++it2) {
+	    string temp=*it2;
+	    logicalID_to_realID[context].insert(pair<int,string>(count++,temp));
+	  }
+	}
 
         /* prep for next group of connections */
         newConnections.clear();
@@ -706,13 +708,19 @@ static void route_handler(
         message->setData(data, dataSize);
     }
 
-    if (0 == obj_to_ID[context].count(message->getTo())) {
+    if (0 == obj_to_ID.count(message->getTo())) {
         cerr << "object '" << message->getTo()
             << "' not registered" << endl;
         graceful_death(EXIT_FAILURE);
     }
-    string object_owner = obj_to_ID[context][message->getTo()];
+    int logical_object_owner = obj_to_ID[message->getTo()];
 
+    map<int,string>::iterator it=logicalID_to_realID[context].find(logical_object_owner);
+    if(it == logicalID_to_realID[context].end()){
+       cerr << "cannot locate realid of object" <<endl;
+        graceful_death(EXIT_FAILURE);
+    }
+    string object_owner=it->second;
     (void) zmqx_sendmore(async_broker, object_owner);
     (void) zmqx_sendmore(async_broker, "ROUTE");
     if (dataSize > 0) {
@@ -966,12 +974,21 @@ static void register_handler(
         netSimObjCount[context]++;
         return;
     }
-    if (1 == obj_to_ID[context].count(name)) {
+   if (1 == obj_to_ID.count(name)) {
         cerr << "object '" << name << "' already registered to sim '"
             << identity << "'" << endl;
         graceful_death(EXIT_FAILURE);
     }
-    obj_to_ID[context][name] = identity;
+    //find logicalID of identity.
+    for(map<int,string>::iterator it=logicalID_to_realID[context].begin();
+	    it!=logicalID_to_realID[context].end();++it){
+	if(it->second==identity){ //we found the logicalID
+	  obj_to_ID[name] = it->first;
+	  return;
+	}
+    }
+    cerr << "cannot locate logicalID for identify " <<identity << endl;
+    graceful_death(EXIT_FAILURE);
 }
 
 
