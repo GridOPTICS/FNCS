@@ -147,7 +147,7 @@ if(this->isChild){
     CERR << "I'm child with pid:" << this->mypid << " signaling parent " << getppid() << " to kill me!!!" << Integrator::getCurSimTime() << endl;
 #endif
 #ifdef PROFILE
-    specfailed();
+    specFailed();
 #endif
     comm->action=ACTION_FAILED;
     detachTimeShm();

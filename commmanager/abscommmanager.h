@@ -192,6 +192,8 @@ namespace sim_comm{
     
     virtual uint64_t reduceMinTime(uint64_t currentTime);
     
+    virtual void aggreateReduceMin(uint64_t &nextTime,uint16_t &action);
+
     virtual uint64_t reduceNetworkDelay();
     /**
      * Sets the callback for the sync algorithm.

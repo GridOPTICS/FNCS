@@ -480,6 +480,27 @@ uint64_t ZmqNetworkInterface::reduceMinTime(uint64_t myTime)
     return retval;
 }
 
+uint64_t* ZmqNetworkInterface::reduceMinTimeAndAction(uint64_t *timeAction){
+
+
+	#if DEBUG
+	    CERR << "ZmqNetworkInterface::reduceMinTime(" << timeAction[0] << ")" << endl;
+	#endif
+	    makeProgress();
+
+	    (void) zmqx_sendmore(this->zmq_req, this->context, "REDUCE_MIN_TIME_ACTION");
+	    (void) zmqx_send(this->zmq_req, timeAction[0]);
+	    (void) zmqx_send(this->zmq_req, timeAction[1]);
+	    (void) i_recv(timeAction[0]);
+	    (void) i_recv(timeAction[1]);
+
+	#if DEBUG
+	    CERR << "\treceived " << timeAction[0] << " " << timeAction[1] << endl;
+	#endif
+
+	    return timeAction;
+}
+
 uint64_t* ZmqNetworkInterface::getNextTimes(uint64_t nextTime,uint32_t &worldSize)
 {
 #if DEBUG

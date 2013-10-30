@@ -51,10 +51,17 @@ using namespace sim_comm;
 typedef map<string,unsigned long> ReduceMap;
 typedef pair<string,unsigned long> ReducePair;
 typedef map<string,unsigned long> AllGatherMap;
+struct aggregateType{
+		uint64_t time;
+		uint64_t action;
+};
+
+typedef map<string,aggregateType> AggregateReduceMap;
 
 map<string,int>  obj_to_ID;
 vector<map<int,string> > logicalID_to_realID;
 vector<ReduceMap> reduce_min_time;
+vector<AggregateReduceMap> reduce_min_time_action;
 vector<AllGatherMap> all_gather;
 vector<ReduceMap> reduce_sent;
 vector<ReduceMap> reduce_recv;
@@ -97,6 +104,7 @@ static void hello_handler(const string &identity, const int &context, const stri
 static void route_handler(const string &identity, const int &context, const string &control);
 static void delay_handler(const string &identity, const int &context, const string &control);
 static void reduce_min_time_handler(const string &identity, const int &context, const string &control);
+static void reduce_min_time_action_handler(const string &identity, const int &context, const string &control);
 static void reduce_send_recv_handler(const string &identity, const int &context, const string &control);
 static void all_gather_handler(const string &identity,const int &context, const string &control);
 static void register_handler(const string &identity, const int &context, const string &control);
@@ -109,6 +117,7 @@ static void reduce_fail_time_handler(const string &identity, const int &context,
 static bool finished_handler(const string &identity, const int &context, const string &control);
 static void barrier_checker(const int &context);
 static void reduce_min_time_checker(const int &context);
+static void reduce_min_time_action_checker(const int &context);
 static void reduce_send_recv_checker(const int &context);
 static void all_gather_checker(const int &context);
 static void reduce_fail_time_checker(const int &context);
@@ -791,6 +800,31 @@ static bool isValid(int context){
 	return false;
     }
     return true;
+}
+
+static void reduce_min_time_action_hander( const string &identity,
+        const int &context,
+        const string &control)
+{
+	if (1 == reduce_min_time_action[context].count(identity)) {
+	        cerr << "sim with ID '" << identity
+	            << "' duplicate REDUCE_MIN_TIME" << endl;
+	        graceful_death(EXIT_FAILURE);
+	    }
+	unsigned long time,action;
+	(void) zmqx_recv(broker, time);
+	(void) zmqx_recv(broker, action);
+
+	if(!isValid(context))
+		return;
+
+	reduce_min_time_action[context][identity].action=action;
+	reduce_min_time_action[context][identity].time=time;
+	reduce_min_time_action_checker(context);
+}
+
+static void reduce_min_time_action_checker(const int &context){
+	//TODO Implement this method!
 }
 
 static void reduce_min_time_handler(

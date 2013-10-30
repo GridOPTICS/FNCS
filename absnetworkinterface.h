@@ -154,6 +154,17 @@ public:
     virtual uint64_t reduceMinTime(uint64_t myTime) =0;
 
     /**
+     * Aggregate reduce operation used for reduction of the
+     * next time step and parent process action. This operation
+     * is used by the optimistic algorithm.
+     *
+     * @throw NetworkException when the reduce operation fails
+     * @param timeAction an array of 2 elements, [0] is next time, [1] is action
+     * @return pointer to timeAction array with [0] the min next time, [1] the min action
+     */
+    virtual uint64_t* reduceMinTimeAndAction(uint64_t *timeAction) =0;
+
+    /**
      * Reduces total sent and received counts.
      *
      * @throw NetworkException when the reduce operation fails

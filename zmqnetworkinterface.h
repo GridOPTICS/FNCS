@@ -135,6 +135,9 @@ public:
     /** @copydoc AbsNetworkInterface::block()*/
     virtual void block();
     
+    /** @copydoc AbsNetworkInterface::reduceMinTimeAction*/
+    virtual uint64_t* reduceMinTimeAndAction(uint64_t *timeAction);
+
 };
 
 
