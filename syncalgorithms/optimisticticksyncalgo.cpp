@@ -181,11 +181,10 @@ void OptimisticTickSyncAlgo::timeStepStart(TIME currentTime)
     //speculation worked so we kill the parent
     this->interface->waitforAll();
     pid_t tempparId=this->parentPid;
-    
-    //detach from shm so parent can clean it.
-    detachTimeShm();
     //try to send a kill signal
     comm->action=ACTION_SUCCESS;
+    //detach from shm so parent can clean it.
+    detachTimeShm();
     becomeParent();
     this->specFailTime=Infinity;
 #if DEBUG
@@ -430,14 +429,17 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
 	  this->interface=copy;
 	  
 #ifdef DEBUG
-	  CERR << this->mypid << ": I'm parent, current time" << currentTime << " re-init complete" <<endl;
+	  CERR << this->mypid << ": I'm parent, current time" << currentTime << " re-init complete" << comm->action << endl;
 #endif
 	  return 0;
 	}
     } 
     if(hasChild()){
 	uint64_t actionDef=comm->action;
-	actionDef=interface->reduceMinTime(0);
+#if DEBUG
+	CERR << "MY action is " << actionDef << endl;
+#endif
+	actionDef=interface->reduceMinTime(actionDef);
 	switch(actionDef){
 	  case ACTION_FAILED:
 	    childDied();
