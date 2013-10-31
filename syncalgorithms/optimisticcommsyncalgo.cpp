@@ -58,17 +58,27 @@ namespace sim_comm{
 
 		    if(diff > 0)
 		      this->interface->packetLostCalculator(currentTime);
-		    TIME mySpecNextTime=Infinity; //never wait for comm simm!!! We hope that if network busy some other sim prevents speculations
-		   
+
 		    TIME minnetworkdelay=interface->reduceNetworkDelay();
 		    //We never wait for comm sim, instead we wait for oter sims
-		    TIME specNextTime=0;
-		    TIME minNextTime=(TIME)interface->reduceMinTime(Infinity);
+		    TIME specNextTime=Infinity; //netsim follows what the power simulates do
+		    TIME minNextTime=Infinity;
+
 #ifdef DEBUG
 	  CERR << "Consensus on message-diff " << diff << endl;
 #endif
-		    if(diff == 0 && !hasChild())
-		    	specNextTime =(TIME)interface->reduceMinTime(mySpecNextTime);
+		    if(diff == 0)
+		    	if(!hasChild()){
+		    		interface->aggreateReduceMin(minNextTime,specNextTime);
+
+		    	}else{
+		    		globalAction=comm->action;
+		    		interface->aggreateReduceMin(minNextTime,globalAction);
+		    	}
+		    else{//diff!=0 only reduce min op
+		    	minNextTime=(TIME)interface->reduceMinTime(Infinity);
+		    	specNextTime=0;
+		    }
 #ifdef DEBUG
 	  CERR << "Consensus " << minNextTime << " spec: " << specNextTime << endl;
 #endif

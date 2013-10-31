@@ -257,14 +257,14 @@ namespace sim_comm{
     this->currentInterface->prepareFork();
   }
 
-  void AbsCommManager::aggreateReduceMin(uint64_t &nextTime,uint16_t &action){
+  void AbsCommManager::aggreateReduceMin(uint64_t &nextTime,uint64_t &action){
 
 	  uint64_t arr[2];
 	  arr[0]=nextTime;
 	  arr[1]=action;
 	  this->currentInterface->reduceMinTimeAndAction(arr);
 	  nextTime=arr[0];
-	  action=static_cast<uint16_t>(arr[1]);
+	  action=arr[1];
   }
 }
 

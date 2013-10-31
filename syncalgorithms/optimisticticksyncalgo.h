@@ -64,13 +64,7 @@ namespace sim_comm{
        */
       pid_t mypid,parentPid,childPid; 
       bool isChild,isParent;
-      
 
-      struct shmitems{
-		  TIME failTime;
-		  uint16_t action;
-      };
-      shmitems *comm;
       int shmiditems;
       key_t shmkeyitems;
 
@@ -83,6 +77,13 @@ namespace sim_comm{
     protected: 
       
       TIME specFailTime;
+      uint64_t globalAction;
+      struct shmitems{
+      		  TIME failTime;
+      		  uint16_t action;
+            };
+      shmitems *comm;
+
       void createSpeculativeProcess();
       
       /**

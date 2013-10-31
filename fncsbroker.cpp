@@ -261,6 +261,9 @@ int main(int argc, char **argv)
             else if ("REDUCE_MIN_TIME" == control) {
                 reduce_min_time_handler(identity, context, control);
             }
+            else if ("REDUCE_MIN_TIME_ACTION" ==control){
+            	reduce_min_time_action_handler(identity,context,control);
+            }
             else if ("REDUCE_FAIL_TIME" == control) {
                 reduce_fail_time_handler(identity, context, control);
             }
@@ -557,6 +560,7 @@ static int add_context()
     size = contexts.size();
 
     reduce_min_time.resize(size);
+    reduce_min_time_action.resize(size);
     reduce_sent.resize(size);
     reduce_recv.resize(size);
     reduce_fail_time.resize(size);
@@ -802,13 +806,13 @@ static bool isValid(int context){
     return true;
 }
 
-static void reduce_min_time_action_hander( const string &identity,
+static void reduce_min_time_action_handler( const string &identity,
         const int &context,
         const string &control)
 {
 	if (1 == reduce_min_time_action[context].count(identity)) {
 	        cerr << "sim with ID '" << identity
-	            << "' duplicate REDUCE_MIN_TIME" << endl;
+	            << "' duplicate REDUCE_MIN_TIME_ACTION" << endl;
 	        graceful_death(EXIT_FAILURE);
 	    }
 	unsigned long time,action;
@@ -824,7 +828,35 @@ static void reduce_min_time_action_hander( const string &identity,
 }
 
 static void reduce_min_time_action_checker(const int &context){
-	//TODO Implement this method!
+
+	 if (reduce_min_time_action[context].size() > world_sizes[context]) {
+	        cerr << "reduce_min_time_handler size > world size" << endl;
+	        graceful_death(EXIT_FAILURE);
+	    }
+	    else if (reduce_min_time_action[context].size() == world_sizes[context]) {
+	        aggregateType mins;
+	        mins.action=Infinity;
+	        mins.time=Infinity;
+	        for(AggregateReduceMap::iterator it=reduce_min_time_action[context].begin();
+	        		it!=reduce_min_time_action[context].end();
+	        		++it){
+	        	if(mins.action>it->second.action){
+	        		mins.action=it->second.action;
+	        	}
+	        	if(mins.time>it->second.time){
+	        		mins.time=it->second.time;
+	        	}
+	        }
+	        /* send result to all sims */
+	        for (set<string>::iterator it=contexts[context].begin();
+	                it != contexts[context].end(); ++it) {
+	            (void) zmqx_sendmore(broker, *it);
+	            (void) zmqx_sendmore(broker, mins.time);
+	            (void) zmqx_send(broker, mins.action);
+	        }
+	        /* clear the map in preparation for next round */
+	        reduce_min_time_action[context].clear();
+	    }
 }
 
 static void reduce_min_time_handler(

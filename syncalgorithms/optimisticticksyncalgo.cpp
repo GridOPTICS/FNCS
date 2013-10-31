@@ -273,27 +273,42 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
           else{
 	    needToRespond=true;
 	  }
+      TIME minNextTime=nextEstTime;
 
-      TIME minNextTime=(TIME)interface->reduceMinTime(nextEstTime);
 #ifdef DEBUG
 	  CERR << "Consensus on message-diff " << diff << endl;
 #endif
       TIME specNextTime=0;
-	  if(diff==0 && !hasChild()){ //we do speculation calculation only if we can speculate
-		  //we should never attempt to exchange specDiff when Diff > 0, this is an optimization.
-		  //canSpeculate can be false regardless of Diff==0, in this case
-		  //we have simulator that needs to respond. So we need to signal others
-		  //not to speculate at all.
-		  TIME mySpecNextTime;
-		  
-		  if(canSpeculate && st->worthSpeculation(currentTime,specFailTime)){ //test if it is worht speculating!
-			 mySpecNextTime=st->getNextSpecTime(currentTime);
+	  if(diff==0){
+		  if(!hasChild()){ //we do speculation calculation only if we can speculate
+			  //we should never attempt to exchange specDiff when Diff > 0, this is an optimization.
+			  //canSpeculate can be false regardless of Diff==0, in this case
+			  //we have simulator that needs to respond. So we need to signal others
+			  //not to speculate at all.
+			  TIME mySpecNextTime;
+
+			  if(canSpeculate && st->worthSpeculation(currentTime,specFailTime)){ //test if it is worht speculating!
+				 mySpecNextTime=st->getNextSpecTime(currentTime);
+			  }
+			  else{
+				mySpecNextTime=0;
+			  }
+			  //if we don't have a child, we aggregate specNextTime
+			  //with with minNextTime
+			  specNextTime=mySpecNextTime;
+			  interface->aggreateReduceMin(minNextTime,specNextTime);
 		  }
 		  else{
-			mySpecNextTime=0;
+			  //if we have child we aggregate action
+			  //with minNextTime
+			  this->globalAction=comm->action;
+			  interface->aggreateReduceMin(minNextTime,this->globalAction);
 		  }
-    	  specNextTime=(TIME)interface->reduceMinTime(mySpecNextTime);
+      } else{ //well, we have message so we use regular reduce min op.
+    	  minNextTime=(TIME)interface->reduceMinTime(nextEstTime);
       }
+	  //aggregate reduce min operation.
+
 #ifdef DEBUG
 	  CERR << "Consensus " << minNextTime << " spec: " << specNextTime << " diff:"<< st->getSpecTime() << endl;
 	  assert(specNextTime==0 || specNextTime > currentTime);
@@ -435,12 +450,11 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
 	}
     } 
     if(hasChild()){
-	uint64_t actionDef=comm->action;
+
 #if DEBUG
-	CERR << "MY action is " << actionDef << endl;
+	CERR << "MY action is " << globalAction << endl;
 #endif
-	actionDef=interface->reduceMinTime(actionDef);
-	switch(actionDef){
+	switch(globalAction){
 	  case ACTION_FAILED:
 	    childDied();
 	    break;

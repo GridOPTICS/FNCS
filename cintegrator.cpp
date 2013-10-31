@@ -78,6 +78,14 @@ void initIntegratorOptimisticConstant(time_metric simTimeStep,
   Integrator::initIntegratorOptimistic(comm,simTimeStep,packetLostPeriod,initialTime,specTime,st);	
 }
 
+void initIntegratorOptimisticInfinity(time_metric simTimeStep, TIME packetLostPeriod, TIME initialTime)
+{
+  ZmqNetworkInterface *comm=new ZmqNetworkInterface(false);
+  InfinitySpeculationTimeStrategy *st=new InfinitySpeculationTimeStrategy(simTimeStep);
+  Integrator::initIntegratorOptimistic(comm,simTimeStep,packetLostPeriod,initialTime,0,st);
+}
+
+
 void initIntegratorOptimisticIncreasing(time_metric simTimeStep, 
 					TIME packetLostPeriod, TIME initialTime, TIME specTime)
 {

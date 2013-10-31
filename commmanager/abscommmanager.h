@@ -192,7 +192,7 @@ namespace sim_comm{
     
     virtual uint64_t reduceMinTime(uint64_t currentTime);
     
-    virtual void aggreateReduceMin(uint64_t &nextTime,uint16_t &action);
+    virtual void aggreateReduceMin(uint64_t &nextTime,uint64_t &action);
 
     virtual uint64_t reduceNetworkDelay();
     /**
