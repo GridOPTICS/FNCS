@@ -243,9 +243,31 @@ public:
 	SpeculationTimeCalculationStrategy *strategy);
     
     /**
+     * Initializes the integrator with optimistic low overhead sync algorithm
+     */
+    static void initIntegratorOptimisticLowOverhead(
+        AbsNetworkInterface *currentInterface,
+        time_metric simTimeStep,
+	TIME packetLostPeriod,
+        TIME initialTime,
+	TIME specDifference,
+	SpeculationTimeCalculationStrategy *strategy);
+    
+    /**
      * Initializes the integrator with optimistic sync algorithm for comm simm
      */
     static void initIntegratorOptimisticComm(
+        AbsNetworkInterface *currentInterface,
+        time_metric simTimeStep,
+	TIME packetLostPeriod,
+        TIME initialTime,
+	TIME specDifference,
+	SpeculationTimeCalculationStrategy *strategy);
+    
+    /**
+     * Initializes the integrator with optimistic low overhead sync algorithm for comm simm
+     */
+    static void initIntegratorOptimisticCommLowOverhead(
         AbsNetworkInterface *currentInterface,
         time_metric simTimeStep,
 	TIME packetLostPeriod,
