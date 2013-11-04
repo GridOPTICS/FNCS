@@ -46,6 +46,8 @@ include_HEADERS	+= syncalgorithms/conservativesleepingcommalgo.h
 include_HEADERS	+= syncalgorithms/conservativesleepingtickalgo.h
 include_HEADERS	+= syncalgorithms/optimisticticksyncalgo.h
 include_HEADERS	+= syncalgorithms/optimisticcommsyncalgo.h
+include_HEADERS	+= syncalgorithms/optimisticlowoverheadcommsyncalgo.h
+include_HEADERS	+= syncalgorithms/optimisticlowoverheadticksyncalgo.h
 include_HEADERS += syncalgorithms/speculationtimecalculationstrategy.h
 
 include_HEADERS += util/callback.h
@@ -85,6 +87,8 @@ libfncs_api_la_SOURCES += syncalgorithms/conservativesleepingcommalgo.cpp
 libfncs_api_la_SOURCES += syncalgorithms/conservativesleepingtickalgo.cpp
 libfncs_api_la_SOURCES += syncalgorithms/optimisticticksyncalgo.cpp
 libfncs_api_la_SOURCES += syncalgorithms/optimisticcommsyncalgo.cpp
+libfncs_api_la_SOURCES += syncalgorithms/optimisticlowoverheadcommsyncalgo.cpp
+libfncs_api_la_SOURCES += syncalgorithms/optimisticlowoverheadticksyncalgo.cpp
 libfncs_api_la_SOURCES += syncalgorithms/speculationtimecalculationstrategy.cpp
 
 libfncs_api_la_SOURCES += util/simtime.cpp

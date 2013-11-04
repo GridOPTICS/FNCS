@@ -144,6 +144,8 @@ am__libfncs_api_la_SOURCES_DIST = absnetworkinterface.cpp \
 	syncalgorithms/conservativesleepingtickalgo.cpp \
 	syncalgorithms/optimisticticksyncalgo.cpp \
 	syncalgorithms/optimisticcommsyncalgo.cpp \
+	syncalgorithms/optimisticlowoverheadcommsyncalgo.cpp \
+	syncalgorithms/optimisticlowoverheadticksyncalgo.cpp \
 	syncalgorithms/speculationtimecalculationstrategy.cpp \
 	util/simtime.cpp
 @HAVE_ZMQ_TRUE@am__objects_1 = zmqhelper.lo zmqnetworkinterface.lo
@@ -163,6 +165,8 @@ am_libfncs_api_la_OBJECTS = absnetworkinterface.lo cintegrator.lo \
 	syncalgorithms/conservativesleepingtickalgo.lo \
 	syncalgorithms/optimisticticksyncalgo.lo \
 	syncalgorithms/optimisticcommsyncalgo.lo \
+	syncalgorithms/optimisticlowoverheadcommsyncalgo.lo \
+	syncalgorithms/optimisticlowoverheadticksyncalgo.lo \
 	syncalgorithms/speculationtimecalculationstrategy.lo \
 	util/simtime.lo
 libfncs_api_la_OBJECTS = $(am_libfncs_api_la_OBJECTS)
@@ -274,6 +278,8 @@ am__include_HEADERS_DIST = absnetworkinterface.h cintegrator.h echo.h \
 	syncalgorithms/conservativesleepingtickalgo.h \
 	syncalgorithms/optimisticticksyncalgo.h \
 	syncalgorithms/optimisticcommsyncalgo.h \
+	syncalgorithms/optimisticlowoverheadcommsyncalgo.h \
+	syncalgorithms/optimisticlowoverheadticksyncalgo.h \
 	syncalgorithms/speculationtimecalculationstrategy.h \
 	util/callback.h util/simtime.h util/csimtime.h
 HEADERS = $(include_HEADERS) $(noinst_HEADERS)
@@ -458,6 +464,8 @@ include_HEADERS = absnetworkinterface.h cintegrator.h echo.h \
 	syncalgorithms/conservativesleepingtickalgo.h \
 	syncalgorithms/optimisticticksyncalgo.h \
 	syncalgorithms/optimisticcommsyncalgo.h \
+	syncalgorithms/optimisticlowoverheadcommsyncalgo.h \
+	syncalgorithms/optimisticlowoverheadticksyncalgo.h \
 	syncalgorithms/speculationtimecalculationstrategy.h \
 	util/callback.h util/simtime.h util/csimtime.h
 noinst_HEADERS = 
@@ -482,6 +490,8 @@ libfncs_api_la_SOURCES = absnetworkinterface.cpp cintegrator.cpp \
 	syncalgorithms/conservativesleepingtickalgo.cpp \
 	syncalgorithms/optimisticticksyncalgo.cpp \
 	syncalgorithms/optimisticcommsyncalgo.cpp \
+	syncalgorithms/optimisticlowoverheadcommsyncalgo.cpp \
+	syncalgorithms/optimisticlowoverheadticksyncalgo.cpp \
 	syncalgorithms/speculationtimecalculationstrategy.cpp \
 	util/simtime.cpp
 tests_sanity_SOURCES = tests/sanity.cpp
@@ -625,6 +635,12 @@ syncalgorithms/optimisticticksyncalgo.lo:  \
 syncalgorithms/optimisticcommsyncalgo.lo:  \
 	syncalgorithms/$(am__dirstamp) \
 	syncalgorithms/$(DEPDIR)/$(am__dirstamp)
+syncalgorithms/optimisticlowoverheadcommsyncalgo.lo:  \
+	syncalgorithms/$(am__dirstamp) \
+	syncalgorithms/$(DEPDIR)/$(am__dirstamp)
+syncalgorithms/optimisticlowoverheadticksyncalgo.lo:  \
+	syncalgorithms/$(am__dirstamp) \
+	syncalgorithms/$(DEPDIR)/$(am__dirstamp)
 syncalgorithms/speculationtimecalculationstrategy.lo:  \
 	syncalgorithms/$(am__dirstamp) \
 	syncalgorithms/$(DEPDIR)/$(am__dirstamp)
@@ -764,6 +780,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/conservativesleepingtickalgo.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/graceperiodpesimisticsyncalgo.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/optimisticcommsyncalgo.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/optimisticlowoverheadcommsyncalgo.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/optimisticlowoverheadticksyncalgo.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/optimisticticksyncalgo.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/speculationtimecalculationstrategy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/messageTest.Po@am__quote@
