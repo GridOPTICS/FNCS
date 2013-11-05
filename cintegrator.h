@@ -17,6 +17,10 @@ extern "C"{
 				TIME packetLostPeriod, TIME initialTime, TIME specTime);
   void initIntegratorConservativeSleepingTick(enum time_metric simTimeStep, 
 				TIME packetLostPeriod, TIME initialTime,int numberofpowersims);
+  void initIntegratorOptimisticLowOverheadComm(enum time_metric simTimeStep,
+  	      TIME packetLostPeriod, TIME initialTime, TIME specTime);
+  void initIntegratorOptimisticLowOverhead(enum time_metric simTimeStep,
+  				      TIME packetLostPeriod, TIME initialTime, TIME specTime);
   void setOffset(TIME initialTime);
   void finalizeRegistrations();
   void setregistercallback(TIME (*callback)());

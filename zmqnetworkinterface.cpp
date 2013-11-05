@@ -489,7 +489,7 @@ uint64_t* ZmqNetworkInterface::reduceMinTimeAndAction(uint64_t *timeAction){
 	    makeProgress();
 
 	    (void) zmqx_sendmore(this->zmq_req, this->context, "REDUCE_MIN_TIME_ACTION");
-	    (void) zmqx_send(this->zmq_req, timeAction[0]);
+	    (void) zmqx_sendmore(this->zmq_req, timeAction[0]);
 	    (void) zmqx_send(this->zmq_req, timeAction[1]);
 	    (void) i_recv(timeAction[0]);
 	    (void) i_recv(timeAction[1]);

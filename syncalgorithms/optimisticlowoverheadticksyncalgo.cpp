@@ -42,6 +42,7 @@ void OptimisticLowOverheadTickSyncAlgo::childDied()
 {
     assert(childPid>0);
     specFailTime=comm->failTime;
+    (void) kill(this->childPid,SIGKILL);
     wait(nullptr);
     st->speculationFailed(specFailTime);
 
@@ -143,11 +144,6 @@ void OptimisticLowOverheadTickSyncAlgo::timeStepStart(TIME currentTime)
         syncStart();
 #endif
     if(currentTime < grantedTime){
-        if(this->isChild) {
-            comm->failTime=currentTime;
-            comm->action=ACTION_FAILED;
-            exit(EXIT_FAILURE);
-        }
         return;
     }
 #if DEBUG_WITH_PROFILE
@@ -157,7 +153,7 @@ void OptimisticLowOverheadTickSyncAlgo::timeStepStart(TIME currentTime)
 #endif
     if(this->isChild){
 #if DEBUG
-        CERR << "I'm child my pid:" << this->mypid << "; exit(success); parent " << tempparId << endl;
+        CERR << "I'm child my pid:" << this->mypid << "; exit(success); " << endl;
 #endif
         cout << "Success" << endl;
         comm->failTime=currentTime;
