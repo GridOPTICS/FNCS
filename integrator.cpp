@@ -109,12 +109,7 @@ Integrator::~Integrator(){
 	delete syncAlgo;
 	instance=NULL;
 }
-
-TIME Integrator::getMinNetworkDelay()
-{
-  return instance->currentInterface->getMinNetworkDelay();
-}
-
+// 
 
 void Integrator::stopIntegrator(){
 #if DEBUG

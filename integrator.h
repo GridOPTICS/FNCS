@@ -214,10 +214,7 @@ public:
      */
     static void setCommManager(AbsCommManager* given);
     
-    /**
-     * Returns the network delay in framework time 
-     */
-    static TIME getMinNetworkDelay();
+    
     /**
      * Returns to packet lost window. Messages older than currentTime - packetLostPeriod are considered lost!
      */
