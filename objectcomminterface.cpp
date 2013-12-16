@@ -32,7 +32,7 @@
 namespace sim_comm {
 
 
-ObjectCommInterface::ObjectCommInterface(string objectName) {
+ObjectCommInterface::ObjectCommInterface(string objectName, MessageBufferOperation op) {
 #if DEBUG
     CERR << "ObjectCommInterface::ObjectCommInterface("
         << objectName << ")" << endl;
@@ -40,6 +40,12 @@ ObjectCommInterface::ObjectCommInterface(string objectName) {
     this->attachedObjectName=objectName;
     this->notifyMessage=nullptr;
     this->syncAlgoCallBackSend=nullptr;
+    
+    st=nullptr;
+    if(op==BUFFER_FIRST)
+      st=new KeepFirstStrategy(this);
+    if(op==BUFFER_LAST)
+      st=new KeepLastStrategy(this);
 }
 
 void ObjectCommInterface::setSyncAlgoCallBack(sim_comm::CallBack< bool, Message*, empty, empty >* syncAlgoCallBackSend)
@@ -183,6 +189,9 @@ void ObjectCommInterface::newMessage(Message* given) {
 #if DEBUG
     CERR << "ObjectCommInterface::newMessage(Message*)" << endl;
 #endif
+    if(st!=nullptr && !st->doBufferMessage(given))
+      return;
+    
     this->inbox.push_back(given);
     
     if(this->notifyMessage!=nullptr)
@@ -204,6 +213,62 @@ void ObjectCommInterface::setMessageNotifier(sim_comm::CallBack< void, empty, em
 {
   this->notifyMessage=tonotify;
 }
+
+BufferStrategy::BufferStrategy(ObjectCommInterface* curInterface)
+{
+  this->controlInterface=curInterface;
+}
+
+void BufferStrategy::clearInbox()
+{
+  this->controlInterface->inbox.clear();
+}
+
+int BufferStrategy::getNumberOfMessage()
+{
+  this->controlInterface->inbox.size();
+}
+
+Message* BufferStrategy::getMessage(int index)
+{
+  return this->controlInterface->inbox[index];
+}
+
+void BufferStrategy::removeMessage(int index)
+{
+  this->controlInterface->inbox.erase(this->controlInterface->inbox.begin()+index);
+}
+
+KeepLastStrategy::KeepLastStrategy(ObjectCommInterface* curInterface): BufferStrategy(curInterface)
+{
+
+}
+
+bool KeepLastStrategy::doBufferMessage(Message* given)
+{
+  if(getNumberOfMessage()==0){
+    return true;
+  }
+
+  if(given->getTime() >= getMessage(0)->getTime())
+    return true;
+  
+  return false;
+}
+
+bool KeepFirstStrategy::doBufferMessage(Message* given)
+{
+  if(getNumberOfMessage()==0)
+    return true;
+  
+  return false;
+}
+
+KeepFirstStrategy::KeepFirstStrategy(ObjectCommInterface* curInterface): BufferStrategy(curInterface)
+{
+
+}
+
 
 
 } /* end namespace sim_comm */

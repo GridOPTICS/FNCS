@@ -117,6 +117,7 @@ namespace sim_comm{
 	CallBack<bool,Message*,empty,empty> *syncAlgoCallBackSend,*syncAlgoCallBackRecv;
 	sim_comm::AbsNetworkInterface *currentInterface;
 	void adjustNetworkDelay(TIME msgDeliveryTime);
+	void signalNewMessage(ObjectCommInterface *comm,Message *msg);
 	AbsCommManager(AbsCommManager &given);
     public:
       /**

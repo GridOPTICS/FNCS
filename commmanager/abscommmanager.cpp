@@ -266,5 +266,11 @@ namespace sim_comm{
 	  nextTime=arr[0];
 	  action=arr[1];
   }
+  
+  void AbsCommManager::signalNewMessage(ObjectCommInterface* comm, Message* msg)
+  {
+    comm->newMessage(msg);
+  }
+
 }
 

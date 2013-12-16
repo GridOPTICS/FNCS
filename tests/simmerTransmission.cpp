@@ -36,11 +36,11 @@ int main(int argc,char* argv[]){
   currentTime=2000000000;
   ZmqNetworkInterface *comm=new ZmqNetworkInterface(false);
   CallBack<TIME,empty,empty,empty>* cb=CreateCallback(getCurTime);
-  //Integrator::initIntegratorGracePeriod(comm,MILLISECONDS,2300000000,currentTime);
+  Integrator::initIntegratorGracePeriod(comm,MILLISECONDS,2300000000,currentTime);
   //Integrator::initIntegratorNetworkDelaySupport(comm,MILLISECONDS,2300000000,currentTime);
   //Integrator::initIntegratorSpeculative(comm,MILLISECONDS,2300000000,currentTime,1000);
-  IncreasingSpeculationTimeStrategy *st=new IncreasingSpeculationTimeStrategy(MILLISECONDS,60000);
-  Integrator::initIntegratorOptimistic(comm,MILLISECONDS,2300000000,currentTime,60000,st);
+  //IncreasingSpeculationTimeStrategy *st=new IncreasingSpeculationTimeStrategy(MILLISECONDS,60000);
+  //Integrator::initIntegratorOptimistic(comm,MILLISECONDS,2300000000,currentTime,60000,st);
   //time_metric others[1];
   //others[0]=SECONDS;
   //Integrator::initIntegratorConservativeSleepingTick(comm,MILLISECONDS,2000000000,currentTime,others,1);

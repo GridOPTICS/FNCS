@@ -154,7 +154,7 @@ namespace sim_comm{
 	    continue;
 	  Message *nm=new Message(message->getFrom(),it->first,message->getTime(),
 		  message->getData(),message->getSize());
-	  comm->newMessage(nm);
+	 signalNewMessage(comm,nm);
 	  //it->second->newMessage(nm);
 	}
 	delete message;
@@ -162,7 +162,8 @@ namespace sim_comm{
       else{
       //handle single message
       //let it throw an exception if the key is not found
-	  comm->newMessage(message);
+	  //comm->newMessage(message);
+	  signalNewMessage(comm,message);
 	  addMessageTimeout(message->getTime());
       }
     

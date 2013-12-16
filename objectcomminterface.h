@@ -40,8 +40,45 @@ using namespace std;
 
 namespace sim_comm {
 
+  enum MessageBufferOperation{
+    BUFFER_ALL,
+    BUFFER_LAST,
+    BUFFER_FIRST
+  };
 
 class AbsCommInterface;
+class AbsCommManager;
+
+/**
+ * Abstract class defining methods to access
+ * the message buffer.
+ * Subclasses should implement doBufferMessage method
+ * 
+ */
+class BufferStrategy{
+private:
+  ObjectCommInterface *controlInterface;
+protected:
+  int getNumberOfMessage();
+  void clearInbox();
+  Message *getMessage(int index);
+  void removeMessage(int index);
+public:
+  /**
+   * This method is called when the object comm interface
+   * recevied a new message. It decides whether the message
+   * will be buffered or not.
+   * 
+   * @param[in] given the new message.
+   * @return true if the message should be buffered, false otherwise.
+   */
+  virtual bool doBufferMessage(Message *given) =0;
+  
+  /**
+   * Constructor
+   */
+  BufferStrategy(ObjectCommInterface *curInterface);
+};
 
 /**
  * This class provides the send/receive message interface for objects that want
@@ -49,7 +86,8 @@ class AbsCommInterface;
  */
 class ObjectCommInterface {
     friend class Integrator;
-
+    friend class AbsCommManager;
+    friend class BufferStrategy;
 private:
     string attachedObjectName;
     vector<Message*> inbox;
@@ -57,13 +95,17 @@ private:
     //AbsMessage *nextMessage;
     vector<int> msgs;
     vector<int>::iterator it;
-
+    BufferStrategy *st;
     CallBack<void,empty,empty,empty> *notifyMessage;
     CallBack<bool,Message*,empty,empty> *syncAlgoCallBackSend; 
     
     /** Constructor. */
-    ObjectCommInterface(string objectName);
+    ObjectCommInterface(string objectName, MessageBufferOperation op=BUFFER_ALL);
 
+      /** Inserts a received message to the interfaces inbox.
+     * The message should be a shared pointer and callers shoud not delete it.
+     */
+    void newMessage(Message* given);
 
 public:
     /**
@@ -75,10 +117,7 @@ public:
      /** Clears the outbox of the system */
     void clear();
 
-     /** Inserts a received message to the interfaces inbox.
-     * The message should be a shared pointer and callers shoud not delete it.
-     */
-    void newMessage(Message* given);
+   
 
     /** TODO */
     vector<Message*> getOutBox();
@@ -120,6 +159,27 @@ public:
   
 };
 
+
+
+class KeepLastStrategy : public BufferStrategy{
+
+public:
+  bool doBufferMessage(Message *given);
+  /**
+  * Constructor
+  */
+  KeepLastStrategy(ObjectCommInterface *curInterface);
+  
+};
+
+class KeepFirstStrategy : public BufferStrategy{
+public:
+  bool doBufferMessage(Message *given);
+  /**
+   * Constructor
+   */
+  KeepFirstStrategy(ObjectCommInterface* curInterface);
+};
 
 } /* end namespace sim_comm */
 
