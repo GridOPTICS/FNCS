@@ -65,6 +65,7 @@ class AbsNetworkInterface;
 
 class AbsCommManager;
 class ObjectCommInterface;
+class BufferStrategy;
 
 class FNCSException: exception{
   private:
@@ -155,9 +156,26 @@ public:
      * Registrations occur once at the beginning of an application. Once all
      * registrations have been made, the finalizeRegistrations() method should
      * be called.
+     * 
+     * @param objectName the name of the object that will be used by remote objects
+     * @return the comminterface that provides send/receive methods for the object.
      */
     static ObjectCommInterface *getCommInterface(string objectName);
 
+    /**
+     * Registers an object for communication.
+     * 
+     * Objects are referred to by name. Names are globally unique.
+     * Registrations occur once at the beginning of an application. Once all
+     * registrations have been made, the finalizeRegistrations() method should
+     * be called.
+     * 
+     * @param[in] objectName the name of the object that will be used by remote objects.
+     * @param[in] st the strategy to be used for bufering the messages. Framework owns the strategyobject.
+     * @return the comminterface that provides send/receive methods for the object.
+     */
+    static ObjectCommInterface *getCommInterface(string objectName,BufferStrategy *st);
+    
     /**
      * Indicate that communication object registrations have completed.
      *
@@ -167,9 +185,33 @@ public:
     static void finalizeRegistrations();
 
     /**
-     * TODO
+      * Registers an object for communication.
+     *
+     * Objects are referred to by name. Names are globally unique.
+     * Registrations occur once at the beginning of an application. Once all
+     * registrations have been made, the finalizeRegistrations() method should
+     * be called.
+     * This method takes char* making it easier to bridge Fenix with C/Fortran
+     * 
+     * @param objectName the name of the object that will be used by remote objects.
+     * @return the comminterface that provides send/receive methods for the object.
      */
     static ObjectCommInterface *getCommInterface(const char *objectName);
+    
+    /**
+     * Registers an object for communication.
+     *
+     * Objects are referred to by name. Names are globally unique.
+     * Registrations occur once at the beginning of an application. Once all
+     * registrations have been made, the finalizeRegistrations() method should
+     * be called.
+     * This method takes char* making it easier to bridge Fenix with C/Fortran
+     * 
+     * @param objectName the name of the object that will be used by remote objects.
+     * @param[in] st the strategy to be used for bufering the messages. Framework owns the strategyobject.
+     * @return the comminterface that provides send/receive methods for the object.
+     */
+    static ObjectCommInterface *getCommInterface(const char *objectName,BufferStrategy *st);
     
     /**
      * Used by speculative threading to set the 

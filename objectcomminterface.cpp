@@ -32,7 +32,7 @@
 namespace sim_comm {
 
 
-ObjectCommInterface::ObjectCommInterface(string objectName, MessageBufferOperation op) {
+ObjectCommInterface::ObjectCommInterface(string objectName, BufferStrategy *st) {
 #if DEBUG
     CERR << "ObjectCommInterface::ObjectCommInterface("
         << objectName << ")" << endl;
@@ -41,11 +41,11 @@ ObjectCommInterface::ObjectCommInterface(string objectName, MessageBufferOperati
     this->notifyMessage=nullptr;
     this->syncAlgoCallBackSend=nullptr;
     
-    st=nullptr;
-    if(op==BUFFER_FIRST)
-      st=new KeepFirstStrategy(this);
-    if(op==BUFFER_LAST)
-      st=new KeepLastStrategy(this);
+    this->st=nullptr;
+    if(st!=nullptr){
+    
+      this->st=st;
+    }
 }
 
 void ObjectCommInterface::setSyncAlgoCallBack(sim_comm::CallBack< bool, Message*, empty, empty >* syncAlgoCallBackSend)
@@ -63,6 +63,8 @@ ObjectCommInterface::~ObjectCommInterface() {
 #endif
     this->inbox.clear();
     this->outbox.clear();
+    if(st)
+      delete st;
 }
 
 

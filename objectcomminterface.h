@@ -40,11 +40,6 @@ using namespace std;
 
 namespace sim_comm {
 
-  enum MessageBufferOperation{
-    BUFFER_ALL,
-    BUFFER_LAST,
-    BUFFER_FIRST
-  };
 
 class AbsCommInterface;
 class AbsCommManager;
@@ -100,7 +95,7 @@ private:
     CallBack<bool,Message*,empty,empty> *syncAlgoCallBackSend; 
     
     /** Constructor. */
-    ObjectCommInterface(string objectName, MessageBufferOperation op=BUFFER_ALL);
+    ObjectCommInterface(string objectName, BufferStrategy *st=nullptr);
 
       /** Inserts a received message to the interfaces inbox.
      * The message should be a shared pointer and callers shoud not delete it.
@@ -164,7 +159,7 @@ public:
 class KeepLastStrategy : public BufferStrategy{
 
 public:
-  bool doBufferMessage(Message *given);
+  virtual bool doBufferMessage(Message *given);
   /**
   * Constructor
   */
@@ -174,7 +169,7 @@ public:
 
 class KeepFirstStrategy : public BufferStrategy{
 public:
-  bool doBufferMessage(Message *given);
+  virtual bool doBufferMessage(Message *given);
   /**
    * Constructor
    */

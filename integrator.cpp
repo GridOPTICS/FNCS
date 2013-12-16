@@ -593,6 +593,27 @@ ObjectCommInterface* Integrator::getCommInterface(string objectName) {
     return toReturn;
 }
 
+ObjectCommInterface* Integrator::getCommInterface(string objectName, BufferStrategy* st)
+{
+    ObjectCommInterface *toReturn = nullptr;
+
+    if (instance->allowRegistrations) {
+        toReturn = new ObjectCommInterface(objectName,st);
+        instance->currentInterface->addObjectInterface(objectName,toReturn);
+    }
+    else {
+        toReturn = instance->currentInterface->getObjectInterface(objectName);
+    }
+
+    return toReturn;
+}
+
+ObjectCommInterface* Integrator::getCommInterface(const char* objectName, BufferStrategy* st)
+{
+  return Integrator::getCommInterface(string(objectName),st);
+}
+
+
 
 ObjectCommInterface* Integrator::getCommInterface(const char* objectName) {
 
