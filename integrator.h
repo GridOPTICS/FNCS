@@ -129,11 +129,6 @@ public:
      * @return, the next time granted by the simulator.
      */
     static TIME getNextTime(TIME currentTime, TIME nextTime);
-
-    /**
-     * TODO
-     */
-    static bool doDispatchNextEvent(TIME currentTime, TIME nextTime);
     
     /**
      * Should be called by a power simulator when it starts a new iteration.

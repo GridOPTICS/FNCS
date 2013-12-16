@@ -44,7 +44,7 @@ class ConservativeSleepingCommAlgo : public AbsSyncAlgorithm
     ConservativeSleepingCommAlgo(AbsCommManager *interface);
     virtual ~ConservativeSleepingCommAlgo();
     virtual TIME GetNextTime(TIME currentTime, TIME nextTime);
-    virtual bool doDispatchNextEvent(TIME currentTime, TIME nextTime);
+  
     /**
      * Always returns false as this algorithm does not support forking!
      */

@@ -169,13 +169,6 @@ namespace sim_comm{
 #endif
       return nextEstTime;
   }
-
-  bool ConservativeSleepingTickAlgo::doDispatchNextEvent(TIME currentTime, TIME nextTime)
-  {
-    TIME syncedTime=this->GetNextTime(currentTime,nextTime);
-
-    return syncedTime==nextTime;
-  }
   
  
 

@@ -621,17 +621,6 @@ ObjectCommInterface* Integrator::getCommInterface(const char* objectName) {
 }
 
 
-bool Integrator::doDispatchNextEvent(TIME currentTime, TIME nextTime) {
-
-    TIME curTimeInFramework=convertToFrameworkTime(
-            instance->simTimeMetric,currentTime) - instance->offset;
-    TIME nextframeTime = convertToFrameworkTime(
-            instance->simTimeMetric,nextTime) - instance->offset;
-    instance->currentInterface->sendAll();
-    return instance->syncAlgo->doDispatchNextEvent(
-            curTimeInFramework,nextframeTime);
-}
-
 
 TIME Integrator::getNextTime(TIME currentTime, TIME nextTime) {
     

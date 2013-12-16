@@ -35,7 +35,7 @@ namespace sim_comm
 {
    GracePeriodSyncAlgo::GracePeriodSyncAlgo(AbsCommManager* interface ) : AbsSyncAlgorithm(interface)
   {
-      this->algotype=ALGO_PESIMISTIC;
+    
   }
 
    GracePeriodSyncAlgo::~GracePeriodSyncAlgo()
@@ -44,12 +44,6 @@ namespace sim_comm
   }
 
  
-  bool  GracePeriodSyncAlgo::doDispatchNextEvent(TIME currentTime, TIME nextTime)
-  {
-    TIME syncedTime=this->GetNextTime(currentTime,nextTime);
-
-    return syncedTime==nextTime;
-  }
 
   TIME  GracePeriodSyncAlgo::GetNextTime(TIME currentTime, TIME nextTime)
   {

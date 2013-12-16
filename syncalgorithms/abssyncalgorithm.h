@@ -92,7 +92,7 @@ namespace sim_comm
 	AbsCommManager* interface;
 	bool finished;
 	TIME grantedTime;
-	ALGOTYPE algotype;
+
 	bool busywait;
     public:
 	AbsSyncAlgorithm(AbsCommManager* currentInterface);
@@ -102,21 +102,10 @@ namespace sim_comm
 	 * If not, the method will block until a certain amount of time is granted for simulator.
 	 */
 	virtual TIME GetNextTime(TIME currentTime,TIME nextTime) = 0;
-	/**
-	 * Call this method to determine whether the next event can be dispatced.
-	 * If not the method will return immediatly without busy waiting.
-	 */
-	virtual bool doDispatchNextEvent(TIME currentTime,TIME nextTime) = 0;
+	
 	
 	bool isFinished();
 	
-	/**
-	 * Returns sync algorithm type. Faster than dynamic cast!s
-	 */
-	ALGOTYPE getAlgoType(){
-	
-	  return this->algotype;
-	}
 	
 	virtual TIME needsSync(TIME nextTime){
 	

@@ -48,7 +48,6 @@ namespace sim_comm{
       bool mightSleep;
     public:
       ConservativeSleepingTickAlgo(AbsCommManager *interface, int &numberOfPowerSims);
-      virtual bool doDispatchNextEvent(TIME currentTime, TIME nextTime);
       virtual TIME GetNextTime(TIME currentTime, TIME nextTime);
       virtual void timeStepStart(TIME currentTime);
       virtual ~ConservativeSleepingTickAlgo();

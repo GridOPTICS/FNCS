@@ -205,11 +205,6 @@ void OptimisticTickSyncAlgo::timeStepStart(TIME currentTime)
   }
 }
 
-bool OptimisticTickSyncAlgo::doDispatchNextEvent(TIME currentTime, TIME nextTime)
-{
-  return GetNextTime(currentTime,nextTime);
-}
-
 
 
 TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)

@@ -43,13 +43,6 @@ ConservativeSleepingCommAlgo::~ConservativeSleepingCommAlgo()
 
 }
 
-bool ConservativeSleepingCommAlgo::doDispatchNextEvent(TIME currentTime, TIME nextTime)
-{
-TIME networkTime=this->GetNextTime(currentTime,nextTime);
-		
-		return networkTime>nextTime;
-}
-
 
 TIME ConservativeSleepingCommAlgo::GetNextTime(TIME currentTime, TIME nextTime)
 {

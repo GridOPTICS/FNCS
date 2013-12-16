@@ -41,8 +41,7 @@ class EpochsSyncalgortihm : public AbsSyncAlgorithm
    public:
      EpochsSyncalgortihm(TIME syncinterval,AbsCommManager *interface);
      virtual ~EpochsSyncalgortihm();();
-     /** @copydoc AbsSyncAlgorithm::doDispatchNextEvent(TIME currentTime, TIME nextTime) */
-     virtual bool doDispatchNextEvent(TIME currentTime, TIME nextTime);
+    
      /** @copydoc AbsSyncAlgorithm::doDispatchNextEvent(TIME currentTime, TIME nextTime) */
      virtual TIME GetNextTime(TIME currentTime, TIME nextTime);
      /**

@@ -35,8 +35,6 @@ namespace sim_comm {
 			virtual ~CommunicatorSimulatorSyncalgo();
 			/** @copydoc AbsSyncAlgorithm::GetNextTime(TIME currentTime, TIME nextTime) */
 			virtual TIME GetNextTime(TIME currentTime,TIME nextTime);
-			/** @copydoc AbsSyncAlgorithm::doDispatchNextEvent(TIME currentTime, TIME nextTime) */
-			virtual bool doDispatchNextEvent(TIME currentTime,TIME nextTime);
 			/**
 			 * Always returns false as this algorithm never forks.
 			 */

@@ -58,7 +58,7 @@ GracePeriodSpeculativeSyncAlgo::GracePeriodSpeculativeSyncAlgo(AbsCommManager *i
     CreateObjCallback<GracePeriodSpeculativeSyncAlgo*, void (GracePeriodSpeculativeSyncAlgo::*)(Message *),void, Message*>(this,&GracePeriodSpeculativeSyncAlgo::sentMessage);
   CallBack<void,Message*,empty,empty> *syncAlgoCallBackRev=
     CreateObjCallback<GracePeriodSpeculativeSyncAlgo*, void (GracePeriodSpeculativeSyncAlgo::*)(Message *),void, Message*>(this,&GracePeriodSpeculativeSyncAlgo::receivedMessage);
-  this->algotype=ALGO_SPECULATIVE;
+
 }
 
 GracePeriodSpeculativeSyncAlgo::~GracePeriodSpeculativeSyncAlgo()
@@ -204,12 +204,6 @@ void GracePeriodSpeculativeSyncAlgo::waitForSpeculationSignal()
 }
 
 
-bool GracePeriodSpeculativeSyncAlgo::doDispatchNextEvent(TIME currentTime, TIME nextTime)
-{
-    TIME syncedTime=this->GetNextTime(currentTime,nextTime);
-
-    return syncedTime==nextTime;
-}
 
 void GracePeriodSpeculativeSyncAlgo::timeStepStart(TIME currentTime)
 {
