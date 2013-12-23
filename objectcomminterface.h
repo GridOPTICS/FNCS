@@ -95,7 +95,7 @@ private:
     CallBack<bool,Message*,empty,empty> *syncAlgoCallBackSend; 
     
     /** Constructor. */
-    ObjectCommInterface(string objectName, BufferStrategy *st=nullptr);
+    ObjectCommInterface(string objectName, BufferStrategy *st=NULL);
 
       /** Inserts a received message to the interfaces inbox.
      * The message should be a shared pointer and callers shoud not delete it.

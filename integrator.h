@@ -224,6 +224,11 @@ public:
      * TODO
      */
     static time_metric getCurSimMetric();
+    
+    /**
+     * Initializes the integrator from a configuration file.
+     */
+    static void initIntegrator(const char *configFile,TIME initialTime);
 
     /**
      * Returns current simulator time in framework adjusted format

@@ -158,11 +158,11 @@ void Integrator::parseConfig(string jsonFile, TIME initialTime)
     enum time_metric tm;
     AbsNetworkInterface *comm;
 
-    std::cout << "Json fle name : " << jsonFile << endl;
+   
     Json::Value root;
     std::ifstream file(jsonFile.c_str());
     file >> root;
-    std::cout << root;
+    
 
     const Json::Value interface = root["interface"];
     const Json::Value simulator_type = root["simulator_type"];
@@ -179,14 +179,22 @@ void Integrator::parseConfig(string jsonFile, TIME initialTime)
     {
         if (interface.asString() == "zmq") 
         {
+	  
+	    const Json::Value brokerAddress=root["broker"];
 #if HAVE_ZMQ
             if (simulator_type.asString() == "power_grid") { 
+		if(!brokerAddress.isNull())
+		  comm = new ZmqNetworkInterface(brokerAddress.asString(),false);
+		else
                 comm = new ZmqNetworkInterface(false);
-                cout << "interface is ZMQ with a power grid simulator" << endl;
+              
             }
-            else if (simulator_type.asString() == "communication_network") { 
+            else if (simulator_type.asString() == "communication_network") {
+	      if(!brokerAddress.isNull())
+		comm = new ZmqNetworkInterface(brokerAddress.asString(),true);
+	      else
                 comm = new ZmqNetworkInterface(true);
-                cout << "interface is ZMQ, with a network simulator" << endl;
+                
             }
 #else
             cout << "FNCS not built with zeromq" << endl;
@@ -250,7 +258,7 @@ void Integrator::parseConfig(string jsonFile, TIME initialTime)
             if (synchronization_algorithm.asString().compare("conservative") == 0) 
             {
                 Integrator::initIntegratorGracePeriod(comm, tm, plp, initialTime);
-                cout << "*** call initIntegratorGracePeriod" << endl;
+              
             } 
             else if(synchronization_algorithm.asString().compare("active_set_conservative") == 0)  
             {
@@ -262,7 +270,6 @@ void Integrator::parseConfig(string jsonFile, TIME initialTime)
 		
 		 int num=synchronization_algorithm["conservative"]["number_of_power_simulators"].asInt();
                 Integrator::initIntegratorConservativeSleepingTick(comm,tm,plp,initialTime,num);
-                cout << "*** call initIntegratorConservativeSleepingTick" << endl;
 
             }
         }
@@ -284,14 +291,14 @@ void Integrator::parseConfig(string jsonFile, TIME initialTime)
 
                     ConstantSpeculationTimeStrategy *st = new ConstantSpeculationTimeStrategy(tm, specTime);
                     Integrator::initIntegratorOptimistic(comm, tm, plp,initialTime,specTime,st);
-                    cout << "*** call constant speculartion time stregy" << endl;  
+                   
 
                 }
                 else if (synchronization_algorithm["optimistic"]["speculation_calculation_stragegy"].asString() == "dynamic_increasing")
                 {
                     IncreasingSpeculationTimeStrategy *st=new IncreasingSpeculationTimeStrategy(tm, specTime);
                     Integrator::initIntegratorOptimistic(comm, tm, plp, initialTime, specTime, st);
-                    cout << "*** call dynamical increasing and initIntegratorOptimistic" << endl;
+                 
 
                 }  
             }
@@ -311,13 +318,13 @@ void Integrator::parseConfig(string jsonFile, TIME initialTime)
             if (synchronization_algorithm.asString().compare("conservative") == 0) 
             {
                 Integrator::initIntegratorCommunicationSim(comm, tm, plp, initialTime);
-                cout << "*** call initIntegratorCommunicationSim" << endl;
+                
             }
             else if(synchronization_algorithm.asString().compare("active_set_conservative") == 0)
             {
 
                 Integrator::initIntegratorConservativeSleepingComm(comm, tm, plp, initialTime);
-                cout << "*** call initIntegratorConservativeSleepingComm" << endl; 
+                
 
             }
         }
@@ -336,14 +343,13 @@ void Integrator::parseConfig(string jsonFile, TIME initialTime)
 
                     ConstantSpeculationTimeStrategy *st = new ConstantSpeculationTimeStrategy(tm,specTime);
                     Integrator::initIntegratorOptimisticComm(comm, tm, plp, initialTime, specTime, st);
-                    cout << "*** call constant increasing and initIntegratorOptimisticComm " << endl;
-
+                   
                 }
                 else if (synchronization_algorithm["optimistic"]["speculation_calculation_stragegy"].asString() == "dynamic_increasing")
                 {
                     IncreasingSpeculationTimeStrategy *st=new IncreasingSpeculationTimeStrategy(tm,specTime);
                     Integrator::initIntegratorOptimisticComm(comm, tm, plp, initialTime, specTime, st);
-                    cout << "*** call dynamic increasing and initIntegratorOptimisticComm" << endl;
+                  
 
                 }
             }//end of if algorithm is optimistic
@@ -352,6 +358,12 @@ void Integrator::parseConfig(string jsonFile, TIME initialTime)
     }//end of simulator type is comm network
 
 }
+
+void Integrator::initIntegrator(const char* configFile, TIME initialTime)
+{
+  parseConfig(string(configFile),initialTime);
+}
+
 
 void Integrator::initIntegratorConservativeSleepingTick(
   AbsNetworkInterface* currentInterface, 

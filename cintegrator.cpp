@@ -122,6 +122,12 @@ void initIntegratorOptimisticIncreasing(time_metric simTimeStep,
   Integrator::initIntegratorConservativeSleepingTick(comm,simTimeStep,packetLostPeriod,initialTime,numberofpowersims);
 }
 
+void initIntegrator(const char* configfile, TIME currentTime)
+{
+  Integrator::initIntegrator(configfile,currentTime);
+}
+
+
 void registerObject(char* name)
 {
   ObjectCommInterface *com=Integrator::getCommInterface(name);

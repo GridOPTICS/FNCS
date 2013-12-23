@@ -54,6 +54,7 @@ private:
     void *zmq_async;
     void *zmq_die;
     string ID;
+    string brokerDieAddress,brokerAsyncAdress,brokerReqAddress;
     int context;
     bool iAmNetSim,cleaned;
     list<Message*> receivedMessages;
@@ -69,8 +70,14 @@ protected:
     template <typename T> int i_recv(T &buf);
     virtual void notifyFork();
 public:
+  
     /**
-     * Constructs.
+     * Constructor for remote broker address
+     */
+    ZmqNetworkInterface(string brokerAddress,bool iAmNetSim);
+    
+    /**
+     * Constructor for localhost broker.
      */
     ZmqNetworkInterface(bool iAmNetSim);
 

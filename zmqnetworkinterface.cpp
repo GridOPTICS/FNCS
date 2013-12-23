@@ -64,7 +64,7 @@ void ZmqNetworkInterface::child_reinit()
         perror("zmq_setsockopt ZMQ_IDENTITY");
     }
     assert(0 == zmq_setsockopt_id_retval);
-    zmq_connect_req_retval = zmq_connect(this->zmq_req, "tcp://localhost:5555");
+    zmq_connect_req_retval = zmq_connect(this->zmq_req, brokerReqAddress.c_str());
  
     assert(0 == zmq_connect_req_retval);
 
@@ -77,7 +77,7 @@ void ZmqNetworkInterface::child_reinit()
         perror("zmq_setsockopt ZMQ_IDENTITY");
     }
     assert(0 == zmq_setsockopt_id_retval);
-    zmq_connect_req_retval = zmq_connect(this->zmq_async, "tcp://localhost:5556");
+    zmq_connect_req_retval = zmq_connect(this->zmq_async, brokerAsyncAdress.c_str());
     assert(0 == zmq_connect_req_retval);
 
     /* create and connect zmq socket for kill signal */
@@ -94,7 +94,7 @@ void ZmqNetworkInterface::child_reinit()
         perror("zmq_setsockopt ZMQ_IDENTITY");
     }
     assert(0 == zmq_setsockopt_id_retval);
-    zmq_connect_sub_retval = zmq_connect(this->zmq_die, "tcp://localhost:5557");
+    zmq_connect_sub_retval = zmq_connect(this->zmq_die, brokerDieAddress.c_str());
     if (0 != zmq_connect_sub_retval) {
         perror("zmq_connect ZMQ_SUB");
     }
@@ -153,7 +153,7 @@ void ZmqNetworkInterface::parent_reinit()
         perror("zmq_setsockopt ZMQ_IDENTITY");
     }
     assert(0 == zmq_setsockopt_id_retval);
-    zmq_connect_req_retval = zmq_connect(this->zmq_req, "tcp://localhost:5555");
+    zmq_connect_req_retval = zmq_connect(this->zmq_req, brokerReqAddress.c_str());
  
     assert(0 == zmq_connect_req_retval);
 
@@ -166,7 +166,7 @@ void ZmqNetworkInterface::parent_reinit()
         perror("zmq_setsockopt ZMQ_IDENTITY");
     }
     assert(0 == zmq_setsockopt_id_retval);
-    zmq_connect_req_retval = zmq_connect(this->zmq_async, "tcp://localhost:5556");
+    zmq_connect_req_retval = zmq_connect(this->zmq_async, brokerAsyncAdress.c_str());
     assert(0 == zmq_connect_req_retval);
 
     /* create and connect zmq socket for kill signal */
@@ -183,7 +183,7 @@ void ZmqNetworkInterface::parent_reinit()
         perror("zmq_setsockopt ZMQ_IDENTITY");
     }
     assert(0 == zmq_setsockopt_id_retval);
-    zmq_connect_sub_retval = zmq_connect(this->zmq_die, "tcp://localhost:5557");
+    zmq_connect_sub_retval = zmq_connect(this->zmq_die, brokerDieAddress.c_str());
     if (0 != zmq_connect_sub_retval) {
         perror("zmq_connect ZMQ_SUB");
     }
@@ -241,7 +241,7 @@ void ZmqNetworkInterface::init()
         perror("zmq_setsockopt ZMQ_IDENTITY");
     }
     assert(0 == zmq_setsockopt_id_retval);
-    zmq_connect_req_retval = zmq_connect(this->zmq_req, "tcp://localhost:5555");
+    zmq_connect_req_retval = zmq_connect(this->zmq_req, brokerReqAddress.c_str());
     if (0 != zmq_connect_req_retval) {
         perror("zmq_connect ZMQ_DEALER 1");
     }
@@ -256,7 +256,7 @@ void ZmqNetworkInterface::init()
         perror("zmq_setsockopt ZMQ_IDENTITY");
     }
     assert(0 == zmq_setsockopt_id_retval);
-    zmq_connect_req_retval = zmq_connect(this->zmq_async, "tcp://localhost:5556");
+    zmq_connect_req_retval = zmq_connect(this->zmq_async, brokerAsyncAdress.c_str());
     if (0 != zmq_connect_req_retval) {
         perror("zmq_connect ZMQ_DEALER 2");
     }
@@ -276,7 +276,7 @@ void ZmqNetworkInterface::init()
         perror("zmq_setsockopt ZMQ_IDENTITY");
     }
     assert(0 == zmq_setsockopt_id_retval);
-    zmq_connect_sub_retval = zmq_connect(this->zmq_die, "tcp://localhost:5557");
+    zmq_connect_sub_retval = zmq_connect(this->zmq_die, brokerDieAddress.c_str());
     if (0 != zmq_connect_sub_retval) {
         perror("zmq_connect ZMQ_SUB");
     }
@@ -296,9 +296,7 @@ void ZmqNetworkInterface::init()
     /* get ack from broker */
     (void) i_recv(this->context);
     assert(this->context >= 0);
-  
-
-	
+ 	
     //force connection!!
     (void) zmqx_send(this->zmq_async,this->context,string("IGNORE"));
     
@@ -309,6 +307,33 @@ void ZmqNetworkInterface::init()
     CERR << this->ID << " context=" << this->context << endl;
 #endif
 }
+
+ZmqNetworkInterface::ZmqNetworkInterface(string brokerAddress, bool iAmNetSim): AbsNetworkInterface(iAmNetSim)
+    ,   zmq_ctx(NULL)
+    ,   zmq_req(NULL)
+    ,   zmq_async(NULL)
+    ,   ID()
+    ,   context(-1)
+    ,   iAmNetSim(iAmNetSim)
+    ,   receivedMessages()
+    ,   globalObjectCount(0)
+{
+    stringstream addresses;
+    addresses << "tcp://" << brokerAddress << ":5555";
+    brokerReqAddress=addresses.str();
+    addresses.str("");
+    addresses << "tcp://" << brokerAddress << ":5556";
+    brokerAsyncAdress=addresses.str();
+    addresses.str("");
+    addresses << "tcp://" << brokerAddress << ":5557";
+    brokerDieAddress=addresses.str();
+#if DEBUG_TO_FILE
+  Debug::setEcho("trace");
+#endif
+    init();
+    cleaned=false;
+}
+
 
 
 ZmqNetworkInterface::ZmqNetworkInterface(bool iAmNetSim)
@@ -321,6 +346,9 @@ ZmqNetworkInterface::ZmqNetworkInterface(bool iAmNetSim)
     ,   iAmNetSim(iAmNetSim)
     ,   receivedMessages()
     ,   globalObjectCount(0)
+    ,	brokerReqAddress("tcp://localhost:5555")
+    ,	brokerAsyncAdress("tcp://localhost:5556")
+    ,	brokerDieAddress("tcp://localhost:5557")
 {
 #if DEBUG_TO_FILE
   Debug::setEcho("trace");
@@ -340,6 +368,9 @@ ZmqNetworkInterface::ZmqNetworkInterface(const ZmqNetworkInterface &that)
     ,   iAmNetSim(that.iAmNetSim)
     ,   receivedMessages()
     ,   globalObjectCount(that.globalObjectCount)
+    ,	brokerReqAddress(that.brokerReqAddress)
+    ,	brokerAsyncAdress(that.brokerAsyncAdress)
+    ,	brokerDieAddress(that.brokerDieAddress)
 {
     uint64_t globalObjectCountAgain;
 
