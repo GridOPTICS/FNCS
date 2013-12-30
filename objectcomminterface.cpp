@@ -208,6 +208,10 @@ std::vector< Message* > ObjectCommInterface::getOutBox() {
 
 
 void ObjectCommInterface::clear() {
+    for(int i=0;i<this->outbox.size();i++){
+      delete outbox[i];
+      outbox[i]=nullptr;
+    }
     this->outbox.clear();
 }
 
