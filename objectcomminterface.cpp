@@ -183,7 +183,9 @@ Message* ObjectCommInterface::getNextInboxMessage() {
 #if DEBUG
     CERR << "ObjectCommInterface::getNextInboxMessage() " << *it << endl;
 #endif
-    return this->inbox[*it];
+    Message *toReturn=this->inbox[*it];
+    this->inbox[*it]=nullptr;
+    return toReturn;
 }
 
 
