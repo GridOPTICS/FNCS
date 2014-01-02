@@ -694,7 +694,7 @@ void ZmqNetworkInterface::processAsyncMessage()
     message = new Message(envelope,envelopeSize);
     dataSize = message->getSize();
     if (dataSize > 0) {
-        data = new uint8_t[dataSize];
+        //data = new uint8_t[dataSize];
         (void) zmqx_recv(this->zmq_async, data, dataSize);
         message->setData(data,dataSize);
     }
