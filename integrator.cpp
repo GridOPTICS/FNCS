@@ -623,14 +623,17 @@ ObjectCommInterface* Integrator::getCommInterface(const char* objectName, Buffer
 ObjectCommInterface* Integrator::getCommInterface(string objectName, BufferStrategyType buffType)
 {
   switch(buffType){
-    case BUFFER_ALL:
+    case BUFFER_ALL:{
       return getCommInterface(objectName);
-    case BUFFER_FIRST:
+    }
+    case BUFFER_FIRST:{
       BufferStrategy *st=new KeepFirstStrategy();
       return getCommInterface(objectName,st);
-    case BUFFER_LAST:
+    }
+    case BUFFER_LAST:{
       BufferStrategy *st=new KeepLastStrategy();
       return getCommInterface(objectName,st);
+    }
     default:
       throw FNCSException("Unknown buffer strategy type");  
   }

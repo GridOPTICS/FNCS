@@ -193,3 +193,13 @@ void setOffset(TIME initialTime)
 {
   Integrator::setOffset(initialTime);
 }
+
+void registerObjectWithBufferStrategy(char* name, short int bufferType)
+{
+  BufferStrategyType type=static_cast<BufferStrategyType>(bufferType);
+  
+  ObjectCommInterface *com=Integrator::getCommInterface(name,type);
+  myName= std::string(name);
+  registeredInterfaces.insert(pair<std::string,ObjectCommInterface*>(myName,com));
+}
+

@@ -256,7 +256,7 @@ void BufferStrategy::removeMessage(int index)
   this->controlInterface->inbox.erase(this->controlInterface->inbox.begin()+index);
 }
 
-KeepLastStrategy::KeepLastStrategy(ObjectCommInterface* curInterface): BufferStrategy()
+KeepLastStrategy::KeepLastStrategy(): BufferStrategy()
 {
 
 }
@@ -281,7 +281,7 @@ bool KeepFirstStrategy::doBufferMessage(Message* given)
   return false;
 }
 
-KeepFirstStrategy::KeepFirstStrategy(ObjectCommInterface* curInterface): BufferStrategy()
+KeepFirstStrategy::KeepFirstStrategy(): BufferStrategy()
 {
 
 }
