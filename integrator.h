@@ -85,6 +85,12 @@ class FNCSException: exception{
   }
 };
 
+enum BufferStrategyType{
+  BUFFER_ALL,
+  BUFFER_FIRST,
+  BUFFER_LAST
+};
+
 
 /**
  * Integrator is the main init point for the framework.
@@ -170,6 +176,40 @@ public:
      * @return the comminterface that provides send/receive methods for the object.
      */
     static ObjectCommInterface *getCommInterface(string objectName,BufferStrategy *st);
+    
+     /**
+     * Registers an object for communication.
+     * 
+     * Objects are referred to by name. Names are globally unique.
+     * Registrations occur once at the beginning of an application. Once all
+     * registrations have been made, the finalizeRegistrations() method should
+     * be called.
+     * 
+     * This method is for convience, instead of expecilictly constructing one 
+     * of the default buffering strategies, clients can just pass the type
+     * 
+     * @param[in] objectName the name of the object that will be used by remote objects.
+     * @param[in] buffType buffering strategy type.
+     * @return the comminterface that provides send/receive methods for the object.
+     */
+    static ObjectCommInterface *getCommInterface(string objectName,BufferStrategyType buffType);
+    
+     /**
+     * Registers an object for communication.
+     * 
+     * Objects are referred to by name. Names are globally unique.
+     * Registrations occur once at the beginning of an application. Once all
+     * registrations have been made, the finalizeRegistrations() method should
+     * be called.
+     * 
+     * This method is for convience, instead of expecilictly constructing one 
+     * of the default buffering strategies, clients can just pass the type
+     * 
+     * @param[in] objectName the name of the object that will be used by remote objects.
+     * @param[in] buffType buffering strategy type.
+     * @return the comminterface that provides send/receive methods for the object.
+     */
+    static ObjectCommInterface *getCommInterface(char *objectName,BufferStrategyType buffType);
     
     /**
      * Indicate that communication object registrations have completed.

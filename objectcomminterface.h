@@ -58,6 +58,7 @@ protected:
   void clearInbox();
   Message *getMessage(int index);
   void removeMessage(int index);
+  
 public:
   /**
    * This method is called when the object comm interface
@@ -72,7 +73,8 @@ public:
   /**
    * Constructor
    */
-  BufferStrategy(ObjectCommInterface *curInterface);
+  BufferStrategy();
+  void setCommInterface(ObjectCommInterface *given);
 };
 
 /**
@@ -163,7 +165,7 @@ public:
   /**
   * Constructor
   */
-  KeepLastStrategy(ObjectCommInterface *curInterface);
+  KeepLastStrategy();
   
 };
 
@@ -173,7 +175,7 @@ public:
   /**
    * Constructor
    */
-  KeepFirstStrategy(ObjectCommInterface* curInterface);
+  KeepFirstStrategy();
 };
 
 } /* end namespace sim_comm */

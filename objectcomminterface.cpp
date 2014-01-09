@@ -43,7 +43,7 @@ ObjectCommInterface::ObjectCommInterface(string objectName, BufferStrategy *st) 
     
     this->st=nullptr;
     if(st!=nullptr){
-    
+      st->setCommInterface(this);
       this->st=st;
     }
 }
@@ -222,23 +222,32 @@ void ObjectCommInterface::setMessageNotifier(sim_comm::CallBack< void, empty, em
   this->notifyMessage=tonotify;
 }
 
-BufferStrategy::BufferStrategy(ObjectCommInterface* curInterface)
+BufferStrategy::BufferStrategy()
 {
-  this->controlInterface=curInterface;
+  this->controlInterface=nullptr;
 }
+
+void BufferStrategy::setCommInterface(ObjectCommInterface* given)
+{
+  this->controlInterface=given;
+}
+
 
 void BufferStrategy::clearInbox()
 {
+
   this->controlInterface->inbox.clear();
 }
 
 int BufferStrategy::getNumberOfMessage()
 {
+  
   this->controlInterface->inbox.size();
 }
 
 Message* BufferStrategy::getMessage(int index)
 {
+ ;
   return this->controlInterface->inbox[index];
 }
 
@@ -247,7 +256,7 @@ void BufferStrategy::removeMessage(int index)
   this->controlInterface->inbox.erase(this->controlInterface->inbox.begin()+index);
 }
 
-KeepLastStrategy::KeepLastStrategy(ObjectCommInterface* curInterface): BufferStrategy(curInterface)
+KeepLastStrategy::KeepLastStrategy(ObjectCommInterface* curInterface): BufferStrategy()
 {
 
 }
@@ -272,7 +281,7 @@ bool KeepFirstStrategy::doBufferMessage(Message* given)
   return false;
 }
 
-KeepFirstStrategy::KeepFirstStrategy(ObjectCommInterface* curInterface): BufferStrategy(curInterface)
+KeepFirstStrategy::KeepFirstStrategy(ObjectCommInterface* curInterface): BufferStrategy()
 {
 
 }
