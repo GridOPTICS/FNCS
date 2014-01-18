@@ -48,7 +48,7 @@ ObjectCommInterface::ObjectCommInterface(string objectName, BufferStrategy *st) 
     }
 }
 
-void ObjectCommInterface::setSyncAlgoCallBack(sim_comm::CallBack< bool, Message*, empty, empty >* syncAlgoCallBackSend)
+void ObjectCommInterface::setSyncAlgoCallBack(sim_comm::CallBack< bool, Message*, empty, empty,empty >* syncAlgoCallBackSend)
 {
 #ifdef DEBUG
     CERR << "ObjectCommInterface::setSyncAlgoCallBack(" << syncAlgoCallBackSend << ")" << endl;
@@ -217,7 +217,7 @@ void ObjectCommInterface::clear() {
     this->outbox.clear();
 }
 
-void ObjectCommInterface::setMessageNotifier(sim_comm::CallBack< void, empty, empty, empty >* tonotify)
+void ObjectCommInterface::setMessageNotifier(sim_comm::CallBack< void, empty, empty, empty,empty >* tonotify)
 {
   this->notifyMessage=tonotify;
 }

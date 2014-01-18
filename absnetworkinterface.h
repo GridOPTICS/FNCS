@@ -79,7 +79,7 @@ class AbsNetworkInterface {
 protected:
     vector<string> myObjects;
     bool registrationsAreFinalized;
-    CallBack<void,Message*,empty,empty> *messageCallBack;
+    CallBack<void,Message*,empty,empty,empty> *messageCallBack;
     bool canFork,killOnTerm;
     virtual void notifyFork() = 0;
 public:
@@ -141,7 +141,7 @@ public:
     /**
      * Registers a callback function to invoke when a Message is received.
      */
-    void setMessageCallBack(CallBack<void,Message*,empty,empty> *messageCallBack) {
+    void setMessageCallBack(CallBack<void,Message*,empty,empty,empty> *messageCallBack) {
         this->messageCallBack = messageCallBack;
     }
 

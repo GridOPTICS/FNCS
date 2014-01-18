@@ -175,7 +175,7 @@ void finalizeRegistrations()
 
 void setregistercallback(TIME (*callback)())
 {
-  CallBack<TIME,empty,empty,empty> *cb=CreateCallback(callback);
+  CallBack<TIME,empty,empty,empty,empty> *cb=CreateCallback(callback);
   Integrator::setTimeCallBack(cb);
 }
 

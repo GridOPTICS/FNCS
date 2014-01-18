@@ -60,9 +60,9 @@ OptimisticLowOverheadTickSyncAlgo::OptimisticLowOverheadTickSyncAlgo(AbsCommMana
     if(!this->interface->supportsFork())
         throw SyncStateException(string("Optimistic algo can only be used if the underlying network itnerface supports fork!"));
 
-    CallBack<bool,Message*,empty,empty> *syncAlgoCallBackSend=
+    CallBack<bool,Message*,empty,empty,empty> *syncAlgoCallBackSend=
         CreateObjCallback<OptimisticLowOverheadTickSyncAlgo*, bool (OptimisticLowOverheadTickSyncAlgo::*)(Message *),bool, Message*>(this,&OptimisticLowOverheadTickSyncAlgo::nodeSentMessage);
-    CallBack<bool,Message*,empty,empty> *syncAlgoCallBackRev=
+    CallBack<bool,Message*,empty,empty,empty> *syncAlgoCallBackRev=
         CreateObjCallback<OptimisticLowOverheadTickSyncAlgo*, bool (OptimisticLowOverheadTickSyncAlgo::*)(Message *),bool, Message*>(this,&OptimisticLowOverheadTickSyncAlgo::nodeReceivedMessage);
 
     this->interface->setSyncAlgoCallBacks(syncAlgoCallBackSend,syncAlgoCallBackRev);
@@ -214,7 +214,7 @@ TIME OptimisticLowOverheadTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME 
         //for optimistic however when get knowledge about the the dead time of child process
         //we can use it as the granted time.
         //if I have a packet, I can only 
-        nextEstTime=currentTimeParam+convertToFrameworkTime(Integrator::getCurSimMetric(),1);
+        nextEstTime=currentTimeParam+Integrator::getOneTimeStep();
         myminNextTime=nextEstTime;
         TIME minnetworkdelay=interface->reduceNetworkDelay();
         if(diff==0 && !needToRespond)

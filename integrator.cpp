@@ -85,20 +85,23 @@ Integrator::Integrator(
         AbsCommManager *currentInterface,
         AbsSyncAlgorithm *algo,
         time_metric simTimeStep,
-	TIME packetLostPeriod) {
+	TIME packetLostPeriod,
+	TIME onetimestep) {
 
 #if DEBUG
     CERR << "Integrator::Integrator("
         << "AbsCommInterface*,"
         << "AbsSyncAlgorithm*,"
         << "simTimeStep=" << simTimeStep << ","
-        << "packetlost=" << packetLostPeriod << ")" << endl;
+        << "packetlost=" << packetLostPeriod << "," <<
+        << "onetimestep=" << onetimestep << ")" << endl;
 #endif
     this->currentInterface=currentInterface;
     this->simTimeMetric=simTimeStep;
     this->allowRegistrations = true;
     this->syncAlgo=algo;
     this->packetLostPeriod=packetLostPeriod;
+    this->onetimestep=convertToFrameworkTime(simTimeMetric,onetimestep);
    
 }
 
@@ -130,6 +133,12 @@ void Integrator::stopIntegrator(){
 	
 }
 
+TIME Integrator::getOneTimeStep()
+{
+  return instance->onetimestep;
+}
+
+
 void Integrator::terminate()
 {
 #if DEBUG
@@ -155,6 +164,7 @@ void Integrator::parseConfig(string jsonFile, TIME initialTime)
 
     TIME plp;
     TIME specTime;
+    TIME onetimestep;
     enum time_metric tm;
     AbsNetworkInterface *comm;
 
@@ -166,6 +176,7 @@ void Integrator::parseConfig(string jsonFile, TIME initialTime)
 
     const Json::Value interface = root["interface"];
     const Json::Value simulator_type = root["simulator_type"];
+    const Json::Value one_timestep = root["one_timestep"];
     const Json::Value synchronization_algorithm = root["synchronization_algorithm"];
     const Json::Value simulator_time_metric = root["simulator_time_metric"];
     const Json::Value packet_loss_period = root["packet_loss_period"];
@@ -220,7 +231,15 @@ void Integrator::parseConfig(string jsonFile, TIME initialTime)
 #if DEBUG
     CERR << "packet loss period = " << plp << endl;
 #endif
+    if(one_timestep.isNull()){
+      onetimestep=1;
+    }else{
+      onetimestep=one_timestep.asInt64();
+    }
 
+#if DEBUG
+    CERR << "onetimestep=" << onetimestep <<endl;
+#endif
     if(simulator_type.isNull())
     {
         cout << "Error: No simulator type in Json file" << endl; 
@@ -257,7 +276,7 @@ void Integrator::parseConfig(string jsonFile, TIME initialTime)
         {
             if (synchronization_algorithm.asString().compare("conservative") == 0) 
             {
-                Integrator::initIntegratorGracePeriod(comm, tm, plp, initialTime);
+                Integrator::initIntegratorGracePeriod(comm, tm, plp, initialTime,onetimestep);
               
             } 
             else if(synchronization_algorithm.asString().compare("active_set_conservative") == 0)  
@@ -269,7 +288,7 @@ void Integrator::parseConfig(string jsonFile, TIME initialTime)
 		}
 		
 		 int num=synchronization_algorithm["conservative"]["number_of_power_simulators"].asInt();
-                Integrator::initIntegratorConservativeSleepingTick(comm,tm,plp,initialTime,num);
+                Integrator::initIntegratorConservativeSleepingTick(comm,tm,plp,initialTime,num,onetimestep);
 
             }
         }
@@ -290,14 +309,14 @@ void Integrator::parseConfig(string jsonFile, TIME initialTime)
                 {
 
                     ConstantSpeculationTimeStrategy *st = new ConstantSpeculationTimeStrategy(tm, specTime);
-                    Integrator::initIntegratorOptimistic(comm, tm, plp,initialTime,specTime,st);
+                    Integrator::initIntegratorOptimistic(comm, tm, plp,initialTime,specTime,st,onetimestep);
                    
 
                 }
                 else if (synchronization_algorithm["optimistic"]["speculation_calculation_stragegy"].asString() == "dynamic_increasing")
                 {
                     IncreasingSpeculationTimeStrategy *st=new IncreasingSpeculationTimeStrategy(tm, specTime);
-                    Integrator::initIntegratorOptimistic(comm, tm, plp, initialTime, specTime, st);
+                    Integrator::initIntegratorOptimistic(comm, tm, plp, initialTime, specTime, st,onetimestep);
                  
 
                 }  
@@ -317,13 +336,13 @@ void Integrator::parseConfig(string jsonFile, TIME initialTime)
         {
             if (synchronization_algorithm.asString().compare("conservative") == 0) 
             {
-                Integrator::initIntegratorCommunicationSim(comm, tm, plp, initialTime);
+                Integrator::initIntegratorCommunicationSim(comm, tm, plp, initialTime,onetimestep);
                 
             }
             else if(synchronization_algorithm.asString().compare("active_set_conservative") == 0)
             {
 
-                Integrator::initIntegratorConservativeSleepingComm(comm, tm, plp, initialTime);
+                Integrator::initIntegratorConservativeSleepingComm(comm, tm, plp, initialTime,onetimestep);
                 
 
             }
@@ -342,13 +361,13 @@ void Integrator::parseConfig(string jsonFile, TIME initialTime)
                 {
 
                     ConstantSpeculationTimeStrategy *st = new ConstantSpeculationTimeStrategy(tm,specTime);
-                    Integrator::initIntegratorOptimisticComm(comm, tm, plp, initialTime, specTime, st);
+                    Integrator::initIntegratorOptimisticComm(comm, tm, plp, initialTime, specTime, st,onetimestep);
                    
                 }
                 else if (synchronization_algorithm["optimistic"]["speculation_calculation_stragegy"].asString() == "dynamic_increasing")
                 {
                     IncreasingSpeculationTimeStrategy *st=new IncreasingSpeculationTimeStrategy(tm,specTime);
-                    Integrator::initIntegratorOptimisticComm(comm, tm, plp, initialTime, specTime, st);
+                    Integrator::initIntegratorOptimisticComm(comm, tm, plp, initialTime, specTime, st,onetimestep);
                   
 
                 }
@@ -370,18 +389,20 @@ void Integrator::initIntegratorConservativeSleepingTick(
   time_metric simTimeStep, 
   TIME packetLostPeriod, 
   TIME initialTime,
-  int numofpowersims)
+  int numofpowersims,
+  TIME onetimestep)
 {
 #if DEBUG
-    CERR << "Integrator::initIntegratorNetworkDelaySupport("
+    CERR << "Integrator::initIntegratorConservativeSleepingTick("
         << "AbsCommInterface*,"
         << "simTimeStep=" << simTimeStep << ","
         << "packetlost=" << packetLostPeriod << ","
-        << "initialTime=" << initialTime << ")" << endl;
+        << "initialTime=" << initialTime << ","
+	<< "onetimestep=" << onetimestep << ")" << endl;
 #endif
     AbsCommManager *command=new GracePeriodCommManager(currentInterface);
     AbsSyncAlgorithm *algo=new ConservativeSleepingTickAlgo(command,numofpowersims);
-    instance=new Integrator(command,algo,simTimeStep,packetLostPeriod);
+    instance=new Integrator(command,algo,simTimeStep,packetLostPeriod,onetimestep);
     instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
 }
 
@@ -389,18 +410,20 @@ void Integrator::initIntegratorConservativeSleepingComm(
 	  AbsNetworkInterface* currentInterface,
 	  time_metric simTimeStep,
 	  TIME packetLostPeriod,
-	  TIME initialTime)
+	  TIME initialTime,
+	  TIME onetimestep)
 {
 #if DEBUG
-    CERR << "Integrator::initIntegratorNetworkDelaySupport("
+    CERR << "Integrator::initIntegratorConservativeSleepingComm("
         << "AbsCommInterface*,"
         << "simTimeStep=" << simTimeStep << ","
         << "packetlost=" << packetLostPeriod << ","
-        << "initialTime=" << initialTime << ")" << endl;
+        << "initialTime=" << initialTime << ","
+	<< "onetimestep=" << onetimestep << ")" << endl;
 #endif
     AbsCommManager *command=new CommunicationComManager(currentInterface);
     AbsSyncAlgorithm *algo=new ConservativeSleepingCommAlgo(command);
-    instance=new Integrator(command,algo,simTimeStep,packetLostPeriod);
+    instance=new Integrator(command,algo,simTimeStep,packetLostPeriod,onetimestep);
     instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
 }
 
@@ -409,18 +432,20 @@ void Integrator::initIntegratorGracePeriod(
   AbsNetworkInterface* currentInterface,
   time_metric simTimeStep, 
   TIME packetLostPeriod, 
-  TIME initialTime)
+  TIME initialTime,
+  TIME onetimestep)
 {
 #if DEBUG
     CERR << "Integrator::initIntegratorGracePeriod("
         << "AbsCommInterface*,"
         << "simTimeStep=" << simTimeStep << ","
         << "packetlost=" << packetLostPeriod << ","
-        << "initialTime=" << initialTime << ")" << endl;
+        << "initialTime=" << initialTime << 
+        << "onetimestep=" << onetimestep <<")" << endl;
 #endif
     AbsCommManager *command=new GracePeriodCommManager(currentInterface);
     AbsSyncAlgorithm *algo=new GracePeriodSyncAlgo(command);
-    instance=new Integrator(command,algo,simTimeStep,packetLostPeriod);
+    instance=new Integrator(command,algo,simTimeStep,packetLostPeriod,onetimestep);
     instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
 }
 
@@ -430,19 +455,23 @@ void Integrator::initIntegratorOptimistic(
 	TIME packetLostPeriod,
 	TIME initialTime, 
 	TIME specDifference,
-	SpeculationTimeCalculationStrategy *strategy){
+	SpeculationTimeCalculationStrategy *strategy,
+	TIME onetimestep){
 
 #if DEBUG
     CERR << "Integrator::initIntegratorOptimistic("
         << "AbsCommInterface*,"
         << "simTimeStep=" << simTimeStep << ","
         << "packetlost=" << packetLostPeriod << ","
-        << "initialTime=" << specDifference << ")" << endl;
+        << "initialTime=" << initialTime << "," 
+	<< "specDifference=" << specDifference << ","
+	<< "strategy=" << strategy << ","
+	<< "onetimestep=" << onetimestep << ")" << endl;
 #endif
     AbsCommManager *command=new GracePeriodCommManager(currentInterface);
     TIME specDifferentFramework=convertToFrameworkTime(simTimeStep,specDifference);
     AbsSyncAlgorithm *algo=new OptimisticTickSyncAlgo(command,specDifferentFramework,strategy);
-    instance=new Integrator(command,algo,simTimeStep,packetLostPeriod);
+    instance=new Integrator(command,algo,simTimeStep,packetLostPeriod,onetimestep);
     instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
 }
 
@@ -452,19 +481,23 @@ void Integrator::initIntegratorOptimisticLowOverhead(
 	TIME packetLostPeriod,
 	TIME initialTime, 
 	TIME specDifference,
-	SpeculationTimeCalculationStrategy *strategy){
+	SpeculationTimeCalculationStrategy *strategy,
+	TIME onetimestep){
 
 #if DEBUG
     CERR << "Integrator::initIntegratorOptimisticLowOverhead("
         << "AbsCommInterface*,"
         << "simTimeStep=" << simTimeStep << ","
         << "packetlost=" << packetLostPeriod << ","
-        << "initialTime=" << specDifference << ")" << endl;
+        << "initialTime=" << initialTime << ","
+	<< "specDifference=" << specDifference << "," <<
+	<< "strategy=" << strategy << ","
+	<< "onetimestep=" << onetimestep << ")" << endl;
 #endif
     AbsCommManager *command=new GracePeriodCommManager(currentInterface);
     TIME specDifferentFramework=convertToFrameworkTime(simTimeStep,specDifference);
     AbsSyncAlgorithm *algo=new OptimisticLowOverheadTickSyncAlgo(command,specDifferentFramework,strategy);
-    instance=new Integrator(command,algo,simTimeStep,packetLostPeriod);
+    instance=new Integrator(command,algo,simTimeStep,packetLostPeriod,onetimestep);
     instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
 }
 
@@ -474,18 +507,22 @@ void Integrator::initIntegratorOptimisticComm(
 	    TIME packetLostPeriod, 
 	    TIME initialTime, 
 	    TIME specDifference,
-	    SpeculationTimeCalculationStrategy *strategy){
+	    SpeculationTimeCalculationStrategy *strategy,
+	    TIME onetimestep){
 #if DEBUG
     CERR << "Integrator::initIntegratorOptimisticComm("
         << "AbsCommInterface*,"
         << "simTimeStep=" << simTimeStep << ","
         << "packetlost=" << packetLostPeriod << ","
-        << "initialTime=" << specDifference << ")" << endl;
+        << "initialTime=" << initialTime << ","
+	<< "specDifference=" << specDifference << "," <<
+	<< "strategy=" << strategy << ","
+	<< "onetimestep=" << onetimestep << ")" << endl;
 #endif
     AbsCommManager *command=new CommunicationComManager(currentInterface);
     TIME specDifferentFramework=convertToFrameworkTime(simTimeStep,specDifference);
     AbsSyncAlgorithm *algo=new OptimisticCommSyncAlgo(command,specDifferentFramework,strategy);
-    instance=new Integrator(command,algo,simTimeStep,packetLostPeriod);
+    instance=new Integrator(command,algo,simTimeStep,packetLostPeriod,onetimestep);
     instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
 }
 
@@ -496,18 +533,22 @@ void Integrator::initIntegratorOptimisticCommLowOverhead(
 	    TIME packetLostPeriod, 
 	    TIME initialTime, 
 	    TIME specDifference,
-	    SpeculationTimeCalculationStrategy *strategy){
+	    SpeculationTimeCalculationStrategy *strategy,
+	    TIME onetimestep){
 #if DEBUG
     CERR << "Integrator::initIntegratorOptimisticCommLowOverhead("
         << "AbsCommInterface*,"
         << "simTimeStep=" << simTimeStep << ","
         << "packetlost=" << packetLostPeriod << ","
-        << "initialTime=" << specDifference << ")" << endl;
+        << "initialTime=" << initialTime << ","
+	<< "specDifference=" << specDifference << "," <<
+	<< "strategy=" << strategy << ","
+	<< "onetimestep=" << onetimestep << ")" << endl;
 #endif
     AbsCommManager *command=new CommunicationComManager(currentInterface);
     TIME specDifferentFramework=convertToFrameworkTime(simTimeStep,specDifference);
     AbsSyncAlgorithm *algo=new OptimisticLowOverheadCommSyncAlgo(command,specDifferentFramework,strategy);
-    instance=new Integrator(command,algo,simTimeStep,packetLostPeriod);
+    instance=new Integrator(command,algo,simTimeStep,packetLostPeriod,onetimestep);
     instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
 }
 
@@ -516,18 +557,20 @@ void Integrator::initIntegratorCommunicationSim(
         AbsNetworkInterface *currentInterface,
         time_metric simTimeStep,
 	TIME packetLostPeriod,
-	TIME initialTime)
+	TIME initialTime,
+	TIME onetimestep)
 {
 #if DEBUG
     CERR << "Integrator::initIntegratorCommunicationSim("
         << "AbsCommInterface*,"
         << "simTimeStep=" << simTimeStep << ","
         << "packetLost=" << packetLostPeriod << ","
-        << "initialTime=" << initialTime << ")" << endl;
+        << "initialTime=" << initialTime << ","
+        << "onetimestep=" << onetimestep << ")" << endl;
 #endif
     AbsCommManager *command=new CommunicationComManager(currentInterface);
     AbsSyncAlgorithm *algo=new CommunicatorSimulatorSyncalgo(command);
-    instance=new Integrator(command,algo,simTimeStep,packetLostPeriod);
+    instance=new Integrator(command,algo,simTimeStep,packetLostPeriod,onetimestep);
     instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
 }
 
@@ -539,7 +582,7 @@ void Integrator::setCommManager(AbsCommManager* given)
 
 
 
-void Integrator::setTimeCallBack(CallBack<TIME,empty,empty,empty>* t) {
+void Integrator::setTimeCallBack(CallBack<TIME,empty,empty,empty,empty>* t) {
 #if DEBUG
     CERR << "Integrator::setTimeCallBack(t*)" << endl;
 #endif

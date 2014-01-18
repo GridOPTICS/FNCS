@@ -93,8 +93,8 @@ private:
     vector<int> msgs;
     vector<int>::iterator it;
     BufferStrategy *st;
-    CallBack<void,empty,empty,empty> *notifyMessage;
-    CallBack<bool,Message*,empty,empty> *syncAlgoCallBackSend; 
+    CallBack<void,empty,empty,empty,empty> *notifyMessage;
+    CallBack<bool,Message*,empty,empty,empty> *syncAlgoCallBackSend; 
     
     /** Constructor. */
     ObjectCommInterface(string objectName, BufferStrategy *st=NULL);
@@ -109,7 +109,7 @@ public:
      * This sets the callback to sync algorithm that is called when an object calls
      * send().
      */
-    void setSyncAlgoCallBack(CallBack<bool,Message*,empty,empty> *syncAlgoCallBackSend);
+    void setSyncAlgoCallBack(CallBack<bool,Message*,empty,empty,empty> *syncAlgoCallBackSend);
     
      /** Clears the outbox of the system */
     void clear();
@@ -152,7 +152,7 @@ public:
     /**
      * Register a callback that is called when the object receives a message.
      */
-    void setMessageNotifier(CallBack<void,empty,empty,empty> *tonotify);
+    void setMessageNotifier(CallBack<void,empty,empty,empty,empty> *tonotify);
   
 };
 

@@ -64,7 +64,7 @@ namespace sim_comm
 	    this->interface->waitforAll();
           uint64_t diff=interface->reduceTotalSendReceive();
           //network unstable, we need to wait!
-          nextEstTime=currentTime+convertToFrameworkTime(Integrator::getCurSimMetric(),1); 
+          nextEstTime=currentTime+Integrator::getOneTimeStep(); 
 	  TIME minnetworkdelay=interface->reduceNetworkDelay();
           if(diff==0 && !needToRespond)
           { //network stable grant next time

@@ -114,7 +114,7 @@ namespace sim_comm{
       
 	TIME minNetworkDelay;
 	//uint8_t messageReceived();
-	CallBack<bool,Message*,empty,empty> *syncAlgoCallBackSend,*syncAlgoCallBackRecv;
+	CallBack<bool,Message*,empty,empty,empty> *syncAlgoCallBackSend,*syncAlgoCallBackRecv;
 	sim_comm::AbsNetworkInterface *currentInterface;
 	void adjustNetworkDelay(TIME msgDeliveryTime);
 	void signalNewMessage(ObjectCommInterface *comm,Message *msg);
@@ -199,8 +199,8 @@ namespace sim_comm{
     /**
      * Sets the callback for the sync algorithm.
      */
-    void setSyncAlgoCallBacks(CallBack<bool,Message*,empty,empty> *syncCallBackSend,
-			      CallBack<bool,Message*,empty,empty> *syncCallBackRecv){
+    void setSyncAlgoCallBacks(CallBack<bool,Message*,empty,empty,empty> *syncCallBackSend,
+			      CallBack<bool,Message*,empty,empty,empty> *syncCallBackRecv){
       this->syncAlgoCallBackRecv=syncCallBackRecv;
       this->syncAlgoCallBackSend=syncCallBackSend;
     }
@@ -266,7 +266,7 @@ namespace sim_comm{
      * This method returns the callback to the sync algorithm,
      * when a node needs to send message this callback is called.
      */
-    virtual CallBack<bool,Message*,empty,empty>* getSendMesgCallback(){
+    virtual CallBack<bool,Message*,empty,empty,empty>* getSendMesgCallback(){
       return this->syncAlgoCallBackSend;
     }
     

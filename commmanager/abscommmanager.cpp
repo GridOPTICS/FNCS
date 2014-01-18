@@ -43,7 +43,7 @@ namespace sim_comm{
     this->receiverRunning=false;
     this->allowRegistrations=true;
     this->currentInterface=current;
-    CallBack<void,Message*,empty,empty> *msgCallback=CreateObjCallback<AbsCommManager *, void (AbsCommManager::*)(Message*), void,Message*>(this, &AbsCommManager::messageReceived);
+    CallBack<void,Message*,empty,empty,empty> *msgCallback=CreateObjCallback<AbsCommManager *, void (AbsCommManager::*)(Message*), void,Message*>(this, &AbsCommManager::messageReceived);
   
     this->syncAlgoCallBackRecv=NULL;
     this->syncAlgoCallBackSend=NULL;
@@ -62,7 +62,7 @@ namespace sim_comm{
     this->syncAlgoCallBackSend=given.syncAlgoCallBackSend;
     this->receiverRunning=given.receiverRunning;
     this->currentInterface=given.currentInterface->duplicateInterface();
-    CallBack<void,Message*,empty,empty> *msgCallback=CreateObjCallback<AbsCommManager *, void (AbsCommManager::*)(Message*), void,Message*>(this, &AbsCommManager::messageReceived);
+    CallBack<void,Message*,empty,empty,empty> *msgCallback=CreateObjCallback<AbsCommManager *, void (AbsCommManager::*)(Message*), void,Message*>(this, &AbsCommManager::messageReceived);
     this->currentInterface->setMessageCallBack(msgCallback);
 #if DEBUG
     CERR << "Duplicated commmanager, send_count:" << sendCount << " receive_count: " << receiveCount << endl;

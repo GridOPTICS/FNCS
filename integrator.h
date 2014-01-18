@@ -47,6 +47,7 @@
 #   endif
 #endif
 
+struct inst;
 class Debug{
   private: 
     static Echo *instance;
@@ -106,9 +107,10 @@ private:
     AbsCommManager *currentInterface;
     //TIME gracePeriod;
     TIME packetLostPeriod;
-    CallBack<TIME,empty,empty,empty>* getTimeCallBack;
+    CallBack<TIME,empty,empty,empty,empty>* getTimeCallBack;
     AbsSyncAlgorithm *syncAlgo;
     TIME offset;
+    TIME onetimestep;
     bool allowRegistrations;
     bool stopped;
    
@@ -121,9 +123,18 @@ private:
     		AbsCommManager *currentInterface,
     		AbsSyncAlgorithm *algo,
     		time_metric simTimeStep,
-		TIME packetLostPeriod);
+		TIME packetLostPeriod,
+		TIME onetimestep);
 public:
 
+    /**
+     * Returns the amount of time that constutes one time step 
+     * of the simulator in framework time.
+     * 
+     * @return, one time step of the simulator in framework time.
+     */
+    static TIME getOneTimeStep();
+    
     /**
      * Main synchronization method for tick-based simulator.
      *
@@ -281,14 +292,18 @@ public:
     static void initIntegratorGracePeriod(AbsNetworkInterface *currentInterface, 
 					  time_metric simTimeStep, 
 					  TIME packetLostPeriod,
-					  TIME initialTime);
+					  TIME initialTime,
+					  TIME onetimestep=1
+ 					);
     /**
      * Initializes the integrator for the communication simulator
      */
     static void initIntegratorCommunicationSim(AbsNetworkInterface *currentInterface, 
 					time_metric simTimeStep, 
 					TIME packetLostPeriod,
-					TIME initialTime);
+					TIME initialTime,
+					TIME onetimestep=1
+					      );
     
     /**
      * Initializes the integrator with network delay support
@@ -298,7 +313,8 @@ public:
 			    time_metric simTimeStep, 
 			    TIME packetLostPeriod, 
 			    TIME initialTime,
-			    int numberofpowersims);
+			    int numberofpowersims,
+			    TIME ontimestep=1);
     
     
 /**
@@ -308,7 +324,8 @@ public:
 			    AbsNetworkInterface* currentInterface, 
 			    time_metric simTimeStep, 
 			    TIME packetLostPeriod, 
-			    TIME initialTime);
+			    TIME initialTime,
+			    TIME onetimestep=1);
     
     /**
      * Initializes the integrator with optimistic sync algorithm
@@ -319,7 +336,8 @@ public:
 	TIME packetLostPeriod,
         TIME initialTime,
 	TIME specDifference,
-	SpeculationTimeCalculationStrategy *strategy);
+	SpeculationTimeCalculationStrategy *strategy,
+	TIME onetimestep=1);
     
     /**
      * Initializes the integrator with optimistic low overhead sync algorithm
@@ -330,7 +348,8 @@ public:
 	TIME packetLostPeriod,
         TIME initialTime,
 	TIME specDifference,
-	SpeculationTimeCalculationStrategy *strategy);
+	SpeculationTimeCalculationStrategy *strategy,
+	TIME onetimestep=1);
     
     /**
      * Initializes the integrator with optimistic sync algorithm for comm simm
@@ -341,7 +360,8 @@ public:
 	TIME packetLostPeriod,
         TIME initialTime,
 	TIME specDifference,
-	SpeculationTimeCalculationStrategy *strategy);
+	SpeculationTimeCalculationStrategy *strategy,
+	TIME onetimestep=1);
     
     /**
      * Initializes the integrator with optimistic low overhead sync algorithm for comm simm
@@ -352,12 +372,13 @@ public:
 	TIME packetLostPeriod,
         TIME initialTime,
 	TIME specDifference,
-	SpeculationTimeCalculationStrategy *strategy);
+	SpeculationTimeCalculationStrategy *strategy,
+	TIME onetimestep=1);
     
     /**
      * sets simulator callback that returns time
      */
-    static void setTimeCallBack(CallBack<TIME,empty,empty,empty> *t);
+    static void setTimeCallBack(CallBack<TIME,empty,empty,empty,empty> *t);
 
     /**
      * stops the integrator by calling its destructor.

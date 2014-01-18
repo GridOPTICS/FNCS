@@ -75,9 +75,9 @@ OptimisticTickSyncAlgo::OptimisticTickSyncAlgo(AbsCommManager* interface, TIME s
   if(!this->interface->supportsFork())
     throw SyncStateException(string("Optimistic algo can only be used if the underlying network itnerface supports fork!"));
   
-  CallBack<bool,Message*,empty,empty> *syncAlgoCallBackSend=
+  CallBack<bool,Message*,empty,empty,empty> *syncAlgoCallBackSend=
     CreateObjCallback<OptimisticTickSyncAlgo*, bool (OptimisticTickSyncAlgo::*)(Message *),bool, Message*>(this,&OptimisticTickSyncAlgo::nodeSentMessage);
-  CallBack<bool,Message*,empty,empty> *syncAlgoCallBackRev=
+  CallBack<bool,Message*,empty,empty,empty> *syncAlgoCallBackRev=
     CreateObjCallback<OptimisticTickSyncAlgo*, bool (OptimisticTickSyncAlgo::*)(Message *),bool, Message*>(this,&OptimisticTickSyncAlgo::nodeReceivedMessage);
 
   this->interface->setSyncAlgoCallBacks(syncAlgoCallBackSend,syncAlgoCallBackRev);
@@ -247,7 +247,7 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
 	  //for optimistic however when get knowledge about the the dead time of child process
 	  //we can use it as the granted time.
 	  //if I have a packet, I can only 
-          nextEstTime=currentTimeParam+convertToFrameworkTime(Integrator::getCurSimMetric(),1);
+          nextEstTime=currentTimeParam+Integrator::getOneTimeStep();
 	  myminNextTime=nextEstTime;
 	  TIME minnetworkdelay=interface->reduceNetworkDelay();
           if(diff==0 && !needToRespond)

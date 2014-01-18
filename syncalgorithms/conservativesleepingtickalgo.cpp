@@ -108,7 +108,7 @@ namespace sim_comm{
 	  }
           this->diff=interface->reduceTotalSendReceive();
           //network unstable, we need to wait!
-          nextEstTime=currentTime+convertToFrameworkTime(Integrator::getCurSimMetric(),1); 
+          nextEstTime=currentTime+Integrator::getOneTimeStep(); 
 	  //find next responseTime
 	  minnetworkdelay=interface->reduceNetworkDelay();
 	  if(diff==0)

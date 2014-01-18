@@ -36,7 +36,7 @@ namespace sim_comm{
   
     CommunicationComManager::CommunicationComManager(AbsNetworkInterface *interface) : AbsCommManager(interface)
     {
-      CallBack<void,Message*,empty,empty> *msgCallback=CreateObjCallback<CommunicationComManager *, void (CommunicationComManager::*)(Message*), void,Message*>(this, &CommunicationComManager::messageReceived);
+      CallBack<void,Message*,empty,empty,empty> *msgCallback=CreateObjCallback<CommunicationComManager *, void (CommunicationComManager::*)(Message*), void,Message*>(this, &CommunicationComManager::messageReceived);
   
  
       this->currentInterface->setMessageCallBack(msgCallback);
