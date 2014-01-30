@@ -1,0 +1,5 @@
+CC=gcc
+CXX=g++
+
+
+g++ -I. -std=c++0x gld_sim.cpp 
