@@ -23,19 +23,20 @@ int main()
 
     if(PID == 0) {
 	//I am the child
-	//logfile.start_fork()
-	    fprintf(f,"log: After fork: I am the child\n");
-	//logfile.end_fork("CHILD_FAILURE");
+	int child = 0;
+	logfile.start_fork(child);
+	fprintf(f,"log: After fork: I am the child\n");
+	logfile.end_fork(0);
     } else {
 	// I am the parent
-	//logfile.start_fork();
+	int parent = 1;
+	logfile.start_fork(parent);
 	fprintf(f,"log: After fork : I am the parent\n");
-    	//ogfile.end_fork();
+    	logfile.end_fork(1);
     }
    
-    fprintf(f, "log: writing after end_fork()\n");
+    fprintf(f, "log: writing after end_fork, pid =(%d)\n", PID);
     
-    //logfile.fclose();
     logfile.fenix_fclose(f);
     return 0;
 }
