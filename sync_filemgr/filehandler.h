@@ -40,7 +40,6 @@ void read_file_to_buffer(FILE * f, char* buffer, size_t bufsize) {
 }
 
 void append_buffer(FILE* f, char* buffer) {
-
 }
 //typedef std::unordered_map<FILEPTR, FILEPTR, eqKey> filemap;
 typedef std::unordered_map<FILEPTR, FILEPTR> filemap;
@@ -94,15 +93,13 @@ void FENIX_FILE::start_fork(int process_id) {
     	// For all files open in Fenix, create a temporary file 
 
 	sprintf(c, "%d", i);
-
 	char filename[NAME_LENGTH];
 	strcpy(filename, "tmpfile_");
-	
 	strcat(filename, pid);
 	strcat(filename, "_");
 	strcat(filename, c);
 
-	printf(" Process %d, Opening temporary file: %s\n", process_id, filename);
+	//printf(" Process %d, Opening temporary file: %s\n", process_id, filename);
 
 
 	FILE* tmp = fopen(filename, "w+");
@@ -125,7 +122,6 @@ void FENIX_FILE::start_fork(int process_id) {
 	// The vaue stored in the map, points to the original file
 	// data
 	it->second = tmp;
-
 	delete(fsave);
 	i++;
     }
@@ -161,9 +157,14 @@ void FENIX_FILE::end_fork(int select) {
 */
 	    size_t data_size = fwrite(buffer1, sizeof(char), fsize1,  orig);
 
-	    memcpy(curr, orig, sizeof(FILE));
+	    FILE* fsave = (FILE *)malloc(sizeof(FILE));
+	    // exchange file pointer data using a temp buffer
+	    memcpy(fsave, orig, sizeof(FILE));
+	    memcpy(orig, curr, sizeof(FILE));
+	    memcpy(curr, fsave, sizeof(FILE));
 
-	    //fclose(curr);
+	    fclose(orig);
+
 	    free(buffer1);
 
 	}
@@ -173,6 +174,13 @@ void FENIX_FILE::end_fork(int select) {
 	// I am not selecetd, do nothing
 	// NOte : File close happends during fenix_fclose for the temp
 	// file of the not choosen process 
+	
+	for(filemap::iterator it = fmap.begin(); it != fmap.end(); it++){
+		FILE* curr = it-> first;
+		fclose(curr);
+
+	}
+	
     }
 
     //delete(fmap);

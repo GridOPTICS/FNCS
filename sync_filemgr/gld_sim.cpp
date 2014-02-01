@@ -27,6 +27,7 @@ int main()
 	logfile.start_fork(child);
 	fprintf(f,"log: After fork: I am the child\n");
 	logfile.end_fork(0);
+	exit(0);
     } else {
 	// I am the parent
 	int parent = 1;
