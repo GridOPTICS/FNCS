@@ -131,59 +131,53 @@ void FENIX_FILE::start_fork(int process_id) {
 // takes current file pointers  of child and parent and merges with
 // the saved one  
 void FENIX_FILE::end_fork(int select) {
+    FILE* orig;
+    FILE* temp;
+
+    long temp_file_size, orig_file_size;
+    size_t data_size;
+
+    char* buffer;
+    
     if(select == 1){
-	//I am selected
-	/* get my current file contents and append it to original
-	 * file*/
-	
+	/* I am selected,, get my current file contents and append it to original
+	 * file */
 	for(filemap::iterator it = fmap.begin(); it != fmap.end(); it++){
 	
-	    FILE* curr = it->first;
-	    long fsize1 = get_file_size(curr);
-
-	    printf("#characters in temp log file  =%ld\n", fsize1);
-
-	    char* buffer1 = (char *)malloc(sizeof(char) * (fsize1+1));
-	    read_file_to_buffer(curr, buffer1, fsize1);
-	    printf("%s", buffer1);
-	    //fclose(curr);
+	    temp = it->first;
+	    orig = it->second; 
 	    
-	    FILE* orig = it->second; 
-	    /*long fsize2 = get_file_size(orig);
-	    printf("#characters in original log file  =%ld\n", fsize2);
-	    char* buffer2 = (char *)malloc(sizeof(char) * (fsize2+1));
-	    read_file_to_buffer(orig, buffer2, fsize2);
-	    printf("%s", buffer2);
-*/
-	    size_t data_size = fwrite(buffer1, sizeof(char), fsize1,  orig);
+	    /* Read from temporary file */
+	    temp_file_size = get_file_size(temp);
+	    //printf("#characters in temp log file  =%ld\n", temp_file_size);
+	    buffer = (char *)malloc(sizeof(char) * (temp_file_size+1));
+	    read_file_to_buffer(temp, buffer, temp_file_size);
+	    printf("%s", buffer);
+	    
+	    /*Append to original file */
+	    data_size = fwrite(buffer, sizeof(char), temp_file_size,  orig);
 
+	    /* exchange file pointer data using a temp bufferi */
 	    FILE* fsave = (FILE *)malloc(sizeof(FILE));
-	    // exchange file pointer data using a temp buffer
 	    memcpy(fsave, orig, sizeof(FILE));
-	    memcpy(orig, curr, sizeof(FILE));
-	    memcpy(curr, fsave, sizeof(FILE));
+	    memcpy(orig, temp, sizeof(FILE));
+	    memcpy(temp, fsave, sizeof(FILE));
 
+	    printf("in end_fork, seletec to continue, closing temp file\n");
+	    // Clean up
+	    free(buffer);
+	    free(fsave);
 	    fclose(orig);
-
-	    free(buffer1);
-
 	}
-    
+   
     }
     else{
-	// I am not selecetd, do nothing
-	// NOte : File close happends during fenix_fclose for the temp
-	// file of the not choosen process 
-	
+	// I am not selecetd, close my temporary file and exit
 	for(filemap::iterator it = fmap.begin(); it != fmap.end(); it++){
-		FILE* curr = it-> first;
-		fclose(curr);
-
+		temp = it-> first;
+		fclose(temp);
 	}
-	
     }
-
-    //delete(fmap);
     return;
 }
 
