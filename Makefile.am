@@ -17,7 +17,7 @@ AM_CPPFLAGS += $(ZMQ_CPPFLAGS)
 AM_LDFLAGS += $(MPI_LDFLAGS)
 AM_LDFLAGS += $(ZMQ_LDFLAGS)
 
-LDADD += libfncs_api.la
+LDADD += libfncs.la
 LDADD += $(MPI_LIBS)
 LDADD += $(ZMQ_LIBS)
 
@@ -59,39 +59,39 @@ AM_CPPFLAGS += -I$(top_srcdir)/syncalgorithms
 AM_CPPFLAGS += -I$(top_srcdir)/util
 AM_CPPFLAGS += -I$(top_srcdir)/contrib/jsoncpp/dist
 
-lib_LTLIBRARIES += libfncs_api.la
-libfncs_api_la_SOURCES =
-libfncs_api_la_SOURCES += absnetworkinterface.cpp
-libfncs_api_la_SOURCES += cintegrator.cpp
-libfncs_api_la_SOURCES += integrator.cpp
-libfncs_api_la_SOURCES += message.cpp
-libfncs_api_la_SOURCES += objectcomminterface.cpp
+lib_LTLIBRARIES += libfncs.la
+libfncs_la_SOURCES =
+libfncs_la_SOURCES += absnetworkinterface.cpp
+libfncs_la_SOURCES += cintegrator.cpp
+libfncs_la_SOURCES += integrator.cpp
+libfncs_la_SOURCES += message.cpp
+libfncs_la_SOURCES += objectcomminterface.cpp
 if HAVE_ZMQ
-libfncs_api_la_SOURCES += zmqhelper.cpp
-libfncs_api_la_SOURCES += zmqnetworkinterface.cpp
+libfncs_la_SOURCES += zmqhelper.cpp
+libfncs_la_SOURCES += zmqnetworkinterface.cpp
 endif
 if HAVE_MPI
-libfncs_api_la_SOURCES += mpinetworkinterface.cpp
+libfncs_la_SOURCES += mpinetworkinterface.cpp
 endif
 
-libfncs_api_la_SOURCES += commmanager/abscommmanager.cpp
-libfncs_api_la_SOURCES += commmanager/communicationcommanager.cpp
-libfncs_api_la_SOURCES += commmanager/graceperiodcommmanager.cpp
+libfncs_la_SOURCES += commmanager/abscommmanager.cpp
+libfncs_la_SOURCES += commmanager/communicationcommanager.cpp
+libfncs_la_SOURCES += commmanager/graceperiodcommmanager.cpp
 
-libfncs_api_la_SOURCES += contrib/jsoncpp/dist/jsoncpp.cpp
+libfncs_la_SOURCES += contrib/jsoncpp/dist/jsoncpp.cpp
 
-libfncs_api_la_SOURCES += syncalgorithms/abssyncalgorithm.cpp
-libfncs_api_la_SOURCES += syncalgorithms/communicatorsimulatorsyncalgo.cpp
-libfncs_api_la_SOURCES += syncalgorithms/graceperiodpesimisticsyncalgo.cpp
-libfncs_api_la_SOURCES += syncalgorithms/conservativesleepingcommalgo.cpp
-libfncs_api_la_SOURCES += syncalgorithms/conservativesleepingtickalgo.cpp
-libfncs_api_la_SOURCES += syncalgorithms/optimisticticksyncalgo.cpp
-libfncs_api_la_SOURCES += syncalgorithms/optimisticcommsyncalgo.cpp
-libfncs_api_la_SOURCES += syncalgorithms/optimisticlowoverheadcommsyncalgo.cpp
-libfncs_api_la_SOURCES += syncalgorithms/optimisticlowoverheadticksyncalgo.cpp
-libfncs_api_la_SOURCES += syncalgorithms/speculationtimecalculationstrategy.cpp
+libfncs_la_SOURCES += syncalgorithms/abssyncalgorithm.cpp
+libfncs_la_SOURCES += syncalgorithms/communicatorsimulatorsyncalgo.cpp
+libfncs_la_SOURCES += syncalgorithms/graceperiodpesimisticsyncalgo.cpp
+libfncs_la_SOURCES += syncalgorithms/conservativesleepingcommalgo.cpp
+libfncs_la_SOURCES += syncalgorithms/conservativesleepingtickalgo.cpp
+libfncs_la_SOURCES += syncalgorithms/optimisticticksyncalgo.cpp
+libfncs_la_SOURCES += syncalgorithms/optimisticcommsyncalgo.cpp
+libfncs_la_SOURCES += syncalgorithms/optimisticlowoverheadcommsyncalgo.cpp
+libfncs_la_SOURCES += syncalgorithms/optimisticlowoverheadticksyncalgo.cpp
+libfncs_la_SOURCES += syncalgorithms/speculationtimecalculationstrategy.cpp
 
-libfncs_api_la_SOURCES += util/simtime.cpp
+libfncs_la_SOURCES += util/simtime.cpp
 
 check_PROGRAMS += tests/sanity
 tests_sanity_SOURCES = tests/sanity.cpp
