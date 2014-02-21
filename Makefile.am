@@ -81,7 +81,7 @@ libfncs_la_SOURCES += commmanager/communicationcommanager.cpp
 libfncs_la_SOURCES += commmanager/graceperiodcommmanager.cpp
 
 libfncs_la_SOURCES += contrib/jsoncpp/dist/jsoncpp.cpp
-libfncs_api_la_SOURCES += config_parser/factorydatabase.cpp
+libfncs_la_SOURCES += config_parser/factorydatabase.cpp
 
 libfncs_la_SOURCES += syncalgorithms/abssyncalgorithm.cpp
 libfncs_la_SOURCES += syncalgorithms/communicatorsimulatorsyncalgo.cpp
