@@ -39,6 +39,7 @@ include_HEADERS += commmanager/abscommmanager.h
 include_HEADERS += commmanager/communicationcommanager.h
 include_HEADERS += commmanager/graceperiodcommmanager.h
 include_HEADERS += config_parser/factorydatabase.h
+include_HEADERS += config_parser/fncsconfig.h
 
 include_HEADERS += syncalgorithms/abssyncalgorithm.h
 include_HEADERS += syncalgorithms/communicatorsimulatorsyncalgo.h
@@ -82,6 +83,7 @@ libfncs_la_SOURCES += commmanager/graceperiodcommmanager.cpp
 
 libfncs_la_SOURCES += contrib/jsoncpp/dist/jsoncpp.cpp
 libfncs_la_SOURCES += config_parser/factorydatabase.cpp
+libfncs_la_SOURCES += config_parser/fncsconfig.cpp
 
 libfncs_la_SOURCES += syncalgorithms/abssyncalgorithm.cpp
 libfncs_la_SOURCES += syncalgorithms/communicatorsimulatorsyncalgo.cpp

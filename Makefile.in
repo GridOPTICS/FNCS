@@ -92,7 +92,7 @@ am__libfncs_la_SOURCES_DIST = absnetworkinterface.cpp cintegrator.cpp \
 	commmanager/communicationcommanager.cpp \
 	commmanager/graceperiodcommmanager.cpp \
 	contrib/jsoncpp/dist/jsoncpp.cpp \
-	config_parser/factorydatabase.cpp \
+	config_parser/factorydatabase.cpp config_parser/fncsconfig.cpp \
 	syncalgorithms/abssyncalgorithm.cpp \
 	syncalgorithms/communicatorsimulatorsyncalgo.cpp \
 	syncalgorithms/graceperiodpesimisticsyncalgo.cpp \
@@ -114,7 +114,7 @@ am_libfncs_la_OBJECTS = absnetworkinterface.lo cintegrator.lo \
 	commmanager/communicationcommanager.lo \
 	commmanager/graceperiodcommmanager.lo \
 	contrib/jsoncpp/dist/jsoncpp.lo \
-	config_parser/factorydatabase.lo \
+	config_parser/factorydatabase.lo config_parser/fncsconfig.lo \
 	syncalgorithms/abssyncalgorithm.lo \
 	syncalgorithms/communicatorsimulatorsyncalgo.lo \
 	syncalgorithms/graceperiodpesimisticsyncalgo.lo \
@@ -198,7 +198,7 @@ am__include_HEADERS_DIST = absnetworkinterface.h cintegrator.h echo.h \
 	commmanager/abscommmanager.h \
 	commmanager/communicationcommanager.h \
 	commmanager/graceperiodcommmanager.h \
-	config_parser/factorydatabase.h \
+	config_parser/factorydatabase.h config_parser/fncsconfig.h \
 	syncalgorithms/abssyncalgorithm.h \
 	syncalgorithms/communicatorsimulatorsyncalgo.h \
 	syncalgorithms/graceperiodpesimisticsyncalgo.h \
@@ -359,7 +359,7 @@ include_HEADERS = absnetworkinterface.h cintegrator.h echo.h \
 	$(am__append_2) commmanager/abscommmanager.h \
 	commmanager/communicationcommanager.h \
 	commmanager/graceperiodcommmanager.h \
-	config_parser/factorydatabase.h \
+	config_parser/factorydatabase.h config_parser/fncsconfig.h \
 	syncalgorithms/abssyncalgorithm.h \
 	syncalgorithms/communicatorsimulatorsyncalgo.h \
 	syncalgorithms/graceperiodpesimisticsyncalgo.h \
@@ -387,7 +387,7 @@ libfncs_la_SOURCES = absnetworkinterface.cpp cintegrator.cpp \
 	commmanager/communicationcommanager.cpp \
 	commmanager/graceperiodcommmanager.cpp \
 	contrib/jsoncpp/dist/jsoncpp.cpp \
-	config_parser/factorydatabase.cpp \
+	config_parser/factorydatabase.cpp config_parser/fncsconfig.cpp \
 	syncalgorithms/abssyncalgorithm.cpp \
 	syncalgorithms/communicatorsimulatorsyncalgo.cpp \
 	syncalgorithms/graceperiodpesimisticsyncalgo.cpp \
@@ -515,6 +515,8 @@ config_parser/$(DEPDIR)/$(am__dirstamp):
 	@: > config_parser/$(DEPDIR)/$(am__dirstamp)
 config_parser/factorydatabase.lo: config_parser/$(am__dirstamp) \
 	config_parser/$(DEPDIR)/$(am__dirstamp)
+config_parser/fncsconfig.lo: config_parser/$(am__dirstamp) \
+	config_parser/$(DEPDIR)/$(am__dirstamp)
 syncalgorithms/$(am__dirstamp):
 	@$(MKDIR_P) syncalgorithms
 	@: > syncalgorithms/$(am__dirstamp)
@@ -639,6 +641,8 @@ mostlyclean-compile:
 	-rm -f commmanager/graceperiodcommmanager.lo
 	-rm -f config_parser/factorydatabase.$(OBJEXT)
 	-rm -f config_parser/factorydatabase.lo
+	-rm -f config_parser/fncsconfig.$(OBJEXT)
+	-rm -f config_parser/fncsconfig.lo
 	-rm -f contrib/jsoncpp/dist/jsoncpp.$(OBJEXT)
 	-rm -f contrib/jsoncpp/dist/jsoncpp.lo
 	-rm -f syncalgorithms/abssyncalgorithm.$(OBJEXT)
@@ -685,6 +689,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@commmanager/$(DEPDIR)/communicationcommanager.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@commmanager/$(DEPDIR)/graceperiodcommmanager.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@config_parser/$(DEPDIR)/factorydatabase.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@config_parser/$(DEPDIR)/fncsconfig.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@contrib/jsoncpp/dist/$(DEPDIR)/jsoncpp.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/abssyncalgorithm.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/communicatorsimulatorsyncalgo.Plo@am__quote@

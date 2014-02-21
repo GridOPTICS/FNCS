@@ -470,7 +470,7 @@ void Integrator::initIntegratorOptimistic(
 #endif
     AbsCommManager *command=new GracePeriodCommManager(currentInterface);
     TIME specDifferentFramework=convertToFrameworkTime(simTimeStep,specDifference);
-    AbsSyncAlgorithm *algo=new OptimisticTickSyncAlgo(command,specDifferentFramework,strategy);
+    AbsSyncAlgorithm *algo=new OptimisticTickSyncAlgo(command,strategy);
     instance=new Integrator(command,algo,simTimeStep,packetLostPeriod,onetimestep);
     instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
 }
@@ -521,7 +521,7 @@ void Integrator::initIntegratorOptimisticComm(
 #endif
     AbsCommManager *command=new CommunicationComManager(currentInterface);
     TIME specDifferentFramework=convertToFrameworkTime(simTimeStep,specDifference);
-    AbsSyncAlgorithm *algo=new OptimisticCommSyncAlgo(command,specDifferentFramework,strategy);
+    AbsSyncAlgorithm *algo=new OptimisticCommSyncAlgo(command,strategy);
     instance=new Integrator(command,algo,simTimeStep,packetLostPeriod,onetimestep);
     instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
 }

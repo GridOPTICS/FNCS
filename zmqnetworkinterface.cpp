@@ -20,6 +20,7 @@
 using namespace std;
 using namespace sim_comm;
 
+FNCS_NETWORKINTERFACE(ZmqNetworkInterface);
 
 static void cleanup_handler(void *object)
 {
@@ -886,4 +887,13 @@ void ZmqNetworkInterface::notifyFork()
 void ZmqNetworkInterface::block(){
   string bogus;
   while(i_recv(bogus) > 0); //at this point we just wait the DIE child signal
+}
+
+AbsNetworkInterface* ZmqNetworkInterface::Create(Json::Value param,bool simType){
+
+	if(param["broker"].isNull())
+		throw ConfigException("Broker address is not specified!");
+
+	string brokerAddres=param["broker"].asString();
+	return new ZmqNetworkInterface(brokerAddres,simType);
 }

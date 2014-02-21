@@ -35,6 +35,10 @@
 #include <unistd.h>
 #include <vector>
 
+#include "factorydatabase.h"
+#include "fncsconfig.h"
+#include "json/json.h"
+
 #define ACTION_FAILED 0
 #define ACTION_SUCCESS 1
 #define ACTION_UNDEFINED 2
@@ -119,7 +123,7 @@ namespace sim_comm{
      
       void childTerminated();
     public:
-      OptimisticTickSyncAlgo(AbsCommManager* interface, TIME specDifference,SpeculationTimeCalculationStrategy *strategy);
+      OptimisticTickSyncAlgo(AbsCommManager* interface, SpeculationTimeCalculationStrategy *strategy);
       virtual ~OptimisticTickSyncAlgo();
       /** @copydoc AbsSyncAlgorithm::GetNextTime(TIME currentTime, TIME nextTime) */
       virtual TIME GetNextTime(TIME currentTime, TIME nextTime);
@@ -131,6 +135,8 @@ namespace sim_comm{
      
       /** @copydoc AbsSyncAlgorithm::usesFork()*/
       virtual bool usesFork() { return true; }
+
+      static AbsSyncAlgorithm* Create(Json::Value param, AbsCommManager *comm);
   };
 
 }

@@ -30,6 +30,8 @@
 #define CONSERVATIVESLEEPINGCOMMALGO_H
 
 #include "abssyncalgorithm.h"
+#include "factorydatabase.h"
+#include "json/json.h"
 
 namespace sim_comm{
   
@@ -49,7 +51,8 @@ class ConservativeSleepingCommAlgo : public AbsSyncAlgorithm
      * Always returns false as this algorithm does not support forking!
      */
    virtual bool forkedNewChild(){ return false;}
-  
+
+   static AbsSyncAlgorithm* Create(Json::Value params,AbsCommManager *comm);
 };
 
 }

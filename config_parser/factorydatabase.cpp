@@ -31,10 +31,10 @@ namespace sim_comm {
 	}
 
 	void FactoryDataBase::registerNetworkInterfaceFactory(string name,
-			CallBack<AbsNetworkInterface*, Json::Value, empty, empty, empty>* factory) {
+			CallBack<AbsNetworkInterface*, Json::Value, bool, empty, empty>* factory) {
 		this->networkInterfaceFactories.insert(
 				pair<string,
-						CallBack<AbsNetworkInterface*, Json::Value, empty,
+						CallBack<AbsNetworkInterface*, Json::Value, bool,
 								empty, empty>*>(name, factory));
 	}
 
@@ -67,10 +67,10 @@ namespace sim_comm {
 		return it->second;
 	}
 
-	CallBack<AbsNetworkInterface*, Json::Value, empty, empty, empty>* FactoryDataBase::getNetworkInterfaceFactory(
+	CallBack<AbsNetworkInterface*, Json::Value, bool, empty, empty>* FactoryDataBase::getNetworkInterfaceFactory(
 			string name) {
 		map<string,
-		CallBack<AbsNetworkInterface*, Json::Value, empty, empty, empty>*>::iterator it =
+		CallBack<AbsNetworkInterface*, Json::Value, bool, empty, empty>*>::iterator it =
 				networkInterfaceFactories.find(name);
 		if (it == networkInterfaceFactories.end())
 			return nullptr;

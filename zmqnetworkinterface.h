@@ -38,6 +38,10 @@
 #include "integrator.h"
 #include "zmqhelper.h"
 
+#include "factorydatabase.h"
+#include "json/json.h"
+#include "fncsconfig.h"
+
 using std::list;
 
 
@@ -145,6 +149,7 @@ public:
     /** @copydoc AbsNetworkInterface::reduceMinTimeAction*/
     virtual uint64_t* reduceMinTimeAndAction(uint64_t *timeAction);
 
+    static AbsNetworkInterface* Create(Json::Value param, bool simType);
 };
 
 

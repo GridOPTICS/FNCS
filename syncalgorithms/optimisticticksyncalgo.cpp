@@ -38,6 +38,8 @@
 
 namespace sim_comm{
 
+FNCS_SYNCALGO(OptimisticTickSyncAlgo);
+
 void OptimisticTickSyncAlgo::parentDie()
 {
 #if DEBUG
@@ -70,7 +72,7 @@ void OptimisticTickSyncAlgo::childDied()
 }
 
 
-OptimisticTickSyncAlgo::OptimisticTickSyncAlgo(AbsCommManager* interface, TIME specDifference,SpeculationTimeCalculationStrategy *strategy) : AbsSyncAlgorithm(interface)
+OptimisticTickSyncAlgo::OptimisticTickSyncAlgo(AbsCommManager* interface, SpeculationTimeCalculationStrategy *strategy) : AbsSyncAlgorithm(interface)
 {
   if(!this->interface->supportsFork())
     throw SyncStateException(string("Optimistic algo can only be used if the underlying network itnerface supports fork!"));
@@ -498,5 +500,31 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
     }
   }
 
+  AbsSyncAlgorithm* OptimisticTickSyncAlgo::Create(Json::Value param,AbsCommManager *comm){
+
+	  if(param["strategy"].isNull())
+		  throw ConfigException("Speculation strategy is not defined!");
+
+
+	  SpeculationTimeCalculationStrategy *st;
+	  string strategy=param["strategy"].asString();
+	  if(strategy.compare("constant")==0){
+		  time_metric met=FncsConfig::jsonToTimeMetric(param["metric"]);
+		  TIME specTime=(TIME)param["look_ahead_time"].asUInt64();
+		  st=new ConstantSpeculationTimeStrategy(met,specTime);
+	  }else
+	  if(strategy.compare("increasing")==0){
+		  time_metric met=FncsConfig::jsonToTimeMetric(param["metric"]);
+		  TIME specTime=(TIME)param["initial_look_ahead_time"].asUInt64();
+		  st=new IncreasingSpeculationTimeStrategy(met,specTime);
+	  }else
+	  if(strategy.compare("infinity")==0){
+		  st=new InfinitySpeculationTimeStrategy();
+	  }else{
+		  throw ConfigException("unknown speculation strategy!");
+	  }
+
+	  return new OptimisticTickSyncAlgo(comm,st);
+  }
 
 }

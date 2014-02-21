@@ -86,8 +86,8 @@ namespace sim_comm{
 	  return currentTime + specDiff < specFailTime ? true : false;
   }
 
-  InfinitySpeculationTimeStrategy::InfinitySpeculationTimeStrategy(time_metric metric)
-  	  : SpeculationTimeCalculationStrategy(metric, Infinity)
+  InfinitySpeculationTimeStrategy::InfinitySpeculationTimeStrategy()
+  	  : SpeculationTimeCalculationStrategy(NANOSECONDS, Infinity)
   {
 
   }

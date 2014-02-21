@@ -30,7 +30,7 @@
   static struct x ## type ## Reg      \
   {                                             \
     x ## type ## Reg () {             \
-	  sim_comm::CallBack<sim_comm::AbsNetworkInterface*,Json::Value,sim_comm::empty,sim_comm::empty,sim_comm::empty> *c=\
+	  sim_comm::CallBack<sim_comm::AbsNetworkInterface*,Json::Value,bool,sim_comm::empty,sim_comm::empty> *c=\
 	  sim_comm::CreateCallback(type::Create);\
 	  sim_comm::FactoryDataBase::getInstance()->registerNetworkInterfaceFactory(string(#type),c);\
     }                                           \
@@ -54,18 +54,18 @@ namespace sim_comm {
 
 		private:
 			map<string, CallBack<AbsSyncAlgorithm*,Json::Value,AbsCommManager *,empty,empty>* > syncAlgoFactories;
-			map<string, CallBack<AbsNetworkInterface*,Json::Value,empty,empty,empty>* > networkInterfaceFactories;
+			map<string, CallBack<AbsNetworkInterface*,Json::Value,bool,empty,empty>* > networkInterfaceFactories;
 			map<string, CallBack<AbsCommManager*, AbsNetworkInterface*,empty,empty,empty>* > commManagerFactories;
 			static FactoryDataBase *instance;
 			FactoryDataBase();
 		public:
 			static FactoryDataBase* getInstance();
 			void registerSyncAlgoFactory(string name,CallBack<AbsSyncAlgorithm*,Json::Value,AbsCommManager*,empty,empty>* factory);
-			void registerNetworkInterfaceFactory(string name,CallBack<AbsNetworkInterface*,Json::Value,empty,empty,empty>* factory);
+			void registerNetworkInterfaceFactory(string name,CallBack<AbsNetworkInterface*,Json::Value,bool,empty,empty>* factory);
 			void registerCommManagerFactory(string name,CallBack<AbsCommManager*, AbsNetworkInterface*,empty,empty,empty>* factory);
 			CallBack<AbsCommManager*, AbsNetworkInterface*,empty,empty,empty>* getCommManagerFactory(string name);
 			CallBack<AbsSyncAlgorithm*,Json::Value,AbsCommManager*,empty,empty>* getSyncAlgoFactory(string name);
-			CallBack<AbsNetworkInterface*,Json::Value,empty,empty,empty>* getNetworkInterfaceFactory(string name);
+			CallBack<AbsNetworkInterface*,Json::Value,bool,empty,empty>* getNetworkInterfaceFactory(string name);
 			~FactoryDataBase();
 	};
 

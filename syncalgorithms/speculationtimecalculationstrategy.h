@@ -86,7 +86,7 @@ class IncreasingSpeculationTimeStrategy : public SpeculationTimeCalculationStrat
 class InfinitySpeculationTimeStrategy : public SpeculationTimeCalculationStrategy
 {
 	public:
-		InfinitySpeculationTimeStrategy(time_metric metric);
+		InfinitySpeculationTimeStrategy();
 	    virtual void speculationFailed(TIME failTime) { }
 	    virtual void speculationSuceeded(TIME currentTime) { }
 	    virtual ~InfinitySpeculationTimeStrategy();

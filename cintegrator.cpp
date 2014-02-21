@@ -81,21 +81,21 @@ void initIntegratorOptimisticConstant(time_metric simTimeStep,
 void initIntegratorOptimisticInfinity(time_metric simTimeStep, TIME packetLostPeriod, TIME initialTime)
 {
   ZmqNetworkInterface *comm=new ZmqNetworkInterface(false);
-  InfinitySpeculationTimeStrategy *st=new InfinitySpeculationTimeStrategy(simTimeStep);
+  InfinitySpeculationTimeStrategy *st=new InfinitySpeculationTimeStrategy();
   Integrator::initIntegratorOptimistic(comm,simTimeStep,packetLostPeriod,initialTime,0,st);
 }
 
 void initIntegratorOptimisticLowOverhead(time_metric simTimeStep,
 				      TIME packetLostPeriod, TIME initialTime, TIME specTime){
 	ZmqNetworkInterface *comm=new ZmqNetworkInterface(false);
-	InfinitySpeculationTimeStrategy *st=new InfinitySpeculationTimeStrategy(simTimeStep);
+	InfinitySpeculationTimeStrategy *st=new InfinitySpeculationTimeStrategy();
 	Integrator::initIntegratorOptimisticLowOverhead(comm,simTimeStep,packetLostPeriod,initialTime,specTime,st);
 }
 
 void initIntegratorOptimisticLowOverheadComm(time_metric simTimeStep,
 	      TIME packetLostPeriod, TIME initialTime, TIME specTime){
 	ZmqNetworkInterface *comm=new ZmqNetworkInterface(true);
-	InfinitySpeculationTimeStrategy *st=new InfinitySpeculationTimeStrategy(simTimeStep);
+	InfinitySpeculationTimeStrategy *st=new InfinitySpeculationTimeStrategy();
 	Integrator::initIntegratorOptimisticCommLowOverhead(
 		    comm,
 		    simTimeStep,

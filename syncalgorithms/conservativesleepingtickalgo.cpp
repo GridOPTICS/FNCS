@@ -29,9 +29,11 @@
 
 #include "conservativesleepingtickalgo.h"
 #include <abscommmanager.h>
+#include "fncsconfig.h"
 
 namespace sim_comm{
 
+  FNCS_SYNCALGO(ConservativeSleepingTickAlgo);
 
   ConservativeSleepingTickAlgo::ConservativeSleepingTickAlgo(AbsCommManager *interface, int &numberOfPowerSims) : AbsSyncAlgorithm(interface)
   {
@@ -171,6 +173,14 @@ namespace sim_comm{
   }
   
  
+  AbsSyncAlgorithm* ConservativeSleepingTickAlgo::Create(Json::Value param,AbsCommManager *comm){
 
+	  if(param["number_of_power_grid_sims"].isNull())
+		  throw ConfigException("Number of power grid simulators is not specified!");
+
+	  int num=param["number_of_power_grid_sims"].asInt();
+
+	  return new ConservativeSleepingTickAlgo(comm,num);
+  }
 }
 

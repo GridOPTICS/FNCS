@@ -34,6 +34,10 @@
 #include "graceperiodspeculativesyncalgo.h"
 #include "optimisticticksyncalgo.h"
 
+#include "factorydatabase.h"
+#include "json/json.h"
+#include "fncsconfig.h"
+
 namespace sim_comm{
 
   /**
@@ -45,10 +49,10 @@ namespace sim_comm{
       TIME currentState;
       bool updated;
     public:
-      OptimisticCommSyncAlgo(AbsCommManager* interface, TIME specDifference, SpeculationTimeCalculationStrategy *strategy);
+      OptimisticCommSyncAlgo(AbsCommManager* interface, SpeculationTimeCalculationStrategy *strategy);
       virtual TIME GetNextTime(TIME currentTime, TIME nextTime);
       virtual ~OptimisticCommSyncAlgo();
-      
+      static AbsSyncAlgorithm* Create(Json::Value param,AbsCommManager *comm);
   };
 
 }

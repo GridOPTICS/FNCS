@@ -32,6 +32,8 @@
 
 namespace sim_comm{
 
+	FNCS_SYNCALGO(ConservativeSleepingCommAlgo);
+
 ConservativeSleepingCommAlgo::ConservativeSleepingCommAlgo(AbsCommManager* interface): AbsSyncAlgorithm(interface)
 {
   this->powersimgrantedTime=0;
@@ -108,6 +110,11 @@ TIME ConservativeSleepingCommAlgo::GetNextTime(TIME currentTime, TIME nextTime)
 		     }
 		    this->grantedTime=minNextTime;
 		    return minNextTime;
+}
+
+AbsSyncAlgorithm* ConservativeSleepingCommAlgo::Create(Json::Value params,AbsCommManager *comm){
+
+	return new ConservativeSleepingCommAlgo(comm);
 }
 
 }
