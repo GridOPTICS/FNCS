@@ -31,7 +31,8 @@
 
 #include "abssyncalgorithm.h"
 #include "time.h"
-
+#include "factorydatabase.h"
+#include "json/json.h"
 
 namespace sim_comm{
 
@@ -51,7 +52,7 @@ namespace sim_comm{
 	      * Always returns false as this algorithm never forks!
 	      */
 	    virtual bool forkedNewChild(){ return false;}
-	  
+	    static AbsSyncAlgorithm* Create(Json::Value params,AbsCommManager *manager);
     };
 
 }

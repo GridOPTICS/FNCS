@@ -128,7 +128,7 @@ AC_MSG_NOTICE
 # names in order to determine features (Fortran only, I think)
 # libtool doesn't recognize MPI compiler names, nor should it
 AS_IF([test "x$with_mpi_wrappers" = xyes], [FNCS_MPI_UNWRAP_PUSH])
-AM_PROG_AR
+m4_ifdef([AM_PROG_AR],[AM_PROG_AR])
 LT_INIT
 # and now that that's over, put the MPI compilers back
 # also, the above hack incorrectly sets the base compiler as the linker

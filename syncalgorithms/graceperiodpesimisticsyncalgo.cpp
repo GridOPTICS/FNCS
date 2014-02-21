@@ -33,6 +33,8 @@
 
 namespace sim_comm
 {
+   FNCS_SYNCALGO(GracePeriodSyncAlgo);
+
    GracePeriodSyncAlgo::GracePeriodSyncAlgo(AbsCommManager* interface ) : AbsSyncAlgorithm(interface)
   {
     
@@ -110,4 +112,7 @@ namespace sim_comm
       return nextEstTime;
   }
 
+  AbsSyncAlgorithm* GracePeriodSyncAlgo::Create(Json::Value params, AbsCommManager *manager){
+	  return new GracePeriodSyncAlgo(manager);
+  }
 }

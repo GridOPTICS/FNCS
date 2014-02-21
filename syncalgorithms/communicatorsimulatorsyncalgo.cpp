@@ -14,6 +14,8 @@
 
 namespace sim_comm {
 
+	FNCS_SYNCALGO(CommunicatorSimulatorSyncalgo);
+
 	CommunicatorSimulatorSyncalgo::CommunicatorSimulatorSyncalgo(AbsCommManager* currentInterface): AbsSyncAlgorithm(currentInterface) {
 		this->currentState=0;
 		CommunicationComManager *given=dynamic_cast<CommunicationComManager*>(currentInterface);
@@ -55,6 +57,12 @@ namespace sim_comm {
 
 	     
 	}
-	
+
+	AbsSyncAlgorithm* CommunicatorSimulatorSyncalgo::Create(Json::Value val,AbsCommManager* manager) {
+		return new CommunicatorSimulatorSyncalgo(manager);
+	}
+
 
 } /* namespace sim_comm */
+
+

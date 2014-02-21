@@ -38,6 +38,7 @@ endif
 include_HEADERS += commmanager/abscommmanager.h
 include_HEADERS += commmanager/communicationcommanager.h
 include_HEADERS += commmanager/graceperiodcommmanager.h
+include_HEADERS += config_parser/factorydatabase.h
 
 include_HEADERS += syncalgorithms/abssyncalgorithm.h
 include_HEADERS += syncalgorithms/communicatorsimulatorsyncalgo.h
@@ -58,6 +59,7 @@ AM_CPPFLAGS += -I$(top_srcdir)/commmanager
 AM_CPPFLAGS += -I$(top_srcdir)/syncalgorithms
 AM_CPPFLAGS += -I$(top_srcdir)/util
 AM_CPPFLAGS += -I$(top_srcdir)/contrib/jsoncpp/dist
+AM_CPPFLAGS += -I$(top_srcdir)/config_parser
 
 lib_LTLIBRARIES += libfncs.la
 libfncs_la_SOURCES =
@@ -79,6 +81,7 @@ libfncs_la_SOURCES += commmanager/communicationcommanager.cpp
 libfncs_la_SOURCES += commmanager/graceperiodcommmanager.cpp
 
 libfncs_la_SOURCES += contrib/jsoncpp/dist/jsoncpp.cpp
+libfncs_api_la_SOURCES += config_parser/factorydatabase.cpp
 
 libfncs_la_SOURCES += syncalgorithms/abssyncalgorithm.cpp
 libfncs_la_SOURCES += syncalgorithms/communicatorsimulatorsyncalgo.cpp

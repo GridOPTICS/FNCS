@@ -9,9 +9,10 @@
 #define COMMUNICATORSIMULATORSYNCALGO_H_
 
 #include "abssyncalgorithm.h"
+#include "json/json.h"
+#include "factorydatabase.h"
 
 namespace sim_comm {
-
  
 	class CommSyncAlgoException: exception{
 	
@@ -39,7 +40,7 @@ namespace sim_comm {
 			 * Always returns false as this algorithm never forks.
 			 */
 			virtual bool forkedNewChild(){ return false;}
-			
+			static AbsSyncAlgorithm* Create(Json::Value val, AbsCommManager* manager);
 	};
 
 } /* namespace sim_comm */

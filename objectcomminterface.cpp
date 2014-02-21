@@ -154,6 +154,11 @@ bool ObjectCommInterface::hasMoreMessages() {
                 this->msgs.push_back(i);
 
             }
+#if DEBUG
+            else{
+	      CERR << "Old message, message time " << msg->getTime() << ", currentTime" << currentTime << ", graceTime" << graceTime << endl; 
+	    }
+#endif
         }
         if(msgs.size()==0)
 	  return false;
@@ -193,8 +198,12 @@ void ObjectCommInterface::newMessage(Message* given) {
 #if DEBUG
     CERR << "ObjectCommInterface::newMessage(Message*)" << endl;
 #endif
-    if(st!=nullptr && !st->doBufferMessage(given))
+    if(st!=nullptr && !st->doBufferMessage(given)){
+#if DEBUG
+      CERR << "Comm interface strategy said drop the message" << endl;
+#endif
       return;
+    }
     
     this->inbox.push_back(given);
     
