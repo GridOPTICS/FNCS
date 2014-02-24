@@ -889,11 +889,11 @@ void ZmqNetworkInterface::block(){
   while(i_recv(bogus) > 0); //at this point we just wait the DIE child signal
 }
 
-AbsNetworkInterface* ZmqNetworkInterface::Create(Json::Value param,bool simType){
+AbsNetworkInterface* ZmqNetworkInterface::Create(const Json::Value& param,bool simType){
 
-	if(param["broker"].isNull())
+	if(param.isNull())
 		throw ConfigException("Broker address is not specified!");
 
-	string brokerAddres=param["broker"].asString();
-	return new ZmqNetworkInterface(brokerAddres,simType);
+	string brokerAddres=param.asString();
+	return new ZmqNetworkInterface(brokerAddres,!simType);
 }

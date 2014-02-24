@@ -136,7 +136,7 @@ namespace sim_comm{
       /** @copydoc AbsSyncAlgorithm::usesFork()*/
       virtual bool usesFork() { return true; }
 
-      static AbsSyncAlgorithm* Create(Json::Value param, AbsCommManager *comm);
+      static AbsSyncAlgorithm* Create(const Json::Value& param, AbsCommManager *comm);
   };
 
 }

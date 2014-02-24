@@ -33,7 +33,8 @@
 
 namespace sim_comm{
   
-  
+	FNCS_COMMMANAGER(CommunicationComManager);
+
     CommunicationComManager::CommunicationComManager(AbsNetworkInterface *interface) : AbsCommManager(interface)
     {
       CallBack<void,Message*,empty,empty,empty> *msgCallback=CreateObjCallback<CommunicationComManager *, void (CommunicationComManager::*)(Message*), void,Message*>(this, &CommunicationComManager::messageReceived);
@@ -111,7 +112,7 @@ namespace sim_comm{
 			  
 		      }
 		  }
-		  catch(InterfaceErrorException e) {
+		  catch(InterfaceErrorException &e) {
 
 		      std::cerr << "Send operation failed on interface ";
 		  }
@@ -200,4 +201,11 @@ namespace sim_comm{
     return true;
   }
 
+  AbsCommManager* CommunicationComManager::Create(AbsNetworkInterface* given,bool simType){
+	  if(simType){
+		  throw ConfigException("SimType is not communication network simulator");
+	  }
+
+	  return new CommunicationComManager(given);
+  }
 }

@@ -100,7 +100,7 @@ namespace sim_comm {
 		return minNextTime;
 	}
 
-	AbsSyncAlgorithm* OptimisticCommSyncAlgo::Create(Json::Value param,
+	AbsSyncAlgorithm* OptimisticCommSyncAlgo::Create(const Json::Value& param,
 			AbsCommManager *comm) {
 		if (param["strategy"].isNull())
 			throw ConfigException("Speculation strategy is not defined!");

@@ -30,6 +30,8 @@
 #define GRACEPERIODCOMMMANAGER_H
 
 #include "abscommmanager.h"
+#include "factorydatabase.h"
+#include "fncsconfig.h"
 
 namespace sim_comm{
   
@@ -43,6 +45,7 @@ public:
       virtual void packetLostCalculator(TIME currentTime);
       virtual void sendAll();
       virtual AbsCommManager* duplicate();
+      static AbsCommManager* Create(AbsNetworkInterface* given,bool simType);
 };
 
 }

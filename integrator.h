@@ -67,6 +67,7 @@ class AbsNetworkInterface;
 class AbsCommManager;
 class ObjectCommInterface;
 class BufferStrategy;
+class FncsConfig;
 
 class FNCSException: exception{
   private:
@@ -102,6 +103,7 @@ enum BufferStrategyType{
  * of integrator around.
  */
 class Integrator {
+		friend class FncsConfig;
 private:
     time_metric simTimeMetric;
     AbsCommManager *currentInterface;

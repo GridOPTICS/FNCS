@@ -52,7 +52,7 @@ class ConservativeSleepingCommAlgo : public AbsSyncAlgorithm
      */
    virtual bool forkedNewChild(){ return false;}
 
-   static AbsSyncAlgorithm* Create(Json::Value params,AbsCommManager *comm);
+   static AbsSyncAlgorithm* Create(const Json::Value& params,AbsCommManager *comm);
 };
 
 }

@@ -58,7 +58,7 @@ namespace sim_comm {
 	     
 	}
 
-	AbsSyncAlgorithm* CommunicatorSimulatorSyncalgo::Create(Json::Value val,AbsCommManager* manager) {
+	AbsSyncAlgorithm* CommunicatorSimulatorSyncalgo::Create(const Json::Value& val,AbsCommManager* manager) {
 		return new CommunicatorSimulatorSyncalgo(manager);
 	}
 

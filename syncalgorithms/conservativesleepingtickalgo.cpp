@@ -173,7 +173,7 @@ namespace sim_comm{
   }
   
  
-  AbsSyncAlgorithm* ConservativeSleepingTickAlgo::Create(Json::Value param,AbsCommManager *comm){
+  AbsSyncAlgorithm* ConservativeSleepingTickAlgo::Create(const Json::Value& param,AbsCommManager *comm){
 
 	  if(param["number_of_power_grid_sims"].isNull())
 		  throw ConfigException("Number of power grid simulators is not specified!");

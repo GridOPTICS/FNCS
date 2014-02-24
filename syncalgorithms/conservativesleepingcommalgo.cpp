@@ -112,7 +112,7 @@ TIME ConservativeSleepingCommAlgo::GetNextTime(TIME currentTime, TIME nextTime)
 		    return minNextTime;
 }
 
-AbsSyncAlgorithm* ConservativeSleepingCommAlgo::Create(Json::Value params,AbsCommManager *comm){
+AbsSyncAlgorithm* ConservativeSleepingCommAlgo::Create(const Json::Value& params,AbsCommManager *comm){
 
 	return new ConservativeSleepingCommAlgo(comm);
 }

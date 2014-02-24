@@ -112,7 +112,7 @@ namespace sim_comm
       return nextEstTime;
   }
 
-  AbsSyncAlgorithm* GracePeriodSyncAlgo::Create(Json::Value params, AbsCommManager *manager){
+  AbsSyncAlgorithm* GracePeriodSyncAlgo::Create(const Json::Value& params, AbsCommManager *manager){
 	  return new GracePeriodSyncAlgo(manager);
   }
 }

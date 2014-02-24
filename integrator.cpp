@@ -380,7 +380,9 @@ void Integrator::parseConfig(string jsonFile, TIME initialTime)
 
 void Integrator::initIntegrator(const char* configFile, TIME initialTime)
 {
-  parseConfig(string(configFile),initialTime);
+  //parseConfig(string(configFile),initialTime);
+  FncsConfig config(configFile);
+  config.createIntegrator(initialTime);
 }
 
 

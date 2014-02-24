@@ -52,7 +52,7 @@ namespace sim_comm{
       OptimisticCommSyncAlgo(AbsCommManager* interface, SpeculationTimeCalculationStrategy *strategy);
       virtual TIME GetNextTime(TIME currentTime, TIME nextTime);
       virtual ~OptimisticCommSyncAlgo();
-      static AbsSyncAlgorithm* Create(Json::Value param,AbsCommManager *comm);
+      static AbsSyncAlgorithm* Create(const Json::Value& param,AbsCommManager *comm);
   };
 
 }

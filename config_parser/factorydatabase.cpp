@@ -23,54 +23,54 @@ namespace sim_comm {
 	}
 
 	void FactoryDataBase::registerSyncAlgoFactory(string name,
-			CallBack<AbsSyncAlgorithm*, Json::Value, AbsCommManager*, empty, empty>* factory) {
+			CallBack<AbsSyncAlgorithm*, const Json::Value&, AbsCommManager*, empty, empty>* factory) {
 		this->syncAlgoFactories.insert(
 				pair<string,
-						CallBack<AbsSyncAlgorithm*, Json::Value, AbsCommManager*, empty,
+						CallBack<AbsSyncAlgorithm*, const Json::Value&, AbsCommManager*, empty,
 								empty>*>(name, factory));
 	}
 
 	void FactoryDataBase::registerNetworkInterfaceFactory(string name,
-			CallBack<AbsNetworkInterface*, Json::Value, bool, empty, empty>* factory) {
+			CallBack<AbsNetworkInterface*, const Json::Value&, bool, empty, empty>* factory) {
 		this->networkInterfaceFactories.insert(
 				pair<string,
-						CallBack<AbsNetworkInterface*, Json::Value, bool,
+						CallBack<AbsNetworkInterface*, const Json::Value&, bool,
 								empty, empty>*>(name, factory));
 	}
 
 	void FactoryDataBase::registerCommManagerFactory(string name,
-			CallBack<AbsCommManager*, AbsNetworkInterface*, empty, empty, empty>* factory) {
+			CallBack<AbsCommManager*, AbsNetworkInterface*, bool, empty, empty>* factory) {
 		this->commManagerFactories.insert(
 				pair<string,
-						CallBack<AbsCommManager*, AbsNetworkInterface*, empty,
+						CallBack<AbsCommManager*, AbsNetworkInterface*, bool,
 								empty, empty>*>(name, factory));
 	}
 
-	CallBack<AbsCommManager*, AbsNetworkInterface*, empty, empty, empty>* FactoryDataBase::getCommManagerFactory(
+	CallBack<AbsCommManager*, AbsNetworkInterface*, bool, empty, empty>* FactoryDataBase::getCommManagerFactory(
 			string name) {
 
 		map<string,
-				CallBack<AbsCommManager*, AbsNetworkInterface*, empty, empty,
+				CallBack<AbsCommManager*, AbsNetworkInterface*, bool, empty,
 						empty>*>::iterator it = commManagerFactories.find(name);
 		if (it == commManagerFactories.end())
 			return nullptr;
 		return it->second;
 	}
 
-	CallBack<AbsSyncAlgorithm*, Json::Value, AbsCommManager*, empty, empty>* FactoryDataBase::getSyncAlgoFactory(
+	CallBack<AbsSyncAlgorithm*, const Json::Value&, AbsCommManager*, empty, empty>* FactoryDataBase::getSyncAlgoFactory(
 			string name) {
 		map<string,
-				CallBack<AbsSyncAlgorithm*, Json::Value, AbsCommManager*, empty, empty>*>::iterator it =
+				CallBack<AbsSyncAlgorithm*, const Json::Value&, AbsCommManager*, empty, empty>*>::iterator it =
 				syncAlgoFactories.find(name);
 		if (it == syncAlgoFactories.end())
 			return nullptr;
 		return it->second;
 	}
 
-	CallBack<AbsNetworkInterface*, Json::Value, bool, empty, empty>* FactoryDataBase::getNetworkInterfaceFactory(
+	CallBack<AbsNetworkInterface*, const Json::Value&, bool, empty, empty>* FactoryDataBase::getNetworkInterfaceFactory(
 			string name) {
 		map<string,
-		CallBack<AbsNetworkInterface*, Json::Value, bool, empty, empty>*>::iterator it =
+		CallBack<AbsNetworkInterface*, const Json::Value&, bool, empty, empty>*>::iterator it =
 				networkInterfaceFactories.find(name);
 		if (it == networkInterfaceFactories.end())
 			return nullptr;

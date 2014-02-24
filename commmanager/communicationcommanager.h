@@ -29,6 +29,8 @@
 #ifndef COMMUNICATIONCOMMANAGER_H
 #define COMMUNICATIONCOMMANAGER_H
 #include "abscommmanager.h"
+#include "factorydatabase.h"
+#include "fncsconfig.h"
 
 namespace sim_comm{
   
@@ -47,6 +49,7 @@ namespace sim_comm{
 	virtual void packetLostCalculator(TIME currentTime);
 	virtual void sendAll();
 	virtual void messageReceived(Message *message);
+	static AbsCommManager* Create(AbsNetworkInterface* given,bool simType);
     };
 
 }

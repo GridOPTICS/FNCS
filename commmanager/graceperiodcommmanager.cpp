@@ -32,6 +32,7 @@
 
 namespace sim_comm{
   
+  FNCS_COMMMANAGER(GracePeriodCommManager);
   
   GracePeriodCommManager::GracePeriodCommManager(AbsNetworkInterface *current) : AbsCommManager(current)
   {
@@ -90,7 +91,7 @@ namespace sim_comm{
                     }
                    
                 }
-                catch(InterfaceErrorException e) {
+                catch(InterfaceErrorException &e) {
 
                     std::cerr << "Send operation failed on interface ";
                 }
@@ -101,6 +102,13 @@ namespace sim_comm{
      
   }
 
+  AbsCommManager* GracePeriodCommManager::Create(AbsNetworkInterface *given,bool simType){
+	  if(!simType){
+		  throw ConfigException("SimType is not a tickbased simulator");
 
+	  }
+
+	  return new GracePeriodCommManager(given);
+  }
 
 }

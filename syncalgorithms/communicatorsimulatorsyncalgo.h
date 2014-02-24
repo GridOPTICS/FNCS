@@ -40,7 +40,7 @@ namespace sim_comm {
 			 * Always returns false as this algorithm never forks.
 			 */
 			virtual bool forkedNewChild(){ return false;}
-			static AbsSyncAlgorithm* Create(Json::Value val, AbsCommManager* manager);
+			static AbsSyncAlgorithm* Create(const Json::Value& val, AbsCommManager* manager);
 	};
 
 } /* namespace sim_comm */

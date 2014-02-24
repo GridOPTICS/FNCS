@@ -500,7 +500,7 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
     }
   }
 
-  AbsSyncAlgorithm* OptimisticTickSyncAlgo::Create(Json::Value param,AbsCommManager *comm){
+  AbsSyncAlgorithm* OptimisticTickSyncAlgo::Create(const Json::Value& param,AbsCommManager *comm){
 
 	  if(param["strategy"].isNull())
 		  throw ConfigException("Speculation strategy is not defined!");
