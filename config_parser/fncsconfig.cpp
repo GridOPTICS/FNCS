@@ -5,7 +5,7 @@
  *      Author: ciraci
  */
 
-#include "FncsConfig.h"
+#include "fncsconfig.h"
 
 #include "zmqnetworkinterface.h"
 #include "graceperiodcommmanager.h"
