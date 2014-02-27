@@ -4,6 +4,7 @@
  *  Created on: Feb 20, 2014
  *      Author: ciraci
  */
+#include "config.h"
 
 #include "fncsconfig.h"
 
@@ -15,97 +16,106 @@ namespace sim_comm {
 
 	FncsConfig::FncsConfig(const char *configFile) {
 
-		Json::Value root;
 		std::ifstream file(configFile);
 		file >> root;
-		extractParams(root);
+
 	}
 
 	FncsConfig::~FncsConfig() {
 
 	}
 
-	void FncsConfig::extractParams(const Value &root){
-		this->networkInterface=root["interface"];
-		this->broker=root["broker"];
+	time_metric FncsConfig::jsonToTimeMetric(const Value &given) {
+		if (given.isNull())
+			throw ConfigException("Value is not a time_metric specification");
+		string timeMetric = given.asString();
+		if (timeMetric.compare("seconds") == 0) {
+			return SECONDS;
+		} else if (timeMetric.compare("milliseconds") == 0) {
+			return MILLISECONDS;
+		} else if (timeMetric.compare("nanoseconds") == 0) {
+			return NANOSECONDS;
+		} else
+			throw ConfigException(
+					string("Simulator time metric is not correctly defined!"));
 
-		if(root["simulator_type"].isNull()){
+	}
+
+	void FncsConfig::extractParams() {
+		this->networkInterface = root["interface"];
+		this->broker = root["broker"];
+
+		if (root["simulator_type"].isNull()) {
 			throw ConfigException(string("simulator type is not defined!"));
 		}
-		string simType=root["simulator_type"].asString();
-		if(simType.compare("power_grid")==0){
-			this->simType=true;
-		}else{
-			if(simType.compare("communication_network"))
-				this->simType=false;
+		string simType = root["simulator_type"].asString();
+		if (simType.compare("power_grid") == 0) {
+			this->simType = true;
+		} else {
+			if (simType.compare("communication_network"))
+				this->simType = false;
 			else
 				throw ConfigException(string("unknown simulator type"));
 		}
 
-		this->syncAlgorithm=root["synchronization_algorithm"];
-		this->syncAlgoParams=root["sync_params"];
+		this->syncAlgorithm = root["synchronization_algorithm"];
+		this->syncAlgoParams = root["sync_params"];
 
-		if(root["simulator_time_metric"].isNull()){
-			throw ConfigException(string("Simulator time metric is not defined!"));
+		if (root["simulator_time_metric"].isNull()) {
+			throw ConfigException(
+					string("Simulator time metric is not defined!"));
 		}
-		string timeMetric=root["simulator_time_metric"].asString();
-		if(timeMetric.compare("seconds")==0){
-			this->simMetric=SECONDS;
-		}else
-		if(timeMetric.compare("milliseconds")==0){
-			this->simMetric=MILLISECONDS;
-		}else
-		if(timeMetric.compare("nanoseconds")==0){
-			this->simMetric=NANOSECONDS;
-		}else
-			throw ConfigException(string("Simulator time metric is not correctly defined!"));
+		this->simMetric=jsonToTimeMetric(root["simulator_time_metric"]);
 
-		if(root["one_time_step"].isNull()){
-			this->oneTimeStep=1;
-		}else{
-			this->oneTimeStep=(TIME)root["one_time_step"].asUInt64();
+
+		if (root["one_time_step"].isNull()) {
+			this->oneTimeStep = 1;
+		} else {
+			this->oneTimeStep = (TIME) root["one_time_step"].asUInt64();
 		}
 
-		if(root["packet_lost_period"].isNull()){
+		if (root["packet_lost_period"].isNull()) {
 			throw ConfigException(string("Packet lost period is not defined!"));
-		}else
-			this->packetLostP=(TIME)root["packet_lost_period"].asUInt64();
+		} else
+			this->packetLostP = (TIME) root["packet_lost_period"].asUInt64();
 	}
 
-	bool FncsConfig::isCommSimulator(){
-		return !this->simType;
-	}
-
-	AbsNetworkInterface* FncsConfig::createNetworkInterface() {
-		if(this->networkInterface.isNull())
-			throw ConfigException(string("Network interface is not defined!"));
-
-		string type=this->networkInterface.asString();
-		if(type.compare("zmq")==0){
-			if(this->broker.isNull()){
-				throw ConfigException(string("Borker address is not defined!"));
-			}
-			string brokerAdd=broker.asString();
-			return new ZmqNetworkInterface(brokerAdd,this->simType);
-		}//add other network interfaces here!
-		else{
-			throw ConfigException(string("Unknown network interface type!"));
+	void FncsConfig::createIntegrator(TIME initialTime) {
+		extractParams();
+		CallBack<AbsNetworkInterface*, const Json::Value&, bool, empty, empty>* networkFactory =
+				FactoryDataBase::getInstance()->getNetworkInterfaceFactory(
+						networkInterface.asString());
+		if (networkFactory == nullptr)
+			throw ConfigException(
+					"Cannot locate network interface in the registery!");
+		AbsNetworkInterface *interface = (*networkFactory)(broker,
+				this->simType);
+		CallBack<AbsCommManager*, AbsNetworkInterface*, bool, empty, empty> *commManagerFactory;
+		if (this->simType) { //powergrid sim
+			commManagerFactory =
+					FactoryDataBase::getInstance()->getCommManagerFactory(
+							"GracePeriodCommManager");
+		} else { //network simulator
+			commManagerFactory =
+					FactoryDataBase::getInstance()->getCommManagerFactory(
+							"CommunicationComManager");
 		}
+		AbsCommManager *commManager = (*commManagerFactory)(interface,
+				this->simType);
+
+		CallBack<AbsSyncAlgorithm*, const Json::Value&, AbsCommManager *, empty,
+				empty>* syncFactory =
+				FactoryDataBase::getInstance()->getSyncAlgoFactory(
+						syncAlgorithm.asString());
+		if (syncFactory == nullptr)
+			throw ConfigException("Cannot locate syncalgorithm!");
+
+		AbsSyncAlgorithm *algo = (*syncFactory)(syncAlgoParams, commManager);
+
+		Integrator::instance = new Integrator(commManager, algo,
+				this->simMetric, this->packetLostP, this->oneTimeStep);
+		Integrator::instance->offset = convertToFrameworkTime(simMetric,
+				initialTime);
 	}
-
-	AbsCommManager* FncsConfig::createCommManager() {
-		AbsNetworkInterface *interface=createNetworkInterface();
-		if(this->simType){
-			return new GracePeriodCommManager(interface);
-		}else{
-			return new CommunicationComManager(interface);
-		}
-	}
-
-	bool FncsConfig::isPowerGridSimulator(){
-		return this->simType;
-	}
-
-
 
 } /* namespace sim_comm */

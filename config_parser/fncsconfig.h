@@ -8,6 +8,7 @@
 #ifndef FNCSCONFIG_H_
 #define FNCSCONFIG_H_
 
+
 #include "json/json.h"
 #include "absnetworkinterface.h"
 #include "abssyncalgorithm.h"
@@ -39,23 +40,19 @@ namespace sim_comm {
 			Value syncAlgoParams;
 			Value networkInterface;
 			Value broker;
+			Value root;
 			bool simType;
 			time_metric simMetric;
 			TIME packetLostP;
 			TIME oneTimeStep;
-			void extractParams(const Value &root);
-			AbsNetworkInterface* createNetworkInterface();
+			void extractParams();
+
 
 		public:
 			FncsConfig(const char *configFileName);
 			virtual ~FncsConfig();
-			AbsSyncAlgorithm* createSyncAlgorithm();
-			AbsCommManager* createCommManager();
-			bool isCommSimulator();
-			bool isPowerGridSimulator();
-			time_metric getSimTimeMetric();
-			TIME getPacketLostPeriod();
-
+			void createIntegrator(TIME initialTime);
+			static time_metric jsonToTimeMetric(const Value &given);
 	};
 
 } /* namespace sim_comm */
