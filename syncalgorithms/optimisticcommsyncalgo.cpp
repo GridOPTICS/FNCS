@@ -26,6 +26,7 @@
  */
 
 #include "optimisticcommsyncalgo.h"
+#include "json/json.h"
 
 namespace sim_comm {
 

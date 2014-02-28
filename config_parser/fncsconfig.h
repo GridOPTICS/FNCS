@@ -9,12 +9,16 @@
 #define FNCSCONFIG_H_
 
 
-#include "json/json.h"
+
 #include "absnetworkinterface.h"
 #include "abssyncalgorithm.h"
 
 #include <fstream>
 #include <exception>
+
+namespace Json{
+	class Value;
+}
 
 using namespace Json;
 using namespace std;
@@ -34,13 +38,11 @@ namespace sim_comm {
 			virtual ~ConfigException() throw() {}
 	};
 
+	struct ConfigNodes;
+
 	class FncsConfig {
 		private:
-			Value syncAlgorithm;
-			Value syncAlgoParams;
-			Value networkInterface;
-			Value broker;
-			Value root;
+			ConfigNodes *nodes;
 			bool simType;
 			time_metric simMetric;
 			TIME packetLostP;

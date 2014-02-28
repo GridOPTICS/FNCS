@@ -9,8 +9,9 @@
 #define COMMUNICATORSIMULATORSYNCALGO_H_
 
 #include "abssyncalgorithm.h"
-#include "json/json.h"
+
 #include "factorydatabase.h"
+#include "fncsconfig.h"
 
 namespace sim_comm {
  

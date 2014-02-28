@@ -29,7 +29,8 @@
 
 #include "conservativesleepingtickalgo.h"
 #include <abscommmanager.h>
-#include "fncsconfig.h"
+
+#include "json/json.h"
 
 namespace sim_comm{
 

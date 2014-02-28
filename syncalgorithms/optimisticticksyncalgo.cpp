@@ -35,6 +35,7 @@
 #include <sys/wait.h>
 
 #include <assert.h>
+#include "json/json.h"
 
 namespace sim_comm{
 

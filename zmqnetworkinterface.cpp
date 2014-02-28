@@ -13,6 +13,8 @@
 #include "zmqhelper.h"
 #include "zmqnetworkinterface.h"
 
+#include "json/json.h"
+
 #ifdef DEBUG_WITH_PROFILE
 #include "profiler.h"
 #endif

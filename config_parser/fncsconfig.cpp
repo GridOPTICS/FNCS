@@ -12,17 +12,29 @@
 #include "graceperiodcommmanager.h"
 #include "communicationcommanager.h"
 
+#include <json/json.h>
+
 namespace sim_comm {
+
+	struct ConfigNodes{
+			Value root;
+			Value broker;
+			Value networkInterface;
+			Value syncAlgorithm;
+			Value syncAlgoParams;
+	};
 
 	FncsConfig::FncsConfig(const char *configFile) {
 
+		this->nodes = new ConfigNodes();
 		std::ifstream file(configFile);
-		file >> root;
+		file >> nodes->root;
+
 
 	}
 
 	FncsConfig::~FncsConfig() {
-
+		delete nodes;
 	}
 
 	time_metric FncsConfig::jsonToTimeMetric(const Value &given) {
@@ -42,13 +54,13 @@ namespace sim_comm {
 	}
 
 	void FncsConfig::extractParams() {
-		this->networkInterface = root["interface"];
-		this->broker = root["broker"];
+		nodes->networkInterface = (nodes->root)["interface"];
+		nodes->broker = (nodes->root)["broker"];
 
-		if (root["simulator_type"].isNull()) {
+		if ((nodes->root)["simulator_type"].isNull()) {
 			throw ConfigException(string("simulator type is not defined!"));
 		}
-		string simType = root["simulator_type"].asString();
+		string simType = (nodes->root)["simulator_type"].asString();
 		if (simType.compare("power_grid") == 0) {
 			this->simType = true;
 		} else {
@@ -58,37 +70,37 @@ namespace sim_comm {
 				throw ConfigException(string("unknown simulator type"));
 		}
 
-		this->syncAlgorithm = root["synchronization_algorithm"];
-		this->syncAlgoParams = root["sync_params"];
+		nodes->syncAlgorithm = (nodes->root)["synchronization_algorithm"];
+		nodes->syncAlgoParams = (nodes->root)["sync_params"];
 
-		if (root["simulator_time_metric"].isNull()) {
+		if ((nodes->root)["simulator_time_metric"].isNull()) {
 			throw ConfigException(
 					string("Simulator time metric is not defined!"));
 		}
-		this->simMetric=jsonToTimeMetric(root["simulator_time_metric"]);
+		this->simMetric=jsonToTimeMetric((nodes->root)["simulator_time_metric"]);
 
 
-		if (root["one_time_step"].isNull()) {
+		if ((nodes->root)["one_time_step"].isNull()) {
 			this->oneTimeStep = 1;
 		} else {
-			this->oneTimeStep = (TIME) root["one_time_step"].asUInt64();
+			this->oneTimeStep = (TIME) (nodes->root)["one_time_step"].asUInt64();
 		}
 
-		if (root["packet_lost_period"].isNull()) {
+		if ((nodes->root)["packet_lost_period"].isNull()) {
 			throw ConfigException(string("Packet lost period is not defined!"));
 		} else
-			this->packetLostP = (TIME) root["packet_lost_period"].asUInt64();
+			this->packetLostP = (TIME) (nodes->root)["packet_lost_period"].asUInt64();
 	}
 
 	void FncsConfig::createIntegrator(TIME initialTime) {
 		extractParams();
 		CallBack<AbsNetworkInterface*, const Json::Value&, bool, empty, empty>* networkFactory =
 				FactoryDataBase::getInstance()->getNetworkInterfaceFactory(
-						networkInterface.asString());
+						nodes->networkInterface.asString());
 		if (networkFactory == nullptr)
 			throw ConfigException(
 					"Cannot locate network interface in the registery!");
-		AbsNetworkInterface *interface = (*networkFactory)(broker,
+		AbsNetworkInterface *interface = (*networkFactory)(nodes->broker,
 				this->simType);
 		CallBack<AbsCommManager*, AbsNetworkInterface*, bool, empty, empty> *commManagerFactory;
 		if (this->simType) { //powergrid sim
@@ -106,11 +118,11 @@ namespace sim_comm {
 		CallBack<AbsSyncAlgorithm*, const Json::Value&, AbsCommManager *, empty,
 				empty>* syncFactory =
 				FactoryDataBase::getInstance()->getSyncAlgoFactory(
-						syncAlgorithm.asString());
+						nodes->syncAlgorithm.asString());
 		if (syncFactory == nullptr)
 			throw ConfigException("Cannot locate syncalgorithm!");
 
-		AbsSyncAlgorithm *algo = (*syncFactory)(syncAlgoParams, commManager);
+		AbsSyncAlgorithm *algo = (*syncFactory)(nodes->syncAlgoParams, commManager);
 
 		Integrator::instance = new Integrator(commManager, algo,
 				this->simMetric, this->packetLostP, this->oneTimeStep);

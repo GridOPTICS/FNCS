@@ -39,7 +39,6 @@
 #include "zmqhelper.h"
 
 #include "factorydatabase.h"
-#include "json/json.h"
 #include "fncsconfig.h"
 
 using std::list;

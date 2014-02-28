@@ -32,7 +32,7 @@
 #include "abssyncalgorithm.h"
 #include "time.h"
 #include "factorydatabase.h"
-#include "json/json.h"
+#include "fncsconfig.h"
 
 namespace sim_comm{
 
