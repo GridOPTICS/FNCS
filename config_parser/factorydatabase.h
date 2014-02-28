@@ -10,7 +10,6 @@
 
 #include <map>
 #include "callback.h"
-#include "json/json.h"
 
 #include "abscommmanager.h"
 #include "absnetworkinterface.h"
