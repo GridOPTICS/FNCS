@@ -64,7 +64,7 @@ namespace sim_comm {
 		if (simType.compare("power_grid") == 0) {
 			this->simType = true;
 		} else {
-			if (simType.compare("communication_network"))
+			if (simType.compare("communication_network") ==0)
 				this->simType = false;
 			else
 				throw ConfigException(string("unknown simulator type"));
