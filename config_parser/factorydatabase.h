@@ -10,6 +10,7 @@
 
 #include <map>
 #include "callback.h"
+#include "fncsconfig.h"
 
 #include "abscommmanager.h"
 #include "absnetworkinterface.h"
