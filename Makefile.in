@@ -143,7 +143,8 @@ am__libfncs_la_SOURCES_DIST = absnetworkinterface.cpp cintegrator.cpp \
 	syncalgorithms/optimisticlowoverheadcommsyncalgo.cpp \
 	syncalgorithms/optimisticlowoverheadticksyncalgo.cpp \
 	syncalgorithms/speculationtimecalculationstrategy.cpp \
-	syncalgorithms/activesetconservativetick.cpp util/simtime.cpp
+	syncalgorithms/activesetconservativetick.cpp \
+	syncalgorithms/activesetconservativecom.cpp util/simtime.cpp
 @HAVE_ZMQ_TRUE@am__objects_1 = zmqhelper.lo zmqnetworkinterface.lo
 @HAVE_MPI_TRUE@am__objects_2 = mpinetworkinterface.lo
 am__dirstamp = $(am__leading_dot)dirstamp
@@ -165,7 +166,8 @@ am_libfncs_la_OBJECTS = absnetworkinterface.lo cintegrator.lo \
 	syncalgorithms/optimisticlowoverheadcommsyncalgo.lo \
 	syncalgorithms/optimisticlowoverheadticksyncalgo.lo \
 	syncalgorithms/speculationtimecalculationstrategy.lo \
-	syncalgorithms/activesetconservativetick.lo util/simtime.lo
+	syncalgorithms/activesetconservativetick.lo \
+	syncalgorithms/activesetconservativecom.lo util/simtime.lo
 libfncs_la_OBJECTS = $(am_libfncs_la_OBJECTS)
 @HAVE_ZMQ_TRUE@am__EXEEXT_1 = fncsbroker$(EXEEXT)
 @HAVE_MPI_TRUE@am__EXEEXT_2 = tests/simmer$(EXEEXT)
@@ -254,7 +256,8 @@ am__include_HEADERS_DIST = absnetworkinterface.h cintegrator.h echo.h \
 	syncalgorithms/optimisticlowoverheadcommsyncalgo.h \
 	syncalgorithms/optimisticlowoverheadticksyncalgo.h \
 	syncalgorithms/speculationtimecalculationstrategy.h \
-	syncalgorithms/activesetconservativetick.h util/callback.h \
+	syncalgorithms/activesetconservativetick.h \
+	syncalgorithms/activesetconservativecom.h util/callback.h \
 	util/simtime.h util/csimtime.h
 HEADERS = $(include_HEADERS) $(noinst_HEADERS)
 ETAGS = etags
@@ -419,7 +422,8 @@ include_HEADERS = absnetworkinterface.h cintegrator.h echo.h \
 	syncalgorithms/optimisticlowoverheadcommsyncalgo.h \
 	syncalgorithms/optimisticlowoverheadticksyncalgo.h \
 	syncalgorithms/speculationtimecalculationstrategy.h \
-	syncalgorithms/activesetconservativetick.h util/callback.h \
+	syncalgorithms/activesetconservativetick.h \
+	syncalgorithms/activesetconservativecom.h util/callback.h \
 	util/simtime.h util/csimtime.h
 noinst_HEADERS = 
 lib_LTLIBRARIES = libfncs.la
@@ -448,7 +452,8 @@ libfncs_la_SOURCES = absnetworkinterface.cpp cintegrator.cpp \
 	syncalgorithms/optimisticlowoverheadcommsyncalgo.cpp \
 	syncalgorithms/optimisticlowoverheadticksyncalgo.cpp \
 	syncalgorithms/speculationtimecalculationstrategy.cpp \
-	syncalgorithms/activesetconservativetick.cpp util/simtime.cpp
+	syncalgorithms/activesetconservativetick.cpp \
+	syncalgorithms/activesetconservativecom.cpp util/simtime.cpp
 tests_sanity_SOURCES = tests/sanity.cpp
 tests_messageTest_SOURCES = tests/messageTest.cpp
 @HAVE_MPI_TRUE@tests_simmer_SOURCES = tests/simmer.cpp
@@ -609,6 +614,9 @@ syncalgorithms/speculationtimecalculationstrategy.lo:  \
 syncalgorithms/activesetconservativetick.lo:  \
 	syncalgorithms/$(am__dirstamp) \
 	syncalgorithms/$(DEPDIR)/$(am__dirstamp)
+syncalgorithms/activesetconservativecom.lo:  \
+	syncalgorithms/$(am__dirstamp) \
+	syncalgorithms/$(DEPDIR)/$(am__dirstamp)
 util/$(am__dirstamp):
 	@$(MKDIR_P) util
 	@: > util/$(am__dirstamp)
@@ -724,6 +732,8 @@ mostlyclean-compile:
 	-rm -f contrib/jsoncpp/dist/jsoncpp.lo
 	-rm -f syncalgorithms/abssyncalgorithm.$(OBJEXT)
 	-rm -f syncalgorithms/abssyncalgorithm.lo
+	-rm -f syncalgorithms/activesetconservativecom.$(OBJEXT)
+	-rm -f syncalgorithms/activesetconservativecom.lo
 	-rm -f syncalgorithms/activesetconservativetick.$(OBJEXT)
 	-rm -f syncalgorithms/activesetconservativetick.lo
 	-rm -f syncalgorithms/communicatorsimulatorsyncalgo.$(OBJEXT)
@@ -771,6 +781,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@config_parser/$(DEPDIR)/fncsconfig.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@contrib/jsoncpp/dist/$(DEPDIR)/jsoncpp.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/abssyncalgorithm.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/activesetconservativecom.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/activesetconservativetick.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/communicatorsimulatorsyncalgo.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/conservativesleepingcommalgo.Plo@am__quote@
