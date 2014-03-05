@@ -272,5 +272,9 @@ namespace sim_comm{
     comm->newMessage(msg);
   }
 
+  uint64_t AbsCommManager::reduceMinTimeWithSleep(uint64_t currentTime,bool sentMessage){
+	  	  return 0;
+  }
+
 }
 

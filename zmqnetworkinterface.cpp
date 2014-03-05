@@ -311,7 +311,7 @@ void ZmqNetworkInterface::init()
 #endif
 }
 
-ZmqNetworkInterface::ZmqNetworkInterface(string brokerAddress, bool iAmNetSim): AbsNetworkInterface(iAmNetSim)
+ZmqNetworkInterface::ZmqNetworkInterface(string brokerAddress, bool iAmNetSim): AbsNetworkInterface(true)
     ,   zmq_ctx(NULL)
     ,   zmq_req(NULL)
     ,   zmq_async(NULL)
@@ -324,10 +324,10 @@ ZmqNetworkInterface::ZmqNetworkInterface(string brokerAddress, bool iAmNetSim): 
     stringstream addresses;
     addresses << "tcp://" << brokerAddress << ":5555";
     brokerReqAddress=addresses.str();
-    addresses.str("");
+    addresses.str(string());
     addresses << "tcp://" << brokerAddress << ":5556";
     brokerAsyncAdress=addresses.str();
-    addresses.str("");
+    addresses.str(string());
     addresses << "tcp://" << brokerAddress << ":5557";
     brokerDieAddress=addresses.str();
 #if DEBUG_TO_FILE
