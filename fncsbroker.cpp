@@ -582,6 +582,7 @@ static int add_context()
     valid_contexts.push_back(true);
     child_init_complete.push_back(false);
     size = contexts.size();
+    int contextID = int(size-1);
 
     reduce_min_time.resize(size);
     reduce_min_time_sleep_state.resize(size);
@@ -598,7 +599,14 @@ static int add_context()
     finished.resize(size);
     reinitMap.resize(size);
     logicalID_to_realID.resize(size);
-    return int(size-1);
+
+    /* initial reduce_min_time_sleep_state should be 0 for all sims */
+    for (set<string>::iterator it=contexts[contextID].begin();
+            it != contexts[contextID].end(); ++it) {
+        reduce_min_time_sleep_state[contextID][*it] = 0;
+    }
+
+    return contextID;
 }
 
 
