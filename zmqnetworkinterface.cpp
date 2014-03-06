@@ -535,6 +535,28 @@ uint64_t* ZmqNetworkInterface::reduceMinTimeAndAction(uint64_t *timeAction){
 	    return timeAction;
 }
 
+uint64_t ZmqNetworkInterface::reduceMinTimeAndSleep(uint64_t myTime, bool hadMessage)
+{
+    unsigned long _myTime = static_cast<unsigned long>(myTime);
+    unsigned long retval;
+
+#if DEBUG
+    CERR << "ZmqNetworkInterface::reduceMinTimeAndSleep(" << myTime << "," << hadMessage << ")" << endl;
+#endif
+    makeProgress();
+
+    (void) zmqx_sendmore(this->zmq_req, this->context, "REDUCE_MIN_TIME_SLEEP");
+    (void) zmqx_sendmore(this->zmq_req, _myTime);
+    (void) zmqx_send(this->zmq_req, hadMessage);
+    (void) i_recv(retval);
+
+#if DEBUG
+    CERR << "\treceived " << retval << endl;
+#endif
+
+    return retval;
+}
+
 uint64_t* ZmqNetworkInterface::getNextTimes(uint64_t nextTime,uint32_t &worldSize)
 {
 #if DEBUG

@@ -154,6 +154,14 @@ public:
     virtual uint64_t reduceMinTime(uint64_t myTime) =0;
 
     /**
+     * Reduces min time operation with message-was-sent notification.
+     *
+     * @throw NetworkException when the reduce operation fails
+     * @return the min time
+     */
+    virtual uint64_t reduceMinTimeAndSleep(uint64_t myTime, bool hadMessage) =0;
+
+    /**
      * Aggregate reduce operation used for reduction of the
      * next time step and parent process action. This operation
      * is used by the optimistic algorithm.

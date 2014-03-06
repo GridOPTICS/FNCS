@@ -83,8 +83,8 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/fncs_arg_parse.m4 \
 	$(top_srcdir)/m4/fncs_mpicxx.m4 \
 	$(top_srcdir)/m4/fncs_mpicxx_test.m4 \
 	$(top_srcdir)/m4/fncs_with_mpi.m4 $(top_srcdir)/m4/libtool.m4 \
-	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
-	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
+	$(top_srcdir)/m4/lt_obsolete.m4 $(top_srcdir)/m4/ltoptions.m4 \
+	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
 	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
@@ -169,6 +169,9 @@ am_libfncs_la_OBJECTS = absnetworkinterface.lo cintegrator.lo \
 	syncalgorithms/activesetconservativetick.lo \
 	syncalgorithms/activesetconservativecom.lo util/simtime.lo
 libfncs_la_OBJECTS = $(am_libfncs_la_OBJECTS)
+AM_V_lt = $(am__v_lt_@AM_V@)
+am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
+am__v_lt_0 = --silent
 @HAVE_ZMQ_TRUE@am__EXEEXT_1 = fncsbroker$(EXEEXT)
 @HAVE_MPI_TRUE@am__EXEEXT_2 = tests/simmer$(EXEEXT)
 @HAVE_ZMQ_TRUE@am__EXEEXT_3 = tests/zimmer$(EXEEXT) \
@@ -218,13 +221,26 @@ am__depfiles_maybe = depfiles
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
-LTCXXCOMPILE = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
-	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+LTCXXCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) \
+	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
+	$(AM_CXXFLAGS) $(CXXFLAGS)
+AM_V_CXX = $(am__v_CXX_@AM_V@)
+am__v_CXX_ = $(am__v_CXX_@AM_DEFAULT_V@)
+am__v_CXX_0 = @echo "  CXX   " $@;
+AM_V_at = $(am__v_at_@AM_V@)
+am__v_at_ = $(am__v_at_@AM_DEFAULT_V@)
+am__v_at_0 = @
 CXXLD = $(CXX)
-CXXLINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
-	$(LDFLAGS) -o $@
+CXXLINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
+am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
+am__v_CXXLD_0 = @echo "  CXXLD " $@;
+AM_V_GEN = $(am__v_GEN_@AM_V@)
+am__v_GEN_ = $(am__v_GEN_@AM_DEFAULT_V@)
+am__v_GEN_0 = @echo "  GEN   " $@;
 SOURCES = $(libfncs_la_SOURCES) $(fncsbroker_SOURCES) \
 	$(tests_messageTest_SOURCES) $(tests_sanity_SOURCES) \
 	$(tests_simmer_SOURCES) $(tests_simmerTransmission_SOURCES) \
@@ -279,6 +295,7 @@ am__distuninstallcheck_listfiles = $(distuninstallcheck_listfiles) \
 distcleancheck_listfiles = find . -type f -print
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
+AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
 AR = @AR@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
@@ -625,7 +642,7 @@ util/$(DEPDIR)/$(am__dirstamp):
 	@: > util/$(DEPDIR)/$(am__dirstamp)
 util/simtime.lo: util/$(am__dirstamp) util/$(DEPDIR)/$(am__dirstamp)
 libfncs.la: $(libfncs_la_OBJECTS) $(libfncs_la_DEPENDENCIES) $(EXTRA_libfncs_la_DEPENDENCIES) 
-	$(CXXLINK) -rpath $(libdir) $(libfncs_la_OBJECTS) $(libfncs_la_LIBADD) $(LIBS)
+	$(AM_V_CXXLD)$(CXXLINK) -rpath $(libdir) $(libfncs_la_OBJECTS) $(libfncs_la_LIBADD) $(LIBS)
 install-binPROGRAMS: $(bin_PROGRAMS)
 	@$(NORMAL_INSTALL)
 	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
@@ -683,7 +700,7 @@ clean-checkPROGRAMS:
 	rm -f $$list
 fncsbroker$(EXEEXT): $(fncsbroker_OBJECTS) $(fncsbroker_DEPENDENCIES) $(EXTRA_fncsbroker_DEPENDENCIES) 
 	@rm -f fncsbroker$(EXEEXT)
-	$(CXXLINK) $(fncsbroker_OBJECTS) $(fncsbroker_LDADD) $(LIBS)
+	$(AM_V_CXXLD)$(CXXLINK) $(fncsbroker_OBJECTS) $(fncsbroker_LDADD) $(LIBS)
 tests/$(am__dirstamp):
 	@$(MKDIR_P) tests
 	@: > tests/$(am__dirstamp)
@@ -694,27 +711,27 @@ tests/messageTest.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
 tests/messageTest$(EXEEXT): $(tests_messageTest_OBJECTS) $(tests_messageTest_DEPENDENCIES) $(EXTRA_tests_messageTest_DEPENDENCIES) tests/$(am__dirstamp)
 	@rm -f tests/messageTest$(EXEEXT)
-	$(CXXLINK) $(tests_messageTest_OBJECTS) $(tests_messageTest_LDADD) $(LIBS)
+	$(AM_V_CXXLD)$(CXXLINK) $(tests_messageTest_OBJECTS) $(tests_messageTest_LDADD) $(LIBS)
 tests/sanity.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
 tests/sanity$(EXEEXT): $(tests_sanity_OBJECTS) $(tests_sanity_DEPENDENCIES) $(EXTRA_tests_sanity_DEPENDENCIES) tests/$(am__dirstamp)
 	@rm -f tests/sanity$(EXEEXT)
-	$(CXXLINK) $(tests_sanity_OBJECTS) $(tests_sanity_LDADD) $(LIBS)
+	$(AM_V_CXXLD)$(CXXLINK) $(tests_sanity_OBJECTS) $(tests_sanity_LDADD) $(LIBS)
 tests/simmer.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
 tests/simmer$(EXEEXT): $(tests_simmer_OBJECTS) $(tests_simmer_DEPENDENCIES) $(EXTRA_tests_simmer_DEPENDENCIES) tests/$(am__dirstamp)
 	@rm -f tests/simmer$(EXEEXT)
-	$(CXXLINK) $(tests_simmer_OBJECTS) $(tests_simmer_LDADD) $(LIBS)
+	$(AM_V_CXXLD)$(CXXLINK) $(tests_simmer_OBJECTS) $(tests_simmer_LDADD) $(LIBS)
 tests/simmerTransmission.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
 tests/simmerTransmission$(EXEEXT): $(tests_simmerTransmission_OBJECTS) $(tests_simmerTransmission_DEPENDENCIES) $(EXTRA_tests_simmerTransmission_DEPENDENCIES) tests/$(am__dirstamp)
 	@rm -f tests/simmerTransmission$(EXEEXT)
-	$(CXXLINK) $(tests_simmerTransmission_OBJECTS) $(tests_simmerTransmission_LDADD) $(LIBS)
+	$(AM_V_CXXLD)$(CXXLINK) $(tests_simmerTransmission_OBJECTS) $(tests_simmerTransmission_LDADD) $(LIBS)
 tests/zimmer.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
 tests/zimmer$(EXEEXT): $(tests_zimmer_OBJECTS) $(tests_zimmer_DEPENDENCIES) $(EXTRA_tests_zimmer_DEPENDENCIES) tests/$(am__dirstamp)
 	@rm -f tests/zimmer$(EXEEXT)
-	$(CXXLINK) $(tests_zimmer_OBJECTS) $(tests_zimmer_LDADD) $(LIBS)
+	$(AM_V_CXXLD)$(CXXLINK) $(tests_zimmer_OBJECTS) $(tests_zimmer_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -800,28 +817,28 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@util/$(DEPDIR)/simtime.Plo@am__quote@
 
 .cpp.o:
-@am__fastdepCXX_TRUE@	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
 @am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ $<
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ $<
 
 .cpp.obj:
-@am__fastdepCXX_TRUE@	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
 @am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 .cpp.lo:
-@am__fastdepCXX_TRUE@	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
 @am__fastdepCXX_TRUE@	$(LTCXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
 @am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ $<
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
 
 mostlyclean-libtool:
 	-rm -f *.lo

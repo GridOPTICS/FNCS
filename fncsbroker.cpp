@@ -35,6 +35,7 @@
 #include <cstring>
 #include <iostream>
 #include <map>
+#include <numeric>
 #include <set>
 #include <string>
 #include <vector>
@@ -55,12 +56,20 @@ struct aggregateType{
 		uint64_t time;
 		uint64_t action;
 };
+struct TimeBool {
+    unsigned long time;
+    bool hadMessage;
+};
+typedef map<string,TimeBool> TimeBoolMap;
+typedef pair<string,TimeBool> TimeBoolPair;
 
 typedef map<string,aggregateType> AggregateReduceMap;
 
 map<string,int>  obj_to_ID;
 vector<map<int,string> > logicalID_to_realID;
 vector<ReduceMap> reduce_min_time;
+vector<ReduceMap> reduce_min_time_sleep_state;
+vector<TimeBoolMap> reduce_min_time_sleep_incoming;
 vector<AggregateReduceMap> reduce_min_time_action;
 vector<AllGatherMap> all_gather;
 vector<ReduceMap> reduce_sent;
@@ -97,6 +106,17 @@ struct ReduceMinPairLess
     }
 };
 
+struct TimeBoolMapAccumulate
+{
+    TimeBoolPair operator()(TimeBoolPair left, TimeBoolPair right)
+    {
+        TimeBoolPair result;
+        result.second.time = ::std::min(left.second.time,right.second.time);
+        result.second.hadMessage = left.second.hadMessage || right.second.hadMessage;
+        return result;
+    }
+};
+
 static int add_context();
 static bool starts_with(const string &str, const string &prefix);
 static void graceful_death(int exit_code);
@@ -104,6 +124,7 @@ static void hello_handler(const string &identity, const int &context, const stri
 static void route_handler(const string &identity, const int &context, const string &control);
 static void delay_handler(const string &identity, const int &context, const string &control);
 static void reduce_min_time_handler(const string &identity, const int &context, const string &control);
+static void reduce_min_time_sleep_handler(const string &identity, const int &context, const string &control);
 static void reduce_min_time_action_handler(const string &identity, const int &context, const string &control);
 static void reduce_send_recv_handler(const string &identity, const int &context, const string &control);
 static void all_gather_handler(const string &identity,const int &context, const string &control);
@@ -260,6 +281,9 @@ int main(int argc, char **argv)
             }
             else if ("REDUCE_MIN_TIME" == control) {
                 reduce_min_time_handler(identity, context, control);
+            }
+            else if ("REDUCE_MIN_TIME_SLEEP" == control) {
+                reduce_min_time_sleep_handler(identity, context, control);
             }
             else if ("REDUCE_MIN_TIME_ACTION" ==control){
             	reduce_min_time_action_handler(identity,context,control);
@@ -560,6 +584,8 @@ static int add_context()
     size = contexts.size();
 
     reduce_min_time.resize(size);
+    reduce_min_time_sleep_state.resize(size);
+    reduce_min_time_sleep_incoming.resize(size);
     reduce_min_time_action.resize(size);
     reduce_sent.resize(size);
     reduce_recv.resize(size);
@@ -830,7 +856,7 @@ static void reduce_min_time_action_handler( const string &identity,
 static void reduce_min_time_action_checker(const int &context){
 
 	 if (reduce_min_time_action[context].size() > world_sizes[context]) {
-	        cerr << "reduce_min_time_handler size > world size" << endl;
+	        cerr << "reduce_min_time_action_handler size > world size" << endl;
 	        graceful_death(EXIT_FAILURE);
 	    }
 	    else if (reduce_min_time_action[context].size() == world_sizes[context]) {
@@ -899,6 +925,101 @@ static void reduce_min_time_checker(
         }
         /* clear the map in preparation for next round */
         reduce_min_time[context].clear();
+    }
+}
+
+static void reduce_min_time_sleep_handler(
+        const string &identity,
+        const int &context,
+        const string &control)
+{
+    unsigned long time;
+    bool hadMessage;
+
+    if (1 == reduce_min_time_sleep_incoming[context].count(identity)) {
+        cerr << "sim with ID '" << identity
+            << "' duplicate REDUCE_MIN_TIME_SLEEP" << endl;
+        graceful_death(EXIT_FAILURE);
+    }
+    (void) zmqx_recv(broker, time);
+    (void) zmqx_recv(broker, hadMessage);
+    
+    //check if context is valid
+    if(!isValid(context))
+      return;
+    
+    reduce_min_time_sleep_incoming[context][identity].time = time;
+    reduce_min_time_sleep_incoming[context][identity].hadMessage = hadMessage;
+
+    if (reduce_min_time_sleep_incoming[context].size() > world_sizes[context]) {
+        cerr << "reduce_min_time_sleep size > world size" << endl;
+        graceful_death(EXIT_FAILURE);
+    }
+    else if (reduce_min_time_sleep_incoming[context].size() == world_sizes[context]) {
+        /* add in any missing (sleeping) contexts into the incoming message state */
+        for (ReduceMap::iterator it=reduce_min_time_sleep_state[context].begin();
+                it!=reduce_min_time_sleep_state[context].end(); ++it) {
+            if (0 == reduce_min_time_sleep_incoming[context].count(it->first)) {
+                TimeBool tb;
+                tb.time = it->second;
+                tb.hadMessage = false;
+                reduce_min_time_sleep_incoming[context].insert(
+                        make_pair(it->first, tb));
+            }
+        }
+
+        /* local reduction of incoming TimeBool values */
+        TimeBoolPair initial_timebool = *reduce_min_time_sleep_incoming[context].begin();
+        TimeBoolPair timebool_min = ::std::accumulate(
+                reduce_min_time_sleep_incoming[context].begin(),
+                reduce_min_time_sleep_incoming[context].end(),
+                initial_timebool, TimeBoolMapAccumulate());
+
+        if (timebool_min.second.hadMessage) {
+            /* send prev result to all sims (wake all sims up) */
+            ReducePair time_min = *min_element(
+                    reduce_min_time_sleep_state[context].begin(),
+                    reduce_min_time_sleep_state[context].end(),
+                    ReduceMinPairLess());
+            for (set<string>::iterator it=contexts[context].begin();
+                    it != contexts[context].end(); ++it) {
+                (void) zmqx_sendmore(broker, *it);
+                (void) zmqx_send(broker, time_min.second);
+            }
+            world_sizes[context] = world_size;
+        }
+        else {
+            world_sizes[context] = 0;
+            /* no message was detected, so copy incoming values over existing
+             * state values and if they match the new min (or it's the network
+             * sim as a special case), send a message */
+            for (TimeBoolMap::iterator
+                    it=reduce_min_time_sleep_incoming[context].begin();
+                    it!=reduce_min_time_sleep_incoming[context].end();
+                    ++it) {
+                if (0 == reduce_min_time_sleep_state[context].count(it->first)) {
+                    cerr << "reduce_min_time_sleep_handler had unknown sim" << endl;
+                    graceful_death(EXIT_FAILURE);
+                }
+                else {
+                    reduce_min_time_sleep_state[context][it->first] = it->second.time;
+                    if (it->second.time == timebool_min.second.time
+                            || it->first == netSimID[context]) {
+                        (void) zmqx_sendmore(broker, it->first);
+                        (void) zmqx_send(broker, timebool_min.second.time);
+                        world_sizes[context] += 1;
+                    }
+                }
+            }
+            if (world_sizes[context] == 0) {
+                cerr << "reduce_min_time_sleep_handler world size became 0" << endl;
+                graceful_death(EXIT_FAILURE);
+            }
+            if (world_sizes[context] > world_size) {
+                cerr << "reduce_min_time_sleep_handler world size too large" << endl;
+                graceful_death(EXIT_FAILURE);
+            }
+        }
     }
 }
 

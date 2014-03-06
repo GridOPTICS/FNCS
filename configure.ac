@@ -18,6 +18,7 @@ AC_CONFIG_SRCDIR([integrator.h])
 # Init automake
 ###############################################################################
 AM_INIT_AUTOMAKE([foreign subdir-objects -Wall -Werror])
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 # Don't emit "rebuild rules" for configure, Makefile.ins, etc.
 AM_MAINTAINER_MODE

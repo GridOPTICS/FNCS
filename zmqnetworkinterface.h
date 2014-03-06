@@ -145,8 +145,11 @@ public:
     /** @copydoc AbsNetworkInterface::block()*/
     virtual void block();
     
-    /** @copydoc AbsNetworkInterface::reduceMinTimeAction*/
+    /** @copydoc AbsNetworkInterface::reduceMinTimeAndAction*/
     virtual uint64_t* reduceMinTimeAndAction(uint64_t *timeAction);
+
+    /** @copydoc AbsNetworkInterface::reduceMinTimeAndSleep*/
+    virtual uint64_t reduceMinTimeAndSleep(uint64_t myTime, bool hadMessage);
 
     static AbsNetworkInterface* Create(const Json::Value& param, bool simType);
 };
