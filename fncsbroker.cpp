@@ -74,6 +74,8 @@ vector<AggregateReduceMap> reduce_min_time_action;
 vector<AllGatherMap> all_gather;
 vector<ReduceMap> reduce_sent;
 vector<ReduceMap> reduce_recv;
+vector<unsigned long> reduce_sent_total;
+vector<unsigned long> reduce_recv_total;
 vector<ReduceMap> reduce_fail_time;
 string newNetSimID;
 set<string> newConnections;
@@ -590,6 +592,8 @@ static int add_context()
     reduce_min_time_action.resize(size);
     reduce_sent.resize(size);
     reduce_recv.resize(size);
+    reduce_sent_total.resize(size);
+    reduce_recv_total.resize(size);
     reduce_fail_time.resize(size);
     all_gather.resize(size);
     finalized.resize(size);
@@ -605,6 +609,8 @@ static int add_context()
             it != contexts[contextID].end(); ++it) {
         reduce_min_time_sleep_state[contextID][*it] = 0;
     }
+    reduce_sent_total[contextID] = 0;
+    reduce_recv_total[contextID] = 0;
 
     return contextID;
 }
@@ -1127,6 +1133,7 @@ static void reduce_send_recv_checker(
 {
     unsigned long m_sent = 0;
     unsigned long m_recv = 0;
+    unsigned long m_diff = 0;
 
     if (reduce_sent[context].size() > world_sizes[context]) {
         cerr << "reduce_sent size > world size" << endl;
@@ -1143,12 +1150,18 @@ static void reduce_send_recv_checker(
                 it!=reduce_recv[context].end(); ++it) {
             m_recv += it->second;
         }
+        reduce_sent_total[context] += m_sent;
+        reduce_recv_total[context] += m_recv;
+        if (m_sent < m_recv) {
+            cerr << "global m_sent < m_recv" << endl;
+            graceful_death(EXIT_FAILURE);
+        }
+        m_diff = m_sent - m_recv;
         /* send result to all sims */
         for (set<string>::iterator it=contexts[context].begin();
                 it != contexts[context].end(); ++it) {
             (void) zmqx_sendmore(broker, *it);
-            (void) zmqx_sendmore(broker, m_sent);
-            (void) zmqx_send    (broker, m_recv);
+            (void) zmqx_send    (broker, m_diff);
         }
         /* clear the map in preparation for next round */
         reduce_sent[context].clear();

@@ -579,8 +579,7 @@ uint64_t* ZmqNetworkInterface::getNextTimes(uint64_t nextTime,uint32_t &worldSiz
 uint64_t ZmqNetworkInterface::reduceTotalSendReceive(
         uint64_t sent, uint64_t received)
 {
-    unsigned long m_sent;
-    unsigned long m_recv;
+    unsigned long m_diff;
 
 #if DEBUG
     CERR << "ZmqNetworkInterface::reduceTotalSendReceive("
@@ -591,20 +590,13 @@ uint64_t ZmqNetworkInterface::reduceTotalSendReceive(
     (void) zmqx_sendmore(this->zmq_req, this->context, "REDUCE_SEND_RECV");
     (void) zmqx_sendmore(this->zmq_req, sent);
     (void) zmqx_send    (this->zmq_req, received);
-    (void) i_recv(m_sent);
-    (void) i_recv(m_recv);
+    (void) i_recv(m_diff);
 
 #if DEBUG
-    CERR << "\treceived m_sent=" << m_sent
-         << " m_recv=" << m_recv << endl;
+    CERR << "\treceived m_diff=" << m_diff << endl;
 #endif
 
-    if (m_sent < m_recv) {
-	//cout << "FAILING!!!!!!!!" << endl;
-        (void) zmqx_send(this->zmq_req, this->context, "DIE");
-    }
-
-    return static_cast<uint64_t>(m_sent - m_recv);
+    return static_cast<uint64_t>(m_diff);
 }
 
 
