@@ -41,12 +41,18 @@ namespace sim_comm {
 		bool needToRespond = false;
 		bool reIterate = false;
 
+#ifdef DEBUG
+		CERR << "Start sync currentTime:" << currentTime << " nextTime: " << nextTime << endl;
+#endif
+
 		do {
 
 			uint64_t diff = interface->reduceTotalSendReceive();
 			//network unstable, we need to wait!
 			nextEstTime = currentTime + Integrator::getOneTimeStep();
 			TIME minnetworkdelay = interface->reduceNetworkDelay();
+			if(diff==0)
+			      this->interface->resetCounters();
 			if (diff == 0 && !needToRespond) { //network stable grant next time
 				nextEstTime = nextTime;
 			} else {
@@ -59,14 +65,7 @@ namespace sim_comm {
 					myminNextTime, sentMessage);
 			sentMessage = false;
 
-			if (minNextTime == 0) { //a sim signal endded
-#if DEBUG
-					CERR << "End Signaled!" << endl;
-#endif
-				this->finished = true;
-				return 0;
-			}
-
+			reIterate = false;
 			if (minNextTime < myminNextTime) {
 				currentTime = convertToMyTime(Integrator::getCurSimMetric(),
 						minNextTime);
@@ -78,6 +77,9 @@ namespace sim_comm {
 		} while (reIterate);
 
 		this->grantedTime = nextEstTime;
+#ifdef DEBUG
+		CERR << "End sync grantedTime:" << nextEstTime;
+#endif
 #ifdef PROFILE
 		writeTime(currentTime);
 #endif

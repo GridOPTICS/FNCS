@@ -35,27 +35,25 @@ namespace sim_comm {
 		bool needToRespond = false;
 		bool reIterate = false;
 
+#ifdef DEBUG
+		CERR << "Start comm sync currentTime:" << currentTime << " nextTime: " << nextTime << endl;
+#endif
 		do {
 
 			uint64_t diff = interface->reduceTotalSendReceive();
 			if (diff > 0) {
 				this->interface->packetLostCalculator(currentTime);
 			}
+			if(diff==0)
+			      this->interface->resetCounters();
 			//network unstable, we need to wait!
 
 			TIME minnetworkdelay = interface->reduceNetworkDelay();
 			TIME myminNextTime = Infinity;
 			TIME minNextTime = (TIME) interface->reduceMinTimeWithSleep(
 					myminNextTime, false);
-
-			if (minNextTime == 0) { //a sim signal endded
-#if DEBUG
-					CERR << "End Signaled!" << endl;
-#endif
-				this->finished = true;
-				return 0;
-			}
-
+			nextEstTime = minNextTime;
+			reIterate = false;
 			if (minNextTime == grantedTime) {
 				currentTime = convertToMyTime(Integrator::getCurSimMetric(),
 						minNextTime);
@@ -67,6 +65,9 @@ namespace sim_comm {
 		} while (reIterate);
 
 		this->grantedTime = nextEstTime;
+#ifdef DEBUG
+		CERR << "End comm sync grantedTime:" << nextEstTime;
+#endif
 #ifdef PROFILE
 		writeTime(currentTime);
 #endif

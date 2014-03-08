@@ -93,7 +93,7 @@ Integrator::Integrator(
         << "AbsCommInterface*,"
         << "AbsSyncAlgorithm*,"
         << "simTimeStep=" << simTimeStep << ","
-        << "packetlost=" << packetLostPeriod << "," <<
+        << "packetlost=" << packetLostPeriod << ","
         << "onetimestep=" << onetimestep << ")" << endl;
 #endif
     this->currentInterface=currentInterface;
@@ -442,7 +442,7 @@ void Integrator::initIntegratorGracePeriod(
         << "AbsCommInterface*,"
         << "simTimeStep=" << simTimeStep << ","
         << "packetlost=" << packetLostPeriod << ","
-        << "initialTime=" << initialTime << 
+        << "initialTime=" << initialTime 
         << "onetimestep=" << onetimestep <<")" << endl;
 #endif
     AbsCommManager *command=new GracePeriodCommManager(currentInterface);
@@ -492,7 +492,7 @@ void Integrator::initIntegratorOptimisticLowOverhead(
         << "simTimeStep=" << simTimeStep << ","
         << "packetlost=" << packetLostPeriod << ","
         << "initialTime=" << initialTime << ","
-	<< "specDifference=" << specDifference << "," <<
+	<< "specDifference=" << specDifference << ","
 	<< "strategy=" << strategy << ","
 	<< "onetimestep=" << onetimestep << ")" << endl;
 #endif
@@ -517,7 +517,7 @@ void Integrator::initIntegratorOptimisticComm(
         << "simTimeStep=" << simTimeStep << ","
         << "packetlost=" << packetLostPeriod << ","
         << "initialTime=" << initialTime << ","
-	<< "specDifference=" << specDifference << "," <<
+	<< "specDifference=" << specDifference << ","
 	<< "strategy=" << strategy << ","
 	<< "onetimestep=" << onetimestep << ")" << endl;
 #endif
@@ -543,7 +543,7 @@ void Integrator::initIntegratorOptimisticCommLowOverhead(
         << "simTimeStep=" << simTimeStep << ","
         << "packetlost=" << packetLostPeriod << ","
         << "initialTime=" << initialTime << ","
-	<< "specDifference=" << specDifference << "," <<
+	<< "specDifference=" << specDifference << "," 
 	<< "strategy=" << strategy << ","
 	<< "onetimestep=" << onetimestep << ")" << endl;
 #endif

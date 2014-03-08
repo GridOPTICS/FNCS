@@ -932,9 +932,9 @@ static void reduce_min_time_checker(
         ReducePair min = *min_element(reduce_min_time[context].begin(),
                 reduce_min_time[context].end(), ReduceMinPairLess());
         /* send result to all sims */
-        for (set<string>::iterator it=contexts[context].begin();
-                it != contexts[context].end(); ++it) {
-            (void) zmqx_sendmore(broker, *it);
+        for (ReduceMap::const_iterator it=reduce_min_time[context].begin();
+                it != reduce_min_time[context].end(); ++it) {
+            (void) zmqx_sendmore(broker, it->first);
             (void) zmqx_send(broker, min.second);
         }
         /* clear the map in preparation for next round */
@@ -997,7 +997,10 @@ static void reduce_min_time_sleep_handler(
                     ReduceMinPairLess());
             for (set<string>::iterator it=contexts[context].begin();
                     it != contexts[context].end(); ++it) {
-                (void) zmqx_sendmore(broker, *it);
+#ifdef DEBUG
+                    		CERR << "Sent message, broadcasting to " << *it << " with time " << time_min.second << endl;
+#endif
+            	(void) zmqx_sendmore(broker, *it);
                 (void) zmqx_send(broker, time_min.second);
             }
             world_sizes[context] = world_size;
@@ -1019,7 +1022,10 @@ static void reduce_min_time_sleep_handler(
                     reduce_min_time_sleep_state[context][it->first] = it->second.time;
                     if (it->second.time == timebool_min.second.time
                             || it->first == netSimID[context]) {
-                        (void) zmqx_sendmore(broker, it->first);
+#ifdef DEBUG
+                    		CERR << "Sending to " << it->first << " with time " << it->second.time << endl;
+#endif
+                    	(void) zmqx_sendmore(broker, it->first);
                         (void) zmqx_send(broker, timebool_min.second.time);
                         world_sizes[context] += 1;
                     }
@@ -1034,6 +1040,7 @@ static void reduce_min_time_sleep_handler(
                 graceful_death(EXIT_FAILURE);
             }
         }
+        reduce_min_time_sleep_incoming[context].clear();
     }
 }
 
@@ -1118,6 +1125,9 @@ static void reduce_send_recv_handler(
     (void) zmqx_recv(broker, sent);
     (void) zmqx_recv(broker, recv);
     
+#ifdef DEBUG
+    CERR << "Received from " << identity << " sent " << sent << " received " << recv << endl;
+#endif
     //check is context is valid, if not ignore!!
     if(!isValid(context))
       return;
@@ -1152,15 +1162,15 @@ static void reduce_send_recv_checker(
         }
         reduce_sent_total[context] += m_sent;
         reduce_recv_total[context] += m_recv;
-        if (m_sent < m_recv) {
-            cerr << "global m_sent < m_recv" << endl;
+        if (reduce_sent_total[context] < reduce_recv_total[context]) {
+            cerr << "global m_sent (" << reduce_sent_total[context] << ") m_recv(" << reduce_recv_total[context] << ")" << endl;
             graceful_death(EXIT_FAILURE);
         }
-        m_diff = m_sent - m_recv;
-        /* send result to all sims */
-        for (set<string>::iterator it=contexts[context].begin();
-                it != contexts[context].end(); ++it) {
-            (void) zmqx_sendmore(broker, *it);
+        m_diff = reduce_sent_total[context] - reduce_recv_total[context];
+        /* send to active sims */
+        it=reduce_sent[context].begin();
+        for (; it != reduce_sent[context].end(); ++it) {
+            (void) zmqx_sendmore(broker, it->first);
             (void) zmqx_send    (broker, m_diff);
         }
         /* clear the map in preparation for next round */

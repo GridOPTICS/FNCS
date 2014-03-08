@@ -220,8 +220,12 @@ namespace sim_comm{
     #if DEBUG
       CERR << "AbsCommManager::reduceTotalSendReceive()" << endl;
     #endif
-      uint64_t result = this->currentInterface->reduceTotalSendReceive(this->sendCount,this->receiveCount);
-      this->resetCounters();
+      uint64_t sendCountCopy=this->sendCount;
+      uint64_t receiveCountCopy=this->receiveCount;
+      uint64_t result = this->currentInterface->reduceTotalSendReceive(sendCountCopy,receiveCountCopy);
+      sendCount-=sendCountCopy;
+      receiveCount-=receiveCountCopy;
+      //this->resetCounters();
       return result;
   }
   
@@ -275,7 +279,7 @@ namespace sim_comm{
   }
 
   uint64_t AbsCommManager::reduceMinTimeWithSleep(uint64_t currentTime,bool sentMessage){
-	  	  return 0;
+	  	return currentInterface->reduceMinTimeAndSleep(currentTime,sentMessage);
   }
 
 }
