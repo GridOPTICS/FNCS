@@ -90,6 +90,7 @@ vector<set<string> > succed;
 vector<set<string> > asleep;
 vector<set<string> > finished;
 vector<bool> valid_contexts;
+vector<bool> sleepingSim;
 vector<string> netSimID;
 vector<uint64_t> netSimObjCount;
 void *zmq_ctx = NULL;
@@ -603,7 +604,10 @@ static int add_context()
     finished.resize(size);
     reinitMap.resize(size);
     logicalID_to_realID.resize(size);
+    sleepingSim.resize(size);
 
+    //initially none of the simulators are sleeping
+    sleepingSim[contextID]=false;
     /* initial reduce_min_time_sleep_state should be 0 for all sims */
     for (set<string>::iterator it=contexts[contextID].begin();
             it != contexts[contextID].end(); ++it) {
@@ -989,7 +993,7 @@ static void reduce_min_time_sleep_handler(
                 reduce_min_time_sleep_incoming[context].end(),
                 initial_timebool, TimeBoolMapAccumulate());
 
-        if (timebool_min.second.hadMessage) {
+        if (timebool_min.second.hadMessage && sleepingSim[context]) {
             /* send prev result to all sims (wake all sims up) */
             ReducePair time_min = *min_element(
                     reduce_min_time_sleep_state[context].begin(),
@@ -1004,6 +1008,7 @@ static void reduce_min_time_sleep_handler(
                 (void) zmqx_send(broker, time_min.second);
             }
             world_sizes[context] = world_size;
+            sleepingSim[context]=false;
         }
         else {
             world_sizes[context] = 0;
@@ -1038,6 +1043,18 @@ static void reduce_min_time_sleep_handler(
             if (world_sizes[context] > world_size) {
                 cerr << "reduce_min_time_sleep_handler world size too large" << endl;
                 graceful_death(EXIT_FAILURE);
+            }
+            if(world_sizes[context]!=world_size){
+            	//a sim is sleeping!
+#ifdef DEBUG
+            	CERR << "A simulator went to sleep" << endl;
+#endif
+            	sleepingSim[context]=true;
+            }else{
+#ifdef DEBUG
+            	CERR << "None of the simulators are sleeping" << endl;
+#endif
+            	sleepingSim[context]=false;
             }
         }
         reduce_min_time_sleep_incoming[context].clear();
