@@ -83,8 +83,8 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/fncs_arg_parse.m4 \
 	$(top_srcdir)/m4/fncs_mpicxx.m4 \
 	$(top_srcdir)/m4/fncs_mpicxx_test.m4 \
 	$(top_srcdir)/m4/fncs_with_mpi.m4 $(top_srcdir)/m4/libtool.m4 \
-	$(top_srcdir)/m4/lt_obsolete.m4 $(top_srcdir)/m4/ltoptions.m4 \
-	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
+	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
+	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
 	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
@@ -144,7 +144,8 @@ am__libfncs_la_SOURCES_DIST = absnetworkinterface.cpp cintegrator.cpp \
 	syncalgorithms/optimisticlowoverheadticksyncalgo.cpp \
 	syncalgorithms/speculationtimecalculationstrategy.cpp \
 	syncalgorithms/activesetconservativetick.cpp \
-	syncalgorithms/activesetconservativecom.cpp util/simtime.cpp
+	syncalgorithms/activesetconservativecom.cpp util/simtime.cpp \
+	util/profiler.cpp
 @HAVE_ZMQ_TRUE@am__objects_1 = zmqhelper.lo zmqnetworkinterface.lo
 @HAVE_MPI_TRUE@am__objects_2 = mpinetworkinterface.lo
 am__dirstamp = $(am__leading_dot)dirstamp
@@ -167,7 +168,8 @@ am_libfncs_la_OBJECTS = absnetworkinterface.lo cintegrator.lo \
 	syncalgorithms/optimisticlowoverheadticksyncalgo.lo \
 	syncalgorithms/speculationtimecalculationstrategy.lo \
 	syncalgorithms/activesetconservativetick.lo \
-	syncalgorithms/activesetconservativecom.lo util/simtime.lo
+	syncalgorithms/activesetconservativecom.lo util/simtime.lo \
+	util/profiler.lo
 libfncs_la_OBJECTS = $(am_libfncs_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -470,7 +472,8 @@ libfncs_la_SOURCES = absnetworkinterface.cpp cintegrator.cpp \
 	syncalgorithms/optimisticlowoverheadticksyncalgo.cpp \
 	syncalgorithms/speculationtimecalculationstrategy.cpp \
 	syncalgorithms/activesetconservativetick.cpp \
-	syncalgorithms/activesetconservativecom.cpp util/simtime.cpp
+	syncalgorithms/activesetconservativecom.cpp util/simtime.cpp \
+	util/profiler.cpp
 tests_sanity_SOURCES = tests/sanity.cpp
 tests_messageTest_SOURCES = tests/messageTest.cpp
 @HAVE_MPI_TRUE@tests_simmer_SOURCES = tests/simmer.cpp
@@ -641,6 +644,7 @@ util/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) util/$(DEPDIR)
 	@: > util/$(DEPDIR)/$(am__dirstamp)
 util/simtime.lo: util/$(am__dirstamp) util/$(DEPDIR)/$(am__dirstamp)
+util/profiler.lo: util/$(am__dirstamp) util/$(DEPDIR)/$(am__dirstamp)
 libfncs.la: $(libfncs_la_OBJECTS) $(libfncs_la_DEPENDENCIES) $(EXTRA_libfncs_la_DEPENDENCIES) 
 	$(AM_V_CXXLD)$(CXXLINK) -rpath $(libdir) $(libfncs_la_OBJECTS) $(libfncs_la_LIBADD) $(LIBS)
 install-binPROGRAMS: $(bin_PROGRAMS)
@@ -776,6 +780,8 @@ mostlyclean-compile:
 	-rm -f tests/simmer.$(OBJEXT)
 	-rm -f tests/simmerTransmission.$(OBJEXT)
 	-rm -f tests/zimmer.$(OBJEXT)
+	-rm -f util/profiler.$(OBJEXT)
+	-rm -f util/profiler.lo
 	-rm -f util/simtime.$(OBJEXT)
 	-rm -f util/simtime.lo
 
@@ -814,6 +820,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/simmer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/simmerTransmission.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/zimmer.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@util/$(DEPDIR)/profiler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@util/$(DEPDIR)/simtime.Plo@am__quote@
 
 .cpp.o:

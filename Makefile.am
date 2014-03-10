@@ -101,6 +101,7 @@ libfncs_la_SOURCES += syncalgorithms/activesetconservativetick.cpp
 libfncs_la_SOURCES += syncalgorithms/activesetconservativecom.cpp
 
 libfncs_la_SOURCES += util/simtime.cpp
+libfncs_la_SOURCES += util/profiler.cpp
 
 check_PROGRAMS += tests/sanity
 tests_sanity_SOURCES = tests/sanity.cpp
