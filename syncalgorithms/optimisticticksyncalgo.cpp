@@ -558,6 +558,9 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
 	  }else
 	  if(strategy.compare("infinity")==0){
 		  st=new InfinitySpeculationTimeStrategy();
+	  }else
+	  if(strategy.compare("infinitywithkill")==0){
+		  st=new InfinitySpeculationTimeStrategyWithKillLast();
 	  }else{
 		  throw ConfigException("unknown speculation strategy!");
 	  }
