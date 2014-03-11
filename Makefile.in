@@ -140,8 +140,6 @@ am__libfncs_la_SOURCES_DIST = absnetworkinterface.cpp cintegrator.cpp \
 	syncalgorithms/conservativesleepingtickalgo.cpp \
 	syncalgorithms/optimisticticksyncalgo.cpp \
 	syncalgorithms/optimisticcommsyncalgo.cpp \
-	syncalgorithms/optimisticlowoverheadcommsyncalgo.cpp \
-	syncalgorithms/optimisticlowoverheadticksyncalgo.cpp \
 	syncalgorithms/speculationtimecalculationstrategy.cpp \
 	syncalgorithms/activesetconservativetick.cpp \
 	syncalgorithms/activesetconservativecom.cpp util/simtime.cpp \
@@ -164,8 +162,6 @@ am_libfncs_la_OBJECTS = absnetworkinterface.lo cintegrator.lo \
 	syncalgorithms/conservativesleepingtickalgo.lo \
 	syncalgorithms/optimisticticksyncalgo.lo \
 	syncalgorithms/optimisticcommsyncalgo.lo \
-	syncalgorithms/optimisticlowoverheadcommsyncalgo.lo \
-	syncalgorithms/optimisticlowoverheadticksyncalgo.lo \
 	syncalgorithms/speculationtimecalculationstrategy.lo \
 	syncalgorithms/activesetconservativetick.lo \
 	syncalgorithms/activesetconservativecom.lo util/simtime.lo \
@@ -271,8 +267,6 @@ am__include_HEADERS_DIST = absnetworkinterface.h cintegrator.h echo.h \
 	syncalgorithms/conservativesleepingtickalgo.h \
 	syncalgorithms/optimisticticksyncalgo.h \
 	syncalgorithms/optimisticcommsyncalgo.h \
-	syncalgorithms/optimisticlowoverheadcommsyncalgo.h \
-	syncalgorithms/optimisticlowoverheadticksyncalgo.h \
 	syncalgorithms/speculationtimecalculationstrategy.h \
 	syncalgorithms/activesetconservativetick.h \
 	syncalgorithms/activesetconservativecom.h util/callback.h \
@@ -438,8 +432,6 @@ include_HEADERS = absnetworkinterface.h cintegrator.h echo.h \
 	syncalgorithms/conservativesleepingtickalgo.h \
 	syncalgorithms/optimisticticksyncalgo.h \
 	syncalgorithms/optimisticcommsyncalgo.h \
-	syncalgorithms/optimisticlowoverheadcommsyncalgo.h \
-	syncalgorithms/optimisticlowoverheadticksyncalgo.h \
 	syncalgorithms/speculationtimecalculationstrategy.h \
 	syncalgorithms/activesetconservativetick.h \
 	syncalgorithms/activesetconservativecom.h util/callback.h \
@@ -468,8 +460,6 @@ libfncs_la_SOURCES = absnetworkinterface.cpp cintegrator.cpp \
 	syncalgorithms/conservativesleepingtickalgo.cpp \
 	syncalgorithms/optimisticticksyncalgo.cpp \
 	syncalgorithms/optimisticcommsyncalgo.cpp \
-	syncalgorithms/optimisticlowoverheadcommsyncalgo.cpp \
-	syncalgorithms/optimisticlowoverheadticksyncalgo.cpp \
 	syncalgorithms/speculationtimecalculationstrategy.cpp \
 	syncalgorithms/activesetconservativetick.cpp \
 	syncalgorithms/activesetconservativecom.cpp util/simtime.cpp \
@@ -622,12 +612,6 @@ syncalgorithms/optimisticticksyncalgo.lo:  \
 syncalgorithms/optimisticcommsyncalgo.lo:  \
 	syncalgorithms/$(am__dirstamp) \
 	syncalgorithms/$(DEPDIR)/$(am__dirstamp)
-syncalgorithms/optimisticlowoverheadcommsyncalgo.lo:  \
-	syncalgorithms/$(am__dirstamp) \
-	syncalgorithms/$(DEPDIR)/$(am__dirstamp)
-syncalgorithms/optimisticlowoverheadticksyncalgo.lo:  \
-	syncalgorithms/$(am__dirstamp) \
-	syncalgorithms/$(DEPDIR)/$(am__dirstamp)
 syncalgorithms/speculationtimecalculationstrategy.lo:  \
 	syncalgorithms/$(am__dirstamp) \
 	syncalgorithms/$(DEPDIR)/$(am__dirstamp)
@@ -767,10 +751,6 @@ mostlyclean-compile:
 	-rm -f syncalgorithms/graceperiodpesimisticsyncalgo.lo
 	-rm -f syncalgorithms/optimisticcommsyncalgo.$(OBJEXT)
 	-rm -f syncalgorithms/optimisticcommsyncalgo.lo
-	-rm -f syncalgorithms/optimisticlowoverheadcommsyncalgo.$(OBJEXT)
-	-rm -f syncalgorithms/optimisticlowoverheadcommsyncalgo.lo
-	-rm -f syncalgorithms/optimisticlowoverheadticksyncalgo.$(OBJEXT)
-	-rm -f syncalgorithms/optimisticlowoverheadticksyncalgo.lo
 	-rm -f syncalgorithms/optimisticticksyncalgo.$(OBJEXT)
 	-rm -f syncalgorithms/optimisticticksyncalgo.lo
 	-rm -f syncalgorithms/speculationtimecalculationstrategy.$(OBJEXT)
@@ -811,8 +791,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/conservativesleepingtickalgo.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/graceperiodpesimisticsyncalgo.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/optimisticcommsyncalgo.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/optimisticlowoverheadcommsyncalgo.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/optimisticlowoverheadticksyncalgo.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/optimisticticksyncalgo.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/speculationtimecalculationstrategy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/messageTest.Po@am__quote@

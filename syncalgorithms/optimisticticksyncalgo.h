@@ -38,10 +38,11 @@
 #include "factorydatabase.h"
 #include "fncsconfig.h"
 
-
-#define ACTION_FAILED 0
-#define ACTION_SUCCESS 1
-#define ACTION_UNDEFINED 2
+#define ACTION_DOFAILLALL 0
+#define ACTION_NOINFO 1
+#define ACTION_FAILED 2
+#define ACTION_SUCCESS 3
+#define ACTION_UNDEFINED 4
 
 #ifdef DEBUG_WITH_PROFILE
 #include "profiler.h"
@@ -75,9 +76,10 @@ namespace sim_comm{
       void createTimeShm();
       void attachTimeShm();
       void detachTimeShm();
+      void dolimbo();
       void childDied();
       void parentDie();
-      
+
     protected: 
       
       TIME specFailTime;

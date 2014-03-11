@@ -52,6 +52,7 @@ class SpeculationTimeCalculationStrategy
     }
     virtual TIME getNextSpecTime(TIME currentTime);
     virtual bool worthSpeculation(TIME currentTime, TIME specFailTime) =0;
+    virtual bool sendUnknownAction();
     virtual ~SpeculationTimeCalculationStrategy();
 };
 
@@ -92,6 +93,17 @@ class InfinitySpeculationTimeStrategy : public SpeculationTimeCalculationStrateg
 	    virtual ~InfinitySpeculationTimeStrategy();
 	    virtual bool worthSpeculation(TIME currentTime, TIME specFailTime);
 	    virtual TIME getNextSpecTime(TIME currentTime);
+};
+
+
+
+class InfinitySpeculationTimeStrategyWithKillLast : public InfinitySpeculationTimeStrategy
+{
+public:
+	InfinitySpeculationTimeStrategyWithKillLast();
+
+	virtual bool sendUnknownAction();
+	virtual ~InfinitySpeculationTimeStrategyWithKillLast();
 };
 
 }

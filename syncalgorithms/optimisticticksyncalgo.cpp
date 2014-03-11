@@ -41,6 +41,18 @@ namespace sim_comm{
 
 FNCS_SYNCALGO(OptimisticTickSyncAlgo);
 
+void OptimisticTickSyncAlgo::dolimbo(){
+	assert(childPid>0);
+	//let the child continue until it fails or parents run faster.
+	if(comm->failTime>Integrator::getCurSimTime()){
+		specFailTime=comm->failTime;
+	}else{//we kill the child it is running slow
+		comm->action=ACTION_FAILED;
+		return;
+	}
+
+}
+
 void OptimisticTickSyncAlgo::parentDie()
 {
 #if DEBUG
@@ -301,6 +313,21 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
 			  //with minNextTime
 			  this->globalAction=comm->action;
 			  interface->aggreateReduceMin(minNextTime,this->globalAction);
+			  //check if the failing child is mine
+			  if(comm->action==ACTION_FAILED && globalAction==ACTION_NOINFO){
+				  //we have failed child, if minNextTime is equal to specFailTime
+				  //we need to kill all child processes in the next iteration
+#ifdef DEBUG
+					  CERR << "ACTION_FAIL and globalAction is ACTION_NOINFO" << endl;
+#endif
+				  if(minNextTime==specFailTime){
+#ifdef DEBUG
+					  CERR << "ACTION_NOINFO and minNextTime==specFailTime, sending killall" << endl;
+#endif
+					  comm->action=ACTION_DOFAILLALL;
+				  }
+			  }
+
 		  }
       } else{ //well, we have message so we use regular reduce min op.
     	  minNextTime=(TIME)interface->reduceMinTime(nextEstTime);
@@ -327,8 +354,10 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
           if(minNextTime < myminNextTime){
 	    //next time is some seconds away and the simulator has to wait so fork speculative unless we already forked
 	      //update the value of the currentTime
-	      currentTime=minNextTime;
-	      busywait=true;
+        	  currentTimeParam = convertToMyTime(Integrator::getCurSimMetric(),minNextTime);
+        	  currentTimeParam = convertToFrameworkTime(Integrator::getCurSimMetric(),currentTimeParam);
+        	  currentTime = minNextTime;
+        	  busywait=true;
           }
           else{
 	    busywait=false;
@@ -415,7 +444,7 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
 #elif DEBUG
 	CERR << "Creating child process for specTime " << specNextTime << endl;
 #endif
-	cout << "forking" << endl;
+
 	this->createSpeculativeProcess();
 	if(this->isChild){ //createSpeculativeProcess will modify this flag!
 	 AbsCommManager* copy=interface->duplicate(); //create new contexts
@@ -453,6 +482,10 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
 	CERR << "MY action is " << globalAction << endl;
 #endif
 	switch(globalAction){
+	  case ACTION_NOINFO:
+		dolimbo();
+		break;
+	  case ACTION_DOFAILLALL:
 	  case ACTION_FAILED:
 	    childDied();
 	    break;
@@ -474,7 +507,11 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
        this->comm=(shmitems *)shmat(this->shmiditems,nullptr,0);
        if(comm<0)
     	   throw SyncStateException("Attach to shared memory failed!");
-       comm->action=ACTION_UNDEFINED;
+       if(st->sendUnknownAction()){
+    	   comm->action=ACTION_NOINFO;
+       }else
+    	   comm->action=ACTION_UNDEFINED;
+       comm->failTime=0;
      }
   }
   

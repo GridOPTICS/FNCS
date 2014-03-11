@@ -344,14 +344,14 @@ public:
     /**
      * Initializes the integrator with optimistic low overhead sync algorithm
      */
-    static void initIntegratorOptimisticLowOverhead(
-        AbsNetworkInterface *currentInterface,
-        time_metric simTimeStep,
-	TIME packetLostPeriod,
-        TIME initialTime,
-	TIME specDifference,
-	SpeculationTimeCalculationStrategy *strategy,
-	TIME onetimestep=1);
+//    static void initIntegratorOptimisticLowOverhead(
+//        AbsNetworkInterface *currentInterface,
+//        time_metric simTimeStep,
+//	TIME packetLostPeriod,
+//        TIME initialTime,
+//	TIME specDifference,
+//	SpeculationTimeCalculationStrategy *strategy,
+//	TIME onetimestep=1);
     
     /**
      * Initializes the integrator with optimistic sync algorithm for comm simm
@@ -368,14 +368,14 @@ public:
     /**
      * Initializes the integrator with optimistic low overhead sync algorithm for comm simm
      */
-    static void initIntegratorOptimisticCommLowOverhead(
-        AbsNetworkInterface *currentInterface,
-        time_metric simTimeStep,
-	TIME packetLostPeriod,
-        TIME initialTime,
-	TIME specDifference,
-	SpeculationTimeCalculationStrategy *strategy,
-	TIME onetimestep=1);
+//    static void initIntegratorOptimisticCommLowOverhead(
+//        AbsNetworkInterface *currentInterface,
+//        time_metric simTimeStep,
+//	TIME packetLostPeriod,
+//        TIME initialTime,
+//	TIME specDifference,
+//	SpeculationTimeCalculationStrategy *strategy,
+//	TIME onetimestep=1);
     
     /**
      * sets simulator callback that returns time

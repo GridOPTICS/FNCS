@@ -42,6 +42,10 @@ namespace sim_comm{
     this->speculationTime=currentTime;
   }
 
+  bool SpeculationTimeCalculationStrategy::sendUnknownAction(){
+	  return false;
+  }
+
 
   TIME SpeculationTimeCalculationStrategy::getNextSpecTime(TIME currentTime){
 	  return currentTime + specDiff;
@@ -100,9 +104,18 @@ namespace sim_comm{
 	  return Infinity;
   }
 
+  InfinitySpeculationTimeStrategyWithKillLast::InfinitySpeculationTimeStrategyWithKillLast() : InfinitySpeculationTimeStrategy(){
+
+  }
+
   IncreasingSpeculationTimeStrategy::~IncreasingSpeculationTimeStrategy(){ }
   ConstantSpeculationTimeStrategy::~ConstantSpeculationTimeStrategy() { }
   SpeculationTimeCalculationStrategy::~SpeculationTimeCalculationStrategy() { }
   InfinitySpeculationTimeStrategy::~InfinitySpeculationTimeStrategy(){ }
+  InfinitySpeculationTimeStrategyWithKillLast::~InfinitySpeculationTimeStrategyWithKillLast() { }
+
+bool InfinitySpeculationTimeStrategyWithKillLast::sendUnknownAction() {
+	return true;
+}
 
 }

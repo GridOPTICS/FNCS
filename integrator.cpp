@@ -40,8 +40,6 @@
 #include "syncalgorithms/communicatorsimulatorsyncalgo.h"
 #include "syncalgorithms/graceperiodpesimisticsyncalgo.h"
 #include "syncalgorithms/graceperiodspeculativesyncalgo.h"
-#include "optimisticlowoverheadcommsyncalgo.h"
-#include "optimisticlowoverheadticksyncalgo.h"
 #include "json/json.h"
 
 Echo* Debug::instance=NULL;
@@ -477,31 +475,31 @@ void Integrator::initIntegratorOptimistic(
     instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
 }
 
-void Integrator::initIntegratorOptimisticLowOverhead(
-	AbsNetworkInterface* currentInterface,
-	time_metric simTimeStep,
-	TIME packetLostPeriod,
-	TIME initialTime, 
-	TIME specDifference,
-	SpeculationTimeCalculationStrategy *strategy,
-	TIME onetimestep){
-
-#if DEBUG
-    CERR << "Integrator::initIntegratorOptimisticLowOverhead("
-        << "AbsCommInterface*,"
-        << "simTimeStep=" << simTimeStep << ","
-        << "packetlost=" << packetLostPeriod << ","
-        << "initialTime=" << initialTime << ","
-	<< "specDifference=" << specDifference << ","
-	<< "strategy=" << strategy << ","
-	<< "onetimestep=" << onetimestep << ")" << endl;
-#endif
-    AbsCommManager *command=new GracePeriodCommManager(currentInterface);
-    TIME specDifferentFramework=convertToFrameworkTime(simTimeStep,specDifference);
-    AbsSyncAlgorithm *algo=new OptimisticLowOverheadTickSyncAlgo(command,specDifferentFramework,strategy);
-    instance=new Integrator(command,algo,simTimeStep,packetLostPeriod,onetimestep);
-    instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
-}
+//void Integrator::initIntegratorOptimisticLowOverhead(
+//	AbsNetworkInterface* currentInterface,
+//	time_metric simTimeStep,
+//	TIME packetLostPeriod,
+//	TIME initialTime,
+//	TIME specDifference,
+//	SpeculationTimeCalculationStrategy *strategy,
+//	TIME onetimestep){
+//
+//#if DEBUG
+//    CERR << "Integrator::initIntegratorOptimisticLowOverhead("
+//        << "AbsCommInterface*,"
+//        << "simTimeStep=" << simTimeStep << ","
+//        << "packetlost=" << packetLostPeriod << ","
+//        << "initialTime=" << initialTime << ","
+//	<< "specDifference=" << specDifference << ","
+//	<< "strategy=" << strategy << ","
+//	<< "onetimestep=" << onetimestep << ")" << endl;
+//#endif
+//    AbsCommManager *command=new GracePeriodCommManager(currentInterface);
+//    TIME specDifferentFramework=convertToFrameworkTime(simTimeStep,specDifference);
+//    AbsSyncAlgorithm *algo=new OptimisticLowOverheadTickSyncAlgo(command,specDifferentFramework,strategy);
+//    instance=new Integrator(command,algo,simTimeStep,packetLostPeriod,onetimestep);
+//    instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
+//}
 
 void Integrator::initIntegratorOptimisticComm(
 	    AbsNetworkInterface* currentInterface, 
@@ -529,30 +527,30 @@ void Integrator::initIntegratorOptimisticComm(
 }
 
 
-void Integrator::initIntegratorOptimisticCommLowOverhead(
-	    AbsNetworkInterface* currentInterface, 
-	    time_metric simTimeStep, 
-	    TIME packetLostPeriod, 
-	    TIME initialTime, 
-	    TIME specDifference,
-	    SpeculationTimeCalculationStrategy *strategy,
-	    TIME onetimestep){
-#if DEBUG
-    CERR << "Integrator::initIntegratorOptimisticCommLowOverhead("
-        << "AbsCommInterface*,"
-        << "simTimeStep=" << simTimeStep << ","
-        << "packetlost=" << packetLostPeriod << ","
-        << "initialTime=" << initialTime << ","
-	<< "specDifference=" << specDifference << "," 
-	<< "strategy=" << strategy << ","
-	<< "onetimestep=" << onetimestep << ")" << endl;
-#endif
-    AbsCommManager *command=new CommunicationComManager(currentInterface);
-    TIME specDifferentFramework=convertToFrameworkTime(simTimeStep,specDifference);
-    AbsSyncAlgorithm *algo=new OptimisticLowOverheadCommSyncAlgo(command,specDifferentFramework,strategy);
-    instance=new Integrator(command,algo,simTimeStep,packetLostPeriod,onetimestep);
-    instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
-}
+//void Integrator::initIntegratorOptimisticCommLowOverhead(
+//	    AbsNetworkInterface* currentInterface,
+//	    time_metric simTimeStep,
+//	    TIME packetLostPeriod,
+//	    TIME initialTime,
+//	    TIME specDifference,
+//	    SpeculationTimeCalculationStrategy *strategy,
+//	    TIME onetimestep){
+//#if DEBUG
+//    CERR << "Integrator::initIntegratorOptimisticCommLowOverhead("
+//        << "AbsCommInterface*,"
+//        << "simTimeStep=" << simTimeStep << ","
+//        << "packetlost=" << packetLostPeriod << ","
+//        << "initialTime=" << initialTime << ","
+//	<< "specDifference=" << specDifference << ","
+//	<< "strategy=" << strategy << ","
+//	<< "onetimestep=" << onetimestep << ")" << endl;
+//#endif
+//    AbsCommManager *command=new CommunicationComManager(currentInterface);
+//    TIME specDifferentFramework=convertToFrameworkTime(simTimeStep,specDifference);
+//    AbsSyncAlgorithm *algo=new OptimisticLowOverheadCommSyncAlgo(command,specDifferentFramework,strategy);
+//    instance=new Integrator(command,algo,simTimeStep,packetLostPeriod,onetimestep);
+//    instance->offset=convertToFrameworkTime(instance->simTimeMetric,initialTime);
+//}
 
 
 void Integrator::initIntegratorCommunicationSim(
