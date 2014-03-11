@@ -118,7 +118,9 @@ namespace sim_comm {
 			st = new IncreasingSpeculationTimeStrategy(met, specTime);
 		} else if (strategy.compare("infinity") == 0) {
 			st = new InfinitySpeculationTimeStrategy();
-		} else {
+		} else if(strategy.compare("infinitywithkill") == 0){
+			st = new InfinitySpeculationTimeStrategyWithKillLast();
+		}else {
 			throw ConfigException("unknown speculation strategy!");
 		}
 
