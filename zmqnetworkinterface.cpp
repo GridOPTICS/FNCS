@@ -398,7 +398,8 @@ ZmqNetworkInterface::ZmqNetworkInterface(const ZmqNetworkInterface &that)
 
 ZmqNetworkInterface::~ZmqNetworkInterface()
 {
-    cleanup();
+	if(!cleaned) //call this only if haven't already closed the sockets!
+		cleanup();
 }
 
 

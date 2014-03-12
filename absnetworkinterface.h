@@ -276,6 +276,7 @@ public:
      * False if it only terminates the current process.
      */
     bool doKillOnTerm() { return this->killOnTerm; }
+
 };
 
 } /* end namespace sim_comm */

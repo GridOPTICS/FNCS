@@ -41,13 +41,21 @@ namespace sim_comm{
 
 FNCS_SYNCALGO(OptimisticTickSyncAlgo);
 
-void OptimisticTickSyncAlgo::dolimbo(){
+void OptimisticTickSyncAlgo::doLimbo(){
 	assert(childPid>0);
 	//let the child continue until it fails or parents run faster.
-	if(comm->failTime>Integrator::getCurSimTime()){
+	if(comm->failTime>minNextTime){
+#ifdef DEBUG
+		CERR << "Child has a failTime " << comm->failTime << endl;
+#endif
 		specFailTime=comm->failTime;
 	}else{//we kill the child it is running slow
-		comm->action=ACTION_FAILED;
+		if(comm->action==ACTION_FAILED){ //my child has failed and I'm running faster than my child.
+#ifdef DEBUG
+			CERR << "I'm running faster then my child or time to stop all children: " << comm->failTime << " " << minNextTime << endl;
+#endif
+			comm->action=ACTION_DOFAILLALL;
+		}
 		return;
 	}
 
@@ -123,7 +131,15 @@ OptimisticTickSyncAlgo::OptimisticTickSyncAlgo(AbsCommManager* interface, Specul
 
 OptimisticTickSyncAlgo::~OptimisticTickSyncAlgo()
 {
-    if(this->shmiditems>=0){
+	if(this->hasChild()){//clear the child process if we have one.
+		  detachTimeShm();
+		  kill(childPid,SIGKILL);
+		  wait(nullptr);
+	}
+    if(this->shmiditems>=0){ //clear the shared mem.
+#ifdef DEBUG
+    	CERR << "Cleaning shm!" << endl;
+#endif
       shmctl(this->shmiditems,IPC_RMID,0);
     }
 
@@ -267,6 +283,9 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
 	  TIME minnetworkdelay=interface->reduceNetworkDelay();
           if(diff==0 && !needToRespond)
           { //network stable grant next time
+#ifdef DEBUG
+        	  CERR << "diff is 0 specFailTime " << specFailTime << endl;
+#endif
               myminNextTime=nextEstTime=nextTime;
 	      if(specFailTime!=Infinity && nextTime < specFailTime){ //we can grant upto spec fail time
 #ifdef DEBUG
@@ -283,7 +302,7 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
           else{
 	    needToRespond=true;
 	  }
-      TIME minNextTime=nextEstTime;
+      minNextTime=nextEstTime;
 
 #ifdef DEBUG
 	  CERR << "Consensus on message-diff " << diff << endl;
@@ -313,20 +332,23 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
 			  //with minNextTime
 			  this->globalAction=comm->action;
 			  interface->aggreateReduceMin(minNextTime,this->globalAction);
-			  //check if the failing child is mine
+#ifdef DEBUG
+			  CERR << comm->action << " " << globalAction << endl;
+#endif
+/*			  //check if the failing child is mine
 			  if(comm->action==ACTION_FAILED && globalAction==ACTION_NOINFO){
 				  //we have failed child, if minNextTime is equal to specFailTime
 				  //we need to kill all child processes in the next iteration
 #ifdef DEBUG
 					  CERR << "ACTION_FAIL and globalAction is ACTION_NOINFO" << endl;
 #endif
-				  if(minNextTime==specFailTime){
+				  if(minNextTime>=comm->failTime){
 #ifdef DEBUG
-					  CERR << "ACTION_NOINFO and minNextTime==specFailTime, sending killall" << endl;
+					  CERR << "ACTION_NOINFO and minNextTime==childfailtime, sending killall" << endl;
 #endif
 					  comm->action=ACTION_DOFAILLALL;
 				  }
-			  }
+			  }*/
 
 		  }
       } else{ //well, we have message so we use regular reduce min op.
@@ -483,7 +505,7 @@ TIME OptimisticTickSyncAlgo::GetNextTime(TIME currentTimeParam, TIME nextTime)
 #endif
 	switch(globalAction){
 	  case ACTION_NOINFO:
-		dolimbo();
+		doLimbo();
 		break;
 	  case ACTION_DOFAILLALL:
 	  case ACTION_FAILED:

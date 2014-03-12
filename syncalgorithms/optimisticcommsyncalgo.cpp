@@ -63,7 +63,7 @@ namespace sim_comm {
 		TIME minnetworkdelay = interface->reduceNetworkDelay();
 		//We never wait for comm sim, instead we wait for oter sims
 		TIME specNextTime = Infinity; //netsim follows what the power simulates do
-		TIME minNextTime = Infinity;
+		minNextTime = Infinity;
 
 #ifdef DEBUG
 		CERR << "Consensus on message-diff " << diff << endl;

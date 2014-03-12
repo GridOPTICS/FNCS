@@ -115,9 +115,9 @@ private:
     TIME onetimestep;
     bool allowRegistrations;
     bool stopped;
-   
+    bool IamNetworkSim;
+
     static Integrator* instance;
-    static void parseConfig(string jsonFile, TIME initialTime);
     /**
      * Constructor.
      */
@@ -126,7 +126,8 @@ private:
     		AbsSyncAlgorithm *algo,
     		time_metric simTimeStep,
 		TIME packetLostPeriod,
-		TIME onetimestep);
+		TIME onetimestep,
+		bool IamNetworkSim);
 public:
 
     /**
@@ -423,7 +424,15 @@ public:
     static bool isChild();
     
 
-    
+    /**
+     * Returns true if the current simulator
+     * is a network simulator.
+     * False otherwise.
+     * For some sync algorithms network simulators
+     * are special cases.
+     */
+    static bool amINetSim();
+
     /**
      * Returns true if current sync algo can fork
      * a new isntance of the simulator.

@@ -76,13 +76,15 @@ namespace sim_comm{
       void createTimeShm();
       void attachTimeShm();
       void detachTimeShm();
-      void dolimbo();
+
+      //TODO: These two methods should be virtual!
+      void doLimbo();
       void childDied();
       void parentDie();
 
     protected: 
       
-      TIME specFailTime;
+      TIME specFailTime,minNextTime;
       uint64_t globalAction;
       struct shmitems{
       		  TIME failTime;

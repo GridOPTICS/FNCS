@@ -125,7 +125,7 @@ namespace sim_comm {
 		AbsSyncAlgorithm *algo = (*syncFactory)(nodes->syncAlgoParams, commManager);
 
 		Integrator::instance = new Integrator(commManager, algo,
-				this->simMetric, this->packetLostP, this->oneTimeStep);
+				this->simMetric, this->packetLostP, this->oneTimeStep,!simType);
 		Integrator::instance->offset = convertToFrameworkTime(simMetric,
 				initialTime);
 	}
