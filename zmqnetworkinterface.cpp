@@ -739,6 +739,7 @@ void ZmqNetworkInterface::processSubMessage()
 #endif
 	/* an application terminated abrubtly, so do we */
         cleanup();
+        Integrator::terminate();
         exit(EXIT_FAILURE);
     }
     else if ("FINISHED" == control) {
@@ -749,7 +750,7 @@ void ZmqNetworkInterface::processSubMessage()
         (void) zmqx_send(this->zmq_req, this->context, "FINISHED");
         cleanup();
 	//TODO: bad smell receivedFinished stopIntegrator!
-	Integrator::terminate();
+	Integrator::terminate(); //TODO: possible segfault, terminate deletes this ptr!
         exit(EXIT_SUCCESS);
     }
     else if ("DIE_CHILD" == control) {

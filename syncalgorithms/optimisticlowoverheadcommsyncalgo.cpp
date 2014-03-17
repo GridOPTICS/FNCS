@@ -76,6 +76,7 @@ TIME OptimisticLowOverheadCommSyncAlgo::GetNextTime(TIME currentTime, TIME nextT
             interface->aggreateReduceMin(minNextTime,globalAction);
         }
         else{//diff!=0 only reduce min op
+        	checkChild(diff);
             minNextTime=(TIME)interface->reduceMinTime(Infinity);
             specNextTime=0;
         }

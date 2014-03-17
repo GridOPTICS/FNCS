@@ -4,10 +4,11 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-int inreit=0;
-FILE *output=NULL;
-FILE *execPro=NULL;
-double time1;
+static int inreit=0;
+static FILE *output=NULL;
+static FILE *execPro=NULL;
+static double time1;
+static bool doWrite=true;
 
 void syncStart()
 {
@@ -22,6 +23,7 @@ void speced()
 {
   execPro=NULL;
   //fprintf(execPro,"Starting new child %d\n",getpid());
+  doWrite=false;
 }
 
 void specFailed()
@@ -34,7 +36,10 @@ void specFailed()
 
 
 void writeTime(long int time){
-  
+
+ if(!doWrite)
+	 return;
+
  struct timeval t;
  gettimeofday(&t,NULL);
  double diff=t.tv_sec*1000.0 + t.tv_usec / 1000.0;

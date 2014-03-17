@@ -79,6 +79,7 @@ namespace sim_comm{
 
       //TODO: These two methods should be virtual!
       void doLimbo();
+      void doFailAll();
       void childDied();
       void parentDie();
 
@@ -92,6 +93,7 @@ namespace sim_comm{
             };
       shmitems *comm;
 
+      void checkChild(uint64_t diff);
       void createSpeculativeProcess();
       
       /**
