@@ -57,8 +57,12 @@ namespace sim_comm {
 
 		uint64_t diff = interface->reduceTotalSendReceive();
 
-		if (diff > 0)
+		if (diff > 0){
 			this->interface->packetLostCalculator(currentTime);
+			//diff increased, if we have child it is time to kill it.
+			checkChild(diff);
+
+		}
 
 		TIME minnetworkdelay = interface->reduceNetworkDelay();
 		//We never wait for comm sim, instead we wait for oter sims

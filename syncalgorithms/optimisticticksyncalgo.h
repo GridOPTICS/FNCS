@@ -77,13 +77,13 @@ namespace sim_comm{
       void attachTimeShm();
       void detachTimeShm();
 
-      //TODO: These two methods should be virtual!
+      //Child classes can call these but overridign is not permited.
       void doLimbo();
       void doFailAll();
       void childDied();
       void parentDie();
 
-    protected: 
+    protected:
       
       TIME specFailTime,minNextTime;
       uint64_t globalAction;

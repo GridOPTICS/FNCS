@@ -51,6 +51,7 @@ include_HEADERS	+= syncalgorithms/optimisticcommsyncalgo.h
 include_HEADERS += syncalgorithms/speculationtimecalculationstrategy.h
 include_HEADERS += syncalgorithms/activesetconservativetick.h
 include_HEADERS += syncalgorithms/activesetconservativecom.h
+include_HEADERS += syncalgorithms/reactiveconservative.h
 
 include_HEADERS += util/callback.h
 include_HEADERS += util/simtime.h
@@ -95,6 +96,7 @@ libfncs_la_SOURCES += syncalgorithms/optimisticcommsyncalgo.cpp
 libfncs_la_SOURCES += syncalgorithms/speculationtimecalculationstrategy.cpp
 libfncs_la_SOURCES += syncalgorithms/activesetconservativetick.cpp
 libfncs_la_SOURCES += syncalgorithms/activesetconservativecom.cpp
+libfncs_la_SOURCES += syncalgorithms/reactiveconservative.cpp
 
 libfncs_la_SOURCES += util/simtime.cpp
 libfncs_la_SOURCES += util/profiler.cpp

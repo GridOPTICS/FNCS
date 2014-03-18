@@ -142,7 +142,8 @@ am__libfncs_la_SOURCES_DIST = absnetworkinterface.cpp cintegrator.cpp \
 	syncalgorithms/optimisticcommsyncalgo.cpp \
 	syncalgorithms/speculationtimecalculationstrategy.cpp \
 	syncalgorithms/activesetconservativetick.cpp \
-	syncalgorithms/activesetconservativecom.cpp util/simtime.cpp \
+	syncalgorithms/activesetconservativecom.cpp \
+	syncalgorithms/reactiveconservative.cpp util/simtime.cpp \
 	util/profiler.cpp
 @HAVE_ZMQ_TRUE@am__objects_1 = zmqhelper.lo zmqnetworkinterface.lo
 @HAVE_MPI_TRUE@am__objects_2 = mpinetworkinterface.lo
@@ -164,7 +165,8 @@ am_libfncs_la_OBJECTS = absnetworkinterface.lo cintegrator.lo \
 	syncalgorithms/optimisticcommsyncalgo.lo \
 	syncalgorithms/speculationtimecalculationstrategy.lo \
 	syncalgorithms/activesetconservativetick.lo \
-	syncalgorithms/activesetconservativecom.lo util/simtime.lo \
+	syncalgorithms/activesetconservativecom.lo \
+	syncalgorithms/reactiveconservative.lo util/simtime.lo \
 	util/profiler.lo
 libfncs_la_OBJECTS = $(am_libfncs_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -269,7 +271,8 @@ am__include_HEADERS_DIST = absnetworkinterface.h cintegrator.h echo.h \
 	syncalgorithms/optimisticcommsyncalgo.h \
 	syncalgorithms/speculationtimecalculationstrategy.h \
 	syncalgorithms/activesetconservativetick.h \
-	syncalgorithms/activesetconservativecom.h util/callback.h \
+	syncalgorithms/activesetconservativecom.h \
+	syncalgorithms/reactiveconservative.h util/callback.h \
 	util/simtime.h util/csimtime.h
 HEADERS = $(include_HEADERS) $(noinst_HEADERS)
 ETAGS = etags
@@ -434,7 +437,8 @@ include_HEADERS = absnetworkinterface.h cintegrator.h echo.h \
 	syncalgorithms/optimisticcommsyncalgo.h \
 	syncalgorithms/speculationtimecalculationstrategy.h \
 	syncalgorithms/activesetconservativetick.h \
-	syncalgorithms/activesetconservativecom.h util/callback.h \
+	syncalgorithms/activesetconservativecom.h \
+	syncalgorithms/reactiveconservative.h util/callback.h \
 	util/simtime.h util/csimtime.h
 noinst_HEADERS = 
 lib_LTLIBRARIES = libfncs.la
@@ -462,7 +466,8 @@ libfncs_la_SOURCES = absnetworkinterface.cpp cintegrator.cpp \
 	syncalgorithms/optimisticcommsyncalgo.cpp \
 	syncalgorithms/speculationtimecalculationstrategy.cpp \
 	syncalgorithms/activesetconservativetick.cpp \
-	syncalgorithms/activesetconservativecom.cpp util/simtime.cpp \
+	syncalgorithms/activesetconservativecom.cpp \
+	syncalgorithms/reactiveconservative.cpp util/simtime.cpp \
 	util/profiler.cpp
 tests_sanity_SOURCES = tests/sanity.cpp
 tests_messageTest_SOURCES = tests/messageTest.cpp
@@ -621,6 +626,9 @@ syncalgorithms/activesetconservativetick.lo:  \
 syncalgorithms/activesetconservativecom.lo:  \
 	syncalgorithms/$(am__dirstamp) \
 	syncalgorithms/$(DEPDIR)/$(am__dirstamp)
+syncalgorithms/reactiveconservative.lo:  \
+	syncalgorithms/$(am__dirstamp) \
+	syncalgorithms/$(DEPDIR)/$(am__dirstamp)
 util/$(am__dirstamp):
 	@$(MKDIR_P) util
 	@: > util/$(am__dirstamp)
@@ -753,6 +761,8 @@ mostlyclean-compile:
 	-rm -f syncalgorithms/optimisticcommsyncalgo.lo
 	-rm -f syncalgorithms/optimisticticksyncalgo.$(OBJEXT)
 	-rm -f syncalgorithms/optimisticticksyncalgo.lo
+	-rm -f syncalgorithms/reactiveconservative.$(OBJEXT)
+	-rm -f syncalgorithms/reactiveconservative.lo
 	-rm -f syncalgorithms/speculationtimecalculationstrategy.$(OBJEXT)
 	-rm -f syncalgorithms/speculationtimecalculationstrategy.lo
 	-rm -f tests/messageTest.$(OBJEXT)
@@ -792,6 +802,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/graceperiodpesimisticsyncalgo.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/optimisticcommsyncalgo.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/optimisticticksyncalgo.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/reactiveconservative.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/speculationtimecalculationstrategy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/messageTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/sanity.Po@am__quote@
