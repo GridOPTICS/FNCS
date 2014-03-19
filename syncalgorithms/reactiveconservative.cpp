@@ -32,7 +32,7 @@ namespace sim_comm {
 	TIME ReactiveConservative::GetNextTime(TIME currentTime, TIME nextTime) {
 		TIME nextEstTime;
 
-		if(nextTime < grantedTime)
+		if(nextTime <= grantedTime)
 			return nextTime;
 
 
@@ -88,6 +88,9 @@ namespace sim_comm {
 #ifdef PROFILE
 		writeTime(currentTime);
 #endif
+		if(nextTime < nextEstTime){
+			return nextTime;
+		}
 		return nextEstTime;
 	}
 
