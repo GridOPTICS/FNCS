@@ -386,6 +386,10 @@ void Integrator::timeStepStart(TIME currentTime)
      TIME curTimeInFramework=convertToFrameworkTime(
             instance->simTimeMetric,currentTime) - instance->offset;
     instance->syncAlgo->timeStepStart(curTimeInFramework);
+    vector<CallBack<void,TIME,empty,empty,empty>* >::iterator it=instance->start_timestep_callbacks.begin();
+    for(;it!=instance->start_timestep_callbacks.end();++it){
+    	(*(*it))(currentTime);
+    }
 }
 
 
@@ -489,7 +493,12 @@ TIME Integrator::getNextTime(TIME currentTime, TIME nextTime) {
     instance->currentInterface->sendAll();
 
     TIME toReturn=instance->syncAlgo->GetNextTime(curTimeInFramework,nextframeTime);
-    return convertToMyTime(instance->simTimeMetric,toReturn+instance->offset);
+    TIME simTime=convertToMyTime(instance->simTimeMetric,toReturn+instance->offset);
+    vector<CallBack<void,TIME,empty,empty,empty>* >::iterator it=instance->end_getnexttime_callbacks.begin();
+      for(;it!=instance->end_getnexttime_callbacks.end();++it){
+       	(*(*it))(simTime);
+      }
+    return simTime;
 }
 
 
@@ -528,6 +537,14 @@ bool Integrator::canFork()
 
 bool Integrator::amINetSim() {
 	return instance->IamNetworkSim;
+}
+
+void Integrator::registerTimeStepStartCallback(CallBack<void,TIME,empty,empty,empty>* callback){
+	instance->start_timestep_callbacks.push_back(callback);
+}
+
+void Integrator::registerGetNextTimeCallback(CallBack<void,TIME,empty,empty,empty>* callback){
+	instance->end_getnexttime_callbacks.push_back(callback);
 }
 
 } /* end namespace sim_comm */

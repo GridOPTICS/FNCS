@@ -128,7 +128,7 @@ void initIntegrator(const char* configfile, TIME currentTime)
 }
 
 
-void registerObject(char* name)
+void registerObject(const char* name)
 {
   ObjectCommInterface *com=Integrator::getCommInterface(name);
   myName= std::string(name);

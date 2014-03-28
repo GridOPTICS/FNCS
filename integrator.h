@@ -36,6 +36,7 @@
 #include "echo.h"
 #include "simtime.h"
 #include "speculationtimecalculationstrategy.h"
+#include <vector>
 
 #if DEBUG
 #include <unistd.h>
@@ -116,7 +117,7 @@ private:
     bool allowRegistrations;
     bool stopped;
     bool IamNetworkSim;
-
+    vector<CallBack<void,TIME,empty,empty,empty>* > start_timestep_callbacks,end_getnexttime_callbacks;
     static Integrator* instance;
     /**
      * Constructor.
@@ -411,6 +412,18 @@ public:
      */
     static TIME getAdjustedOffset();
     
+    /**
+     * Register a callback to be executed right after the first phase of the synchronization (timeStepStart).
+     *
+     */
+    static void registerTimeStepStartCallback(CallBack<void,TIME,empty,empty,empty>* callback);
+
+    /**
+     * Register a callback to be called right after determination of the next time step for the simulation.
+     *
+     */
+    static void registerGetNextTimeCallback(CallBack<void,TIME,empty,empty,empty>* callback);
+
     /**
      * stops the integrator without sending
      * the finish signal to the simulators.

@@ -54,7 +54,8 @@ Message::Message(
 #endif
     this->from=from;
     this->to=to;
-    this->timeStamp=convertToFrameworkTime(Integrator::getCurSimMetric(),timeStamp);
+    this->timeStamp=convertToFrameworkTime(Integrator::getCurSimMetric(),timeStamp)
+    		-Integrator::getOffset();
     if (dataSize > 0) {
         this->data=new uint8_t[dataSize];
         memcpy(this->data,data,dataSize);
