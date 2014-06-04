@@ -55,7 +55,7 @@ build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = $(am__EXEEXT_1)
 check_PROGRAMS = tests/sanity$(EXEEXT) tests/messageTest$(EXEEXT) \
-	$(am__EXEEXT_2) $(am__EXEEXT_3)
+	tests/realtime_sim$(EXEEXT) $(am__EXEEXT_2) $(am__EXEEXT_3)
 @HAVE_ZMQ_TRUE@am__append_1 = zmqhelper.h zmqnetworkinterface.h
 @HAVE_MPI_TRUE@am__append_2 = mpinetworkinterface.h
 @HAVE_ZMQ_TRUE@am__append_3 = zmqhelper.cpp zmqnetworkinterface.cpp
@@ -189,6 +189,11 @@ tests_messageTest_OBJECTS = $(am_tests_messageTest_OBJECTS)
 tests_messageTest_LDADD = $(LDADD)
 tests_messageTest_DEPENDENCIES = libfncs.la $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
+am_tests_realtime_sim_OBJECTS = tests/realtime_sim.$(OBJEXT)
+tests_realtime_sim_OBJECTS = $(am_tests_realtime_sim_OBJECTS)
+tests_realtime_sim_LDADD = $(LDADD)
+tests_realtime_sim_DEPENDENCIES = libfncs.la $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 am_tests_sanity_OBJECTS = tests/sanity.$(OBJEXT)
 tests_sanity_OBJECTS = $(am_tests_sanity_OBJECTS)
 tests_sanity_LDADD = $(LDADD)
@@ -242,12 +247,13 @@ AM_V_GEN = $(am__v_GEN_@AM_V@)
 am__v_GEN_ = $(am__v_GEN_@AM_DEFAULT_V@)
 am__v_GEN_0 = @echo "  GEN   " $@;
 SOURCES = $(libfncs_la_SOURCES) $(fncsbroker_SOURCES) \
-	$(tests_messageTest_SOURCES) $(tests_sanity_SOURCES) \
-	$(tests_simmer_SOURCES) $(tests_simmerTransmission_SOURCES) \
-	$(tests_zimmer_SOURCES)
+	$(tests_messageTest_SOURCES) $(tests_realtime_sim_SOURCES) \
+	$(tests_sanity_SOURCES) $(tests_simmer_SOURCES) \
+	$(tests_simmerTransmission_SOURCES) $(tests_zimmer_SOURCES)
 DIST_SOURCES = $(am__libfncs_la_SOURCES_DIST) \
 	$(am__fncsbroker_SOURCES_DIST) $(tests_messageTest_SOURCES) \
-	$(tests_sanity_SOURCES) $(am__tests_simmer_SOURCES_DIST) \
+	$(tests_realtime_sim_SOURCES) $(tests_sanity_SOURCES) \
+	$(am__tests_simmer_SOURCES_DIST) \
 	$(am__tests_simmerTransmission_SOURCES_DIST) \
 	$(am__tests_zimmer_SOURCES_DIST)
 am__can_run_installinfo = \
@@ -471,6 +477,7 @@ libfncs_la_SOURCES = absnetworkinterface.cpp cintegrator.cpp \
 	util/profiler.cpp
 tests_sanity_SOURCES = tests/sanity.cpp
 tests_messageTest_SOURCES = tests/messageTest.cpp
+tests_realtime_sim_SOURCES = tests/realtime_sim.cpp
 @HAVE_MPI_TRUE@tests_simmer_SOURCES = tests/simmer.cpp
 @HAVE_ZMQ_TRUE@fncsbroker_SOURCES = fncsbroker.cpp
 @HAVE_ZMQ_TRUE@tests_zimmer_SOURCES = tests/zimmer.cpp
@@ -708,6 +715,11 @@ tests/messageTest.$(OBJEXT): tests/$(am__dirstamp) \
 tests/messageTest$(EXEEXT): $(tests_messageTest_OBJECTS) $(tests_messageTest_DEPENDENCIES) $(EXTRA_tests_messageTest_DEPENDENCIES) tests/$(am__dirstamp)
 	@rm -f tests/messageTest$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(tests_messageTest_OBJECTS) $(tests_messageTest_LDADD) $(LIBS)
+tests/realtime_sim.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
+tests/realtime_sim$(EXEEXT): $(tests_realtime_sim_OBJECTS) $(tests_realtime_sim_DEPENDENCIES) $(EXTRA_tests_realtime_sim_DEPENDENCIES) tests/$(am__dirstamp)
+	@rm -f tests/realtime_sim$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(tests_realtime_sim_OBJECTS) $(tests_realtime_sim_LDADD) $(LIBS)
 tests/sanity.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
 tests/sanity$(EXEEXT): $(tests_sanity_OBJECTS) $(tests_sanity_DEPENDENCIES) $(EXTRA_tests_sanity_DEPENDENCIES) tests/$(am__dirstamp)
@@ -766,6 +778,7 @@ mostlyclean-compile:
 	-rm -f syncalgorithms/speculationtimecalculationstrategy.$(OBJEXT)
 	-rm -f syncalgorithms/speculationtimecalculationstrategy.lo
 	-rm -f tests/messageTest.$(OBJEXT)
+	-rm -f tests/realtime_sim.$(OBJEXT)
 	-rm -f tests/sanity.$(OBJEXT)
 	-rm -f tests/simmer.$(OBJEXT)
 	-rm -f tests/simmerTransmission.$(OBJEXT)
@@ -805,6 +818,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/reactiveconservative.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/speculationtimecalculationstrategy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/messageTest.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/realtime_sim.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/sanity.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/simmer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/simmerTransmission.Po@am__quote@

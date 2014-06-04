@@ -107,6 +107,9 @@ tests_sanity_SOURCES = tests/sanity.cpp
 check_PROGRAMS += tests/messageTest
 tests_messageTest_SOURCES = tests/messageTest.cpp
 
+check_PROGRAMS += tests/realtime_sim
+tests_realtime_sim_SOURCES = tests/realtime_sim.cpp
+
 if HAVE_MPI
 check_PROGRAMS += tests/simmer
 tests_simmer_SOURCES = tests/simmer.cpp
