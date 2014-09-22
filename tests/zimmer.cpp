@@ -59,9 +59,9 @@ static void network_simulator()
     TIME time_granted=0;
     TIME time_desired=0;
     ZmqNetworkInterface *comm = nullptr;
-    CallBack<TIME,empty,empty,empty>* time_cb = nullptr;
-    CallBack<void,empty,empty,empty>* message_cb1 = nullptr;
-    CallBack<void,empty,empty,empty>* message_cb2 = nullptr;
+    CallBack<TIME,empty,empty,empty,empty>* time_cb = nullptr;
+    CallBack<void,empty,empty,empty,empty>* message_cb1 = nullptr;
+    CallBack<void,empty,empty,empty,empty>* message_cb2 = nullptr;
     Echo echo(getFilename("NetSim"));
 
     comm = new ZmqNetworkInterface(true);
@@ -104,7 +104,7 @@ static void generic_simulator()
     TIME time_granted=0;
     TIME time_desired=0;
     ZmqNetworkInterface *comm = new ZmqNetworkInterface(false);
-    CallBack<TIME,empty,empty,empty>* cb=CreateCallback(getCurTime);
+    CallBack<TIME,empty,empty,empty,empty>* cb=CreateCallback(getCurTime);
     Echo echo(getFilename("GenSim"));
 
     //Integrator::initIntegratorGracePeriod(comm,SECONDS,5,0);
@@ -147,7 +147,7 @@ static void generic_simulator2()
     TIME time_granted=0;
     TIME time_desired=0;
     ZmqNetworkInterface *comm = new ZmqNetworkInterface(false);
-    CallBack<TIME,empty,empty,empty>* cb=CreateCallback(getCurTime);
+    CallBack<TIME,empty,empty,empty,empty>* cb=CreateCallback(getCurTime);
     Echo echo(getFilename("GenSim2"));
 
     //Integrator::initIntegratorGracePeriod(comm,SECONDS,5,0);

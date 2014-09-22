@@ -34,9 +34,9 @@ int main(int argc,char* argv[]){
   ostringstream ost;
 
   currentTime=0; //2000000000;
-  endTime = INFINITY; // ask Selim 
+  endTime = Infinity; // ask Selim 
   ZmqNetworkInterface *comm=new ZmqNetworkInterface(false);
-  CallBack<TIME,empty,empty,empty>* cb=CreateCallback(getCurTime);
+  CallBack<TIME,empty,empty,empty,empty>* cb=CreateCallback(getCurTime);
   // Ask Selim : does this do optimistic ?
       Integrator::initIntegratorGracePeriod(comm,MILLISECONDS,2300000000,currentTime);
   //Integrator::initIntegratorNetworkDelaySupport(comm,MILLISECONDS,2300000000,currentTime);

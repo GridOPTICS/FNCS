@@ -33,7 +33,7 @@ int main(int argc, char **argv){
   
   fenix_initialize(&argc, &argv);
   //comm = new MpiNetworkInterface(MPI_COMM_WORLD, true);
-  CallBack<TIME,empty,empty,empty>* cb=CreateCallback(getCurTime);
+  CallBack<TIME,empty,empty,empty,empty>* cb=CreateCallback(getCurTime);
 
   Integrator::initIntegratorGracePeriod(comm,SECONDS,5,10);
   cout << "Integrator initialized" << endl;
