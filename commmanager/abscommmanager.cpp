@@ -107,7 +107,12 @@ namespace sim_comm{
 	graceTime=0;
     }
 #if DEBUG
+    if (message->getSize() > 0) {
     CERR << "AbsCommManager::messageReceived(" << (char*)message->getData() << ") " << currentTime << endl;
+    }
+    else {
+    CERR << "AbsCommManager::messageReceived(NULL) " << currentTime << endl;
+    }
 #endif
     if(message->getTime()<graceTime){ //old message!!
 #if DEBUG

@@ -84,7 +84,12 @@ namespace sim_comm{
                     } 
                     else {
 #if DEBUG
-      CERR << "GracePeriodCommManager::sendAll(" << (char*)outmessges[i]->getData() << ") time:" << Integrator::getCurSimTime() << endl;
+                        if (outmessges[i]->getSize() > 0) {
+      CERR << "GracePeriodCommManager::sendAll(" << (char*)outmessges[i]->getData() << ") time: " << Integrator::getCurSimTime() << endl;
+                        }
+                        else {
+      CERR << "GracePeriodCommManager::sendAll(NULL) time: " << Integrator::getCurSimTime() << endl;
+                        }
 #endif                 
                             sendCount += 1;
                         this->currentInterface->send(outmessges[i]);

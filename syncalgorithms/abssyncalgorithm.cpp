@@ -62,6 +62,7 @@ namespace sim_comm
 #elif DEBUG
       CERR << "Start sync time step " << currentTime <<  endl;
 #endif
+      this->interface->sendAll();
       this->interface->waitforAll();
   }
 

@@ -179,13 +179,34 @@ int ZmqNetworkInterface::i_recv(T &buf)
 #if DEBUG
             CERR << "ZmqNetworkInterface:i_recv got '" << buf << "'" << endl;
 #endif
-	    done = true;
+            done = true;
         }
         if (items[1].revents & ZMQ_POLLIN) {
             processAsyncMessage();
         }
         if (items[2].revents & ZMQ_POLLIN) {
             processSubMessage();
+        }
+    }
+    /* we received the control message, but greedily process async messages */
+    done = false;
+    while (!done) {
+        done = true;
+        zmq_pollitem_t items[] = {
+            { this->zmq_async, 0, ZMQ_POLLIN, 0 },
+            { this->zmq_die,   0, ZMQ_POLLIN, 0 }
+        };
+        int rc = zmq_poll(items, 2, 0);
+        zmqx_interrupt_check();
+	
+        assert(rc >= 0 || (rc == -1 && errno == EINTR));
+        if (items[0].revents & ZMQ_POLLIN) {
+            processAsyncMessage();
+            done = false;
+        }
+        if (items[1].revents & ZMQ_POLLIN) {
+            processSubMessage();
+            done = false;
         }
     }
 

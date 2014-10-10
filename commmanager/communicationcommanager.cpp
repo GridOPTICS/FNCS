@@ -104,7 +104,12 @@ namespace sim_comm{
 		      } 
 		      else {
 #if DEBUG
-      CERR << "CommunicationComManager::sendAll(" << (char*)outmessges[i]->getData() << ") time:" << Integrator::getCurSimTime() << endl;
+                  if (outmessges[i]->getSize() > 0) {
+      CERR << "CommunicationComManager::sendAll(" << (char*)outmessges[i]->getData() << ") time: " << Integrator::getCurSimTime() << endl;
+                  }
+                  else {
+      CERR << "CommunicationComManager::sendAll(NULL) time: " << Integrator::getCurSimTime() << endl;
+                  }
 #endif
 			    // sendCount += 1;
 			  if(removeMessageTimeout(outmessges[i]->getTime()))
@@ -133,11 +138,16 @@ namespace sim_comm{
 	graceTime=0;
       }
 #if DEBUG
+      if (message->getSize() > 0) {
     CERR << "AbsCommManager::messageReceived(" << (char*)message->getData() << ") " << currentTime << endl;
+      }
+      else {
+    CERR << "AbsCommManager::messageReceived(NULL) " << currentTime << endl;
+      }
 #endif
       if(message->getTime()<graceTime){ //old message drop
 #if DEBUG
-	CERR << (char*)message->getData() << " is old dropping" << endl;
+	CERR << "message is old dropping" << endl;
 #endif
 	  delete message;
 	  return;
