@@ -1,6 +1,6 @@
 ACLOCAL_AMFLAGS = -I m4
 
-include_HEADERS =
+pkginclude_HEADERS =
 noinst_HEADERS = 
 lib_LTLIBRARIES =
 bin_PROGRAMS =
@@ -21,41 +21,41 @@ LDADD += libfncs.la
 LDADD += $(MPI_LIBS)
 LDADD += $(ZMQ_LIBS)
 
-include_HEADERS += absnetworkinterface.h
-include_HEADERS += cintegrator.h
-include_HEADERS += echo.h
-include_HEADERS += integrator.h
-include_HEADERS += message.h
-include_HEADERS += objectcomminterface.h
+pkginclude_HEADERS += absnetworkinterface.h
+pkginclude_HEADERS += cintegrator.h
+pkginclude_HEADERS += echo.h
+pkginclude_HEADERS += integrator.h
+pkginclude_HEADERS += message.h
+pkginclude_HEADERS += objectcomminterface.h
 if HAVE_ZMQ
-include_HEADERS += zmqhelper.h
-include_HEADERS += zmqnetworkinterface.h
+pkginclude_HEADERS += zmqhelper.h
+pkginclude_HEADERS += zmqnetworkinterface.h
 endif
 if HAVE_MPI
-include_HEADERS += mpinetworkinterface.h
+pkginclude_HEADERS += mpinetworkinterface.h
 endif
 
-include_HEADERS += commmanager/abscommmanager.h
-include_HEADERS += commmanager/communicationcommanager.h
-include_HEADERS += commmanager/graceperiodcommmanager.h
-include_HEADERS += config_parser/factorydatabase.h
-include_HEADERS += config_parser/fncsconfig.h
+pkginclude_HEADERS += commmanager/abscommmanager.h
+pkginclude_HEADERS += commmanager/communicationcommanager.h
+pkginclude_HEADERS += commmanager/graceperiodcommmanager.h
+pkginclude_HEADERS += config_parser/factorydatabase.h
+pkginclude_HEADERS += config_parser/fncsconfig.h
 
-include_HEADERS += syncalgorithms/abssyncalgorithm.h
-include_HEADERS += syncalgorithms/communicatorsimulatorsyncalgo.h
-include_HEADERS += syncalgorithms/graceperiodpesimisticsyncalgo.h
-include_HEADERS	+= syncalgorithms/conservativesleepingcommalgo.h
-include_HEADERS	+= syncalgorithms/conservativesleepingtickalgo.h
-include_HEADERS	+= syncalgorithms/optimisticticksyncalgo.h
-include_HEADERS	+= syncalgorithms/optimisticcommsyncalgo.h
-include_HEADERS += syncalgorithms/speculationtimecalculationstrategy.h
-include_HEADERS += syncalgorithms/activesetconservativetick.h
-include_HEADERS += syncalgorithms/activesetconservativecom.h
-include_HEADERS += syncalgorithms/reactiveconservative.h
+pkginclude_HEADERS += syncalgorithms/abssyncalgorithm.h
+pkginclude_HEADERS += syncalgorithms/communicatorsimulatorsyncalgo.h
+pkginclude_HEADERS += syncalgorithms/graceperiodpesimisticsyncalgo.h
+pkginclude_HEADERS	+= syncalgorithms/conservativesleepingcommalgo.h
+pkginclude_HEADERS	+= syncalgorithms/conservativesleepingtickalgo.h
+pkginclude_HEADERS	+= syncalgorithms/optimisticticksyncalgo.h
+pkginclude_HEADERS	+= syncalgorithms/optimisticcommsyncalgo.h
+pkginclude_HEADERS += syncalgorithms/speculationtimecalculationstrategy.h
+pkginclude_HEADERS += syncalgorithms/activesetconservativetick.h
+pkginclude_HEADERS += syncalgorithms/activesetconservativecom.h
+pkginclude_HEADERS += syncalgorithms/reactiveconservative.h
 
-include_HEADERS += util/callback.h
-include_HEADERS += util/simtime.h
-include_HEADERS += util/csimtime.h
+pkginclude_HEADERS += util/callback.h
+pkginclude_HEADERS += util/simtime.h
+pkginclude_HEADERS += util/csimtime.h
 
 AM_CPPFLAGS += -I$(top_srcdir)/commmanager
 AM_CPPFLAGS += -I$(top_srcdir)/syncalgorithms
@@ -107,8 +107,8 @@ tests_sanity_SOURCES = tests/sanity.cpp
 check_PROGRAMS += tests/messageTest
 tests_messageTest_SOURCES = tests/messageTest.cpp
 
-check_PROGRAMS += tests/realtime_sim
-tests_realtime_sim_SOURCES = tests/realtime_sim.cpp
+#check_PROGRAMS += tests/realtime_sim
+#tests_realtime_sim_SOURCES = tests/realtime_sim.cpp
 
 if HAVE_MPI
 check_PROGRAMS += tests/simmer

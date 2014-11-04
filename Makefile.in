@@ -55,18 +55,22 @@ build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = $(am__EXEEXT_1)
 check_PROGRAMS = tests/sanity$(EXEEXT) tests/messageTest$(EXEEXT) \
-	tests/realtime_sim$(EXEEXT) $(am__EXEEXT_2) $(am__EXEEXT_3)
+	$(am__EXEEXT_2) $(am__EXEEXT_3)
 @HAVE_ZMQ_TRUE@am__append_1 = zmqhelper.h zmqnetworkinterface.h
 @HAVE_MPI_TRUE@am__append_2 = mpinetworkinterface.h
 @HAVE_ZMQ_TRUE@am__append_3 = zmqhelper.cpp zmqnetworkinterface.cpp
 @HAVE_MPI_TRUE@am__append_4 = mpinetworkinterface.cpp
+
+#check_PROGRAMS += tests/realtime_sim
+#tests_realtime_sim_SOURCES = tests/realtime_sim.cpp
 @HAVE_MPI_TRUE@am__append_5 = tests/simmer
 @HAVE_ZMQ_TRUE@am__append_6 = fncsbroker
 @HAVE_ZMQ_TRUE@am__append_7 = tests/zimmer tests/simmerTransmission
 subdir = .
-DIST_COMMON = README $(am__configure_deps) $(am__include_HEADERS_DIST) \
-	$(noinst_HEADERS) $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(srcdir)/config.h.in $(top_srcdir)/configure INSTALL \
+DIST_COMMON = README $(am__configure_deps) \
+	$(am__pkginclude_HEADERS_DIST) $(noinst_HEADERS) \
+	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
+	$(srcdir)/config.h.in $(top_srcdir)/configure AUTHORS INSTALL \
 	build-aux/ar-lib build-aux/config.guess build-aux/config.sub \
 	build-aux/depcomp build-aux/install-sh build-aux/ltmain.sh \
 	build-aux/missing
@@ -122,7 +126,7 @@ am__uninstall_files_from_dir = { \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" \
-	"$(DESTDIR)$(includedir)"
+	"$(DESTDIR)$(pkgincludedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libfncs_la_LIBADD =
 am__libfncs_la_SOURCES_DIST = absnetworkinterface.cpp cintegrator.cpp \
@@ -189,11 +193,6 @@ tests_messageTest_OBJECTS = $(am_tests_messageTest_OBJECTS)
 tests_messageTest_LDADD = $(LDADD)
 tests_messageTest_DEPENDENCIES = libfncs.la $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
-am_tests_realtime_sim_OBJECTS = tests/realtime_sim.$(OBJEXT)
-tests_realtime_sim_OBJECTS = $(am_tests_realtime_sim_OBJECTS)
-tests_realtime_sim_LDADD = $(LDADD)
-tests_realtime_sim_DEPENDENCIES = libfncs.la $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
 am_tests_sanity_OBJECTS = tests/sanity.$(OBJEXT)
 tests_sanity_OBJECTS = $(am_tests_sanity_OBJECTS)
 tests_sanity_LDADD = $(LDADD)
@@ -247,13 +246,12 @@ AM_V_GEN = $(am__v_GEN_@AM_V@)
 am__v_GEN_ = $(am__v_GEN_@AM_DEFAULT_V@)
 am__v_GEN_0 = @echo "  GEN   " $@;
 SOURCES = $(libfncs_la_SOURCES) $(fncsbroker_SOURCES) \
-	$(tests_messageTest_SOURCES) $(tests_realtime_sim_SOURCES) \
-	$(tests_sanity_SOURCES) $(tests_simmer_SOURCES) \
-	$(tests_simmerTransmission_SOURCES) $(tests_zimmer_SOURCES)
+	$(tests_messageTest_SOURCES) $(tests_sanity_SOURCES) \
+	$(tests_simmer_SOURCES) $(tests_simmerTransmission_SOURCES) \
+	$(tests_zimmer_SOURCES)
 DIST_SOURCES = $(am__libfncs_la_SOURCES_DIST) \
 	$(am__fncsbroker_SOURCES_DIST) $(tests_messageTest_SOURCES) \
-	$(tests_realtime_sim_SOURCES) $(tests_sanity_SOURCES) \
-	$(am__tests_simmer_SOURCES_DIST) \
+	$(tests_sanity_SOURCES) $(am__tests_simmer_SOURCES_DIST) \
 	$(am__tests_simmerTransmission_SOURCES_DIST) \
 	$(am__tests_zimmer_SOURCES_DIST)
 am__can_run_installinfo = \
@@ -261,9 +259,9 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-am__include_HEADERS_DIST = absnetworkinterface.h cintegrator.h echo.h \
-	integrator.h message.h objectcomminterface.h zmqhelper.h \
-	zmqnetworkinterface.h mpinetworkinterface.h \
+am__pkginclude_HEADERS_DIST = absnetworkinterface.h cintegrator.h \
+	echo.h integrator.h message.h objectcomminterface.h \
+	zmqhelper.h zmqnetworkinterface.h mpinetworkinterface.h \
 	commmanager/abscommmanager.h \
 	commmanager/communicationcommanager.h \
 	commmanager/graceperiodcommmanager.h \
@@ -280,7 +278,7 @@ am__include_HEADERS_DIST = absnetworkinterface.h cintegrator.h echo.h \
 	syncalgorithms/activesetconservativecom.h \
 	syncalgorithms/reactiveconservative.h util/callback.h \
 	util/simtime.h util/csimtime.h
-HEADERS = $(include_HEADERS) $(noinst_HEADERS)
+HEADERS = $(noinst_HEADERS) $(pkginclude_HEADERS)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -428,7 +426,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
-include_HEADERS = absnetworkinterface.h cintegrator.h echo.h \
+pkginclude_HEADERS = absnetworkinterface.h cintegrator.h echo.h \
 	integrator.h message.h objectcomminterface.h $(am__append_1) \
 	$(am__append_2) commmanager/abscommmanager.h \
 	commmanager/communicationcommanager.h \
@@ -477,7 +475,6 @@ libfncs_la_SOURCES = absnetworkinterface.cpp cintegrator.cpp \
 	util/profiler.cpp
 tests_sanity_SOURCES = tests/sanity.cpp
 tests_messageTest_SOURCES = tests/messageTest.cpp
-tests_realtime_sim_SOURCES = tests/realtime_sim.cpp
 @HAVE_MPI_TRUE@tests_simmer_SOURCES = tests/simmer.cpp
 @HAVE_ZMQ_TRUE@fncsbroker_SOURCES = fncsbroker.cpp
 @HAVE_ZMQ_TRUE@tests_zimmer_SOURCES = tests/zimmer.cpp
@@ -715,11 +712,6 @@ tests/messageTest.$(OBJEXT): tests/$(am__dirstamp) \
 tests/messageTest$(EXEEXT): $(tests_messageTest_OBJECTS) $(tests_messageTest_DEPENDENCIES) $(EXTRA_tests_messageTest_DEPENDENCIES) tests/$(am__dirstamp)
 	@rm -f tests/messageTest$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(tests_messageTest_OBJECTS) $(tests_messageTest_LDADD) $(LIBS)
-tests/realtime_sim.$(OBJEXT): tests/$(am__dirstamp) \
-	tests/$(DEPDIR)/$(am__dirstamp)
-tests/realtime_sim$(EXEEXT): $(tests_realtime_sim_OBJECTS) $(tests_realtime_sim_DEPENDENCIES) $(EXTRA_tests_realtime_sim_DEPENDENCIES) tests/$(am__dirstamp)
-	@rm -f tests/realtime_sim$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(tests_realtime_sim_OBJECTS) $(tests_realtime_sim_LDADD) $(LIBS)
 tests/sanity.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
 tests/sanity$(EXEEXT): $(tests_sanity_OBJECTS) $(tests_sanity_DEPENDENCIES) $(EXTRA_tests_sanity_DEPENDENCIES) tests/$(am__dirstamp)
@@ -778,7 +770,6 @@ mostlyclean-compile:
 	-rm -f syncalgorithms/speculationtimecalculationstrategy.$(OBJEXT)
 	-rm -f syncalgorithms/speculationtimecalculationstrategy.lo
 	-rm -f tests/messageTest.$(OBJEXT)
-	-rm -f tests/realtime_sim.$(OBJEXT)
 	-rm -f tests/sanity.$(OBJEXT)
 	-rm -f tests/simmer.$(OBJEXT)
 	-rm -f tests/simmerTransmission.$(OBJEXT)
@@ -818,7 +809,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/reactiveconservative.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@syncalgorithms/$(DEPDIR)/speculationtimecalculationstrategy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/messageTest.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/realtime_sim.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/sanity.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/simmer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/simmerTransmission.Po@am__quote@
@@ -864,27 +854,27 @@ clean-libtool:
 
 distclean-libtool:
 	-rm -f libtool config.lt
-install-includeHEADERS: $(include_HEADERS)
+install-pkgincludeHEADERS: $(pkginclude_HEADERS)
 	@$(NORMAL_INSTALL)
-	@list='$(include_HEADERS)'; test -n "$(includedir)" || list=; \
+	@list='$(pkginclude_HEADERS)'; test -n "$(pkgincludedir)" || list=; \
 	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(includedir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(includedir)" || exit 1; \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(pkgincludedir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(pkgincludedir)" || exit 1; \
 	fi; \
 	for p in $$list; do \
 	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
 	  echo "$$d$$p"; \
 	done | $(am__base_list) | \
 	while read files; do \
-	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(includedir)'"; \
-	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(includedir)" || exit $$?; \
+	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(pkgincludedir)'"; \
+	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(pkgincludedir)" || exit $$?; \
 	done
 
-uninstall-includeHEADERS:
+uninstall-pkgincludeHEADERS:
 	@$(NORMAL_UNINSTALL)
-	@list='$(include_HEADERS)'; test -n "$(includedir)" || list=; \
+	@list='$(pkginclude_HEADERS)'; test -n "$(pkgincludedir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(includedir)'; $(am__uninstall_files_from_dir)
+	dir='$(DESTDIR)$(pkgincludedir)'; $(am__uninstall_files_from_dir)
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \
@@ -1107,7 +1097,7 @@ all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(HEADERS) config.h
 install-binPROGRAMS: install-libLTLIBRARIES
 
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(includedir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(pkgincludedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -1176,7 +1166,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-includeHEADERS
+install-data-am: install-pkgincludeHEADERS
 
 install-dvi: install-dvi-am
 
@@ -1224,8 +1214,8 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-binPROGRAMS uninstall-includeHEADERS \
-	uninstall-libLTLIBRARIES
+uninstall-am: uninstall-binPROGRAMS uninstall-libLTLIBRARIES \
+	uninstall-pkgincludeHEADERS
 
 .MAKE: all check-am install-am install-strip
 
@@ -1239,14 +1229,15 @@ uninstall-am: uninstall-binPROGRAMS uninstall-includeHEADERS \
 	dvi-am html html-am info info-am install install-am \
 	install-binPROGRAMS install-data install-data-am install-dvi \
 	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-includeHEADERS install-info \
-	install-info-am install-libLTLIBRARIES install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags uninstall uninstall-am uninstall-binPROGRAMS \
-	uninstall-includeHEADERS uninstall-libLTLIBRARIES
+	install-html-am install-info install-info-am \
+	install-libLTLIBRARIES install-man install-pdf install-pdf-am \
+	install-pkgincludeHEADERS install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
+	pdf pdf-am ps ps-am tags uninstall uninstall-am \
+	uninstall-binPROGRAMS uninstall-libLTLIBRARIES \
+	uninstall-pkgincludeHEADERS
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
